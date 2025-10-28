@@ -1,0 +1,106 @@
+{
+  "site": {
+    "name": "Paul Jeon",
+    "title": "Paul Jeon - Designer & Creative Developer",
+    "description": "Multidisciplinary designer and developer focused on creating meaningful digital experiences",
+    "url": "https://pauljeon.github.io",
+    "social": {
+      "email": "hello@pauljeon.com",
+      "github": "https://github.com/pauljeon",
+      "linkedin": "https://linkedin.com/in/pauljeon",
+      "twitter": "https://twitter.com/pauljeon",
+      "dribbble": "https://dribbble.com/pauljeon"
+    }
+  },
+  "pages": {
+    "home": {
+      "hero": {
+        "eyebrow": "HELLO, I'M",
+        "title": "Paul Jeon",
+        "subtitle": "Designer & Creative Developer",
+        "description": "I craft digital experiences at the intersection of design and code, turning ideas into beautiful, functional products."
+      },
+      "about": {
+        "title": "About",
+        "description": "I'm a multidisciplinary designer and developer focused on creating meaningful digital experiences that bridge the gap between form and function. With a background in both design and engineering, I approach problems holistically, ensuring that every pixel serves a purpose and every interaction feels intentional.",
+        "highlight": "Currently exploring the intersection of AI, design systems, and interactive storytelling."
+      }
+    },
+    "work": {
+      "title": "Work",
+      "subtitle": "Selected Projects",
+      "description": "A collection of projects spanning design systems, web applications, and interactive experiences."
+    },
+    "about": {
+      "title": "About Me",
+      "sections": [
+        {
+          "title": "Background",
+          "content": "I'm a multidisciplinary designer and developer with a passion for creating digital experiences that combine thoughtful design with robust engineering. My journey started in traditional graphic design, but I quickly found myself drawn to the limitless possibilities of web development."
+        },
+        {
+          "title": "Approach",
+          "content": "I believe the best products are built when design and development work hand in hand from the start. Every project I work on is an opportunity to push boundaries, experiment with new techniques, and create something meaningful."
+        },
+        {
+          "title": "Current Focus",
+          "content": "I'm currently exploring the intersection of AI, design systems, and interactive storytelling. I'm fascinated by how emerging technologies can enhance human creativity and communication."
+        }
+      ],
+      "skills": [
+        { "category": "Design", "items": ["UI/UX Design", "Design Systems", "Branding", "Prototyping"] },
+        { "category": "Development", "items": ["React", "TypeScript", "Node.js", "Next.js"] },
+        { "category": "Tools", "items": ["Figma", "Framer", "Git", "Vercel"] }
+      ]
+    },
+    "contact": {
+      "title": "Get In Touch",
+      "subtitle": "Let's work together",
+      "description": "I'm always open to discussing new projects, creative ideas, or opportunities to collaborate.",
+      "email": {
+        "label": "Email",
+        "value": "hello@pauljeon.com",
+        "link": "mailto:hello@pauljeon.com"
+      },
+      "form": {
+        "name": { "label": "Name", "placeholder": "Your name" },
+        "email": { "label": "Email", "placeholder": "your@email.com" },
+        "message": { "label": "Message", "placeholder": "Tell me about your project..." },
+        "submit": "Send Message"
+      }
+    }
+  },
+  "projects": [
+    {
+      "id": "project-1",
+      "title": "Design System",
+      "description": "A comprehensive design system for a fintech startup, including component library, documentation, and implementation guidelines.",
+      "category": "Design System",
+      "year": "2024",
+      "tags": ["Design", "React", "Storybook"],
+      "image": "/images/project-1.jpg",
+      "link": "#"
+    },
+    {
+      "id": "project-2",
+      "title": "E-Commerce Platform",
+      "description": "A modern e-commerce platform built with Next.js, featuring advanced filtering, real-time inventory, and seamless checkout.",
+      "category": "Web Development",
+      "year": "2024",
+      "tags": ["Next.js", "TypeScript", "Tailwind"],
+      "image": "/images/project-2.jpg",
+      "link": "#"
+    },
+    {
+      "id": "project-3",
+      "title": "Brand Identity",
+      "description": "Complete brand identity for a sustainable fashion brand, including logo, packaging, and digital presence.",
+      "category": "Branding",
+      "year": "2023",
+      "tags": ["Branding", "Logo Design", "Identity"],
+      "image": "/images/project-3.jpg",
+      "link": "#"
+    }
+  ]
+}
+
