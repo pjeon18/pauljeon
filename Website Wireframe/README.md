@@ -2,6 +2,10 @@
 
 A fast, accessible personal portfolio website built with React, TypeScript, Vite, Tailwind CSS, and Framer Motion.
 
+## 🚀 Deployment
+
+This site is automatically deployed to GitHub Pages when changes are pushed to the main branch.
+
 ## 🚀 Features
 
 - **Modern Stack**: React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion
