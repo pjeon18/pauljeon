@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import content from '../../lib/content';
+import content from '../lib/content';
 import { Container } from '../components/layout/Container';
 import { Section } from '../components/layout/Section';
 import { Heading } from '../components/ui/Heading';

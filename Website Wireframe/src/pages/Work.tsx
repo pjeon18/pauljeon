@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import content from '../../lib/content';
+import content from '../lib/content';
 import { Container } from '../components/layout/Container';
 import { Section } from '../components/layout/Section';
 import { Heading } from '../components/ui/Heading';
 import { Text } from '../components/ui/Text';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { Reveal } from '../components/ui/Reveal';
 
 export default function Work() {

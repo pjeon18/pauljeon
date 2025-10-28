@@ -1,5 +1,3 @@
-import content from '../../content/copy.json';
-
 export interface Content {
   site: {
     name: string;
@@ -73,5 +71,8 @@ export interface Content {
   }>;
 }
 
-export default content as Content;
+import contentData from '../../content/copy.json';
 
+const content: Content = contentData as any;
+
+export default content;
