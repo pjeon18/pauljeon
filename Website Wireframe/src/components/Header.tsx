@@ -13,8 +13,35 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // For home page, use anchor links; for other pages, use route links
-  const isHomePage = location.pathname === '/';
+  useEffect(() => {
+    // Smooth scroll for anchor links
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
+        e.preventDefault();
+        const href = target.getAttribute('href');
+        if (href) {
+          const element = document.querySelector(href);
+          if (element) {
+            const headerHeight = 80;
+            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementPosition - headerHeight;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+
+            // Update URL without scroll
+            window.history.pushState(null, '', href);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('click', handleAnchorClick);
+    return () => document.removeEventListener('click', handleAnchorClick);
+  }, []);
 
   return (
     <header 
@@ -25,76 +52,39 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-8 lg:px-16">
         <div className="flex items-center justify-between py-6">
           {/* Logo/Name */}
-          <Link 
-            to="/" 
+          <a 
+            href="#top" 
             className="text-xl tracking-tight hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
           >
             PAUL JEON
-          </Link>
+          </a>
 
           {/* Navigation */}
           <nav className="flex items-center gap-8">
-            {isHomePage ? (
-              <>
-                <a 
-                  href="#about" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-                >
-                  ABOUT
-                </a>
-                <a 
-                  href="#work" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-                >
-                  WORK
-                </a>
-                <a 
-                  href="#resume" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-                >
-                  RESUME
-                </a>
-                <a 
-                  href="#contact" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-                >
-                  CONTACT
-                </a>
-              </>
-            ) : (
-              <>
-                <Link 
-                  to="/about" 
-                  className={`text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded ${
-                    location.pathname === '/about' ? 'opacity-100' : ''
-                  }`}
-                >
-                  ABOUT
-                </Link>
-                <Link 
-                  to="/work" 
-                  className={`text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded ${
-                    location.pathname === '/work' ? 'opacity-100' : ''
-                  }`}
-                >
-                  WORK
-                </Link>
-                <Link 
-                  to="/#resume" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-                >
-                  RESUME
-                </Link>
-                <Link 
-                  to="/contact" 
-                  className={`text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded ${
-                    location.pathname === '/contact' ? 'opacity-100' : ''
-                  }`}
-                >
-                  CONTACT
-                </Link>
-              </>
-            )}
+            <a 
+              href="#about" 
+              className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+            >
+              ABOUT
+            </a>
+            <a 
+              href="#work" 
+              className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+            >
+              WORK
+            </a>
+            <a 
+              href="#resume" 
+              className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+            >
+              RESUME
+            </a>
+            <a 
+              href="#contact" 
+              className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+            >
+              CONTACT
+            </a>
           </nav>
         </div>
       </div>

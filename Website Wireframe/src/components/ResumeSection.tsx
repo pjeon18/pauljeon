@@ -70,7 +70,7 @@ export function ResumeSection() {
     <section 
       id="resume" 
       ref={sectionRef}
-      className="min-h-screen px-8 lg:px-16 py-32 bg-gray-50"
+      className="min-h-screen px-8 lg:px-16 py-32 bg-gray-50 scroll-mt-20"
     >
       <div className="max-w-7xl mx-auto">
         <div 

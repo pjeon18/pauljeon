@@ -102,7 +102,7 @@ export function WorksSection() {
       <section 
         id="work" 
         ref={sectionRef}
-        className="min-h-screen px-8 lg:px-16 py-32"
+        className="min-h-screen px-8 lg:px-16 py-32 scroll-mt-20"
       >
         <div className="max-w-7xl mx-auto">
           <div 

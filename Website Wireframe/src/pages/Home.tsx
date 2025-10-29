@@ -7,7 +7,7 @@ import { ContactSection } from '../components/ContactSection';
 export default function Home() {
   return (
     <>
-      <div id="top" />
+      <div id="top" className="h-0" />
       <Header />
       <main>
         <AboutSection />
