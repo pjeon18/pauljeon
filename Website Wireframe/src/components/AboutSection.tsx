@@ -1,26 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { Typewriter } from './ui/Typewriter';
-import { prefersReducedMotion } from '../lib/utilities';
 
 export function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [shouldType, setShouldType] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    setReducedMotion(prefersReducedMotion());
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          // Small delay before starting typing animation
-          setTimeout(() => {
-            setShouldType(true);
-          }, 500);
         }
       },
       { threshold: 0.2 }
@@ -63,53 +51,40 @@ export function AboutSection() {
             </div>
             
             <div className="space-y-6 text-lg text-gray-700 max-w-xl">
-              {reducedMotion || !shouldType ? (
-                <>
-                  <p>
-                    I'm a multidisciplinary designer and developer focused on creating 
-                    meaningful digital experiences that bridge the gap between form and function.
-                  </p>
-                  <p>
-                    With a background in both design and engineering, I approach problems 
-                    holistically, ensuring that every pixel serves a purpose and every 
-                    interaction feels intentional.
-                  </p>
-                  <p>
-                    Currently exploring the intersection of AI, design systems, and 
-                    interactive storytelling.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p>
-                    {shouldType && (
-                      <Typewriter
-                        text="I'm a multidisciplinary designer and developer focused on creating meaningful digital experiences that bridge the gap between form and function."
-                        speed={20}
-                        startDelay={200}
-                      />
-                    )}
-                  </p>
-                  <p>
-                    {shouldType && (
-                      <Typewriter
-                        text="With a background in both design and engineering, I approach problems holistically, ensuring that every pixel serves a purpose and every interaction feels intentional."
-                        speed={20}
-                        startDelay={3000}
-                      />
-                    )}
-                  </p>
-                  <p>
-                    {shouldType && (
-                      <Typewriter
-                        text="Currently exploring the intersection of AI, design systems, and interactive storytelling."
-                        speed={20}
-                        startDelay={6500}
-                      />
-                    )}
-                  </p>
-                </>
-              )}
+              <p
+                className={`transition-all duration-1000 ${
+                  isVisible 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: '200ms' }}
+              >
+                I'm a multidisciplinary designer and developer focused on creating 
+                meaningful digital experiences that bridge the gap between form and function.
+              </p>
+              <p
+                className={`transition-all duration-1000 ${
+                  isVisible 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: '400ms' }}
+              >
+                With a background in both design and engineering, I approach problems 
+                holistically, ensuring that every pixel serves a purpose and every 
+                interaction feels intentional.
+              </p>
+              <p
+                className={`transition-all duration-1000 ${
+                  isVisible 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: '600ms' }}
+              >
+                Currently exploring the intersection of AI, design systems, and 
+                interactive storytelling.
+              </p>
             </div>
 
 
