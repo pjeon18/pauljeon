@@ -158,7 +158,7 @@ export function ResumeSection() {
 
             <div className="mt-12">
               <a 
-                href="/pauljeon/resume.pdf" 
+                href={`${import.meta.env.BASE_URL}resume.pdf`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm hover:gap-4 transition-all duration-300 border-b border-black pb-1"
