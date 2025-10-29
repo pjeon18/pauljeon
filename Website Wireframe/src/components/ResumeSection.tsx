@@ -9,36 +9,50 @@ type Experience = {
 
 const experiences: Experience[] = [
   {
-    title: 'Senior Product Designer',
-    company: 'Tech Company',
-    period: '2022 — Present',
-    description: 'Leading design initiatives for core product features, establishing design systems, and mentoring junior designers.'
+    title: 'Procurement Manager',
+    company: 'The Harvard Shop',
+    period: 'September 2023 — February 2025',
+    description: 'Managed warehouse inventory of $7.8M across 1100+ SKUs for three retail locations and an online store. Decreased web stockout from 5.32% to 1.90% with weekly analysis and prioritizing low inventory SKUs. Reached record-high profit margins at 65% by optimizing product outflow such as by supplier pre-ticketing. Increased revenue 47% YoY ($370K) by automating high-demand product orders via Python API integration with Lightspeed, while growing inventory 64% to $1.9M and improving margins. Maintained partnerships with brands (Nike, Champion, Patagonia, Peter Millar) to ensure quality products. Led weekly alignment meetings with the stores, marketing, product teams to coordinate new campaigns.'
+  },
+  {
+    title: 'Marketing Analytics Intern',
+    company: 'The Harvard Shop',
+    period: 'June 2023 — August 2023',
+    description: 'Used digital marketing tools to analyze return on ad spend on Meta and conversion/open rates of emails. Conducted user research on 150,000+ registered online customers through survey and A/B testing of email format, checkout flow, and pop-up campaigns via Klaviyo, Shopify, and Lightspeed. Designed layouts for summer email marketing campaign, generating $8,000+ in attributed campaigns. Strategized and launched SMS campaign as a final project, presenting case study to the board of directors.'
+  },
+  {
+    title: 'Director of Growth',
+    company: 'Harvard Undergraduate Marketing Group',
+    period: 'September 2025 — Present',
+    description: 'Secure external funding and sponsorships from local brands and companies for student-oriented marketing. Lead weekly meetings to build organizational reach to student base for Gen-Z focused marketing.'
   },
   {
     title: 'UI/UX Designer',
-    company: 'Design Studio',
-    period: '2020 — 2022',
-    description: 'Designed digital experiences for clients across various industries, focusing on user-centered design principles.'
+    company: 'Tech for Social Good',
+    period: 'February 2025 — May 2025',
+    description: 'Designed prototype sign-up website (lo-fi & hi-fi in Figma) for college-application mentorship nonprofit. Conducted user research via surveys and interviews; presented design iterations weekly to company board.'
   },
   {
-    title: 'Junior Designer',
-    company: 'Creative Agency',
-    period: '2018 — 2020',
-    description: 'Contributed to branding projects, website designs, and marketing campaigns for diverse clientele.'
+    title: 'Design Chair',
+    company: 'Harvard Korean Association',
+    period: 'May 2024 — May 2025',
+    description: 'Designed and published all graphics, merchandise, and brand material for Korean cultural organization. Organized marketing campaign and sponsored collaborations with 10+ global Korean brands and local restaurants for 300+ students.'
   },
 ];
 
 const skills = [
-  'Product Design',
+  'Procurement Management',
+  'Inventory Optimization',
+  'Marketing Analytics',
   'UI/UX Design',
-  'Design Systems',
-  'Prototyping',
-  'Front-end Development',
-  'Motion Design',
-  'Brand Identity',
+  'User Research',
   'Figma',
-  'React',
-  'TypeScript',
+  'Python',
+  'Data Analysis',
+  'Brand Design',
+  'Growth Strategy',
+  'A/B Testing',
+  'Email Marketing',
 ];
 
 export function ResumeSection() {
