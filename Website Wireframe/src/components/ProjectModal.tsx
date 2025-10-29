@@ -76,7 +76,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
           {/* Image Carousel - Instagram-style */}
           <div className="lg:col-span-3 relative bg-black flex items-center justify-center h-[40vh] lg:h-[85vh] overflow-hidden">
             {/* Fixed container to prevent reflow */}
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <AnimatePresence initial={false} custom={direction} mode="wait">
                 <motion.img
                   key={currentImageIndex}
@@ -116,21 +116,33 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
             {project.images.length > 1 && (
               <>
                 <button
+                  type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     prevImage();
                   }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-black rounded-full w-10 h-10 flex items-center justify-center transition-all z-20 shadow-lg"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-black rounded-full w-10 h-10 flex items-center justify-center transition-all z-30 shadow-lg pointer-events-auto"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
+                  type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     nextImage();
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-black rounded-full w-10 h-10 flex items-center justify-center transition-all z-20 shadow-lg"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-black rounded-full w-10 h-10 flex items-center justify-center transition-all z-30 shadow-lg pointer-events-auto"
                   aria-label="Next image"
                 >
                   <ChevronRight className="w-5 h-5" />
