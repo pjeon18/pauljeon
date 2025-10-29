@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from './ui/dialog';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from './ui/button';
+import { Button } from './ui/Button';
 import type { Project } from './WorksSection';
 
 type ProjectModalProps = {

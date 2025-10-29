@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Grid3x3, List } from 'lucide-react';
-import { Button } from './ui/button';
+import { Button } from './ui/Button';
 import { ProjectModal } from './ProjectModal';
 
 export type Project = {
@@ -120,7 +120,7 @@ export function WorksSection() {
             {/* View Toggle */}
             <div className="flex gap-2 border border-gray-300 rounded-sm overflow-hidden">
               <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                variant={viewMode === 'list' ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('list')}
                 className="rounded-none"
@@ -128,7 +128,7 @@ export function WorksSection() {
                 <List className="w-4 h-4" />
               </Button>
               <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                variant={viewMode === 'grid' ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
                 className="rounded-none"

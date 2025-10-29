@@ -1,5 +1,5 @@
 import { Card } from './ui/card';
-import { Button } from './ui/button';
+import { Button } from './ui/Button';
 import { X, ChevronUp, ChevronDown } from 'lucide-react';
 import type { WireframeComponent } from '../App';
 import { WireframeBlock } from './WireframeBlock';
