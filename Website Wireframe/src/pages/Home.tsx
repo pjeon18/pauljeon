@@ -1,3 +1,4 @@
+import { Header } from '../components/Header';
 import { AboutSection } from '../components/AboutSection';
 import { WorksSection } from '../components/WorksSection';
 import { ResumeSection } from '../components/ResumeSection';
@@ -7,6 +8,7 @@ export default function Home() {
   return (
     <>
       <div id="top" className="h-0" />
+      <Header />
       <main>
         <AboutSection />
         <WorksSection />
