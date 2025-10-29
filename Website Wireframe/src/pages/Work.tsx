@@ -4,7 +4,7 @@ import { Container } from '../components/layout/Container';
 import { Section } from '../components/layout/Section';
 import { Heading } from '../components/ui/Heading';
 import { Text } from '../components/ui/Text';
-import { Button } from '../components/ui/button';
+import { Button } from '../components/ui/Button';
 import { Reveal } from '../components/ui/Reveal';
 
 export default function Work() {

@@ -5,6 +5,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
+  as?: React.ElementType;
+  to?: string;
 }
 
 const variantClasses = {
@@ -25,10 +27,16 @@ export function Button({
   variant = 'primary',
   size = 'md',
   className,
+  as: Component = 'button',
+  to,
   ...props
 }: ButtonProps) {
+  const componentProps = Component === 'button' 
+    ? props 
+    : { to, ...props };
+
   return (
-    <button
+    <Component
       className={cn(
         'inline-flex items-center justify-center rounded-md font-medium transition-colors',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
@@ -37,9 +45,9 @@ export function Button({
         sizeClasses[size],
         className
       )}
-      {...props}
+      {...componentProps}
     >
       {children}
-    </button>
+    </Component>
   );
 }
