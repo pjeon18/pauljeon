@@ -29,7 +29,7 @@ export function AboutSection() {
     <section 
       id="about" 
       ref={sectionRef}
-      className="min-h-screen flex items-center justify-center px-8 lg:px-16 pt-32 pb-24 scroll-mt-20"
+      className="min-h-screen flex items-center justify-center px-8 lg:px-16 py-24 scroll-mt-20"
     >
       <div className="max-w-7xl w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
