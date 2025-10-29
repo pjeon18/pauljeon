@@ -99,10 +99,25 @@ export function AboutSection() {
             }`}
           >
             <div className="aspect-[3/4] bg-gray-100 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-32 h-32 border-2 border-gray-400 rounded-full opacity-20" />
-              </div>
+              <img
+                src={`${import.meta.env.BASE_URL}aboutprofile.jpeg`}
+                alt="Paul Jeon"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  // Fallback to placeholder if image doesn't load
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `
+                      <div class="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 group-hover:scale-105 transition-transform duration-700"></div>
+                      <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-32 h-32 border-2 border-gray-400 rounded-full opacity-20"></div>
+                      </div>
+                    `;
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
