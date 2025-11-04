@@ -51,40 +51,71 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto px-8 lg:px-16">
         <div className="flex items-center justify-between py-6">
-          {/* Logo/Name */}
-          <a 
-            href="#top" 
-            className="text-xl tracking-tight hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-          >
-            PAUL JEON
-          </a>
+              {/* Logo/Name */}
+              <Link 
+                to="/"
+                className="text-xl tracking-tight hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+              >
+                PAUL JEON
+              </Link>
 
           {/* Navigation */}
           <nav className="flex items-center gap-8">
-            <a 
-              href="#about" 
-              className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-            >
-              ABOUT
-            </a>
-            <a 
-              href="#work" 
-              className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-            >
-              WORK
-            </a>
-            <a 
-              href="#resume" 
-              className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-            >
-              RESUME
-            </a>
-            <a 
-              href="#contact" 
-              className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-            >
-              CONTACT
-            </a>
+            {location.pathname === '/' ? (
+              <>
+                <a 
+                  href="#about" 
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                >
+                  ABOUT
+                </a>
+                <a 
+                  href="#work" 
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                >
+                  WORK
+                </a>
+                <a 
+                  href="#resume" 
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                >
+                  RESUME
+                </a>
+                <a 
+                  href="#contact" 
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                >
+                  CONTACT
+                </a>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/#about"
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                >
+                  ABOUT
+                </Link>
+                <Link 
+                  to="/work"
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                >
+                  WORK
+                </Link>
+                <Link 
+                  to="/#resume"
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                >
+                  RESUME
+                </Link>
+                <Link 
+                  to="/#contact"
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                >
+                  CONTACT
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </div>
