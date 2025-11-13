@@ -4,6 +4,7 @@ import { Header } from '../components/Header';
 import { projects, type Project } from '../content/projects';
 import FigmaEmbed, { setQueryParam } from '../components/FigmaEmbed';
 import SlideNav from '../components/SlideNav';
+import SlidesEmbed from '../components/SlidesEmbed';
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -116,6 +117,24 @@ export default function ProjectDetail() {
                 {project.body}
               </p>
             </div>
+
+            {/* Google Slides Embed */}
+            {project.slidesEmbedSrc && (
+              <div className="my-12">
+                <SlidesEmbed embedSrc={project.slidesEmbedSrc} title={project.title} />
+                <p className="mt-2 text-sm text-gray-600">
+                  If the embed doesn't load,{" "}
+                  <a
+                    href={project.slidesEmbedSrc}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline hover:text-black transition-colors"
+                  >
+                    open in Google Slides ↗
+                  </a>.
+                </p>
+              </div>
+            )}
 
             {/* Figma Embed */}
             {project.figmaEmbedSrc && (

@@ -9,6 +9,7 @@ export type Project = {
   timeframe?: string;
   figmaEmbedSrc?: string;
   slideAnchors?: { label: string; pageId: string }[];
+  slidesEmbedSrc?: string;
 };
 
 export const projects: Project[] = [
@@ -62,7 +63,8 @@ export const projects: Project[] = [
     summary: "Research → lo-fi → hi-fi Figma; clearer signup flow to lift conversions.",
     body: "Working as a UI/UX Designer on a six-person team (PM, senior designer, and peers), I redesigned the sign-up flow for a college-application mentorship nonprofit. The problem was low completion from interest to enrollment due to unclear value prop and too many steps. I led research (surveys and interviews), mapped the funnel, and produced lo-fi wires through hi-fi Figma comps, presenting weekly to the board for feedback and alignment. The final design reduced cognitive load with a clearer hierarchy, progressive disclosure, and responsive components ready for developer handoff. We defined success metrics (conversion rate, drop-off by step) and an experimentation plan so the organization could measure impact post-launch.",
     tags: ["UX research","Figma","Accessibility"],
-    metrics: ["Board-approved package","Developer-ready components","Defined conversion metrics"]
+    metrics: ["Board-approved package","Developer-ready components","Defined conversion metrics"],
+    slidesEmbedSrc: "https://docs.google.com/presentation/d/14DxxD_gE-jV-Zqnwor8psF4STy90mx-xkbY_e_1rokY/embed?start=false&loop=false&delayms=3000"
   },
   {
     slug: "emr-exhibit",
