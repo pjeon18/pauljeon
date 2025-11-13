@@ -7,6 +7,8 @@ export type Project = {
   tags: string[];
   metrics: string[];
   timeframe?: string;
+  figmaEmbedSrc?: string;
+  slideAnchors?: { label: string; pageId: string }[];
 };
 
 export const projects: Project[] = [
@@ -18,6 +20,31 @@ export const projects: Project[] = [
     body: "As Procurement Manager for The Harvard Shop, I was tasked with modernizing an aging apparel line while controlling risk across a complex catalog of 3,000+ SKUs. I led forecasting and SKU rationalization, ran vendor RFPs and negotiations, and designed the entire FY25 line—over 90 new products—balancing trend, brand, and margin constraints. I built a buy plan that enforced MOQs, lead times, and target costs, and coordinated rollout with marketing and store teams. The result was a refreshed assortment that protected ~60% gross margins, supported $1.8M in managed inventory, and contributed to $5.8M in revenue. Beyond the numbers, the work aligned operations, design, and merchandising around a single plan so the team could move faster with less waste.",
     tags: ["Retail ops","Product design","Forecasting","Vendor management"],
     metrics: ["$1.8M inventory managed","3,000+ SKUs","90+ new products","~60% gross margin","$5.8M revenue"]
+  },
+  {
+    slug: "peace-brand",
+    title: ":PEACE — Micro-brand Concept & Apparel System (Design Ethos Final)",
+    role: "Brand & Product Designer",
+    summary: "A hand-drawn streetwear concept that turns the peace sign into a scalable brand system.",
+    body: "Created for the Cactus Jack Design Ethos Final Project, I built :PEACE as a friendly, hand-drawn streetwear concept that turns the universally understood \"V/peace\" sign into a repeatable brand system. The deck walks through brand values (spreading peace with simple, down-to-earth graphics), cultural context of the \"브이 / V-sign,\" and how the gesture's meaning flipped from \"victory\" to \"peace.\" It then traces visual influences (Stüssy's bold iconography; Comme des Garçons' conceptual minimalism), early logo/mascot explorations, and apparel mockups that apply the mark across tees and hoodies. The outcome is a compact toolkit—icon, wordmarks, pattern tiles, and type—that can scale from prints to product while keeping the message legible and warm.",
+    tags: ["Brand design","Apparel","Illustration","Storytelling"],
+    metrics: ["Brand values & story","Explorations & mockups","Concept art sheet"],
+    figmaEmbedSrc: "https://embed.figma.com/slides/mGIxEIwX8c6h3O7bw4W1Ep/Untitled?node-id=1-42&embed-host=share",
+    slideAnchors: [
+      { label: "Title",            pageId: "1-42" },
+      { label: "Brand values",     pageId: "17-274" },
+      { label: "Vision & story",   pageId: "3-129" },
+      { label: "History",          pageId: "10-53" },
+      { label: "Inspiration",      pageId: "3-310" },
+      { label: "Art board",        pageId: "13-165" },
+      { label: "Mockups",          pageId: "3-185" },
+      { label: "Concept art",      pageId: "3-157" },
+      { label: "Designer note",    pageId: "17-201" },
+      { label: "Slide 10",         pageId: "17-194" },
+      { label: "Slide 11",         pageId: "3-323" },
+      { label: "Slide 12",         pageId: "17-299" },
+      { label: "Slide 13",         pageId: "17-251" }
+    ]
   },
   {
     slug: "social-length",

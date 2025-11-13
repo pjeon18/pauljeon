@@ -42,23 +42,15 @@ export function WorksSection() {
                 : 'opacity-0 translate-y-12'
             }`}
           >
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <h2 className="text-sm tracking-widest text-gray-500 mb-4">SELECTED WORK</h2>
-                <h3 className="text-4xl lg:text-5xl">Recent Projects</h3>
-              </div>
-              <Link 
-                to="/work"
-                className="text-sm text-gray-600 hover:text-black transition-colors border-b border-transparent hover:border-black"
-              >
-                View All →
-              </Link>
+            <div className="mb-8">
+              <h2 className="text-sm tracking-widest text-gray-500 mb-4">SELECTED WORK</h2>
+              <h3 className="text-4xl lg:text-5xl">Recent Projects</h3>
             </div>
           </div>
 
-          {/* Project Preview Cards - Text Only */}
+          {/* Project Cards - Text Only */}
           <div className="space-y-4">
-            {projects.slice(0, 3).map((project, index) => (
+            {projects.map((project, index) => (
               <Link
                 key={project.slug}
                 to={`/work/${project.slug}`}
@@ -67,7 +59,7 @@ export function WorksSection() {
                     ? 'opacity-100 translate-y-0' 
                     : 'opacity-0 translate-y-8'
                 }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
+                style={{ transitionDelay: `${index * 75}ms` }}
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="flex-1">
@@ -80,7 +72,7 @@ export function WorksSection() {
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 lg:ml-4">
-                    {project.tags.slice(0, 3).map((tag, tagIndex) => (
+                    {project.tags.slice(0, 4).map((tag, tagIndex) => (
                       <span
                         key={tagIndex}
                         className="px-2 py-1 text-xs bg-gray-100 border border-gray-300"
