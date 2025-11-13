@@ -1,11 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { projects, type Project } from '../content/projects';
+import FigmaEmbed, { setQueryParam } from '../components/FigmaEmbed';
+import SlideNav from '../components/SlideNav';
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
   const project = projects.find((p: Project) => p.slug === slug);
+  const [pageId, setPageId] = useState<string | undefined>(
+    project?.slideAnchors?.[0]?.pageId
+  );
+
+  // Update pageId when project changes
+  useEffect(() => {
+    if (project?.slideAnchors?.[0]?.pageId) {
+      setPageId(project.slideAnchors[0].pageId);
+    }
+  }, [project]);
 
   useEffect(() => {
     if (project) {
@@ -99,11 +111,42 @@ export default function ProjectDetail() {
             )}
 
             {/* Body Content */}
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-lg max-w-none mb-12">
               <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
                 {project.body}
               </p>
             </div>
+
+            {/* Figma Embed */}
+            {project.figmaEmbedSrc && (
+              <div className="my-12">
+                {project.slideAnchors && project.slideAnchors.length > 0 && (
+                  <SlideNav
+                    anchors={project.slideAnchors}
+                    active={pageId}
+                    onChange={setPageId}
+                    activeHref={pageId ? setQueryParam(project.figmaEmbedSrc, "page-id", pageId) : project.figmaEmbedSrc}
+                  />
+                )}
+                <FigmaEmbed 
+                  embedSrc={project.figmaEmbedSrc} 
+                  title={project.title} 
+                  pageId={pageId}
+                />
+                {project.slideAnchors && project.slideAnchors.length > 0 && pageId && (
+                  <div className="mt-2 text-sm">
+                    <a 
+                      href={setQueryParam(project.figmaEmbedSrc, "page-id", pageId)} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="underline hover:text-black transition-colors"
+                    >
+                      Open active slide ↗
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </article>
       </main>
