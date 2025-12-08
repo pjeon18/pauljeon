@@ -1,7 +1,6 @@
 import { Header } from '../components/Header';
 import { AboutSection } from '../components/AboutSection';
 import { WorksSection } from '../components/WorksSection';
-import { ResumeSection } from '../components/ResumeSection';
 import { ContactSection } from '../components/ContactSection';
 
 export default function Home() {
@@ -12,7 +11,6 @@ export default function Home() {
       <main>
         <AboutSection />
         <WorksSection />
-        <ResumeSection />
         <ContactSection />
       </main>
     </>
