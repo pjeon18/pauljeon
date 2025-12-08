@@ -105,10 +105,10 @@ export const projects: Project[] = [
     gallery: [
       { src: "email1.png", alt: "4th of July sitewide promo email" },
       { src: "email2.png", alt: "Dorm room essentials email" },
-      { src: "email4.png", alt: "Harvard Shop product feature email" },
       { src: "email7.png", alt: "Harvard Shop on film collage email" },
       { src: "email6.png", alt: "Graduation styles email" },
-      { src: "email3.png", alt: "New website launch email" }
+      { src: "email3.png", alt: "New website launch email" },
+      { src: "email4.png", alt: "Harvard Shop product feature email" }
     ]
   },
   {
