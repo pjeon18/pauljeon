@@ -13,6 +13,7 @@ export type Project = {
   documents?: { label: string; href: string }[];
   link?: string;
   linkLabel?: string;
+  gallery?: { src: string; alt?: string }[];
 };
 
 export const projects: Project[] = [
@@ -100,7 +101,15 @@ export const projects: Project[] = [
     summary: "Modular Klaviyo emails with weekly analytics; $8k+ attributed revenue.",
     body: "As a marketing intern, I owned the design and execution of a summer email campaign. I created layouts in Adobe Creative Suite, built and scheduled them in Klaviyo, and set up basic segmentation and A/B tests on subject lines and hero modules. I also coordinated product photoshoots with student models to source authentic visuals and reported weekly performance to leadership. The campaign generated over $8,000 in attributed revenue, and the modular template system I built allowed the team to spin up new sends quickly with consistent brand quality. This work shows how I connect creative, operations, and analytics to drive measurable outcomes.",
     tags: ["Email","Klaviyo","A/B testing"],
-    metrics: ["$8,000+ attributed revenue","Weekly performance reports","Reusable templates"]
+    metrics: ["$8,000+ attributed revenue","Weekly performance reports","Reusable templates"],
+    gallery: [
+      { src: "marketing-email-01.jpg", alt: "4th of July sitewide promo email" },
+      { src: "marketing-email-02.jpg", alt: "Dorm room essentials email" },
+      { src: "marketing-email-03.jpg", alt: "New website launch email" },
+      { src: "marketing-email-04.jpg", alt: "Harvard Shop product feature email" },
+      { src: "marketing-email-05.jpg", alt: "Graduation styles email" },
+      { src: "marketing-email-06.jpg", alt: "Harvard Shop on film collage email" }
+    ]
   },
   {
     slug: "humg-growth",
