@@ -131,6 +131,26 @@ export default function ProjectDetail() {
               )}
             </div>
 
+            {/* Gallery */}
+            {project.gallery && project.gallery.length > 0 && (
+              <div className="mb-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {project.gallery.map((item, idx) => {
+                  const resolvedSrc = item.src.startsWith('http')
+                    ? item.src
+                    : `${import.meta.env.BASE_URL}${item.src}`;
+                  return (
+                    <div key={idx} className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+                      <img
+                        src={resolvedSrc}
+                        alt={item.alt ?? project.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Documents (PDF embeds) */}
             {project.documents && project.documents.length > 0 && (
               <div className="space-y-8 mb-12">
