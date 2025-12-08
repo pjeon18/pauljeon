@@ -103,12 +103,12 @@ export const projects: Project[] = [
     tags: ["Email","Klaviyo","A/B testing"],
     metrics: ["$8,000+ attributed revenue","Weekly performance reports","Reusable templates"],
     gallery: [
-      { src: "marketing-email-01.jpg", alt: "4th of July sitewide promo email" },
-      { src: "marketing-email-02.jpg", alt: "Dorm room essentials email" },
-      { src: "marketing-email-03.jpg", alt: "New website launch email" },
-      { src: "marketing-email-04.jpg", alt: "Harvard Shop product feature email" },
-      { src: "marketing-email-05.jpg", alt: "Graduation styles email" },
-      { src: "marketing-email-06.jpg", alt: "Harvard Shop on film collage email" }
+      { src: "email1.png", alt: "4th of July sitewide promo email" },
+      { src: "email2.png", alt: "Dorm room essentials email" },
+      { src: "email4.png", alt: "Harvard Shop product feature email" },
+      { src: "email7.png", alt: "Harvard Shop on film collage email" },
+      { src: "email6.png", alt: "Graduation styles email" },
+      { src: "email3.png", alt: "New website launch email" }
     ]
   },
   {

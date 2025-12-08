@@ -139,11 +139,14 @@ export default function ProjectDetail() {
                     ? item.src
                     : `${import.meta.env.BASE_URL}${item.src}`;
                   return (
-                    <div key={idx} className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+                    <div
+                      key={idx}
+                      className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white"
+                    >
                       <img
                         src={resolvedSrc}
                         alt={item.alt ?? project.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-auto block"
                       />
                     </div>
                   );
