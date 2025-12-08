@@ -10,9 +10,25 @@ export type Project = {
   figmaEmbedSrc?: string;
   slideAnchors?: { label: string; pageId: string }[];
   slidesEmbedSrc?: string;
+  documents?: { label: string; href: string }[];
+  link?: string;
+  linkLabel?: string;
 };
 
 export const projects: Project[] = [
+  {
+    slug: "cs109-undercut",
+    title: "Predicting Undercut Success in Formula 1 — CS109 Final",
+    role: "Data Scientist",
+    summary: "Built an undercut attempts dataset (2014–2024) and a baseline model (AUC 0.71) to predict pit stop undercut success.",
+    body: "We asked: Can we predict the success of an undercut pit stop strategy in Formula 1 based on real-time race conditions? I built a clean 2014–2024 undercut dataset filtered to realistic attempts (≤2s gap), engineered tire-age differential and gap-per-lap features, and ran a logistic regression baseline with class imbalance treatment. The final dataset holds 761 legitimate attempts; EDA shaped the gap filter, weighting/thresholding, and inclusion of circuit and tire-age features. The baseline achieved AUC–ROC 0.71 on test, showing predictive lift beyond chance. Circuit effects dominate importance (Gilles Villeneuve 34.5%, Albert Park 26.1%, Monaco 25.0%), pit stop times correlate most with success, and weak linear correlations hint at non-linear interactions. This supports real-time strategy, risk, and tire management decisions, with future improvements planned for SMOTE augmentation, boosted trees with imbalance-aware loss, cost-sensitive learning, and circuit-aware hierarchical models.",
+    tags: ["Data science","Logistic regression","Class imbalance","Feature engineering","F1"],
+    metrics: ["761 undercut attempts (2014–2024)","AUC–ROC 0.71 baseline","Circuit & tire-age features","Class-weighted modeling"],
+    documents: [
+      { label: "Project writeup (PDF)", href: "_CS_1090a__Final_Project.pdf" },
+      { label: "Presentation slides (PDF)", href: "_CS_1090a_Presentation.pdf" }
+    ]
+  },
   {
     slug: "harvard-shop",
     title: "Harvard Shop — Procurement & Product Design (FY25)",
@@ -54,7 +70,9 @@ export const projects: Project[] = [
     summary: "YouTube Data API study; interactive visuals exploring 2024–2025 video-length trends.",
     body: "I investigated whether leading channels and media brands actually shifted to shorter videos in 2024–2025. Using the YouTube Data API v3, I scraped and cleaned data on top channels, built distributions and time-series views in HTML/CSS/JavaScript, and triangulated findings with secondary research from PEW and market reports. The analysis surfaced a clear tilt toward short-form among news/entertainment brands, with genre-specific differences that long-form creators use to maintain depth and watch time. I packaged the work as an interactive, exploratory visualization plus a written narrative so classmates and instructors could examine channels, compare periods, and draw their own conclusions. The project demonstrates my end-to-end process—data collection, modeling, visual storytelling, and insight framing for non-technical audiences.",
     tags: ["YouTube API","Data viz","Front-end"],
-    metrics: ["Top channels dataset (2024–2025)","Interactive dashboard","PEW research synthesis"]
+    metrics: ["Top channels dataset (2024–2025)","Interactive dashboard","PEW research synthesis"],
+    link: "https://xiaoman21.github.io/CS171/",
+    linkLabel: "View live project"
   },
   {
     slug: "nonprofit-signup",

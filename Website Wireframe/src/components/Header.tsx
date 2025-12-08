@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const resumeHref = `${import.meta.env.BASE_URL}resume.pdf`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,7 +50,7 @@ export function Header() {
         scrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-200' : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-8 lg:px-16">
+      <div className="w-full max-w-[1400px] mx-auto px-8 lg:px-16">
         <div className="flex items-center justify-between py-6">
               {/* Logo/Name */}
               <Link 
@@ -76,16 +77,18 @@ export function Header() {
                   WORK
                 </a>
                 <a 
-                  href="#resume" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-                >
-                  RESUME
-                </a>
-                <a 
                   href="#contact" 
                   className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
                 >
                   CONTACT
+                </a>
+                <a
+                  href={resumeHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded border border-black px-3 py-2"
+                >
+                  RESUME ↗
                 </a>
               </>
             ) : (
@@ -103,17 +106,19 @@ export function Header() {
                   WORK
                 </Link>
                 <Link 
-                  to="/#resume"
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
-                >
-                  RESUME
-                </Link>
-                <Link 
                   to="/#contact"
                   className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
                 >
                   CONTACT
                 </Link>
+                <a
+                  href={resumeHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded border border-black px-3 py-2"
+                >
+                  RESUME ↗
+                </a>
               </>
             )}
           </nav>

@@ -5,6 +5,7 @@ import { projects, type Project } from '../content/projects';
 import FigmaEmbed, { setQueryParam } from '../components/FigmaEmbed';
 import SlideNav from '../components/SlideNav';
 import SlidesEmbed from '../components/SlidesEmbed';
+import { PdfEmbed } from '../components/PdfEmbed';
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -63,7 +64,7 @@ export default function ProjectDetail() {
       <Header />
       <main>
         <article className="min-h-screen px-8 lg:px-16 py-32">
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full max-w-5xl mx-auto">
             {/* Back Link */}
             <Link 
               to="/work" 
@@ -116,7 +117,41 @@ export default function ProjectDetail() {
               <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
                 {project.body}
               </p>
+              {project.link && (
+                <p className="mt-4">
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline font-medium hover:text-black transition-colors"
+                  >
+                    {project.linkLabel ?? 'View project'} ↗
+                  </a>
+                </p>
+              )}
             </div>
+
+            {/* Documents (PDF embeds) */}
+            {project.documents && project.documents.length > 0 && (
+              <div className="space-y-8 mb-12">
+                {project.documents.map((doc, index) => (
+                  <div key={index}>
+                    <PdfEmbed src={doc.href} title={doc.label} ratio={4 / 3} />
+                    <p className="mt-2 text-sm text-gray-600">
+                      If the embed doesn't load,{' '}
+                      <a
+                        href={doc.href.startsWith('http') ? doc.href : `${import.meta.env.BASE_URL}${doc.href}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline hover:text-black transition-colors"
+                      >
+                        open {doc.label} ↗
+                      </a>.
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Google Slides Embed */}
             {project.slidesEmbedSrc && (
