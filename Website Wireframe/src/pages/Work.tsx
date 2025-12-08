@@ -78,16 +78,6 @@ export default function Work() {
                     <p className="text-gray-700 leading-relaxed flex-1">
                       {project.summary}
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag, tagIndex) => (
-                        <span
-                          key={tagIndex}
-                          className="px-3 py-1 text-xs bg-gray-100 border border-gray-300 rounded-full hover:border-black transition-colors"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
                     <div className="flex items-center justify-between text-sm font-medium">
                       <span className="text-gray-600">View project</span>
                       <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>

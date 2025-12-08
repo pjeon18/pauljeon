@@ -34,10 +34,10 @@ export const projects: Project[] = [
     slug: "harvard-shop",
     title: "Harvard Shop — Procurement & Product Design (FY25)",
     role: "Procurement Manager & Product Designer",
-    summary: "Rebuilt the product line and inventory engine—90+ new products—while protecting ~60% margins.",
-    body: "As Procurement Manager for The Harvard Shop, I was tasked with modernizing an aging apparel line while controlling risk across a complex catalog of 3,000+ SKUs. I led forecasting and SKU rationalization, ran vendor RFPs and negotiations, and designed the entire FY25 line—over 90 new products—balancing trend, brand, and margin constraints. I built a buy plan that enforced MOQs, lead times, and target costs, and coordinated rollout with marketing and store teams. The result was a refreshed assortment that protected ~60% gross margins, supported $1.8M in managed inventory, and contributed to $5.8M in revenue. Beyond the numbers, the work aligned operations, design, and merchandising around a single plan so the team could move faster with less waste.",
-    tags: ["Retail ops","Product design","Forecasting","Vendor management"],
-    metrics: ["$1.8M inventory managed","3,000+ SKUs","90+ new products","~60% gross margin","$5.8M revenue"]
+    summary: "Managed $1.8M inventory across 1,100+ SKUs; automated orders, +47% YoY revenue while holding 65% margins.",
+    body: "I owned procurement and inventory for The Harvard Shop across three retail stores and e-commerce, managing $1.8M inventory and 1,100+ SKUs. I automated high-demand product orders via a Python API integration with Lightspeed, lifting revenue 47% YoY (~$370K) while maintaining 65% margins. Weekly I aligned store, marketing, and product leads on stock, margins, and priorities, and I worked with vendors (Nike, Champion, Patagonia, Peter Millar) to resolve quality and fulfillment issues. The result was a steadier pipeline, fewer stockouts, and tighter coordination across teams.",
+    tags: ["Retail ops","Automation","Inventory","Vendor management"],
+    metrics: []
   },
   {
     slug: "peace-brand",
@@ -80,28 +80,28 @@ export const projects: Project[] = [
     title: "Nonprofit Signup Experience — UX / UI Design",
     role: "UI/UX Designer",
     summary: "Research → lo-fi → hi-fi Figma; clearer signup flow to lift conversions.",
-    body: "Working as a UI/UX Designer on a six-person team (PM, senior designer, and peers), I redesigned the sign-up flow for a college-application mentorship nonprofit. The problem was low completion from interest to enrollment due to unclear value prop and too many steps. I led research (surveys and interviews), mapped the funnel, and produced lo-fi wires through hi-fi Figma comps, presenting weekly to the board for feedback and alignment. The final design reduced cognitive load with a clearer hierarchy, progressive disclosure, and responsive components ready for developer handoff. We defined success metrics (conversion rate, drop-off by step) and an experimentation plan so the organization could measure impact post-launch.",
+    body: "For a college-application mentorship nonprofit, I conducted surveys and interviews, distilled user pain points, and redesigned the sign-up flow with lo-fi and hi-fi Figma prototypes. I led weekly stakeholder check-ins to share research findings, refine requirements, and prioritize the MVP. The final design simplified steps, clarified value props, and included responsive components and acceptance criteria for engineers to ship with confidence.",
     tags: ["UX research","Figma","Accessibility"],
-    metrics: ["Board-approved package","Developer-ready components","Defined conversion metrics"],
+    metrics: [],
     slidesEmbedSrc: "https://docs.google.com/presentation/d/14DxxD_gE-jV-Zqnwor8psF4STy90mx-xkbY_e_1rokY/embed?start=false&loop=false&delayms=3000"
   },
   {
     slug: "emr-exhibit",
     title: "Digital Exhibit for Professor — EMR 171 Final",
     role: "Designer/Developer",
-    summary: "Animated, accessible web exhibit translating research on Kim Myong Sun.",
-    body: "For my EMR 171 final, I translated a professor's research on Kim Myong Sun into a digital exhibit that invites reading, not just skimming. I led wireframing, information architecture, and front-end implementation with Tailwind CSS, using motion sparingly and honoring prefers-reduced-motion for accessibility. The site structures dense scholarship into thematic chapters with scannable typography, captions, and alt/meta support so content works for screen readers. The project demonstrates my ability to turn complex source material into an approachable, narrative web experience while keeping accessibility and performance in focus.",
+    summary: "Animated, accessible web exhibit translating course research into an interactive story.",
+    body: "For EMR 171, I designed and built an interactive website that translated a professor’s research into a scannable, accessible exhibit. I led wireframes, information architecture, and front-end implementation with Tailwind, emphasizing readability, captions, alt/meta, and prefers-reduced-motion. The site turns dense scholarship into themed chapters that work for both visual readers and assistive tech.",
     tags: ["Tailwind","Web storytelling","Accessibility"],
-    metrics: ["Thematic chapters","Reduced-motion support","A11y checks passed"]
+    metrics: []
   },
   {
     slug: "marketing-emails",
     title: "Marketing Intern — Email Campaigns",
     role: "Design + Analytics",
     summary: "Modular Klaviyo emails with weekly analytics; $8k+ attributed revenue.",
-    body: "As a marketing intern, I owned the design and execution of a summer email campaign. I created layouts in Adobe Creative Suite, built and scheduled them in Klaviyo, and set up basic segmentation and A/B tests on subject lines and hero modules. I also coordinated product photoshoots with student models to source authentic visuals and reported weekly performance to leadership. The campaign generated over $8,000 in attributed revenue, and the modular template system I built allowed the team to spin up new sends quickly with consistent brand quality. This work shows how I connect creative, operations, and analytics to drive measurable outcomes.",
+    body: "As a marketing analytics intern, I translated ROAS, CTR, conversion, and open-rate data into dashboards and recommendations for marketers and store managers. I communicated A/B checkout test results and next steps to designers and leadership, and I designed summer email layouts that generated $8,000+ in attributed revenue. I also researched, planned, and launched an SMS marketing campaign as my final project.",
     tags: ["Email","Klaviyo","A/B testing"],
-    metrics: ["$8,000+ attributed revenue","Weekly performance reports","Reusable templates"],
+    metrics: [],
     gallery: [
       { src: "email1.png", alt: "4th of July sitewide promo email" },
       { src: "email2.png", alt: "Dorm room essentials email" },

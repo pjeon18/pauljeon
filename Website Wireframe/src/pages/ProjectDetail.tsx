@@ -84,35 +84,6 @@ export default function ProjectDetail() {
               )}
             </header>
 
-            {/* Metrics */}
-            {project.metrics.length > 0 && (
-              <div className="mb-12 pb-12 border-b border-gray-200">
-                <h2 className="text-sm tracking-widest text-gray-500 mb-4 uppercase">Key Metrics</h2>
-                <ul className="space-y-2">
-                  {project.metrics.map((metric, index) => (
-                    <li key={index} className="text-gray-700 flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>{metric}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Tags */}
-            {project.tags.length > 0 && (
-              <div className="mb-12 flex flex-wrap gap-2">
-                {project.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-4 py-2 text-sm bg-gray-100 border border-gray-300"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
             {/* Primary Link (CS171) */}
             {isSocialLength && project.link && (
               <div className="mb-6">
