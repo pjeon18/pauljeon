@@ -13,6 +13,7 @@ export default function ProjectDetail() {
   const [pageId, setPageId] = useState<string | undefined>(
     project?.slideAnchors?.[0]?.pageId
   );
+  const isSocialLength = project?.slug === 'social-length';
 
   // Update pageId when project changes
   useEffect(() => {
@@ -112,12 +113,26 @@ export default function ProjectDetail() {
               </div>
             )}
 
+            {/* Primary Link (CS171) */}
+            {isSocialLength && project.link && (
+              <div className="mb-6">
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-base lg:text-lg font-semibold px-4 py-3 rounded-lg border border-black hover:bg-black hover:text-white transition-colors"
+                >
+                  {project.linkLabel ?? 'Visit project site'} ↗
+                </a>
+              </div>
+            )}
+
             {/* Body Content */}
-            <div className="prose prose-lg max-w-none mb-12">
+            <div className="prose prose-lg max-w-none mb-12 space-y-6">
               <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
                 {project.body}
               </p>
-              {project.link && (
+              {!isSocialLength && project.link && (
                 <p className="mt-4">
                   <a
                     href={project.link}
