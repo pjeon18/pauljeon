@@ -5,6 +5,8 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const resumeHref = `${import.meta.env.BASE_URL}resume.pdf`;
+  const isGames = location.pathname.startsWith('/games');
+  const isWork = location.pathname.startsWith('/work');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,32 +63,42 @@ export function Header() {
               </Link>
 
           {/* Navigation */}
-          <nav className="flex items-center gap-8">
+          <nav className="flex items-center gap-4 md:gap-8 flex-wrap">
             {location.pathname === '/' ? (
               <>
                 <a 
                   href="#about" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                  className="text-xs sm:text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
                 >
                   ABOUT
                 </a>
                 <a 
                   href="#work" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                  className="text-xs sm:text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
                 >
                   WORK
                 </a>
                 <a 
                   href="#contact" 
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                  className="text-xs sm:text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
                 >
                   CONTACT
                 </a>
+                <Link
+                  to="/games"
+                  className={`text-xs sm:text-sm tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded ${
+                    isGames
+                      ? 'opacity-100 text-black border-b border-black'
+                      : 'hover:opacity-60'
+                  }`}
+                >
+                  GAMES
+                </Link>
                 <a
                   href={resumeHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded border border-black px-3 py-2"
+                  className="text-xs sm:text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded border border-black px-3 py-2"
                 >
                   RESUME ↗
                 </a>
@@ -95,27 +107,37 @@ export function Header() {
               <>
                 <Link 
                   to="/#about"
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                  className="text-xs sm:text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
                 >
                   ABOUT
                 </Link>
                 <Link 
                   to="/work"
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                  className={`text-xs sm:text-sm tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded ${
+                    isWork ? 'opacity-100 text-black border-b border-black' : 'hover:opacity-60'
+                  }`}
                 >
                   WORK
                 </Link>
                 <Link 
                   to="/#contact"
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+                  className="text-xs sm:text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
                 >
                   CONTACT
+                </Link>
+                <Link
+                  to="/games"
+                  className={`text-xs sm:text-sm tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded ${
+                    isGames ? 'opacity-100 text-black border-b border-black' : 'hover:opacity-60'
+                  }`}
+                >
+                  GAMES
                 </Link>
                 <a
                   href={resumeHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded border border-black px-3 py-2"
+                  className="text-xs sm:text-sm tracking-wide hover:opacity-60 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded border border-black px-3 py-2"
                 >
                   RESUME ↗
                 </a>
