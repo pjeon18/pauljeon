@@ -35,7 +35,7 @@ export default function Work() {
       <main>
         <section 
           ref={sectionRef}
-          className="min-h-screen px-8 lg:px-16 py-32 scroll-mt-20"
+          className="min-h-screen px-6 sm:px-8 lg:px-16 py-24 sm:py-32 scroll-mt-20"
         >
           <div className="w-full max-w-[1400px] mx-auto">
             <div 
@@ -45,11 +45,11 @@ export default function Work() {
                   : 'opacity-0 translate-y-12'
               }`}
             >
-              <h2 className="text-sm tracking-widest text-gray-500 mb-4">SELECTED WORK</h2>
-              <h3 className="text-5xl lg:text-6xl mb-6 font-semibold">
+              <h2 className="text-xs sm:text-sm tracking-widest text-gray-500 mb-3 sm:mb-4">SELECTED WORK</h2>
+              <h3 className="text-4xl sm:text-5xl lg:text-6xl mb-4 sm:mb-6 font-semibold">
                 <Typewriter text="Recent Projects" speed={22} />
               </h3>
-              <p className="text-lg text-gray-600 max-w-2xl">
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl">
                 A collection of projects spanning design, development, and data visualization.
               </p>
             </div>

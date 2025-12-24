@@ -33,7 +33,7 @@ export function WorksSection() {
       <section 
         id="work" 
         ref={sectionRef}
-        className="min-h-screen px-8 lg:px-16 py-32 scroll-mt-20"
+        className="min-h-screen px-6 sm:px-8 lg:px-16 py-24 sm:py-32 scroll-mt-20"
       >
         <div className="w-full max-w-[1400px] mx-auto">
           <div 
@@ -44,8 +44,8 @@ export function WorksSection() {
             }`}
           >
             <div className="mb-8">
-              <h2 className="text-sm tracking-widest text-gray-500 mb-4">SELECTED WORK</h2>
-              <h3 className="text-5xl lg:text-6xl font-semibold leading-tight">
+              <h2 className="text-xs sm:text-sm tracking-widest text-gray-500 mb-3 sm:mb-4">SELECTED WORK</h2>
+              <h3 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight">
                 <Typewriter text="Recent Projects" speed={22} />
               </h3>
             </div>

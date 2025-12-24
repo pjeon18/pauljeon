@@ -29,10 +29,10 @@ export function AboutSection() {
     <section 
       id="about" 
       ref={sectionRef}
-      className="min-h-screen flex items-center justify-center px-8 lg:px-16 py-24 scroll-mt-20"
+      className="min-h-screen flex items-start sm:items-center justify-center px-6 sm:px-8 lg:px-16 pt-28 sm:pt-20 pb-16 sm:pb-24 scroll-mt-28 sm:scroll-mt-20"
     >
       <div className="max-w-7xl w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 sm:gap-16 lg:gap-24">
           {/* Text Content */}
           <div 
             className={`space-y-8 transition-all duration-1000 ${
@@ -42,15 +42,15 @@ export function AboutSection() {
             }`}
           >
             <div>
-              <h2 className="text-sm tracking-widest text-gray-500 mb-4">ABOUT</h2>
-              <h1 className="text-5xl lg:text-6xl xl:text-7xl leading-tight mb-8">
+              <h2 className="text-xs sm:text-sm tracking-widest text-gray-500 mb-3 sm:mb-4">ABOUT</h2>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-tight mb-6 sm:mb-8">
                 Designer &<br />
                 Creative<br />
                 Developer
               </h1>
             </div>
             
-            <div className="space-y-6 text-lg text-gray-700 max-w-xl">
+            <div className="space-y-5 sm:space-y-6 text-base sm:text-lg text-gray-700 max-w-2xl">
               <p
                 className={`transition-all duration-1000 ${
                   isVisible 
