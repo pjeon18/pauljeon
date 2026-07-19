@@ -25,23 +25,25 @@ jobs:
           node-version: "20"
       
       - name: Install deps
-        working-directory: ./Website Wireframe
+        working-directory: ./site
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
       
       - name: Build
-        working-directory: ./Website Wireframe
+        working-directory: ./site
+        env:
+          BASE_PATH: "/pauljeon/"
         run: npm run build
       
       - name: SPA fallback
-        working-directory: ./Website Wireframe
+        working-directory: ./site
         run: |
           mkdir -p dist
           if [ -f dist/index.html ]; then cp dist/index.html dist/404.html; fi
       
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./Website Wireframe/dist
+          path: ./site/dist
 
   deploy:
     needs: build
