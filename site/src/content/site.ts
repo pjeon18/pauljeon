@@ -39,6 +39,8 @@ export interface Card {
   meta: string
   blurb: string          // shown in the hover reveal
   slug?: string          // links "Read the case study →" to /work/:slug
+  page?: string          // internal page route (e.g. /impostor)
+  demo?: { label: string; href: string }  // external site/demo/repo for the project
   href?: string          // external or #anchor target; used when there's no slug
   linkLabel?: string
   image?: string         // photographic card
@@ -55,6 +57,7 @@ export const cards: Card[] = [
     meta: 'Product · 31 screens · 2026',
     blurb: 'A dating app that refuses inboxes — one live conversation at a time, or nothing. PRD → design system → motion language → shipped interactive prototype.',
     slug: 'iso',
+    demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
     icon: isoIcon,
   },
   {
@@ -64,6 +67,7 @@ export const cards: Card[] = [
     meta: 'Engineering · AWS · 699 employees',
     blurb: 'Spreadsheet → interactive reporting tree, fully client-side. React + TypeScript on S3 + CloudFront; personnel data never leaves the browser.',
     slug: 'org-chart-explorer',
+    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/orgcharexplorer' },
     art: 'org',
   },
   {
@@ -73,6 +77,7 @@ export const cards: Card[] = [
     meta: 'AI / ML · 0.71 AUC-ROC',
     blurb: 'Live race telemetry → pit-strategy calls. 761 hand-labeled undercut attempts; weighted logistic regression in a data-sparse, high-stakes setting.',
     slug: 'f1-undercut',
+    demo: { label: 'GitHub', href: 'https://github.com/evanjiang943/cs1090a' },
     image: f1,
   },
   {
@@ -91,6 +96,7 @@ export const cards: Card[] = [
     meta: 'Data · YouTube API · d3',
     blurb: 'Automated pipeline tracking content-format shifts (Shorts vs. long-form) across major channels, published as an interactive viz.',
     slug: 'media-analytics',
+    demo: { label: 'Live visualization', href: 'https://xiaoman21.github.io/CS171/' },
     image: mediaGlobe,
   },
   {
@@ -110,6 +116,7 @@ export const cards: Card[] = [
     meta: 'Currently · Boston, MA',
     blurb: 'Agentic prospecting at Onapsis — GTM automation that enriched leads across 13,000 contacts for the BDR team.',
     slug: 'onapsis-gtm',
+    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/orgcharexplorer' },
     image: onapsis,
   },
   {
@@ -118,6 +125,8 @@ export const cards: Card[] = [
     title: 'Play Impostor — a little game I made. No refunds.',
     meta: 'Off the clock',
     blurb: 'A social-deduction mini-game. Proof that not everything needs a North Star metric.',
+    page: '/impostor',
+    linkLabel: 'Play',
   },
 ]
 
@@ -143,6 +152,7 @@ export interface Tile {
   title: string
   sub?: string
   expand?: string        // presence enables "Read more →" inline expansion
+  link?: { label: string; href: string }  // external link shown in the expansion
   image?: string
   art?: 'iso-brand' | 'wireframes' | 'clouds' | 'telemetry' | 'impostor' | 'deck' | 'type'
 }
@@ -167,6 +177,7 @@ export const tiles: Tile[] = [
     title: 'The Harvard Shop',
     sub: 'Procurement & project management — real budgets, real deadlines.',
     expand: 'Procurement and project management across storefronts — vendor negotiation, PO pipelines, and creative ways to hold a <b>65% profit margin</b>, working closely with the e-commerce, stores, and stock teams.',
+    link: { label: 'theharvardshop.com ↗', href: 'https://www.theharvardshop.com/' },
   },
   { id: 'telemetry', height: 260, art: 'telemetry', title: 'Telemetry sketches' },
   { id: 'impostor-sprites', height: 190, art: 'impostor', title: 'Impostor sprites' },
@@ -260,6 +271,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     lead: "A BDR team needed to find the right contacts inside target organizations — fast — without scrolling a 699-employee static org tree. I built them a client-side web app that turns a raw spreadsheet into an interactive, searchable reporting hierarchy.",
     role: 'Design + engineering — solo, shipped to an internal team',
     stack: 'React · TypeScript · Vite · SheetJS · PapaParse · AWS S3 · CloudFront · ACM · IAM',
+    links: [{ label: 'GitHub repository', href: 'https://github.com/pjeon18/orgcharexplorer' }],
     art: 'org',
     stats: [
       { value: '699', label: 'employees in the real dataset it was built and validated against' },
@@ -297,6 +309,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     lead: 'My current role: building LLM-assisted GTM automation at Onapsis. The flagship project enriched leads across a 13,000-contact TAM and surfaced the qualified handful worth a rep\'s time.',
     role: 'AI GTM Intern — Boston, MA',
     stack: 'Python · LLM agents · ZoomInfo enrichment',
+    links: [{ label: 'Org Chart Explorer on GitHub', href: 'https://github.com/pjeon18/orgcharexplorer' }],
     image: onapsis,
     stats: [
       { value: '13,000', label: 'contacts in the raw TAM' },
@@ -326,6 +339,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     lead: 'The undercut is Formula 1\'s highest-stakes timing decision: pit first, gain track position on fresh tires — or lose it all. I trained a model to predict whether an undercut attempt will succeed, from live race telemetry.',
     role: 'ML — independent project',
     stack: 'Python · weighted logistic regression · race telemetry',
+    links: [{ label: 'GitHub repository', href: 'https://github.com/evanjiang943/cs1090a' }],
     image: f1,
     stats: [
       { value: '761', label: 'undercut attempts hand-labeled from race data' },
@@ -384,6 +398,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     lead: 'An automated pipeline tracking how major channels\' output is shifting between Shorts and long-form — collected via the YouTube Data API and published as an interactive visualization.',
     role: 'Data + visualization',
     stack: 'Python · YouTube Data API · d3.js',
+    links: [{ label: 'Live visualization', href: 'https://xiaoman21.github.io/CS171/' }],
     image: mediaGlobe,
     stats: [
       { value: 'API', label: 'automated collection — no manual pulls' },

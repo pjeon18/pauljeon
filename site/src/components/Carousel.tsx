@@ -174,11 +174,22 @@ export default function Carousel({ filter }: { filter: Category }) {
               <div className="reveal">
                 <div className="cat">{card.meta.split('·')[0].trim()}</div>
                 <div className="blurb">{card.blurb}</div>
-                {card.slug ? (
+                {card.slug && (
                   <Link className="more" to={`/work/${card.slug}`}>
-                    {card.linkLabel || 'Read the case study'} <span className="arr">→</span>
+                    Read the case study <span className="arr">→</span>
                   </Link>
-                ) : card.href?.startsWith('#') ? (
+                )}
+                {card.page && (
+                  <Link className="more" to={card.page}>
+                    {card.linkLabel || 'Open'} <span className="arr">→</span>
+                  </Link>
+                )}
+                {card.demo && (
+                  <a className="more" href={card.demo.href} target="_blank" rel="noreferrer">
+                    {card.demo.label} <span className="arr">↗</span>
+                  </a>
+                )}
+                {!card.slug && !card.page && card.href?.startsWith('#') ? (
                   <a
                     className="more"
                     href={card.href}
@@ -186,7 +197,7 @@ export default function Carousel({ filter }: { filter: Category }) {
                   >
                     {card.linkLabel || 'Read more'} <span className="arr">→</span>
                   </a>
-                ) : card.href ? (
+                ) : !card.slug && !card.page && card.href ? (
                   <a className="more" href={card.href} target="_blank" rel="noreferrer">
                     {card.linkLabel || 'Read more'} <span className="arr">→</span>
                   </a>
