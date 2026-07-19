@@ -103,9 +103,12 @@ export default function Carousel({ filter }: { filter: Category }) {
 
     // drag to spin + click to rotate
     const onDown = (e: PointerEvent) => {
+      // presses that start on a link belong to the link — capturing the
+      // pointer here would retarget the click and kill navigation
+      if ((e.target as HTMLElement).closest('a')) return
       const startX = e.clientX
       let moved = false
-      try { stage.setPointerCapture(e.pointerId) } catch { /* no-op */ }
+      let captured = false
       stage.classList.add('dragging')
 
       const move = (ev: PointerEvent) => {
@@ -113,12 +116,20 @@ export default function Carousel({ filter }: { filter: Category }) {
         if (Math.abs(dx) > 6) {
           moved = true
           stage.classList.add('no-anim')
+          // capture only once a real drag starts, so plain clicks keep
+          // their native targets
+          if (!captured) {
+            captured = true
+            try { stage.setPointerCapture(ev.pointerId) } catch { /* no-op */ }
+          }
         }
         spin = (dx / stage.clientWidth) * 52
         if (moved) layout()
       }
       const up = (ev: PointerEvent) => {
-        try { stage.releasePointerCapture(ev.pointerId) } catch { /* no-op */ }
+        if (captured) {
+          try { stage.releasePointerCapture(ev.pointerId) } catch { /* no-op */ }
+        }
         stage.classList.remove('dragging')
         stage.removeEventListener('pointermove', move)
         stage.removeEventListener('pointerup', up)
