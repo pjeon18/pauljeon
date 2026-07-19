@@ -102,6 +102,11 @@ export default function Playground() {
               <div className="mexp">
                 <div className="mexp-in">
                   <p dangerouslySetInnerHTML={{ __html: tile.expand }} />
+                  {tile.link && (
+                    <a className="mexp-link" href={tile.link.href} target="_blank" rel="noreferrer">
+                      {tile.link.label}
+                    </a>
+                  )}
                   <span className="mless" onClick={() => setOpen((o) => ({ ...o, [tile.id]: false }))}>
                     Show less ↑
                   </span>
