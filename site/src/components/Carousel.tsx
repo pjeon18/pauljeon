@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { ARC, cards } from '../content/site'
 import type { Category } from '../content/site'
+import { smoothScrollToId } from '../lib/scroll'
 import CardArt from './CardArt'
 
 // The arc carousel: cards hang on a wheel anchored below the fold.
@@ -172,11 +174,23 @@ export default function Carousel({ filter }: { filter: Category }) {
               <div className="reveal">
                 <div className="cat">{card.meta.split('·')[0].trim()}</div>
                 <div className="blurb">{card.blurb}</div>
-                {card.href && (
-                  <a className="more" href={card.href} target={card.href.startsWith('#') ? undefined : '_blank'} rel="noreferrer">
+                {card.slug ? (
+                  <Link className="more" to={`/work/${card.slug}`}>
+                    {card.linkLabel || 'Read the case study'} <span className="arr">→</span>
+                  </Link>
+                ) : card.href?.startsWith('#') ? (
+                  <a
+                    className="more"
+                    href={card.href}
+                    onClick={(e) => { e.preventDefault(); smoothScrollToId(card.href!.slice(1), 60) }}
+                  >
                     {card.linkLabel || 'Read more'} <span className="arr">→</span>
                   </a>
-                )}
+                ) : card.href ? (
+                  <a className="more" href={card.href} target="_blank" rel="noreferrer">
+                    {card.linkLabel || 'Read more'} <span className="arr">→</span>
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>

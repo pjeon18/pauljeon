@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { pinnedMode } from './Sky'
+import { smoothScrollToId } from '../lib/scroll'
 import type { Category } from '../content/site'
 
 function useClock() {
@@ -99,8 +100,8 @@ export default function Hero({
           <span className="nav-time">{time}</span>
         </span>
         <span className="links">
-          <a href="#work">Work</a>
-          <a href="#about">About</a>
+          <a href="#work" onClick={(e) => { e.preventDefault(); smoothScrollToId('work', 40) }}>Work</a>
+          <a href="#about" onClick={(e) => { e.preventDefault(); smoothScrollToId('about', 60) }}>About</a>
         </span>
       </div>
 
