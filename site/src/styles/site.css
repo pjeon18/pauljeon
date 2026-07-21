@@ -62,7 +62,24 @@ button { font-family: inherit; }
   font-weight: 900; margin: 0 auto; max-width: 22ch; text-wrap: balance; color: #FFFFFF;
 }
 .ig-hero h1 .thin { font-weight: 300; }
-.ig-hero h1 .accent { color: #FF9E57; font-style: italic; }
+.ig-hero h1 .accent {
+  color: #FF9E57; font-style: italic;
+  font-family: 'Sentient', Georgia, serif; font-weight: 500; font-size: 1.06em;
+}
+
+/* ink signature: a hand stroke under the accent word, drawn after entrance */
+.ink-word { position: relative; display: inline-block; }
+.ink-stroke {
+  position: absolute; left: -2%; bottom: -0.05em; width: 104%; height: 0.16em;
+  overflow: visible; pointer-events: none;
+}
+.ink-stroke path {
+  fill: none; stroke: #FF9E57; stroke-width: 3.5px;
+  stroke-linecap: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  transition: stroke-dashoffset 750ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cr.inked .ink-stroke path { stroke-dashoffset: 0; }
 .ig-hero .sub {
   margin: 20px auto 0; color: rgba(255,255,255,0.8); font-size: 15px; max-width: 52ch; line-height: 1.6;
 }
@@ -197,10 +214,12 @@ button { font-family: inherit; }
 
 .meet-text { max-width: 560px; }
 .meet-kicker {
-  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: #A19D94;
+  font-family: 'Sentient', Georgia, serif; font-style: italic;
+  font-size: 16px; font-weight: 500; color: #C9764A;
 }
 .meet-text h2 {
-  font-size: 30px; font-weight: 900; letter-spacing: -0.025em; color: #121110; margin: 12px 0 14px;
+  font-family: 'Sentient', Georgia, serif; font-style: italic;
+  font-size: 33px; font-weight: 500; letter-spacing: -0.015em; color: #121110; margin: 10px 0 14px;
 }
 .meet-text p { color: #55524B; font-size: 14.5px; line-height: 1.65; margin: 0 0 12px; max-width: 56ch; }
 .meet-text p b { color: #121110; }
@@ -218,14 +237,14 @@ button { font-family: inherit; }
 
 /* ---------- playground ---------- */
 .playground { background: #FDFDFB; padding: 110px 48px 24px; max-width: 1120px; margin: 0 auto; }
-.pg-head { margin-bottom: 36px; }
-.pg-head .pg-kicker {
-  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: #A19D94;
-}
+.pg-head { margin-bottom: 32px; }
 .pg-head h2 {
-  font-size: 34px; font-weight: 900; letter-spacing: -0.03em; color: #121110; margin: 10px 0 8px;
+  font-size: 34px; font-weight: 900; letter-spacing: -0.03em; color: #121110; margin: 0;
 }
-.pg-head p { color: #8F8B83; font-size: 14.5px; margin: 0; }
+.pg-head .pg-hint {
+  font-family: 'Sentient', Georgia, serif; font-style: italic; font-weight: 400;
+  font-size: 17px; letter-spacing: 0; color: #A19D94; margin-left: 10px;
+}
 
 .masonry { columns: 3; column-gap: 14px; }
 .mtile {
@@ -330,13 +349,31 @@ button { font-family: inherit; }
   padding: 84px 48px 44px; text-align: center;
 }
 .foot-kicker {
-  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: #A19D94;
+  font-family: 'Sentient', Georgia, serif; font-style: italic;
+  font-size: 16px; font-weight: 500; color: #C9764A;
 }
 .foot-big {
   font-size: clamp(32px, 4.4vw, 48px); font-weight: 900; letter-spacing: -0.03em;
   color: #121110; margin: 14px 0 18px;
 }
-.foot-big .fa { color: #E05C1F; }
+.foot-big .fa {
+  color: #E05C1F;
+  font-family: 'Sentient', Georgia, serif; font-style: italic; font-weight: 500; font-size: 1.05em;
+}
+
+/* ink signature: a loose circle around "Connect", drawn on scroll-into-view */
+.ink-circle-wrap { position: relative; display: inline-block; padding: 0 0.1em; }
+.ink-circle {
+  position: absolute; inset: -0.16em -0.24em; width: calc(100% + 0.48em); height: calc(100% + 0.32em);
+  overflow: visible; pointer-events: none;
+}
+.ink-circle path {
+  fill: none; stroke: #E05C1F; stroke-width: 3px;
+  stroke-linecap: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0.85;
+  transition: stroke-dashoffset 950ms cubic-bezier(0.4, 0, 0.2, 1) 180ms;
+}
+.foot-big.inked .ink-circle path { stroke-dashoffset: 0; }
 .foot-mail {
   font-size: 17px; font-weight: 700; color: #121110; text-decoration: underline;
   text-underline-offset: 4px; text-decoration-color: #E05C1F; cursor: pointer;
@@ -351,7 +388,8 @@ button { font-family: inherit; }
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   .acard, .cardbody, .reveal, .photo .art, .face,
-  .scr path, .mt-title .w, .msub, .mtxt::before, .mp-flip, .mexp { transition: none !important; }
+  .scr path, .mt-title .w, .msub, .mtxt::before, .mp-flip, .mexp,
+  .ink-stroke path, .ink-circle path { transition: none !important; }
   .mtxt::before { opacity: 1; }
   .mt-title .w, .msub { transform: none; opacity: 1; }
 }
@@ -395,9 +433,8 @@ button { font-family: inherit; }
 
 .case-head { padding: 72px 0 0; }
 .case-kicker {
-  font-family: 'Inter', -apple-system, sans-serif;
-  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-  font-weight: 600; color: #E05C1F;
+  font-family: 'Sentient', Georgia, serif;
+  font-style: italic; font-size: 16px; font-weight: 500; color: #C9764A;
 }
 .case-head h1 {
   font-size: clamp(34px, 5vw, 54px); line-height: 1.06; letter-spacing: -0.03em;
@@ -427,24 +464,16 @@ button { font-family: inherit; }
 .case-visual .cv-art { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .case-visual .cv-art svg { width: 300px; height: 100%; }
 
-.case-stats {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;
-  margin-top: 14px;
-}
-.case-stat { border: 1px solid #EDEBE5; border-radius: 12px; background: #FFFFFF; padding: 18px 20px; }
-.case-stat .v { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; color: #E05C1F; }
-.case-stat .l { font-size: 12px; color: #8F8B83; margin-top: 5px; line-height: 1.5; font-weight: 500; }
+/* facts read as margin notes, not a stat-tile band */
+.case-facts { display: flex; gap: 14px 52px; flex-wrap: wrap; margin-top: 26px; padding-top: 20px; border-top: 1px solid #EDEBE5; }
+.case-fact .v { font-weight: 900; font-size: 21px; letter-spacing: -0.02em; color: #121110; margin-right: 9px; }
+.case-fact .l { font-size: 13px; color: #8F8B83; }
 
 .case-body { padding: 56px 0 0; }
 .case-sec {
-  display: grid; grid-template-columns: 64px 1fr; gap: 18px;
   padding: 26px 0; border-top: 1px solid #EDEBE5;
 }
 .case-sec:first-child { border-top: none; }
-.case-n {
-  font-family: 'Inter', -apple-system, sans-serif;
-  font-size: 12px; font-weight: 600; color: #E05C1F; letter-spacing: 0.1em; padding-top: 6px;
-}
 .case-sec-in h2 { font-size: 21px; font-weight: 900; letter-spacing: -0.02em; color: #121110; margin: 0 0 10px; }
 .case-sec-in p { font-size: 15px; line-height: 1.7; color: #55524B; margin: 0 0 12px; }
 .case-sec-in p:last-child { margin-bottom: 0; }

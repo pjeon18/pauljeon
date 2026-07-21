@@ -24,7 +24,13 @@ function greeting(): string {
 
 const HEADLINE = (
   <>
-    Hi, I'm Paul. I design and manage products for <em className="accent">claircognizance</em>{' '}
+    Hi, I'm Paul. I design and manage products for{' '}
+    <em className="accent ink-word">
+      claircognizance
+      <svg className="ink-stroke" viewBox="0 0 120 12" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M3,8 C24,3.5 52,9.5 76,6 C94,3.5 108,7 117,5" pathLength={1} />
+      </svg>
+    </em>{' '}
     <span className="thin">— intuitive clarity.</span>
   </>
 )
@@ -49,7 +55,7 @@ export default function Hero({
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const hoverable = window.matchMedia('(hover: hover)').matches
     if (reduced || !hoverable) {
-      h.classList.add('cr-static')
+      h.classList.add('cr-static', 'inked')
       return
     }
 
@@ -78,8 +84,12 @@ export default function Hero({
     }
     raf = requestAnimationFrame(loop)
 
+    // draw the ink stroke under the accent word once the entrance settles
+    const inkTimer = setTimeout(() => h.classList.add('inked'), 900)
+
     return () => {
       cancelAnimationFrame(raf)
+      clearTimeout(inkTimer)
       hero.removeEventListener('mousemove', onMove)
       hero.removeEventListener('mouseleave', onLeave)
     }
@@ -114,9 +124,7 @@ export default function Hero({
           <span className="cr-layer cr-abs cr-glow" aria-hidden="true">{HEADLINE}</span>
         </h1>
         <p className="sub">
-          I have experience and projects in designing and building product (<b>ISO</b>), engineering automation and
-          visualization tools for sales leads (<b>Org Chart Explorer</b>, <b>ZoomInfo BDR Enrichment Script</b>),
-          procurement and project management within business contexts (<b>The Harvard Shop</b>), and many more.
+          I take products from first spec to shipped code. Spin the cards. They introduce themselves.
         </p>
       </div>
 
