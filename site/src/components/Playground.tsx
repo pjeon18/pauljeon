@@ -72,9 +72,7 @@ export default function Playground() {
   return (
     <div className="playground">
       <div className="pg-head">
-        <div className="pg-kicker">Off the feed</div>
-        <h2>The playground.</h2>
-        <p>Sketches, systems, and side quests. Hover anything — it gets scribbled in.</p>
+        <h2>The playground <span className="pg-hint">(hover anything)</span></h2>
       </div>
       <div className="masonry">
         {tiles.map((tile) => (

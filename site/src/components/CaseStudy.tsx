@@ -62,11 +62,11 @@ export default function CaseStudy() {
         {study.art === 'rl' && <div className="cv-art"><RlArt /></div>}
       </div>
 
-      <div className="case-stats">
+      <div className="case-facts">
         {study.stats.map((s) => (
-          <div key={s.label} className="case-stat">
-            <div className="v">{s.value}</div>
-            <div className="l">{s.label}</div>
+          <div key={s.label} className="case-fact">
+            <span className="v">{s.value}</span>
+            <span className="l">{s.label}</span>
           </div>
         ))}
       </div>
@@ -74,7 +74,6 @@ export default function CaseStudy() {
       <div className="case-body">
         {study.sections.map((sec, i) => (
           <section key={i} className="case-sec">
-            <div className="case-n">{String(i + 1).padStart(2, '0')}</div>
             <div className="case-sec-in">
               <h2>{sec.heading}</h2>
               <div dangerouslySetInnerHTML={{ __html: sec.body }} />
