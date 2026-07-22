@@ -17,6 +17,7 @@ import gYtViz from '../assets/g-yt-viz.jpg'
 import gPokemaps from '../assets/g-pokemaps.jpg'
 import gImpostor from '../assets/g-impostor.jpg'
 import gSky from '../assets/g-sky.jpg'
+import posterHumanInventory from '../assets/poster-human-inventory.jpg'
 import gLiveroom from '../assets/g-liveroom.jpg'
 
 export type Category = 'product' | 'engineering' | 'ml' | 'all'
@@ -164,6 +165,7 @@ export interface Tile {
   link?: { label: string; href: string }  // external link shown in the expansion
   image?: string
   gradient?: string   // CSS gradient filler while real art is pending
+  to?: string          // internal route — clicking the tile navigates there
   art?: 'iso-brand' | 'wireframes' | 'clouds' | 'telemetry' | 'impostor' | 'deck' | 'type'
 }
 
@@ -176,11 +178,12 @@ export const tiles: Tile[] = [
   },
   { id: 'brand', height: 240, gradient: 'linear-gradient(140deg, #FFCE65, #FF8C2E 55%, #D64400)', title: 'Brand explorations' },
   {
-    id: 'wireframes', height: 400, gradient: 'linear-gradient(155deg, #EAF2F9, #B9C9D6 55%, #5E7386)',
-    title: 'The wireframe kit',
-    sub: 'The lo-fi blueprint every ISO screen grew from.',
-    expand: '<b>27 lo-fi screens</b> defining the product spine before any pixels: queue, live room, keep-talking, reflection, revival. The kit became the contract every hi-fi screen was checked against.',
+    id: 'human-inventory', height: 520, image: posterHumanInventory,
+    title: 'The Human Inventory',
+    sub: 'A film-series pamphlet & poster. Tap to hold it.',
+    to: '/human-inventory',
   },
+
   { id: 'clouds', height: 270, image: gSky, title: 'Cloud shader studies' },
   {
     id: 'shop', height: 320, image: harvardShop,
