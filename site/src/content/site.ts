@@ -171,18 +171,18 @@ export interface Tile {
 
 export const tiles: Tile[] = [
   {
+    id: 'human-inventory', height: 655, image: posterHumanInventory,
+    title: 'The Human Inventory',
+    sub: 'A film-series pamphlet & poster. Tap to hold it.',
+    to: '/human-inventory',
+  },
+  {
     id: 'iso-motion', height: 330, image: isoSplash,
     title: 'ISO motion system',
     sub: 'Thirty-one screens of choreography.',
     expand: 'The full choreography: <b>color waves</b> at five threshold moments, spring-based tab swipes, a sealed simultaneous reveal, and a reply timer that breathes. Built as a tokenized motion system — named springs, durations, easings — so every screen moves with one accent.',
   },
   { id: 'brand', height: 240, gradient: 'linear-gradient(140deg, #FFCE65, #FF8C2E 55%, #D64400)', title: 'Brand explorations' },
-  {
-    id: 'human-inventory', height: 520, image: posterHumanInventory,
-    title: 'The Human Inventory',
-    sub: 'A film-series pamphlet & poster. Tap to hold it.',
-    to: '/human-inventory',
-  },
 
   { id: 'clouds', height: 270, image: gSky, title: 'Cloud shader studies' },
   {

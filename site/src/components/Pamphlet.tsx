@@ -23,8 +23,8 @@ import Footer from './Footer'
 // closed back shows the blurb panel, the way the piece was designed to read.
 // ============================================================================
 
-const PW = 234 // panel width (sheet is 3 panels wide)
-const PH = 542 // panel height — sheet aspect 2000x1545
+const PW = 300 // panel width (sheet is 3 panels wide)
+const PH = 695 // panel height — sheet aspect 2000x1545
 
 function Face({
   img,
