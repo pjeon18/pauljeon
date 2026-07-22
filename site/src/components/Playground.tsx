@@ -72,7 +72,7 @@ export default function Playground() {
   return (
     <div className="playground">
       <div className="pg-head">
-        <h2>The playground <span className="pg-hint">(hover anything)</span></h2>
+        <h2>Gallery <span className="pg-hint">(hover anything)</span></h2>
       </div>
       <div className="masonry">
         {tiles.map((tile) => (
