@@ -11,6 +11,7 @@ import onapsis from '../assets/onapsis.jpg'
 import harvardShop from '../assets/harvard-shop.jpg'
 import lighthouse from '../assets/lighthouse.jpg'
 import portraitFront from '../assets/portrait-front.jpg'
+import pokemaps from '../assets/pokemaps.jpg'
 import portraitBack from '../assets/portrait-back.jpg'
 
 export type Category = 'product' | 'engineering' | 'ml' | 'all'
@@ -59,6 +60,17 @@ export const cards: Card[] = [
     slug: 'iso',
     demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
     icon: isoIcon,
+  },
+  {
+    id: 'pokemaps',
+    cats: ['product', 'engineering'],
+    title: 'PokéMAPs — a daily map-guessing puzzle across five Pokémon regions',
+    meta: 'Product · 373 locations · Live daily',
+    blurb: 'Wordle × GeoGuessr on the in-game town maps. Six escalating hints, direction-only feedback, and a content pipeline that extracts every click-region from the games\' own map data.',
+    href: 'https://pjeon18.github.io/pokemaps/',
+    linkLabel: 'Play today\'s puzzle',
+    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/pokemaps' },
+    image: pokemaps,
   },
   {
     id: 'org',
