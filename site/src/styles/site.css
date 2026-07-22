@@ -595,13 +595,13 @@ button { font-family: inherit; }
 .pam-lead { font-size: 16px; line-height: 1.65; color: #55524B; max-width: 56ch; margin: 0 auto; }
 
 .pam-stage {
-  position: relative; height: 660px; margin-top: 10px;
+  position: relative; height: 810px; margin-top: 10px;
   cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
 }
 .pam-stage:active { cursor: grabbing; }
 .pam-scene {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  perspective: 1600px;
+  perspective: 2000px;
 }
 .pam-orbit { transform-style: preserve-3d; }
 .pam-sheet { position: relative; transform-style: preserve-3d; }
@@ -641,7 +641,7 @@ button { font-family: inherit; }
 
 @media (max-width: 720px) {
   .pam-page { padding: 0 20px; }
-  .pam-stage { height: 520px; }
-  .pam-scene { perspective: 1200px; }
-  .pam-orbit { transform-style: preserve-3d; scale: 0.72; }
+  .pam-stage { height: 560px; }
+  .pam-scene { perspective: 1400px; }
+  .pam-orbit { transform-style: preserve-3d; scale: 0.55; }
 }
