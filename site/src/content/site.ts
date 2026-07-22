@@ -13,8 +13,6 @@ import lighthouse from '../assets/lighthouse.jpg'
 import portraitFront from '../assets/portrait-front.jpg'
 import pokemaps from '../assets/pokemaps.jpg'
 import portraitBack from '../assets/portrait-back.jpg'
-import gBrand from '../assets/g-brand-sheet.jpg'
-import gWireframes from '../assets/g-wireframes.jpg'
 import gYtViz from '../assets/g-yt-viz.jpg'
 import gPokemaps from '../assets/g-pokemaps.jpg'
 import gImpostor from '../assets/g-impostor.jpg'
@@ -165,6 +163,7 @@ export interface Tile {
   expand?: string        // presence enables "Read more →" inline expansion
   link?: { label: string; href: string }  // external link shown in the expansion
   image?: string
+  gradient?: string   // CSS gradient filler while real art is pending
   art?: 'iso-brand' | 'wireframes' | 'clouds' | 'telemetry' | 'impostor' | 'deck' | 'type'
 }
 
@@ -175,9 +174,9 @@ export const tiles: Tile[] = [
     sub: 'Thirty-one screens of choreography.',
     expand: 'The full choreography: <b>color waves</b> at five threshold moments, spring-based tab swipes, a sealed simultaneous reveal, and a reply timer that breathes. Built as a tokenized motion system — named springs, durations, easings — so every screen moves with one accent.',
   },
-  { id: 'brand', height: 240, image: gBrand, title: 'Brand explorations' },
+  { id: 'brand', height: 240, gradient: 'linear-gradient(140deg, #FFCE65, #FF8C2E 55%, #D64400)', title: 'Brand explorations' },
   {
-    id: 'wireframes', height: 400, image: gWireframes,
+    id: 'wireframes', height: 400, gradient: 'linear-gradient(155deg, #EAF2F9, #B9C9D6 55%, #5E7386)',
     title: 'The wireframe kit',
     sub: 'The lo-fi blueprint every ISO screen grew from.',
     expand: '<b>27 lo-fi screens</b> defining the product spine before any pixels: queue, live room, keep-talking, reflection, revival. The kit became the contract every hi-fi screen was checked against.',
