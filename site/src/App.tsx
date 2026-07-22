@@ -7,6 +7,7 @@ import About from './components/About'
 import Playground from './components/Playground'
 import Footer from './components/Footer'
 import CaseStudy from './components/CaseStudy'
+import Pamphlet from './components/Pamphlet'
 import Impostor from './games/Impostor'
 import { smoothScrollToId } from './lib/scroll'
 import type { Category } from './content/site'
@@ -46,6 +47,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/work/:slug" element={<CaseStudy />} />
+      <Route path="/human-inventory" element={<Pamphlet />} />
       <Route path="/impostor" element={<Impostor />} />
       <Route path="*" element={<Home />} />
     </Routes>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { tiles } from '../content/site'
 import type { Tile } from '../content/site'
 
@@ -71,6 +72,7 @@ function words(title: string) {
 
 export default function Playground() {
   const [open, setOpen] = useState<Record<string, boolean>>({})
+  const navigate = useNavigate()
 
   return (
     <div className="playground">
@@ -79,7 +81,14 @@ export default function Playground() {
       </div>
       <div className="masonry">
         {tiles.map((tile) => (
-          <div key={tile.id} className={'mtile' + (open[tile.id] ? ' open' : '')}>
+          <div
+            key={tile.id}
+            className={'mtile' + (open[tile.id] ? ' open' : '')}
+            onClick={tile.to ? () => navigate(tile.to!) : undefined}
+            role={tile.to ? 'link' : undefined}
+            tabIndex={tile.to ? 0 : undefined}
+            onKeyDown={tile.to ? (e) => { if (e.key === 'Enter') navigate(tile.to!) } : undefined}
+          >
             <div className="mvisual">
               <div className="mph" style={{ height: tile.height }}>
                 <TileArt tile={tile} />

@@ -584,3 +584,64 @@ button { font-family: inherit; }
   display: inline-block; font-size: 12px; font-weight: 700; color: #E05C1F;
   text-decoration: underline; text-underline-offset: 2px; margin-right: 14px;
 }
+
+/* ---------- the human inventory: 3D pamphlet viewer ---------- */
+.pam-page { max-width: 1120px; margin: 0 auto; padding: 0 48px; }
+.pam-head { padding: 60px 0 6px; text-align: center; }
+.pam-head h1 {
+  font-size: clamp(34px, 5vw, 54px); line-height: 1.06; letter-spacing: -0.03em;
+  font-weight: 900; color: #121110; margin: 14px 0 14px;
+}
+.pam-lead { font-size: 16px; line-height: 1.65; color: #55524B; max-width: 56ch; margin: 0 auto; }
+
+.pam-stage {
+  position: relative; height: 660px; margin-top: 10px;
+  cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.pam-stage:active { cursor: grabbing; }
+.pam-scene {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  perspective: 1600px;
+}
+.pam-orbit { transform-style: preserve-3d; }
+.pam-sheet { position: relative; transform-style: preserve-3d; }
+.pam-panel { position: absolute; top: 0; transform-style: preserve-3d; }
+.pam-face {
+  position: absolute; inset: 0; overflow: hidden;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: #111; border-radius: 1px;
+  transform: translateZ(0.4px);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.18);
+}
+.pam-face-back { transform: rotateY(180deg) translateZ(0.4px); }
+.pam-ink { position: absolute; inset: 0; }
+
+.pam-shadow {
+  position: absolute; left: 50%; bottom: 26px; height: 26px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(20,16,10,0.22), transparent 70%);
+  filter: blur(6px); pointer-events: none;
+  transition: width 120ms linear;
+}
+
+.pam-controls {
+  display: flex; align-items: center; justify-content: center; gap: 22px;
+  padding: 6px 0 26px; flex-wrap: wrap;
+}
+.pam-btn {
+  background: #121110; color: #FDFDFB; border: none; font-size: 14px; font-weight: 700;
+  padding: 12px 26px; border-radius: 99px; cursor: pointer; transition: transform 200ms ease;
+}
+.pam-btn:hover { transform: translateY(-2px); }
+.pam-slider { width: 220px; accent-color: #E05C1F; cursor: pointer; }
+.pam-hint {
+  font-family: 'Sentient', Georgia, serif; font-style: italic;
+  font-size: 15px; color: #A19D94;
+}
+
+@media (max-width: 720px) {
+  .pam-page { padding: 0 20px; }
+  .pam-stage { height: 520px; }
+  .pam-scene { perspective: 1200px; }
+  .pam-orbit { transform-style: preserve-3d; scale: 0.72; }
+}
