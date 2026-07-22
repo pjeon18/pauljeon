@@ -187,7 +187,7 @@ export default function Carousel({ filter }: { filter: Category }) {
                 <div className="blurb">{card.blurb}</div>
                 {card.slug && (
                   <Link className="more" to={`/work/${card.slug}`}>
-                    Read the case study <span className="arr">→</span>
+                    Read More <span className="arr">→</span>
                   </Link>
                 )}
                 {card.page && (

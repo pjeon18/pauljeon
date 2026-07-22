@@ -13,6 +13,13 @@ import lighthouse from '../assets/lighthouse.jpg'
 import portraitFront from '../assets/portrait-front.jpg'
 import pokemaps from '../assets/pokemaps.jpg'
 import portraitBack from '../assets/portrait-back.jpg'
+import gBrand from '../assets/g-brand-sheet.jpg'
+import gWireframes from '../assets/g-wireframes.jpg'
+import gYtViz from '../assets/g-yt-viz.jpg'
+import gPokemaps from '../assets/g-pokemaps.jpg'
+import gImpostor from '../assets/g-impostor.jpg'
+import gSky from '../assets/g-sky.jpg'
+import gLiveroom from '../assets/g-liveroom.jpg'
 
 export type Category = 'product' | 'engineering' | 'ml' | 'all'
 
@@ -64,9 +71,9 @@ export const cards: Card[] = [
   {
     id: 'pokemaps',
     cats: ['product', 'engineering'],
-    title: 'PokéMAPs — a daily map-guessing puzzle across five Pokémon regions',
+    title: 'PokéMAPs',
     meta: 'Product · 373 locations · Live daily',
-    blurb: 'Wordle × GeoGuessr on the in-game town maps. Six escalating hints, direction-only feedback, and a content pipeline that extracts every click-region from the games\' own map data.',
+    blurb: 'Guess the Pokemon In-Game location from a series of clues!',
     href: 'https://pjeon18.github.io/pokemaps/',
     linkLabel: 'Play today\'s puzzle',
     demo: { label: 'GitHub', href: 'https://github.com/pjeon18/pokemaps' },
@@ -130,6 +137,7 @@ export const cards: Card[] = [
     blurb: "Everyone gets the secret word. One of you doesn't. Good luck.",
     page: '/impostor',
     linkLabel: 'Play',
+    image: gImpostor,
   },
 ]
 
@@ -167,14 +175,14 @@ export const tiles: Tile[] = [
     sub: 'Thirty-one screens of choreography.',
     expand: 'The full choreography: <b>color waves</b> at five threshold moments, spring-based tab swipes, a sealed simultaneous reveal, and a reply timer that breathes. Built as a tokenized motion system — named springs, durations, easings — so every screen moves with one accent.',
   },
-  { id: 'brand', height: 240, art: 'iso-brand', title: 'Brand explorations' },
+  { id: 'brand', height: 240, image: gBrand, title: 'Brand explorations' },
   {
-    id: 'wireframes', height: 400, art: 'wireframes',
+    id: 'wireframes', height: 400, image: gWireframes,
     title: 'The wireframe kit',
     sub: 'The lo-fi blueprint every ISO screen grew from.',
     expand: '<b>27 lo-fi screens</b> defining the product spine before any pixels: queue, live room, keep-talking, reflection, revival. The kit became the contract every hi-fi screen was checked against.',
   },
-  { id: 'clouds', height: 270, art: 'clouds', title: 'Cloud shader studies' },
+  { id: 'clouds', height: 270, image: gSky, title: 'Cloud shader studies' },
   {
     id: 'shop', height: 320, image: harvardShop,
     title: 'The Harvard Shop',
@@ -182,15 +190,15 @@ export const tiles: Tile[] = [
     expand: 'Procurement and project management across storefronts — vendor negotiation, PO pipelines, and creative ways to hold a <b>65% profit margin</b>, working closely with the e-commerce, stores, and stock teams.',
     link: { label: 'theharvardshop.com ↗', href: 'https://www.theharvardshop.com/' },
   },
-  { id: 'telemetry', height: 340, art: 'telemetry', title: 'Telemetry sketches' },
-  { id: 'impostor-sprites', height: 250, art: 'impostor', title: 'Impostor sprites' },
+  { id: 'yt-viz', height: 340, image: gYtViz, title: 'The YouTube visualization' },
+  { id: 'impostor-game', height: 250, image: gImpostor, title: 'The Impostor game' },
   {
     id: 'film', height: 390, image: lighthouse,
     title: 'Film + photo',
     sub: 'Visual Studies work. The eye behind the interfaces.',
   },
-  { id: 'deck', height: 230, art: 'deck', title: 'Deck design' },
-  { id: 'type', height: 290, art: 'type', title: 'Type studies' },
+  { id: 'liveroom', height: 380, image: gLiveroom, title: 'The live room' },
+  { id: 'pokemaps-tile', height: 290, image: gPokemaps, title: 'PokéMAPs' },
 ]
 
 // ---------- footer ----------

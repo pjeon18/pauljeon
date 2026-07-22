@@ -81,7 +81,7 @@ button { font-family: inherit; }
 }
 .cr.inked .ink-stroke path { stroke-dashoffset: 0; }
 .ig-hero .sub {
-  margin: 20px auto 0; color: rgba(255,255,255,0.8); font-size: 15px; max-width: 52ch; line-height: 1.6;
+  margin: 22px auto 0; color: rgba(255,255,255,0.85); font-size: 18.5px; max-width: 54ch; line-height: 1.6;
 }
 .ig-hero .sub b { color: #FFFFFF; font-weight: 700; }
 
