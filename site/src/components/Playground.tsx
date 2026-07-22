@@ -17,6 +17,7 @@ function Scribble() {
 }
 
 function TileArt({ tile }: { tile: Tile }) {
+  if (tile.gradient) return <div className="ta" style={{ background: tile.gradient }} />
   if (tile.image) return <img src={tile.image} alt={tile.title} loading="lazy" />
   switch (tile.art) {
     case 'iso-brand':
@@ -59,9 +60,11 @@ function TileArt({ tile }: { tile: Tile }) {
 }
 
 function words(title: string) {
+  // word gaps come from .w margin-right — whitespace inside an
+  // inline-block span gets trimmed and renders as no space at all
   return title.split(' ').map((w, i) => (
     <span key={i} className="w" style={{ '--d': `${i * 45}ms` } as React.CSSProperties}>
-      {w}{' '}
+      {w}
     </span>
   ))
 }
