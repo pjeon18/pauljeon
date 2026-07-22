@@ -111,16 +111,7 @@ export const cards: Card[] = [
     demo: { label: 'Live visualization', href: 'https://xiaoman21.github.io/CS171/' },
     image: mediaGlobe,
   },
-  {
-    id: 'me',
-    cats: ['all'],
-    title: "Hi, it's me",
-    meta: 'About · Cambridge, MA',
-    blurb: 'CS + Visual Studies. I care about how software treats people.',
-    href: '#about',
-    linkLabel: 'About me',
-    usePortrait: true,
-  },
+
   {
     id: 'now',
     cats: ['product', 'engineering'],
@@ -148,12 +139,12 @@ export const about = {
   heading: 'I love designs that feel special.',
   portraitFront,
   portraitBack,
-  caption: 'usually building · occasionally inspecting pizza',
+  caption: 'usually designing, sometimes snacking',
   stats: "Harvard CS '27 · Visual Studies · Cambridge, MA",
   email: 'pauljeon@college.harvard.edu',
   paragraphs: [
-    "I'm a junior at Harvard studying computer science with a secondary in Visual Studies — the double lens behind <em>claircognizance</em>. I've shipped a dating app that values exclusivity and real connection (<b>ISO</b>), an organization reporting visualizer on AWS that never lets data leave the browser (<b>Org Chart Explorer</b>), and GTM automation that enriched leads across 13,000 contacts for the BDR team (<b>Onapsis</b>).",
-    'Before that I ran procurement and projects at <b>The Harvard Shop</b> — real budgets, finding creative ways to maintain a 65% profit margin, real vendors, working closely with the e-commerce, stores, and stock team. In my free time, I love painting, listening to music, and watching 2018 Prime James Harden highlights.',
+    "I'm a rising senior at Harvard studying computer science with a secondary in Visual Studies. My favorite projects have been a dating app that fosters real connection, an organization reporting chart run on AWS for the sales team, and GTM automation that enriched leads across 13,000 contacts for the BDR team.",
+    'Before that, I ran procurement and special projects at <b>The Harvard Shop</b> — working with real inventory ($1.3M), finding creative ways to maintain a 60% profit margin, meeting real vendors, and working closely with the e-commerce, stores, and stock team. In my free time, I love painting, listening to music, playing old Pokemon games on the Gameboy and watching 2018 Prime James Harden highlights.',
   ],
 }
 
@@ -171,35 +162,35 @@ export interface Tile {
 
 export const tiles: Tile[] = [
   {
-    id: 'iso-motion', height: 240, image: isoSplash,
+    id: 'iso-motion', height: 330, image: isoSplash,
     title: 'ISO motion system',
     sub: 'Thirty-one screens of choreography.',
     expand: 'The full choreography: <b>color waves</b> at five threshold moments, spring-based tab swipes, a sealed simultaneous reveal, and a reply timer that breathes. Built as a tokenized motion system — named springs, durations, easings — so every screen moves with one accent.',
   },
-  { id: 'brand', height: 180, art: 'iso-brand', title: 'Brand explorations' },
+  { id: 'brand', height: 240, art: 'iso-brand', title: 'Brand explorations' },
   {
-    id: 'wireframes', height: 300, art: 'wireframes',
+    id: 'wireframes', height: 400, art: 'wireframes',
     title: 'The wireframe kit',
     sub: 'The lo-fi blueprint every ISO screen grew from.',
     expand: '<b>27 lo-fi screens</b> defining the product spine before any pixels: queue, live room, keep-talking, reflection, revival. The kit became the contract every hi-fi screen was checked against.',
   },
-  { id: 'clouds', height: 200, art: 'clouds', title: 'Cloud shader studies' },
+  { id: 'clouds', height: 270, art: 'clouds', title: 'Cloud shader studies' },
   {
-    id: 'shop', height: 230, image: harvardShop,
+    id: 'shop', height: 320, image: harvardShop,
     title: 'The Harvard Shop',
     sub: 'Procurement and project management, with real money on the line.',
     expand: 'Procurement and project management across storefronts — vendor negotiation, PO pipelines, and creative ways to hold a <b>65% profit margin</b>, working closely with the e-commerce, stores, and stock teams.',
     link: { label: 'theharvardshop.com ↗', href: 'https://www.theharvardshop.com/' },
   },
-  { id: 'telemetry', height: 260, art: 'telemetry', title: 'Telemetry sketches' },
-  { id: 'impostor-sprites', height: 190, art: 'impostor', title: 'Impostor sprites' },
+  { id: 'telemetry', height: 340, art: 'telemetry', title: 'Telemetry sketches' },
+  { id: 'impostor-sprites', height: 250, art: 'impostor', title: 'Impostor sprites' },
   {
-    id: 'film', height: 280, image: lighthouse,
+    id: 'film', height: 390, image: lighthouse,
     title: 'Film + photo',
     sub: 'Visual Studies work. The eye behind the interfaces.',
   },
-  { id: 'deck', height: 170, art: 'deck', title: 'Deck design' },
-  { id: 'type', height: 220, art: 'type', title: 'Type studies' },
+  { id: 'deck', height: 230, art: 'deck', title: 'Deck design' },
+  { id: 'type', height: 290, art: 'type', title: 'Type studies' },
 ]
 
 // ---------- footer ----------

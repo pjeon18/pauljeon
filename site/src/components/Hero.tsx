@@ -124,7 +124,7 @@ export default function Hero({
           <span className="cr-layer cr-abs cr-glow" aria-hidden="true">{HEADLINE}</span>
         </h1>
         <p className="sub">
-          I take products from first spec to shipped code. Spin the cards. They introduce themselves.
+          I take new ideas into workable prototypes, while baking in purposeful design and code. Check them out below!
         </p>
       </div>
 

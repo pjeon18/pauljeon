@@ -246,9 +246,9 @@ button { font-family: inherit; }
   font-size: 17px; letter-spacing: 0; color: #A19D94; margin-left: 10px;
 }
 
-.masonry { columns: 3; column-gap: 14px; }
+.masonry { columns: 2; column-gap: 18px; }
 .mtile {
-  position: relative; break-inside: avoid; margin-bottom: 14px;
+  position: relative; break-inside: avoid; margin-bottom: 18px;
   border-radius: 10px; overflow: hidden; cursor: pointer;
   border: 1px solid #EDEBE5; background: #FFFFFF;
 }
@@ -361,19 +361,6 @@ button { font-family: inherit; }
   font-family: 'Sentient', Georgia, serif; font-style: italic; font-weight: 500; font-size: 1.05em;
 }
 
-/* ink signature: a loose circle around "Connect", drawn on scroll-into-view */
-.ink-circle-wrap { position: relative; display: inline-block; padding: 0 0.1em; }
-.ink-circle {
-  position: absolute; inset: -0.16em -0.24em; width: calc(100% + 0.48em); height: calc(100% + 0.32em);
-  overflow: visible; pointer-events: none;
-}
-.ink-circle path {
-  fill: none; stroke: #E05C1F; stroke-width: 3px;
-  stroke-linecap: round; vector-effect: non-scaling-stroke;
-  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0.85;
-  transition: stroke-dashoffset 950ms cubic-bezier(0.4, 0, 0.2, 1) 180ms;
-}
-.foot-big.inked .ink-circle path { stroke-dashoffset: 0; }
 .foot-mail {
   font-size: 17px; font-weight: 700; color: #121110; text-decoration: underline;
   text-underline-offset: 4px; text-decoration-color: #E05C1F; cursor: pointer;
@@ -389,7 +376,7 @@ button { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .acard, .cardbody, .reveal, .photo .art, .face,
   .scr path, .mt-title .w, .msub, .mtxt::before, .mp-flip, .mexp,
-  .ink-stroke path, .ink-circle path { transition: none !important; }
+  .ink-stroke path { transition: none !important; }
   .mtxt::before { opacity: 1; }
   .mt-title .w, .msub { transform: none; opacity: 1; }
 }
