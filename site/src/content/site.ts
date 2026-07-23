@@ -12,6 +12,7 @@ import harvardShop from '../assets/harvard-shop.jpg'
 import lighthouse from '../assets/lighthouse.jpg'
 import portraitFront from '../assets/portrait-front.jpg'
 import pokemaps from '../assets/pokemaps.jpg'
+import pocketTactics from '../assets/pocket-tactics.jpg'
 import portraitBack from '../assets/portrait-back.jpg'
 import gYtViz from '../assets/g-yt-viz.jpg'
 import gPokemaps from '../assets/g-pokemaps.jpg'
@@ -66,6 +67,17 @@ export const cards: Card[] = [
     slug: 'iso',
     demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
     icon: isoIcon,
+  },
+  {
+    id: 'pocket-tactics',
+    cats: ['product', 'engineering'],
+    title: 'Pocket Tactics',
+    meta: 'Game · 60 units · Online rooms',
+    blurb: 'A turn-based tactics game: draft a Mythical champion and a team, then assassinate the enemy champion on a living grid. Type synergies, seasonal fields, and private WebRTC rooms — a headless engine with no server.',
+    href: 'https://pjeon18.github.io/pocket-tactics/',
+    linkLabel: 'Play a match',
+    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/pocket-tactics' },
+    image: pocketTactics,
   },
   {
     id: 'pokemaps',
