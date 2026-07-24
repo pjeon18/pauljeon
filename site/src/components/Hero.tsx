@@ -28,7 +28,7 @@ const HEADLINE = (
     <em className="accent ink-word">
       claircognizance
       <svg className="ink-stroke" viewBox="0 0 120 12" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M3,8 C24,3.5 52,9.5 76,6 C94,3.5 108,7 117,5" pathLength={1} />
+        <path d="M3,8 C24,3.5 52,9.5 76,6 C94,3.5 108,7 117,5" />
       </svg>
     </em>{' '}
     <span className="thin">— intuitive clarity.</span>
