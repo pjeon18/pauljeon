@@ -73,9 +73,8 @@ export const cards: Card[] = [
     title: 'Prep.io',
     meta: 'Product · live office hours · 2026',
     blurb: 'Office hours, live — Twitch for breaking into a career. Verified pros go live, the crowd lurks free, and anyone can raise a hand for the hot seat. I took it from PRD to a shipped prototype: the fair, the funnel, honest liveness.',
-    href: 'https://pjeon18.github.io/prep-io/',
-    linkLabel: 'Open the prototype',
-    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/prep-io' },
+    slug: 'prep-io',
+    demo: { label: 'Open the prototype', href: 'https://pjeon18.github.io/prep-io/' },
     image: prepioCard,
   },
   {
@@ -226,6 +225,7 @@ export const footer = {
   kicker: 'Want to Learn More?',
   email: 'pauljeon@college.harvard.edu',
   links: [
+    { label: 'Résumé', href: 'https://pjeon18.github.io/pauljeon/Paul_Jeon-Resume.pdf' },
     { label: 'GitHub', href: 'https://github.com/pjeon18' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/paul-j-jeon' },
     { label: 'ISO prototype', href: 'https://pjeon18.github.io/iso-prototype/' },
@@ -254,7 +254,7 @@ export interface CaseStudy {
   sections: CaseSection[]
 }
 
-export const caseOrder = ['iso', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
+export const caseOrder = ['iso', 'prep-io', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
 
 export const caseStudies: Record<string, CaseStudy> = {
   iso: {
@@ -291,6 +291,47 @@ export const caseStudies: Record<string, CaseStudy> = {
       {
         heading: 'What shipped',
         body: '<p>A fully interactive prototype: the complete core loop (queue → live room → keep-talking → reflection), onboarding, revival, safety flows, and a subscription tier — with matchmaking simulated and an optional LLM-driven conversation partner behind a dev proxy. Plus the artifacts around it: a full PRD, a self-contained design document annotating every screen, and a narrated guided demo that drives the real store through the whole loop.</p>',
+      },
+    ],
+  },
+
+  'prep-io': {
+    slug: 'prep-io',
+    kicker: 'Product Case Study · 2026',
+    title: 'Prep.io. Office hours, made live.',
+    lead: 'A live-streaming platform shaped like a college club fair: verified professionals hold drop-in office hours, and you move from lurking in the crowd, to the hot seat, to a one-on-one. I took it from a one-page pitch to a deployed prototype — the product thinking, the design system, and the code.',
+    role: 'Product · design · engineering — solo',
+    stack: 'React · TypeScript · Vite · Zustand · Framer Motion · a simulated real-time crowd (scripted or LLM-driven)',
+    links: [
+      { label: 'Open the prototype', href: 'https://pjeon18.github.io/prep-io/' },
+      { label: 'GitHub repository', href: 'https://github.com/pjeon18/prep-io' },
+    ],
+    image: prepioCard,
+    stats: [
+      { value: '2', label: 'full layouts — a Twitch-style desktop and a native-feeling mobile app — on one design system' },
+      { value: '30+', label: 'screens: the fair, live rooms, search, explore, a premium tier, creator tools' },
+      { value: '1', label: 'rule enforced in code: a paid boost buys attention, never a spot on stage' },
+    ],
+    sections: [
+      {
+        heading: 'The gap',
+        body: '<p>Career advice online is stuck at two extremes. Recorded content is passive and unverifiable — anyone can claim to be a Goldman analyst. Booked 1:1 mentorship is real but doesn’t scale, and you have to already know what to ask. Nobody owns the format that actually works in person: <b>the professor’s office hours</b> — one expert, whoever shows up, everyone learning from everyone’s questions. Prep.io is that, online: live, drop-in, many-to-one.</p>',
+      },
+      {
+        heading: 'The funnel',
+        body: '<p>The whole product is one funnel, and every step is a mutual opt-in. You <b>lurk in the crowd</b> for free — no signup wall. You <b>raise a hand</b> with a written question. The host pulls you into the <b>hot seat</b>, where it’s answered in front of the room, so everyone learns from it. From there, the host can offer a private <b>breakout</b>. The consent gate lives in the state store, not the UI — which is what let me add paid "boosts" honestly: points can raise a question’s visibility to the host, but nothing can buy a spot on stage.</p>',
+      },
+      {
+        heading: 'The design system',
+        body: '<p>One token set drives two very different skins, and I built it that way on purpose. When the first look read as <em>too editorial</em>, I reskinned the entire product — from warm paper to a clean streaming UI — by changing tokens (color, type, spacing), not by touching individual screens. Later I added a full desktop layout the same way. Underneath: named motion presets so 30+ screens move as one product, a custom stroke icon set instead of emoji, strict semantic color (one accent; green reserved only for <b>verified</b>), and a "theater" scope that flips the live rooms dark without a single new component.</p>',
+      },
+      {
+        heading: 'Honest liveness',
+        body: '<p>The technical heart is a simulated crowd engine. Scripted personas — or LLM-driven ones behind a dev proxy — arrive, chat, and raise hands, so the viewer count and the room genuinely move. <b>Nothing is a hardcoded fake number.</b> A room that isn’t live is an archive, and it’s labeled as one. That honesty is a product value, and it’s enforced in the store: the count can only change through the simulation.</p>',
+      },
+      {
+        heading: 'What shipped',
+        body: '<p>A deployed, clickable prototype of the full surface: a browsable fair of live rooms, the raise-hand-to-hot-seat beat, company and people search, a goal-driven explore page, watch history, channel subscriptions with paid tiers, ticketed events (including a refundable <b>$1 "commitment"</b> that filters out no-shows), a points economy, video and shorts, and a premium tier with AI transcripts and playlist "mini-courses." Two breakpoints, one system, no backend.</p>',
       },
     ],
   },
