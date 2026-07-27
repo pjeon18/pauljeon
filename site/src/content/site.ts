@@ -19,7 +19,8 @@ import gPokemaps from '../assets/g-pokemaps.jpg'
 import gImpostor from '../assets/g-impostor.jpg'
 import gSky from '../assets/g-sky.jpg'
 import posterHumanInventory from '../assets/poster-human-inventory.jpg'
-import gLiveroom from '../assets/g-liveroom.jpg'
+import gPrepioRoom from '../assets/g-prepio-room.jpg'
+import prepioCard from '../assets/prepio.jpg'
 
 export type Category = 'product' | 'engineering' | 'ml' | 'all'
 
@@ -67,6 +68,17 @@ export const cards: Card[] = [
     slug: 'iso',
     demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
     icon: isoIcon,
+  },
+  {
+    id: 'prepio',
+    cats: ['product', 'engineering'],
+    title: 'Prep.io',
+    meta: 'Product · live office hours · 2026',
+    blurb: 'Office hours, live — Twitch for breaking into a career. Verified pros go live, the crowd lurks free, and anyone can raise a hand for the hot seat. I took it from PRD to a shipped prototype: the fair, the funnel, honest liveness.',
+    href: 'https://pjeon18.github.io/prep-io/',
+    linkLabel: 'Open the prototype',
+    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/prep-io' },
+    image: prepioCard,
   },
   {
     id: 'pocket-tactics',
@@ -211,7 +223,11 @@ export const tiles: Tile[] = [
     title: 'Film + photo',
     sub: 'Visual Studies work. The eye behind the interfaces.',
   },
-  { id: 'liveroom', height: 380, image: gLiveroom, title: 'The live room' },
+  {
+    id: 'liveroom', height: 380, image: gPrepioRoom,
+    title: 'The live room',
+    sub: 'Prep.io — office hours, live. Raise a hand for the hot seat.',
+  },
   { id: 'pokemaps-tile', height: 290, image: gPokemaps, title: 'PokéMAPs' },
 ]
 
