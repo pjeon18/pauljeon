@@ -9,7 +9,6 @@ import f1 from '../assets/f1.jpg'
 import mediaGlobe from '../assets/media-globe.jpg'
 import onapsis from '../assets/onapsis.jpg'
 import harvardShop from '../assets/harvard-shop.jpg'
-import lighthouse from '../assets/lighthouse.jpg'
 import portraitFront from '../assets/portrait-front.jpg'
 import pokemaps from '../assets/pokemaps.jpg'
 import pocketTactics from '../assets/pocket-tactics.jpg'
@@ -17,7 +16,6 @@ import portraitBack from '../assets/portrait-back.jpg'
 import gYtViz from '../assets/g-yt-viz.jpg'
 import gPokemaps from '../assets/g-pokemaps.jpg'
 import gImpostor from '../assets/g-impostor.jpg'
-import gSky from '../assets/g-sky.jpg'
 import posterHumanInventory from '../assets/poster-human-inventory.jpg'
 import gPrepioRoom from '../assets/g-prepio-room.jpg'
 import prepioCard from '../assets/prepio.jpg'
@@ -206,9 +204,6 @@ export const tiles: Tile[] = [
     sub: 'Thirty-one screens of choreography.',
     expand: 'The full choreography: <b>color waves</b> at five threshold moments, spring-based tab swipes, a sealed simultaneous reveal, and a reply timer that breathes. Built as a tokenized motion system — named springs, durations, easings — so every screen moves with one accent.',
   },
-  { id: 'brand', height: 240, gradient: 'linear-gradient(140deg, #FFCE65, #FF8C2E 55%, #D64400)', title: 'Brand explorations' },
-
-  { id: 'clouds', height: 270, image: gSky, title: 'Cloud shader studies' },
   {
     id: 'shop', height: 320, image: harvardShop,
     title: 'The Harvard Shop',
@@ -218,11 +213,6 @@ export const tiles: Tile[] = [
   },
   { id: 'yt-viz', height: 340, image: gYtViz, title: 'The YouTube visualization' },
   { id: 'impostor-game', height: 250, image: gImpostor, title: 'The Impostor game' },
-  {
-    id: 'film', height: 390, image: lighthouse,
-    title: 'Film + photo',
-    sub: 'Visual Studies work. The eye behind the interfaces.',
-  },
   {
     id: 'liveroom', height: 380, image: gPrepioRoom,
     title: 'The live room',
