@@ -18,6 +18,7 @@ import gPokemaps from '../assets/g-pokemaps.jpg'
 import gImpostor from '../assets/g-impostor.jpg'
 import posterHumanInventory from '../assets/poster-human-inventory.jpg'
 import gPrepioRoom from '../assets/g-prepio-room.jpg'
+import gDearData from '../assets/g-dear-data.jpg'
 import prepioCard from '../assets/prepio.jpg'
 
 export type Category = 'product' | 'engineering' | 'ml' | 'all'
@@ -216,6 +217,13 @@ export const tiles: Tile[] = [
     id: 'liveroom', height: 380, image: gPrepioRoom,
     title: 'The live room',
     sub: 'Prep.io — office hours, live. Raise a hand for the hot seat.',
+  },
+  {
+    id: 'dear-data-qr', height: 340, image: gDearData,
+    title: '扫一扫 — a Dear Data postcard',
+    sub: 'A month of QR-code life, extruded into a QR code that still scans.',
+    expand: 'Twenty-nine days in Shenzhen, tallied hourly: payments, train gates, menus, logins, doors. Each dark module of a <b>real QR code</b> holds one hour, raised to that hour’s count — seen from above, the record becomes the thing it measures. Point a camera at it and it resolves.',
+    link: { label: 'Open the sculpture ↗', href: 'https://pjeon18.github.io/dear-data-qr/' },
   },
   { id: 'pokemaps-tile', height: 290, image: gPokemaps, title: 'PokéMAPs' },
 ]
