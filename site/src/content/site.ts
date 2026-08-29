@@ -153,7 +153,7 @@ export const cards: Card[] = [
     id: 'impostor',
     cats: ['all'],
     title: 'Play Impostor',
-    meta: 'Off the clock · No refunds',
+    meta: 'Party game · 3–12 players · pass-and-play',
     blurb: "Everyone gets the secret word. One of you doesn't. Good luck.",
     page: '/impostor',
     linkLabel: 'Play',
@@ -232,6 +232,41 @@ export const footer = {
   ],
   fine: '© 2026 Paul Jeon. Designed and built by hand.',
 }
+
+// ---------- the box (homepage) ----------
+// Folders hang front-to-back in the order below; the first entry is the
+// front-most file. `tab` is the short label that fits on the plastic tab.
+export interface Folder {
+  id: string
+  tab: string
+  kind: 'project' | 'about' | 'resume'
+  card?: Card
+}
+
+const TAB_LABELS: Record<string, string> = {
+  about: 'About Me',
+  iso: 'ISO',
+  prepio: 'Prep.io',
+  'pocket-tactics': 'Pocket Tactics',
+  pokemaps: 'PokéMAPs',
+  org: 'Org Chart',
+  f1: 'F1 Undercut',
+  rl: 'RL Agents',
+  media: 'YouTube Data',
+  now: 'Onapsis',
+  impostor: 'Impostor',
+}
+
+export const folders: Folder[] = [
+  { id: 'about', tab: TAB_LABELS.about, kind: 'about' },
+  ...cards.map((c) => ({
+    id: c.id,
+    tab: TAB_LABELS[c.id] ?? c.title,
+    kind: 'project' as const,
+    card: c,
+  })),
+  { id: 'resume', tab: 'Résumé', kind: 'resume' },
+]
 
 // ---------- case studies (/work/:slug) ----------
 export interface CaseSection {
