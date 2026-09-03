@@ -7,6 +7,7 @@ import About from './components/About'
 import Playground from './components/Playground'
 import Footer from './components/Footer'
 import CaseStudy from './components/CaseStudy'
+import StuddyMag from './components/StuddyMag'
 import Pamphlet from './components/Pamphlet'
 import Impostor from './games/Impostor'
 import { smoothScrollToId } from './lib/scroll'
@@ -46,6 +47,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/work/studdy" element={<StuddyMag />} />
       <Route path="/work/:slug" element={<CaseStudy />} />
       <Route path="/human-inventory" element={<Pamphlet />} />
       <Route path="/impostor" element={<Impostor />} />
