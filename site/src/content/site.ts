@@ -20,6 +20,12 @@ import posterHumanInventory from '../assets/poster-human-inventory.jpg'
 import gPrepioRoom from '../assets/g-prepio-room.jpg'
 import gDearData from '../assets/g-dear-data.jpg'
 import prepioCard from '../assets/prepio.jpg'
+import studdyHero from '../assets/studdy-hero.jpg'
+import studdyLoop from '../assets/studdy-loop.jpg'
+import studdySalon from '../assets/studdy-salon.jpg'
+import studdyShop from '../assets/studdy-shop.jpg'
+import studdyCard from '../assets/studdy-card.jpg'
+import studdyTile from '../assets/studdy-tile.jpg'
 
 export type Category = 'product' | 'engineering' | 'ml' | 'all'
 
@@ -67,6 +73,16 @@ export const cards: Card[] = [
     slug: 'iso',
     demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
     icon: isoIcon,
+  },
+  {
+    id: 'studdy',
+    cats: ['product', 'engineering'],
+    title: 'Studdy',
+    meta: 'Product · live multiplayer · 2026',
+    blurb: 'A multiplayer study café. Real people, one shared 25/5 clock, and a room you furnish with focused minutes. Shipped with real auth, live presence, and a server-verified economy — then field-tested until it was honest.',
+    slug: 'studdy',
+    demo: { label: 'Open the café', href: 'https://pjeon18.github.io/studdy/' },
+    image: studdyCard,
   },
   {
     id: 'prepio',
@@ -212,6 +228,7 @@ export const tiles: Tile[] = [
     link: { label: 'theharvardshop.com ↗', href: 'https://www.theharvardshop.com/' },
   },
   { id: 'yt-viz', height: 340, image: gYtViz, title: 'The YouTube visualization' },
+  { id: 'studdy-room', height: 400, image: studdyTile, title: 'Studdy — a study spot that never closes', sub: 'A café you furnish with focused minutes', to: '/work/studdy' },
   { id: 'impostor-game', height: 250, image: gImpostor, title: 'The Impostor game' },
   {
     id: 'liveroom', height: 380, image: gPrepioRoom,
@@ -245,6 +262,8 @@ export const footer = {
 export interface CaseSection {
   heading: string
   body: string // HTML: <b>, <em>, <p> allowed
+  image?: string
+  imageCaption?: string
 }
 
 export interface CaseStudy {
@@ -262,7 +281,7 @@ export interface CaseStudy {
   sections: CaseSection[]
 }
 
-export const caseOrder = ['iso', 'prep-io', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
+export const caseOrder = ['iso', 'studdy', 'prep-io', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
 
 export const caseStudies: Record<string, CaseStudy> = {
   iso: {
@@ -299,6 +318,62 @@ export const caseStudies: Record<string, CaseStudy> = {
       {
         heading: 'What shipped',
         body: '<p>A fully interactive prototype: the complete core loop (queue → live room → keep-talking → reflection), onboarding, revival, safety flows, and a subscription tier — with matchmaking simulated and an optional LLM-driven conversation partner behind a dev proxy. Plus the artifacts around it: a full PRD, a self-contained design document annotating every screen, and a narrated guided demo that drives the real store through the whole loop.</p>',
+      },
+    ],
+  },
+
+  studdy: {
+    slug: 'studdy',
+    kicker: 'Product Case Study · 2026',
+    title: 'Studdy. A study spot that never closes.',
+    lead: 'Everyone already studies with strangers — they just can\'t see each other. Studdy is a multiplayer study café that makes the company mutual: tiny pixel people, real humans inside them, one 25/5 clock shared by every room in the world. You earn only by focusing, spend only on expression, and keep each other company without saying a word.',
+    role: 'Product · design · engineering — solo',
+    stack: 'three.js voxel renderer · TypeScript · Supabase (auth, realtime presence, Postgres RLS) · installable PWA',
+    links: [
+      { label: 'Open the café', href: 'https://pjeon18.github.io/studdy/' },
+      { label: 'GitHub repository', href: 'https://github.com/pjeon18/studdy' },
+      { label: 'The economy doc', href: 'https://github.com/pjeon18/studdy/blob/main/docs/ECONOMY.md' },
+    ],
+    image: studdyHero,
+    stats: [
+      { value: '25/5', label: 'one sprint clock, shared by every café in the world' },
+      { value: '1:1', label: 'one focused minute, one bean — there is no other way to earn' },
+      { value: '2', label: 'field testers — every break they found shipped a fix the same day' },
+    ],
+    sections: [
+      {
+        heading: 'Everyone already studies with strangers',
+        body: '<p>Watch how people actually study now: a "study with me" video of a stranger writing in silence, lofi radio with ten thousand listeners, a Discord voice channel where twenty people sit muted for three hours. Nobody talks. Nobody wants to talk. <b>The company is the product</b> — and every current version of it is one-way glass. The streamer doesn\'t know you exist; the muted channel is a black window.</p><p>That observation — from watching how my friends and I actually get work done, not from a survey — became the bet: keep the company, lose the glass, and never ask anyone to perform. In Studdy your presence is the whole contribution. A body in a chair, a napkin note saying what you\'re working on, headphones on when you\'d rather not be greeted. Not a productivity app with friends bolted on. A <em>place</em>.</p>',
+      },
+      {
+        heading: 'One clock',
+        body: '<p>Every café on Earth runs the same 25-minute sprint and the same 5-minute break, on one communal clock. Sit down anywhere, any hour, and you\'re mid-sprint with everyone else who\'s studying right now. Synchrony is what makes strangers feel like company — it\'s the quiet engine of the study-with-me format — so instead of shipping it as a feature, Studdy made it the physics of the world.</p><p>The clock also enforces the etiquette so moderation doesn\'t have to. Chat opens at breaks. Join mid-sprint and the room says <em>settle in quietly — chat opens at break ♪</em>. Even the lofi radio obeys: each café is a station whose track and position are computed from the wall clock, so two people in the same room always hear the same song at the same moment.</p>',
+        image: studdyLoop,
+        imageCaption: 'The loop: seated, on the clock, earning 2.2 beans a focused minute. The napkin is your status; headphones mean do-not-disturb.',
+      },
+      {
+        heading: 'The line between honor and proof',
+        body: '<p>Focused minutes are the only currency, and the first question anyone asks is: what stops me from cheating? The answer is a line I drew early and kept redrawing until it held. <b>Anything private runs on honor.</b> Your beans are yours; if you want to lie to a pixel cat, that\'s between you and the cat. <b>Anything other people see is witnessed.</b> Leaderboard XP and café ratings are granted by the server, which hears a heartbeat from your session about once a minute and will not credit time faster than a wall clock ticks. A devtools user can inflate their own save; they can never inflate their rank.</p><p>Week one of field testing proved the line mattered: a player closed her laptop mid-session and woke up rich. The fix wasn\'t a ban screen. The clock now only counts while the app is actually awake, and if you\'re gone half an hour the game stands you up gently — <em>you drifted off — we tucked your chair in ♪</em> — and pays you for what you actually did. Anti-cheat, written in the voice of a friend.</p>',
+      },
+      {
+        heading: 'Retention that respects your worst day',
+        body: '<p>Every retention mechanic passed one test before shipping: does it still respect the user on their worst day? Streaks <b>pause</b> when you miss a day — the count keeps, quietly — and only reset after two. There is no streak-loss modal, no guilt copy, no red number. Self-set goals are honor-system but claimable only the <em>next</em> day, which kills impulse-claiming without policing anyone. The "a friend is studying right now" banner is one tap to join and one tap to snooze for half an hour. The weekly recap renders as a postcard you might actually share, not a report card.</p>',
+      },
+      {
+        heading: 'An economy priced in hours',
+        body: '<p>One focused minute earns one bean, scaled gently by level. Every price in the game is set against that anchor and written down in a one-page economy doc: impulse buys cost minutes, statement furniture costs a session, the animated endgame pieces cost up to a week of steady study. <b>Sinks are expression, never power</b> — nothing purchasable earns faster or ranks higher, and identity is never priced: skin tones, hair, and the shape of your room are free forever.</p><p>Two decisions carried most of the weight. The first was a reversal: I shipped escalating prices for resizing your room, watched how it read — charging for something that had been free feels like bait-and-switch — and unshipped it, then wrote the principle down so it stays unshipped: structure is identity, and identity is never priced. The second was the endgame. The first player to finish everything — level 21, 1,800 beans banked, every goal cleared — told me she had nothing left to want. Bigger numbers would have been the lazy patch. What shipped instead was the atelier — a café cat that breathes and flicks its tail, a fireplace that lights the room — and a wardrobe of hats and name-tag charms that travel with you to every café. Things worth saving for because <em>other people see them</em>.</p>',
+        image: studdyShop,
+        imageCaption: 'The atelier tab: endgame pieces priced against the earn rate. The café cat costs about a week of steady sessions.',
+      },
+      {
+        heading: 'Two users kept breaking it',
+        body: '<p>Studdy\'s real QA team was two people studying in it daily, and they found what no spec would. Reloading a page left a ghost of you haunting the room for a minute (stale presence keys — fixed by deduplicating people by identity, not connection). A security migration I was proud of silently broke café publishing for everyone (Postgres column grants versus upsert semantics — the kind of bug where every layer works and the product doesn\'t). Two laptops ran hot because an idle café was rendering like an action game — now it requests the low-power GPU and drops to 30fps whenever your hands leave the keys.</p><p>Each fix shipped within the day. The economy doc, the trust line, the kindness rules — all of them got sharper because two honest users kept colliding with the product as built, not the product as imagined.</p>',
+      },
+      {
+        heading: 'Open late',
+        body: '<p>Studdy is live and installable, and it keeps growing the way a café would: wall décor to hang, five-seat study clubs with a shared clubhouse and a pooled treasury, a quiet report-and-block safety layer, an app you can put on a phone that holds the screen awake through a session. The roadmap is more of the same idea — window views, a room extension, seasonal pieces — because the idea hasn\'t changed since the first sketch: <b>time you actually spent, made visible in a place you actually like.</b></p>',
+        image: studdySalon,
+        imageCaption: 'The mirror: base identity — skin, hair, glasses — free forever. Hats and tag charms are priced in study-hours, and owned pieces lose their price tags.',
       },
     ],
   },

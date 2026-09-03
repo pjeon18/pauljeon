@@ -77,6 +77,12 @@ export default function CaseStudy() {
             <div className="case-sec-in">
               <h2>{sec.heading}</h2>
               <div dangerouslySetInnerHTML={{ __html: sec.body }} />
+              {sec.image && (
+                <figure className="case-fig">
+                  <img src={sec.image} alt={sec.imageCaption ?? sec.heading} loading="lazy" />
+                  {sec.imageCaption && <figcaption>{sec.imageCaption}</figcaption>}
+                </figure>
+              )}
             </div>
           </section>
         ))}
