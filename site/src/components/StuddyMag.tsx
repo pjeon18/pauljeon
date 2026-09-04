@@ -1,7 +1,7 @@
 // The Studdy case study, magazine edition — a bespoke long-read with its own
 // layout system (see studdy-mag.css). Content lives inline: this page IS the
 // deliverable, and its structure changes with its story.
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
 import '../styles/studdy-mag.css'
@@ -114,11 +114,11 @@ function DecisionMap() {
   const dots: { x: number; y: number; label: string; risk?: boolean; end?: boolean }[] = [
     { x: 88, y: 88, label: 'communal 25/5 clock', end: true },
     { x: 82, y: 62, label: 'chat only at breaks', end: true },
-    { x: 60, y: 79, label: 'napkin status' },
+    { x: 62, y: 76, label: 'napkin status' },
     { x: 74, y: 40, label: 'headphones = do-not-disturb', end: true },
     { x: 52, y: 92, label: 'name tags over heads', end: true },
     { x: 42, y: 68, label: 'guestbook doodles', end: true },
-    { x: 30, y: 82, label: '"friend is studying" banner', risk: true },
+    { x: 30, y: 84, label: '"friend is studying" banner', risk: true, end: true },
     { x: 26, y: 34, label: 'xp leaderboard', risk: true },
     { x: 66, y: 22, label: 'streaks (pausing)' },
     { x: 50, y: 52, label: 'lofi radio per café' },
@@ -200,6 +200,39 @@ const REFS = [
     line: 'Scheduled coworking with a stranger, camera on. It works. It feels like a meeting.',
   },
 ]
+
+function RefCarousel() {
+  const [i, setI] = useState(0)
+  const n = REFS.length
+  const go = (d: number) => setI((v) => (v + d + n) % n)
+  const r = REFS[i]
+  return (
+    <div className="sm-carousel rv">
+      <div className="sm-caro-card" key={r.name}>
+        <img src={r.img} alt={r.name} />
+        <div className="sm-caro-body">
+          <div className="sm-refcard-name">{r.name}</div>
+          <div className="sm-refcard-stat">{r.stat}</div>
+          <p>{r.line}</p>
+        </div>
+      </div>
+      <div className="sm-caro-nav">
+        <button onClick={() => go(-1)} aria-label="Previous product">←</button>
+        <div className="sm-caro-dots">
+          {REFS.map((x, j) => (
+            <button
+              key={x.name}
+              className={j === i ? 'on' : ''}
+              onClick={() => setI(j)}
+              aria-label={x.name}
+            />
+          ))}
+        </div>
+        <button onClick={() => go(1)} aria-label="Next product">→</button>
+      </div>
+    </div>
+  )
+}
 
 interface Complaint {
   quote: string
@@ -309,7 +342,7 @@ export default function StuddyMag() {
       {/* ---------------- part one: research ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>01</span> The research</div>
-        <h2 className="rv">Everyone already studies with strangers.</h2>
+        <h2 className="rv">How people actually study now.</h2>
         <div className="sm-cols rv">
           <p>
             Start in South Korea, around the college entrance exams. Students began broadcasting themselves
@@ -326,18 +359,7 @@ export default function StuddyMag() {
         </div>
 
         <p className="sm-lede rv">Five products own this behavior today. Meet them:</p>
-        <div className="sm-refstrip rv">
-          {REFS.map((r) => (
-            <div className="sm-refcard" key={r.name}>
-              <img src={r.img} alt={r.name} loading="lazy" />
-              <div className="sm-refcard-body">
-                <div className="sm-refcard-name">{r.name}</div>
-                <div className="sm-refcard-stat">{r.stat}</div>
-                <p>{r.line}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <RefCarousel />
 
         <div className="sm-stats rv">
           <div><span className="v">15.8M</span><span className="l">Lofi Girl subscribers, ~100k listening at any hour</span></div>
@@ -348,7 +370,7 @@ export default function StuddyMag() {
           <div><span className="v">44%</span><span className="l">of daily users on the biggest avatar platform are now over 17</span></div>
         </div>
 
-        <div className="sm-statement rv">
+        <div className="sm-statement sm-band sm-band-dark rv">
           <p>Every one of these is lopsided.</p>
           <p className="sm-statement-sub">
             The streams are one-way glass: the streamer will never know you existed. The Discord is mutual
@@ -388,9 +410,9 @@ export default function StuddyMag() {
       </section>
 
       {/* ---------------- part two: the bet ---------------- */}
-      <section className="sm-part">
+      <section className="sm-part sm-band sm-band-pink">
         <div className="sm-partmark rv"><span>02</span> The bet</div>
-        <h2 className="rv">Presence is the product.</h2>
+        <h2 className="rv">Defining the product.</h2>
         <div className="sm-duo rv">
           <div className="sm-duo-text">
             <p>
@@ -436,7 +458,7 @@ export default function StuddyMag() {
       {/* ---------------- part three: day one ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>03</span> Day one</div>
-        <h2 className="rv">It looked like this.</h2>
+        <h2 className="rv">The first prototype.</h2>
         <figure className="sm-figure rv">
           <img src={v0Img} alt="The first committed build of Studdy" />
           <figcaption>
@@ -467,9 +489,9 @@ export default function StuddyMag() {
       </section>
 
       {/* ---------------- interlude: the character ---------------- */}
-      <section className="sm-part sm-charpart">
+      <section className="sm-part sm-charpart sm-band sm-band-sky">
         <div className="sm-partmark rv"><span>—</span> Interlude</div>
-        <h2 className="rv">The body you study in.</h2>
+        <h2 className="rv">Designing the avatar.</h2>
         <div className="sm-chargrid rv">
           <figure><img src={charBeret} alt="The Studdy character wearing a beret" /></figure>
           <figure className="sm-char-mid"><img src={charPlain} alt="The Studdy character with glasses" /></figure>
@@ -493,7 +515,7 @@ export default function StuddyMag() {
       {/* ---------------- part four: art direction ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>04</span> Art direction</div>
-        <h2 className="rv">Four treatments. One lab. One survivor.</h2>
+        <h2 className="rv">Choosing the art direction.</h2>
         <div className="sm-cols rv">
           <p>
             Months in, the flat-shaded look earned a diagnosis from its first users: muddy, plasticky,
@@ -551,9 +573,9 @@ export default function StuddyMag() {
       </section>
 
       {/* ---------------- part five: light ---------------- */}
-      <section className="sm-part">
+      <section className="sm-part sm-band sm-band-butter">
         <div className="sm-partmark rv"><span>05</span> Light</div>
-        <h2 className="rv">Three rounds to make a lamp honest.</h2>
+        <h2 className="rv">Tuning the lighting.</h2>
         <div className="sm-duo rv">
           <div className="sm-duo-text">
             <p>
@@ -588,7 +610,7 @@ export default function StuddyMag() {
       {/* ---------------- part six: trust ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>06</span> Trust</div>
-        <h2 className="rv">The line between honor and proof.</h2>
+        <h2 className="rv">Designing trust: honor vs. proof.</h2>
         <p className="sm-lede rv">
           Focused minutes are the only currency, so the oldest multiplayer question arrived first:
           what stops me from lying? The answer is a boundary, not a police force.
@@ -732,7 +754,7 @@ export default function StuddyMag() {
       {/* ---------------- part nine: economy ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>09</span> The economy</div>
-        <h2 className="rv">Priced in hours, written in one page.</h2>
+        <h2 className="rv">Designing the economy.</h2>
         <p className="sm-lede rv">
           One focused minute earns one bean, scaled gently by level. Every price in the game answers to
           that anchor, in a one-page economy document with real bands:
@@ -788,44 +810,54 @@ export default function StuddyMag() {
 
       {/* ---------------- coda ---------------- */}
       <section className="sm-part sm-coda">
-        <div className="sm-partmark rv"><span>10</span> Open late</div>
-        <h2 className="rv">What this project is, underneath.</h2>
-        <div className="sm-cols rv">
-          <p>
-            On paper, Studdy is a study tool. Underneath, it's a thesis about where social software goes
-            next. The generation that grew up in avatar worlds will keep choosing places over apps as adult
-            life arrives: spaces with bodies, rooms, and ambient company, tuned for what that life actually
-            needs. Studying is the first vertical because the demand is already visible (a million muted
-            students on Discord are the proof). The same architecture points at coworking, reading rooms,
-            practice spaces.
-          </p>
-          <p>
-            The craft underneath: a voxel renderer with a hue-shifted toon ramp, one state store enforcing
-            the product's promises, Postgres row-level security drawing the trust line, realtime presence
-            that survived its ghosts, and an economy document that has already survived one reversal and
-            one maxed-out player. Every piece shipped to production, broke against two real users, and got
-            better. The café is open. It never closes. The next complaint is already welcome.
-          </p>
+        <div className="sm-partmark rv"><span>10</span> Where this goes</div>
+        <h2 className="rv">Takeaways.</h2>
+        <div className="sm-takeaways rv">
+          <div className="sm-take"><b>Places beat apps.</b><p>The avatar generation is aging into work. They'll bring their platform expectations with them.</p></div>
+          <div className="sm-take"><b>Presence beats features.</b><p>The product's best retention mechanic is another person's chair being occupied.</p></div>
+          <div className="sm-take"><b>Kindness scales.</b><p>Streaks that pause, anti-cheat that tucks your chair in. Nothing here shames anyone, and nothing broke because of it.</p></div>
+          <div className="sm-take"><b>Two users are enough.</b><p>Every important fix on this page came from someone real colliding with something shipped.</p></div>
         </div>
-        <blockquote className="sm-pull rv">
-          Time you actually spent,<br />made visible in a place you actually like.
-        </blockquote>
-        <div className="sm-sources rv">
-          <h4>Sources &amp; further reading</h4>
-          <p>
-            Lofi Girl scale: <a href="https://en.wikipedia.org/wiki/Lofi_Girl" target="_blank" rel="noreferrer">Wikipedia</a> ·
-            gongbang origins: <a href="https://observatory.tec.mx/edu-news/gongbang-study-with-me/" target="_blank" rel="noreferrer">Tec de Monterrey Observatory</a>, <a href="https://www.scmp.com/week-asia/lifestyle-culture/article/3121568/study-buddies-south-korean-youtubers-take-cram-sessions" target="_blank" rel="noreferrer">SCMP</a> ·
-            Study Together: <a href="https://discord.com/servers/study-together-595999872222756885" target="_blank" rel="noreferrer">Discord</a> ·
-            body doubling: <a href="https://health.clevelandclinic.org/body-doubling-for-adhd" target="_blank" rel="noreferrer">Cleveland Clinic</a>, <a href="https://arxiv.org/pdf/2509.12153" target="_blank" rel="noreferrer">arXiv (VR body doubling)</a> ·
-            Forest: <a href="https://forestapp.cc/" target="_blank" rel="noreferrer">forestapp.cc</a> ·
-            Focusmate: <a href="https://www.focusmate.com/business/" target="_blank" rel="noreferrer">focusmate.com</a> ·
-            Gen Z loneliness &amp; third places: <a href="https://www.simplypsychology.com/articles/third-places-loneliness" target="_blank" rel="noreferrer">Simply Psychology</a>, <a href="https://www.huffpost.com/entry/third-spaces-and-gen-z_l_675ca0fee4b0a6324e3b58ad" target="_blank" rel="noreferrer">HuffPost</a> ·
-            Cyworld: <a href="https://en.wikipedia.org/wiki/Cyworld" target="_blank" rel="noreferrer">Wikipedia</a> ·
-            platform aging-up: <a href="https://www.thebloxline.com/articles/roblox-now-has-123-million-daily-users-but-the-bigger-story-is-who-those-users-are-becoming" target="_blank" rel="noreferrer">The Bloxline</a>, <a href="https://backlinko.com/roblox-users" target="_blank" rel="noreferrer">Backlinko</a>.
-            Product screenshots appear for identification and commentary; all marks belong to their owners.
-          </p>
+        <div className="sm-shipchips rv">
+          <span>live &amp; installable</span>
+          <span>server-verified economy</span>
+          <span>realtime presence</span>
+          <span>lofi radio per café</span>
+          <span>study clubs</span>
+          <span>wardrobe &amp; atelier</span>
+          <span>report &amp; block</span>
+          <span>2 field testers, 0 spared feelings</span>
         </div>
       </section>
+
+      <div className="sm-finale sm-band sm-band-dark rv">
+        <blockquote className="sm-pull sm-pull-light">
+          Time you actually spent,<br />made visible in a place you actually like.
+        </blockquote>
+        <a className="sm-finale-cta" href="https://pjeon18.github.io/studdy/" target="_blank" rel="noreferrer">
+          The café is open → pjeon18.github.io/studdy
+        </a>
+      </div>
+
+      <figure className="sm-bleed sm-finale-img rv">
+        <img src={heroImg} alt="A full Studdy café" loading="lazy" />
+      </figure>
+
+      <details className="sm-details sm-sourcefold rv">
+        <summary>Sources &amp; further reading</summary>
+        <p className="sm-sources-p">
+          Lofi Girl scale: <a href="https://en.wikipedia.org/wiki/Lofi_Girl" target="_blank" rel="noreferrer">Wikipedia</a> ·
+          gongbang origins: <a href="https://observatory.tec.mx/edu-news/gongbang-study-with-me/" target="_blank" rel="noreferrer">Tec de Monterrey Observatory</a>, <a href="https://www.scmp.com/week-asia/lifestyle-culture/article/3121568/study-buddies-south-korean-youtubers-take-cram-sessions" target="_blank" rel="noreferrer">SCMP</a> ·
+          Study Together: <a href="https://discord.com/servers/study-together-595999872222756885" target="_blank" rel="noreferrer">Discord</a> ·
+          body doubling: <a href="https://health.clevelandclinic.org/body-doubling-for-adhd" target="_blank" rel="noreferrer">Cleveland Clinic</a>, <a href="https://arxiv.org/pdf/2509.12153" target="_blank" rel="noreferrer">arXiv (VR body doubling)</a> ·
+          Forest: <a href="https://forestapp.cc/" target="_blank" rel="noreferrer">forestapp.cc</a> ·
+          Focusmate: <a href="https://www.focusmate.com/business/" target="_blank" rel="noreferrer">focusmate.com</a> ·
+          Gen Z loneliness &amp; third places: <a href="https://www.simplypsychology.com/articles/third-places-loneliness" target="_blank" rel="noreferrer">Simply Psychology</a>, <a href="https://www.huffpost.com/entry/third-spaces-and-gen-z_l_675ca0fee4b0a6324e3b58ad" target="_blank" rel="noreferrer">HuffPost</a> ·
+          Cyworld: <a href="https://en.wikipedia.org/wiki/Cyworld" target="_blank" rel="noreferrer">Wikipedia</a> ·
+          platform aging-up: <a href="https://www.thebloxline.com/articles/roblox-now-has-123-million-daily-users-but-the-bigger-story-is-who-those-users-are-becoming" target="_blank" rel="noreferrer">The Bloxline</a>, <a href="https://backlinko.com/roblox-users" target="_blank" rel="noreferrer">Backlinko</a>.
+          Product screenshots appear for identification and commentary; all marks belong to their owners.
+        </p>
+      </details>
 
       <div className="case-next sm-next">
         <div className="case-kicker">Next up</div>

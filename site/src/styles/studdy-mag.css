@@ -323,3 +323,95 @@
 .sm-decision-tag { font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: #E05C1F; margin-bottom: 8px; }
 .sm-decision p { font-size: 14.5px; line-height: 1.7; color: #55524B; margin: 0; }
 .sm-decision b { color: #121110; }
+
+/* ---------- v3: color bands, carousel, finale ---------- */
+
+/* full-bleed tinted bands */
+.sm-band {
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: calc(50vw - 50%);
+  padding-right: calc(50vw - 50%);
+}
+.sm-band-pink { background: #FFE9F0; }
+.sm-band-sky { background: #E3F0FA; }
+.sm-band-butter { background: #FFF3D9; }
+.sm-band-pink .sm-partmark, .sm-band-sky .sm-partmark, .sm-band-butter .sm-partmark { border-top-color: rgba(18, 17, 16, 0.1); }
+.sm-band-pink .sm-pillar, .sm-band-sky .sm-cylogo { background: #FFFFFF; border-color: rgba(18, 17, 16, 0.08); }
+.sm-band-pink .sm-cylogo { background: #FFFFFF; border-color: rgba(18, 17, 16, 0.08); }
+section.sm-band { padding-top: 64px; padding-bottom: 56px; margin-top: 40px; margin-bottom: 8px; }
+.sm-band-sky .sm-chargrid img { border-color: rgba(18, 17, 16, 0.08); }
+
+/* the dark statement band */
+.sm-statement.sm-band-dark {
+  background: #17150F;
+  padding-top: 72px;
+  padding-bottom: 76px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+.sm-statement.sm-band-dark p { color: #FDFDFB; }
+.sm-statement.sm-band-dark .sm-statement-sub { color: #B9B4A8; }
+.sm-statement.sm-band-dark .sm-statement-big { color: #FDFDFB; }
+.sm-statement.sm-band-dark .sm-statement-big em { color: #FF7A3D; }
+
+/* the ref carousel */
+.sm-carousel { max-width: 760px; margin: 0 auto 26px; }
+.sm-caro-card {
+  border: 1px solid #EDEBE5; border-radius: 16px; background: #FDFDFB; overflow: hidden;
+  animation: caroIn 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes caroIn { from { opacity: 0.35; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+.sm-caro-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; object-position: top; display: block; border-bottom: 1px solid #EDEBE5; }
+.sm-caro-body { padding: 18px 22px 20px; }
+.sm-caro-body p { font-size: 14.5px; line-height: 1.6; color: #55524B; margin: 0; }
+.sm-caro-nav { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 14px; }
+.sm-caro-nav > button {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid #E0DCD1; background: #FDFDFB; color: #121110;
+  font-size: 17px; cursor: pointer; transition: all 160ms ease;
+}
+.sm-caro-nav > button:hover { background: #121110; color: #FDFDFB; border-color: #121110; }
+.sm-caro-dots { display: flex; gap: 8px; }
+.sm-caro-dots button {
+  width: 9px; height: 9px; border-radius: 50%; border: none; cursor: pointer;
+  background: #E0DCD1; padding: 0; transition: all 160ms ease;
+}
+.sm-caro-dots button.on { background: #E05C1F; transform: scale(1.25); }
+
+/* takeaways */
+.sm-takeaways { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 8px 0 26px; }
+@media (max-width: 700px) { .sm-takeaways { grid-template-columns: 1fr; } }
+.sm-take { border: 1px solid #EDEBE5; border-radius: 14px; background: #FDFDFB; padding: 22px 24px; }
+.sm-take b { display: block; font-size: 19px; letter-spacing: -0.02em; color: #121110; margin-bottom: 6px; font-weight: 850; }
+.sm-take p { font-size: 14px; line-height: 1.65; color: #55524B; margin: 0; }
+
+/* shipped chips */
+.sm-shipchips { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 10px; }
+.sm-shipchips span {
+  border: 1px solid #E0DCD1; border-radius: 99px; background: #FDFDFB;
+  padding: 7px 16px 8px; font-size: 13px; font-weight: 700; color: #38352F;
+}
+.sm-shipchips span:last-child { border-color: #E05C1F; color: #E05C1F; }
+
+/* the finale band */
+.sm-finale {
+  background: #17150F;
+  padding-top: 84px;
+  padding-bottom: 84px;
+  margin-top: 56px;
+  text-align: center;
+}
+.sm-pull-light { color: #FDFDFB; margin: 0 0 30px; }
+.sm-finale-cta {
+  display: inline-block;
+  font-size: 15px; font-weight: 700; color: #FF9A66;
+  text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(255, 154, 102, 0.5);
+}
+.sm-finale-cta:hover { color: #FFB88C; }
+.sm-finale-img { margin-top: 0; }
+.sm-finale-img img { border-radius: 0; }
+@media (min-width: 1160px) { .sm-finale-img img { border-radius: 0 0 16px 16px; } }
+.sm-sourcefold { margin-top: 34px; }
+.sm-sources-p { font-size: 12px !important; line-height: 1.9 !important; color: #8F8B83 !important; font-style: normal !important; }
+.sm-sources-p a { color: #55524B; }
