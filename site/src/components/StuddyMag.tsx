@@ -27,6 +27,7 @@ import refForest from '../assets/ref-forest.jpg'
 import refFocusmate from '../assets/ref-focusmate.jpg'
 import refRoblox from '../assets/ref-roblox.jpg'
 import refCyworld from '../assets/ref-cyworld.jpg'
+import wordmark from '../assets/studdy-wordmark.png'
 
 // ---------------------------------------------------------------------------
 
@@ -131,10 +132,10 @@ function DecisionMap() {
       <line x1="340" y1="20" x2="340" y2="400" stroke="#EDEBE5" />
       <line x1="70" y1="400" x2="610" y2="400" stroke="#B9B4A8" />
       <line x1="70" y1="400" x2="70" y2="20" stroke="#B9B4A8" />
-      <text x="76" y="422" fontSize="12" fill="#8F8B83">tempts you away</text>
-      <text x="604" y="422" fontSize="12" fill="#38352F" textAnchor="end" fontWeight="700">protects the sprint</text>
+      <text x="76" y="422" fontSize="12" fill="#8F8B83">hurts focus</text>
+      <text x="604" y="422" fontSize="12" fill="#38352F" textAnchor="end" fontWeight="700">supports focus</text>
       <text x="58" y="396" fontSize="12" fill="#8F8B83" transform="rotate(-90 58 396)">works alone</text>
-      <text x="58" y="140" fontSize="12" fill="#38352F" transform="rotate(-90 58 140)" fontWeight="700">feels accompanied</text>
+      <text x="58" y="140" fontSize="12" fill="#38352F" transform="rotate(-90 58 140)" fontWeight="700">adds company</text>
       {dots.map((d) => {
         const cx = 70 + (d.x / 100) * 540
         const cy = 20 + ((100 - d.y) / 100) * 380
@@ -201,31 +202,78 @@ const REFS = [
   },
 ]
 
+function PriorityMatrix() {
+  const Q = [
+    {
+      cls: 'q-blue', tag: 'High value · low effort', name: 'Shipped first',
+      items: ['communal clock', 'napkin status', 'headphones = DND', 'streak pausing', 'name tags'],
+    },
+    {
+      cls: 'q-green', tag: 'High value · high effort', name: 'The big bets',
+      items: ['realtime presence', 'server-verified economy', 'clubs + clubhouse', 'lofi radio'],
+    },
+    {
+      cls: 'q-purple', tag: 'Low value · low effort', name: 'Nice-to-haves',
+      items: ['tag charms', 'guestbook doodles', 'warm/cool bulbs'],
+    },
+    {
+      cls: 'q-yellow', tag: 'Low value · high effort', name: 'Declined or deferred',
+      items: ['retro toggle (shipped, killed)', 'room extension (deferred)', 'voice chat (never)'],
+    },
+  ]
+  return (
+    <div className="sm-matrix rv">
+      <div className="sm-matrix-y"><span>High value</span><span>Low value</span></div>
+      <div className="sm-matrix-grid">
+        {Q.map((q) => (
+          <div className={'sm-quad ' + q.cls} key={q.name}>
+            <div className="sm-quad-tag">{q.tag}</div>
+            <div className="sm-quad-name">{q.name}</div>
+            <div className="sm-quad-chips">
+              {q.items.map((it) => <span key={it}>{it}</span>)}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="sm-matrix-x"><span>Low effort</span><span>High effort</span></div>
+    </div>
+  )
+}
+
 function RefCarousel() {
   const [i, setI] = useState(0)
   const n = REFS.length
   const go = (d: number) => setI((v) => (v + d + n) % n)
-  const r = REFS[i]
   return (
     <div className="sm-carousel rv">
-      <div className="sm-caro-card" key={r.name}>
-        <img src={r.img} alt={r.name} />
-        <div className="sm-caro-body">
-          <div className="sm-refcard-name">{r.name}</div>
-          <div className="sm-refcard-stat">{r.stat}</div>
-          <p>{r.line}</p>
-        </div>
+      <div className="sm-caro-stage">
+        {REFS.map((r, j) => {
+          let off = j - i
+          if (off > n / 2) off -= n
+          if (off < -n / 2) off += n
+          const cls = off === 0 ? 'is-focus' : Math.abs(off) === 1 ? 'is-side' : 'is-hidden'
+          return (
+            <div
+              className={'sm-caro-card ' + cls}
+              key={r.name}
+              style={{ transform: `translateX(${off * 72}%) scale(${off === 0 ? 1 : 0.82})` }}
+              onClick={() => off !== 0 && setI(j)}
+            >
+              <img src={r.img} alt={r.name} loading="lazy" />
+              <div className="sm-caro-body">
+                <div className="sm-refcard-name">{r.name}</div>
+                <div className="sm-refcard-stat">{r.stat}</div>
+                <p>{r.line}</p>
+              </div>
+            </div>
+          )
+        })}
       </div>
       <div className="sm-caro-nav">
         <button onClick={() => go(-1)} aria-label="Previous product">←</button>
         <div className="sm-caro-dots">
           {REFS.map((x, j) => (
-            <button
-              key={x.name}
-              className={j === i ? 'on' : ''}
-              onClick={() => setI(j)}
-              aria-label={x.name}
-            />
+            <button key={x.name} className={j === i ? 'on' : ''} onClick={() => setI(j)} aria-label={x.name} />
           ))}
         </div>
         <button onClick={() => go(1)} aria-label="Next product">→</button>
@@ -314,6 +362,7 @@ export default function StuddyMag() {
 
       {/* ---------------- masthead ---------------- */}
       <header className="sm-masthead">
+        <img className="sm-wordmark rv" src={wordmark} alt="Studdy" />
         <div className="sm-kicker rv">Case study · shipped &amp; live · 2026</div>
         <h1 className="rv">
           A study spot<br />that <em>never closes.</em>
@@ -339,10 +388,32 @@ export default function StuddyMag() {
         <figcaption>moon_latte's café, mid-sprint. The bubble is a regular announcing five more minutes until break.</figcaption>
       </figure>
 
+      {/* ---------------- the product, first ---------------- */}
+      <section className="sm-part sm-productfirst">
+        <div className="sm-partmark rv"><span>♪</span> The product, in one minute</div>
+        <div className="sm-product-grid rv">
+          <div className="sm-product-what">
+            <h2>Own a café. Study in everyone's.</h2>
+            <ul>
+              <li>Sit anywhere and a verified focus clock starts. A minute of focus earns a bean.</li>
+              <li>Every café shares one 25/5 sprint clock. Chat opens at breaks.</li>
+              <li>Beans buy furniture, hats, and an animated café cat. Never rank, never power.</li>
+              <li>Friends' cafés are one door away, live, with real people inside.</li>
+            </ul>
+            <a className="sm-playbtn" href="https://pjeon18.github.io/studdy/" target="_blank" rel="noreferrer">
+              ▸ open the café — free, ten seconds, no signup
+            </a>
+          </div>
+          <figure className="sm-product-shot">
+            <img src={loopImg} alt="Studying in Studdy" loading="lazy" />
+          </figure>
+        </div>
+      </section>
+
       {/* ---------------- part one: research ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>01</span> The research</div>
-        <h2 className="rv">How people actually study now.</h2>
+        <h2 className="rv">How people actually study now</h2>
         <div className="sm-cols rv">
           <p>
             Start in South Korea, around the college entrance exams. Students began broadcasting themselves
@@ -412,7 +483,7 @@ export default function StuddyMag() {
       {/* ---------------- part two: the bet ---------------- */}
       <section className="sm-part sm-band sm-band-pink">
         <div className="sm-partmark rv"><span>02</span> The bet</div>
-        <h2 className="rv">Defining the product.</h2>
+        <h2 className="rv">Defining the product</h2>
         <div className="sm-duo rv">
           <div className="sm-duo-text">
             <p>
@@ -458,7 +529,7 @@ export default function StuddyMag() {
       {/* ---------------- part three: day one ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>03</span> Day one</div>
-        <h2 className="rv">The first prototype.</h2>
+        <h2 className="rv">The first prototype</h2>
         <figure className="sm-figure rv">
           <img src={v0Img} alt="The first committed build of Studdy" />
           <figcaption>
@@ -491,7 +562,7 @@ export default function StuddyMag() {
       {/* ---------------- interlude: the character ---------------- */}
       <section className="sm-part sm-charpart sm-band sm-band-sky">
         <div className="sm-partmark rv"><span>—</span> Interlude</div>
-        <h2 className="rv">Designing the avatar.</h2>
+        <h2 className="rv">Designing the avatar</h2>
         <div className="sm-chargrid rv">
           <figure><img src={charBeret} alt="The Studdy character wearing a beret" /></figure>
           <figure className="sm-char-mid"><img src={charPlain} alt="The Studdy character with glasses" /></figure>
@@ -515,7 +586,7 @@ export default function StuddyMag() {
       {/* ---------------- part four: art direction ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>04</span> Art direction</div>
-        <h2 className="rv">Choosing the art direction.</h2>
+        <h2 className="rv">Choosing the art direction</h2>
         <div className="sm-cols rv">
           <p>
             Months in, the flat-shaded look earned a diagnosis from its first users: muddy, plasticky,
@@ -575,7 +646,7 @@ export default function StuddyMag() {
       {/* ---------------- part five: light ---------------- */}
       <section className="sm-part sm-band sm-band-butter">
         <div className="sm-partmark rv"><span>05</span> Light</div>
-        <h2 className="rv">Tuning the lighting.</h2>
+        <h2 className="rv">Tuning the lighting</h2>
         <div className="sm-duo rv">
           <div className="sm-duo-text">
             <p>
@@ -610,7 +681,7 @@ export default function StuddyMag() {
       {/* ---------------- part six: trust ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>06</span> Trust</div>
-        <h2 className="rv">Designing trust: honor vs. proof.</h2>
+        <h2 className="rv">Designing trust: honor vs. proof</h2>
         <p className="sm-lede rv">
           Focused minutes are the only currency, so the oldest multiplayer question arrived first:
           what stops me from lying? The answer is a boundary, not a police force.
@@ -687,7 +758,7 @@ export default function StuddyMag() {
       {/* ---------------- the workflow ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>07</span> The loop</div>
-        <h2 className="rv">How every change shipped.</h2>
+        <h2 className="rv">How every change shipped</h2>
         <div className="sm-steps rv">
           <div className="sm-step"><span>1</span><b>Lab first</b><p>Risky visuals prototyped on a separate page, never in the live game.</p></div>
           <div className="sm-step"><span>2</span><b>Ship small</b><p>Same-day deploys to production. Two real users on the other end.</p></div>
@@ -721,11 +792,10 @@ export default function StuddyMag() {
       {/* ---------------- part eight: the audit ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>08</span> The audit</div>
-        <h2 className="rv">Every UI decision, graded on two axes.</h2>
+        <h2 className="rv">Grading the interface</h2>
         <p className="sm-lede rv">
-          The product's whole tension fits on one chart: does a feature <b>protect the sprint</b>, and does
-          it make you <b>feel accompanied</b>? Plotting the shipped interface against both is the most
-          honest self-review I know.
+          Two questions grade every feature: does it <b>support focus</b>, and does it <b>add company</b>?
+          Plotting the shipped interface against both is the most honest self-review I know.
         </p>
         <figure className="sm-figure rv">
           <DecisionMap />
@@ -736,8 +806,8 @@ export default function StuddyMag() {
             <h3>Why the leaderboard stays</h3>
             <p>
               It adds pressure by existing. It survives because it's the one place verified time gets to
-              matter, it ranks a number and never a person, and it lives two taps deep. First cut if the
-              worst-day test ever fails.
+              matter, it ranks a number and never a person, and it lives two taps deep. It would be the
+              first cut if the worst-day test ever failed.
             </p>
           </div>
           <div className="sm-riskcard">
@@ -749,12 +819,18 @@ export default function StuddyMag() {
             </p>
           </div>
         </div>
+        <h3 className="sm-subhead rv">Prioritizing the roadmap</h3>
+        <p className="sm-lede rv">
+          The same features, sorted the way they were actually planned: by user value against build effort.
+          The bottom-right quadrant matters most. It's the list of things this product said no to.
+        </p>
+        <PriorityMatrix />
       </section>
 
       {/* ---------------- part nine: economy ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>09</span> The economy</div>
-        <h2 className="rv">Designing the economy.</h2>
+        <h2 className="rv">Designing the economy</h2>
         <p className="sm-lede rv">
           One focused minute earns one bean, scaled gently by level. Every price in the game answers to
           that anchor, in a one-page economy document with real bands:
@@ -811,12 +887,12 @@ export default function StuddyMag() {
       {/* ---------------- coda ---------------- */}
       <section className="sm-part sm-coda">
         <div className="sm-partmark rv"><span>10</span> Where this goes</div>
-        <h2 className="rv">Takeaways.</h2>
+        <h2 className="rv">Takeaways</h2>
         <div className="sm-takeaways rv">
-          <div className="sm-take"><b>Places beat apps.</b><p>The avatar generation is aging into work. They'll bring their platform expectations with them.</p></div>
-          <div className="sm-take"><b>Presence beats features.</b><p>The product's best retention mechanic is another person's chair being occupied.</p></div>
-          <div className="sm-take"><b>Kindness scales.</b><p>Streaks that pause, anti-cheat that tucks your chair in. Nothing here shames anyone, and nothing broke because of it.</p></div>
-          <div className="sm-take"><b>Two users are enough.</b><p>Every important fix on this page came from someone real colliding with something shipped.</p></div>
+          <div className="sm-take"><b>Places beat apps</b><p>The avatar generation is aging into work. They'll bring their platform expectations with them.</p></div>
+          <div className="sm-take"><b>Presence beats features</b><p>The product's best retention mechanic is another person's chair being occupied.</p></div>
+          <div className="sm-take"><b>Kindness scales</b><p>Streaks that pause, anti-cheat that tucks your chair in. Nothing here shames anyone, and nothing broke because of it.</p></div>
+          <div className="sm-take"><b>Two users are enough</b><p>Every important fix on this page came from someone real colliding with something shipped.</p></div>
         </div>
         <div className="sm-shipchips rv">
           <span>live &amp; installable</span>
@@ -826,7 +902,7 @@ export default function StuddyMag() {
           <span>study clubs</span>
           <span>wardrobe &amp; atelier</span>
           <span>report &amp; block</span>
-          <span>2 field testers, 0 spared feelings</span>
+          <span>2 field testers</span>
         </div>
       </section>
 
