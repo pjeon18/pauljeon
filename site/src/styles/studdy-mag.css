@@ -587,3 +587,79 @@ svg.sm-chart [fill="#E05C1F"] { fill: #D9527E; }
   .sm-matrix-x { grid-column: 1; }
 }
 .sm-subhead { font-size: 24px; font-weight: 850; letter-spacing: -0.02em; color: #121110; margin: 44px 0 12px; }
+
+/* ---------- part two: personas ---------- */
+.sm-personas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 10px 0 44px;
+}
+@media (max-width: 900px) { .sm-personas { grid-template-columns: 1fr; max-width: 480px; } }
+.sm-persona {
+  border: 2.5px solid #4A3226;
+  border-radius: 14px;
+  background: #FDFDFB;
+  box-shadow: 5px 5px 0 rgba(74, 50, 38, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.sm-persona header {
+  background: #FFA9C1;
+  color: #fff;
+  font-family: 'Pixelify Sans', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 9px 15px 11px;
+  border-bottom: 2.5px solid #4A3226;
+  text-shadow: 1.5px 1.5px 0 rgba(178, 74, 110, 0.75);
+}
+.sm-persona header::before { content: '▪ ▪'; margin-right: 9px; opacity: 0.75; font-size: 11px; }
+.sm-persona-fig {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 10px;
+  background:
+    linear-gradient(45deg, rgba(255, 122, 158, 0.07) 25%, transparent 25%, transparent 75%, rgba(255, 122, 158, 0.07) 75%),
+    linear-gradient(45deg, rgba(255, 122, 158, 0.07) 25%, transparent 25%, transparent 75%, rgba(255, 122, 158, 0.07) 75%),
+    #FFF7E8;
+  background-size: 22px 22px, 22px 22px;
+  background-position: 0 0, 11px 11px;
+  border-bottom: 1px solid #EDEBE5;
+}
+.sm-persona-fig img { width: 118px; image-rendering: pixelated; }
+.sm-persona-bio { font-size: 13.5px; line-height: 1.65; color: #55524B; padding: 14px 18px 0; margin: 0; }
+.sm-persona h4 {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--acc-deep); margin: 14px 18px 6px;
+}
+.sm-persona ul { margin: 0 18px; padding-left: 17px; }
+.sm-persona li { font-size: 13px; line-height: 1.6; color: #55524B; margin-bottom: 4px; }
+.sm-persona-pain {
+  font-size: 12.5px; line-height: 1.6; color: #8F8B83;
+  border-top: 1px dashed #EDEBE5; margin: 14px 18px 16px; padding-top: 10px;
+}
+.sm-persona-pain b {
+  color: #B03A2E; font-size: 10.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; margin-right: 6px;
+}
+
+.sm-serve-head { font-size: clamp(20px, 2.6vw, 27px); letter-spacing: -0.015em; margin: 0 0 18px; }
+.sm-serves { display: grid; gap: 0; border-top: 1px solid #EDEBE5; }
+.sm-serve {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 22px;
+  padding: 18px 0;
+  border-bottom: 1px solid #EDEBE5;
+}
+@media (max-width: 700px) { .sm-serve { grid-template-columns: 1fr; gap: 6px; } }
+.sm-serve span {
+  font-family: 'Pixelify Sans', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--acc-deep);
+  padding-top: 2px;
+}
+.sm-serve p { font-size: 14px; line-height: 1.75; color: #55524B; margin: 0; }
