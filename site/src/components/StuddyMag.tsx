@@ -365,7 +365,7 @@ export default function StuddyMag() {
         <img className="sm-wordmark rv" src={wordmark} alt="Studdy" />
         <div className="sm-kicker rv">Case study · shipped &amp; live · 2026</div>
         <h1 className="rv">
-          A study spot<br />that <em>never closes.</em>
+          A study spot<br />that <em>never closes</em> ♪
         </h1>
         <p className="sm-dek rv">
           Studdy is a multiplayer study café. Real people in tiny pixel bodies, one 25/5 clock shared by
