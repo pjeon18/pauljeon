@@ -20,6 +20,13 @@ import bugGhostImg from '../assets/studdy-bug-ghost.jpg'
 import charBeret from '../assets/studdy-char-beret.jpg'
 import charCatears from '../assets/studdy-char-catears.jpg'
 import charPlain from '../assets/studdy-char-plain.jpg'
+import refLofigirl from '../assets/ref-lofigirl.jpg'
+import refStudywithme from '../assets/ref-studywithme.jpg'
+import refStudytogether from '../assets/ref-studytogether.jpg'
+import refForest from '../assets/ref-forest.jpg'
+import refFocusmate from '../assets/ref-focusmate.jpg'
+import refRoblox from '../assets/ref-roblox.jpg'
+import refCyworld from '../assets/ref-cyworld.jpg'
 
 // ---------------------------------------------------------------------------
 
@@ -53,17 +60,17 @@ function useProgress() {
 }
 
 // ---------------------------------------------------------------------------
-// Chart 1: the market, mapped. X = presence (one-way → mutual),
-// Y = pressure (ambient → demanding).
+// Chart 1: the market. Every label sits beside its dot, vertically centered;
+// `end` flips it to the left side for dots near the right edge.
 
 function MarketMap() {
-  const dots: { x: number; y: number; label: string; sub: string; hero?: boolean; dx?: number; dy?: number }[] = [
-    { x: 14, y: 18, label: 'Lofi Girl', sub: '15.8M subscribers' },
+  const dots: { x: number; y: number; label: string; sub: string; hero?: boolean; end?: boolean }[] = [
+    { x: 14, y: 16, label: 'Lofi Girl', sub: '15.8M subscribers' },
     { x: 26, y: 34, label: 'Study-with-me video', sub: 'gongbang, since ~2018' },
-    { x: 40, y: 78, label: 'Forest', sub: '60M users · solo, gamified', dy: 14 },
-    { x: 58, y: 52, label: 'Study Together', sub: '1M-member Discord', dx: 6 },
-    { x: 88, y: 86, label: 'Focusmate', sub: '9M sessions · camera on', dx: -128, dy: 14 },
-    { x: 82, y: 24, label: 'Studdy', sub: 'mutual, ambient', hero: true },
+    { x: 40, y: 78, label: 'Forest', sub: '60M users · solo, gamified' },
+    { x: 58, y: 55, label: 'Study Together', sub: '1M-member Discord' },
+    { x: 86, y: 84, label: 'Focusmate', sub: '9M sessions · camera on', end: true },
+    { x: 84, y: 22, label: 'Studdy', sub: 'mutual, ambient', hero: true, end: true },
   ]
   return (
     <svg className="sm-chart" viewBox="0 0 640 460" role="img" aria-label="Market map: presence versus pressure">
@@ -73,12 +80,10 @@ function MarketMap() {
         </marker>
       </defs>
       <rect x="70" y="20" width="540" height="380" fill="#FBFAF6" stroke="#EDEBE5" />
-      {/* the open quadrant */}
       <rect x="340" y="20" width="270" height="190" fill="#FFF3EC" opacity="0.55" />
       <text x="595" y="42" textAnchor="end" fontSize="11.5" fill="#C86A3F" fontStyle="italic">the open corner: mutual + calm</text>
       <line x1="70" y1="210" x2="610" y2="210" stroke="#EDEBE5" />
       <line x1="340" y1="20" x2="340" y2="400" stroke="#EDEBE5" />
-      {/* axes */}
       <line x1="70" y1="400" x2="610" y2="400" stroke="#B9B4A8" markerEnd="url(#smArr)" />
       <line x1="70" y1="400" x2="70" y2="20" stroke="#B9B4A8" markerEnd="url(#smArr)" />
       <text x="76" y="422" fontSize="12" fill="#8F8B83">one-way presence</text>
@@ -88,12 +93,14 @@ function MarketMap() {
       {dots.map((d) => {
         const cx = 70 + (d.x / 100) * 540
         const cy = 20 + (d.y / 100) * 380
+        const tx = d.end ? cx - 17 : cx + 17
+        const anchor = d.end ? 'end' : 'start'
         return (
           <g key={d.label}>
             <circle cx={cx} cy={cy} r={d.hero ? 9 : 6} fill={d.hero ? '#E05C1F' : '#38352F'} opacity={d.hero ? 1 : 0.75} />
             {d.hero && <circle cx={cx} cy={cy} r="15" fill="none" stroke="#E05C1F" strokeDasharray="3 3" />}
-            <text x={cx + (d.dx ?? 12)} y={cy + (d.dy ?? -8)} fontSize="13.5" fontWeight="800" fill="#121110">{d.label}</text>
-            <text x={cx + (d.dx ?? 12)} y={cy + (d.dy ?? -8) + 14} fontSize="11" fill="#8F8B83">{d.sub}</text>
+            <text x={tx} y={cy - 1} textAnchor={anchor} fontSize="13.5" fontWeight="800" fill="#121110">{d.label}</text>
+            <text x={tx} y={cy + 13} textAnchor={anchor} fontSize="11" fill="#8F8B83">{d.sub}</text>
           </g>
         )
       })}
@@ -101,22 +108,21 @@ function MarketMap() {
   )
 }
 
-// Chart 2: Studdy's own UI, graded. X = protects focus, Y = makes you feel
-// accompanied. Filled = strength; outlined = a watched risk.
+// Chart 2: Studdy's own UI, graded. Same rule: every label hugs its dot.
 
 function DecisionMap() {
-  const dots: { x: number; y: number; label: string; risk?: boolean; end?: boolean; dy?: number }[] = [
+  const dots: { x: number; y: number; label: string; risk?: boolean; end?: boolean }[] = [
     { x: 88, y: 88, label: 'communal 25/5 clock', end: true },
     { x: 82, y: 62, label: 'chat only at breaks', end: true },
-    { x: 62, y: 78, label: 'napkin status', dy: 20 },
+    { x: 60, y: 79, label: 'napkin status' },
     { x: 74, y: 40, label: 'headphones = do-not-disturb', end: true },
-    { x: 55, y: 90, label: 'name tags over heads', end: true },
-    { x: 42, y: 70, label: 'guestbook doodles', end: true },
+    { x: 52, y: 92, label: 'name tags over heads', end: true },
+    { x: 42, y: 68, label: 'guestbook doodles', end: true },
     { x: 30, y: 82, label: '"friend is studying" banner', risk: true },
     { x: 26, y: 34, label: 'xp leaderboard', risk: true },
-    { x: 66, y: 22, label: 'streaks (pausing)', dy: 20 },
-    { x: 48, y: 50, label: 'lofi radio per café', dy: 20 },
-    { x: 38, y: 16, label: 'furnish & wardrobe', end: true },
+    { x: 66, y: 22, label: 'streaks (pausing)' },
+    { x: 50, y: 52, label: 'lofi radio per café' },
+    { x: 38, y: 14, label: 'furnish & wardrobe', end: true },
   ]
   return (
     <svg className="sm-chart" viewBox="0 0 640 460" role="img" aria-label="Studdy UI decisions: focus versus company">
@@ -140,8 +146,8 @@ function DecisionMap() {
               <circle cx={cx} cy={cy} r="6.5" fill="#38352F" />
             )}
             <text
-              x={d.end ? cx - 13 : cx + 13}
-              y={cy + (d.dy ?? 4)}
+              x={d.end ? cx - 15 : cx + 15}
+              y={cy + 4.5}
               textAnchor={d.end ? 'end' : 'start'}
               fontSize="12.5"
               fontWeight="700"
@@ -151,16 +157,49 @@ function DecisionMap() {
         )
       })}
       <g>
-        <circle cx="440" cy="443" r="5.5" fill="#38352F" />
-        <text x="452" y="447" fontSize="11.5" fill="#55524B">held its ground</text>
-        <circle cx="548" cy="443" r="5.5" fill="#FBFAF6" stroke="#E05C1F" strokeWidth="2.2" />
-        <text x="560" y="447" fontSize="11.5" fill="#55524B">watched risk</text>
+        <circle cx="410" cy="443" r="5.5" fill="#38352F" />
+        <text x="422" y="447" fontSize="11.5" fill="#55524B">held its ground</text>
+        <circle cx="533" cy="443" r="5.5" fill="#FBFAF6" stroke="#E05C1F" strokeWidth="2.2" />
+        <text x="545" y="447" fontSize="11.5" fill="#55524B">watched risk</text>
       </g>
     </svg>
   )
 }
 
 // ---------------------------------------------------------------------------
+
+const REFS = [
+  {
+    img: refLofigirl,
+    name: 'Lofi Girl',
+    stat: '15.8M subscribers',
+    line: 'One illustrated girl, studying forever. ~100k people listening at any hour.',
+  },
+  {
+    img: refStudywithme,
+    name: '"Study with me"',
+    stat: 'millions of views per video',
+    line: 'Two silent hours of a stranger at a desk. Born in Korea as gongbang.',
+  },
+  {
+    img: refStudytogether,
+    name: 'Study Together',
+    stat: '1,068,281 members',
+    line: 'Discord’s largest study server. "How chatty? Like a busy coffee shop."',
+  },
+  {
+    img: refForest,
+    name: 'Forest',
+    stat: '60M users',
+    line: 'Stay off your phone, grow a tree. Effective, gamified, and utterly alone.',
+  },
+  {
+    img: refFocusmate,
+    name: 'Focusmate',
+    stat: '9M sessions',
+    line: 'Scheduled coworking with a stranger, camera on. It works. It feels like a meeting.',
+  },
+]
 
 interface Complaint {
   quote: string
@@ -171,37 +210,37 @@ interface Complaint {
 const COMPLAINTS: Complaint[] = [
   {
     quote: 'When you sit, you sink into the chair.',
-    fix: 'Seat math rebuilt: the sit pose measures from the cushion top, and every seat height was re-tuned against the character.',
+    fix: 'Seat math rebuilt. The sit pose now measures from the cushion top, and every seat was re-tuned against the character.',
     lesson: 'Nobody files a ticket about "seat anchoring." They say it looks wrong. Translate feel into geometry.',
   },
   {
     quote: 'It should have usernames over heads, like Minecraft.',
-    fix: 'Floating name tags with level badges, custom colors sold in the salon — which quietly became an identity feature.',
+    fix: 'Floating name tags with level badges. Custom tag colors went on sale in the salon and quietly became an identity feature.',
     lesson: 'Users cite other products as shorthand for a need. The need here was "I want to be seen," not "copy Minecraft."',
   },
   {
     quote: 'The room light gets darker toward the corners. It should be even.',
-    fix: 'A pendant grid that scales with room size, normalized so five lamps aren’t five times brighter than one.',
-    lesson: 'The first fix washed out the whole palette — evenness and brightness are different asks. It took three rounds.',
+    fix: 'One ceiling light became a pendant grid that scales with the room, normalized so five lamps aren’t five times brighter than one.',
+    lesson: 'The first fix washed out the whole palette. Evenness and brightness are different asks; it took three rounds.',
   },
   {
     quote: 'Now it’s way too bright. And dusk looks the same as day.',
-    fix: 'Per-mode intensity curves and a lower ceiling on daytime brightness; warm/cool bulbs became a café setting.',
-    lesson: 'Every knob you give users needs its own limits per context. One global max was lazy math.',
+    fix: 'Per-mode intensity curves, plus a lower ceiling on daytime brightness. Warm and cool bulbs became a café setting.',
+    lesson: 'Every knob you hand users needs its own limits per context. One global max was lazy math.',
   },
   {
     quote: 'There are two of me on my screen.',
-    fix: 'One body per person: presence deduplicates by identity, not connection, and a reload says goodbye before it leaves.',
+    fix: 'One body per person: presence deduplicates by identity instead of connection, and a reload says goodbye before it leaves.',
     lesson: 'Distributed-systems jank reads as horror-movie jank. Ghosts are a bug class users FEEL.',
   },
   {
     quote: 'She redecorated but I still see her old room.',
     fix: 'A security migration had silently broken publishing (column grants versus upsert). Rooms also now refresh live, every 20 seconds, while you stand in them.',
-    lesson: 'My proudest hardening work shipped my quietest data-loss bug. Every migration needs a round-trip test from the CLIENT’s side.',
+    lesson: 'My proudest hardening work shipped my quietest data-loss bug. Every migration needs a round-trip test from the client’s side.',
   },
   {
     quote: 'She closed her laptop overnight and woke up rich.',
-    fix: 'The focus clock only counts while the app is awake; a long absence tucks your chair in and pays what you earned.',
+    fix: 'The focus clock only counts while the app is awake. A long absence tucks your chair in and pays what you actually earned.',
     lesson: 'The exploit was also a design question: honor, pause, or kick? We chose the kind version of all three.',
   },
   {
@@ -211,7 +250,7 @@ const COMPLAINTS: Complaint[] = [
   },
   {
     quote: 'The retro mode looks overly pixelated and buggy. Honestly just get rid of it.',
-    fix: 'Deleted, same day. One look — crisp — with adaptive quality that steps down on weak hardware instead.',
+    fix: 'Deleted, same day. One look now, with adaptive quality that steps down on weak hardware instead of asking anyone to choose.',
     lesson: 'I shipped the toggle because I couldn’t choose. Users shouldn’t inherit your indecision as a settings menu.',
   },
   {
@@ -247,7 +286,7 @@ export default function StuddyMag() {
           A study spot<br />that <em>never closes.</em>
         </h1>
         <p className="sm-dek rv">
-          Studdy is a multiplayer study café — real people in tiny pixel bodies, one 25/5 clock shared by
+          Studdy is a multiplayer study café. Real people in tiny pixel bodies, one 25/5 clock shared by
           every room in the world. This is the whole build, told honestly: the research, the ugly first
           versions, the complaints that shaped it, and the economics of a place people want to sit in.
         </p>
@@ -273,83 +312,124 @@ export default function StuddyMag() {
         <h2 className="rv">Everyone already studies with strangers.</h2>
         <div className="sm-cols rv">
           <p>
-            Start in South Korea, around the college entrance exams. Students there began broadcasting
-            themselves studying — hours of silence, a desk lamp, turning pages. The genre got a name,
-            <b> gongbang</b> (study broadcast), and a purpose: the pressure of being watched, and the
-            company of watching. It crossed the Pacific as "study with me," and it grew into an economy
-            of presence: Lofi Girl streaming beats-to-study-to to a channel of <b>15.8 million</b>, with
-            around a hundred thousand people listening at any moment. The largest study community on
-            Discord, started by students in Berlin in 2020, passed <b>a million members</b> — twenty
-            thousand of them sitting muted in voice channels on any given night.
+            Start in South Korea, around the college entrance exams. Students began broadcasting themselves
+            studying: hours of silence, a desk lamp, turning pages. The genre got a name (<b>gongbang</b>, "study
+            broadcast") and a purpose. Being watched applies pressure. Watching provides company.
+            It crossed the Pacific as "study with me" and grew into an entire economy of presence.
           </p>
           <p>
-            The psychology under all of it has a name too. <b>Body doubling</b> — working beside another
-            person who demands nothing of you — is one of the most recommended focus strategies in the
-            ADHD community, and the small literature around it points at real mechanisms: social presence
-            recruits the same dopamine circuitry that ADHD runs short on, and a calm body nearby regulates
-            arousal. A market grew here as well: Forest has gamified <b>60 million</b> phones into staying
-            locked; Focusmate has sold <b>9 million</b> scheduled coworking sessions with a stranger on
-            camera. And the backdrop explains the demand: the loneliest generation on record — roughly
-            <b> four in five</b> Gen Z adults report loneliness — coming of age just as the physical third
-            place, Oldenburg's café-pub-library layer of life, priced itself out of their cities.
+            The psychology underneath has a name too: <b>body doubling</b>. Working beside a person who
+            demands nothing of you is one of the most recommended focus strategies in the ADHD community.
+            The mechanism is real. Social presence recruits the dopamine circuitry that ADHD runs short on,
+            and a calm body nearby regulates arousal. None of this needed inventing. It needed a room.
           </p>
         </div>
+
+        <p className="sm-lede rv">Five products own this behavior today. Meet them:</p>
+        <div className="sm-refstrip rv">
+          {REFS.map((r) => (
+            <div className="sm-refcard" key={r.name}>
+              <img src={r.img} alt={r.name} loading="lazy" />
+              <div className="sm-refcard-body">
+                <div className="sm-refcard-name">{r.name}</div>
+                <div className="sm-refcard-stat">{r.stat}</div>
+                <p>{r.line}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div className="sm-stats rv">
-          <div><span className="v">15.8M</span><span className="l">Lofi Girl subscribers — ~100k listening at any hour</span></div>
+          <div><span className="v">15.8M</span><span className="l">Lofi Girl subscribers, ~100k listening at any hour</span></div>
           <div><span className="v">1M+</span><span className="l">members in Discord's largest study server</span></div>
           <div><span className="v">60M</span><span className="l">Forest users growing trees by not touching their phone</span></div>
           <div><span className="v">9M</span><span className="l">Focusmate sessions of camera-on coworking</span></div>
-          <div><span className="v">79%</span><span className="l">of Gen Z adults report loneliness — the highest of any generation</span></div>
-          <div><span className="v">44%</span><span className="l">of daily users on the biggest social-gaming platform are now over 17 — its fastest-growing cohort is 17–24, aging up with the platform</span></div>
+          <div><span className="v">79%</span><span className="l">of Gen Z adults report loneliness, the highest of any generation</span></div>
+          <div><span className="v">44%</span><span className="l">of daily users on the biggest avatar platform are now over 17</span></div>
         </div>
-        <div className="sm-cols rv">
-          <p>
-            Two more observations shaped the brief. First: every product above is lopsided. The streams and
-            videos are <em>one-way glass</em> — the streamer will never know you existed. The Discord servers
-            are mutual but formless — a black window with names in it. Focusmate is mutual and effective and
-            feels like a meeting. Forest works and is utterly alone. Nobody was building <b>mutual presence
-            at ambient pressure</b> — company that sees you back but never asks you to perform.
+
+        <div className="sm-statement rv">
+          <p>Every one of these is lopsided.</p>
+          <p className="sm-statement-sub">
+            The streams are one-way glass: the streamer will never know you existed. The Discord is mutual
+            but formless, a black window with names in it. Focusmate works and feels like a meeting.
+            Forest works and is utterly alone.
           </p>
-          <p>
-            Second: the generation that grew up inside social 3D worlds is aging into exams, theses, and
-            remote work — nearly half the daily population of the biggest such platform is now past 17, and
-            its fastest growth is people who never left. They don't experience an avatar in a room as a
-            game. They experience it as <em>a place</em>. The study tools above haven't caught up to that
-            expectation; a study space built like a world, rather than an app, meets those users where they
-            already live.
-          </p>
+          <p className="sm-statement-big">Nobody was building <em>mutual presence at ambient pressure.</em></p>
         </div>
+
         <figure className="sm-figure rv">
           <MarketMap />
           <figcaption>
-            The map that started the project. Everything crowds the one-way or high-pressure edges;
-            the calm, mutual corner was empty.
+            The map that started the project. Everything crowds the one-way or high-pressure edges.
+            The calm, mutual corner was empty.
           </figcaption>
         </figure>
+
+        <div className="sm-duo rv">
+          <div className="sm-duo-text">
+            <h3>One more observation</h3>
+            <p>
+              The generation that grew up inside avatar worlds is aging into exams, theses, and remote work.
+              On the biggest such platform, 44% of daily users are now past 17, and the fastest-growing
+              cohort is 17 to 24. They didn't leave. They grew up in place.
+            </p>
+            <p>
+              These users don't experience an avatar in a room as a game. They experience it as
+              <em> somewhere to be</em>. A study space built like a world, rather than an app, meets them
+              where they already live. The study tools above haven't caught up to that expectation.
+            </p>
+          </div>
+          <figure>
+            <img src={refRoblox} alt="An avatar platform's home page" loading="lazy" />
+            <figcaption>The default childhood of a generation: one avatar, millions of rooms. Nearly half its daily users are now over 17.</figcaption>
+          </figure>
+        </div>
       </section>
 
       {/* ---------------- part two: the bet ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>02</span> The bet</div>
         <h2 className="rv">Presence is the product.</h2>
-        <div className="sm-cols rv">
-          <p>
-            The concept came from a specific childhood memory: Cyworld minirooms — the Korean web's tiny
-            decorated bedrooms, where a room WAS a self. Cross that with the library-at-2am feeling and you
-            get the pitch that never changed afterward: <b>a little café you own, where real people come to
-            study, and the only thing anyone can do to each other is be there.</b>
-          </p>
-          <p>
-            Three pillars were fixed before any code. <b>Companionship without performance</b> — being
-            visible is the entire contribution; there is no follower count, no camera, nothing to keep up.
-            <b> A place, not an app</b> — you walk in a door, you take a seat, someone's radio is playing;
-            interface where a world will do. And <b>the aesthetic of low stakes</b> — soft voxels, one warm
-            palette, a cat — because a tool that looks like a spreadsheet asks to be measured by one, and a
-            tool that looks like a toy is allowed to be kind.
-          </p>
+        <div className="sm-duo rv">
+          <div className="sm-duo-text">
+            <p>
+              The concept comes from a specific childhood memory: Cyworld's minirooms. In 2000s Korea,
+              your homepage was a tiny isometric bedroom you decorated, and at the peak, roughly 90% of
+              Korean twenty-somethings kept one. A room was a self.
+            </p>
+            <p>
+              Cross that memory with the library-at-2am feeling and you get the pitch, which never changed
+              afterward: <b>a little café you own, where real people come to study, and the only thing
+              anyone can do to each other is be there.</b>
+            </p>
+          </div>
+          <figure className="sm-cylogo">
+            <img src={refCyworld} alt="Cyworld logo" loading="lazy" />
+            <figcaption>Cyworld, 1999. The miniroom is Studdy's grandparent: identity as a small decorated room.</figcaption>
+          </figure>
         </div>
+
+        <div className="sm-pillars rv">
+          <div className="sm-pillar">
+            <span>Pillar 1</span>
+            <h3>Companionship without performance</h3>
+            <p>Being visible is the entire contribution. No follower count, no camera, nothing to keep up.</p>
+          </div>
+          <div className="sm-pillar">
+            <span>Pillar 2</span>
+            <h3>A place, not an app</h3>
+            <p>You walk in a door. You take a seat. Someone's radio is playing. Interface only where a world won't do.</p>
+          </div>
+          <div className="sm-pillar">
+            <span>Pillar 3</span>
+            <h3>Low stakes, on purpose</h3>
+            <p>Soft voxels, one warm palette, a cat. A tool that looks like a toy is allowed to be kind.</p>
+          </div>
+        </div>
+
         <blockquote className="sm-pull rv">
-          Company that sees you back —<br />but never asks you to perform.
+          Company that sees you back,<br />but never asks you to perform.
         </blockquote>
       </section>
 
@@ -360,27 +440,29 @@ export default function StuddyMag() {
         <figure className="sm-figure rv">
           <img src={v0Img} alt="The first committed build of Studdy" />
           <figcaption>
-            The first commit, running today: gray walls, an empty floor, flat shading, a five-minute
-            sprint clock. Title bar reads "style test."
+            The first commit, checked out and running today. Gray walls, an empty floor, flat shading.
+            The title bar reads "style test."
           </figcaption>
         </figure>
-        <div className="sm-cols rv">
-          <p>
-            The first commit was a style test, and it already contained the three riskiest decisions:
-            a fixed isometric camera (can a static diorama feel alive?), a merged-voxel renderer (can a
-            browser draw a furnished room at 60fps on a laptop from 2019?), and the communal clock ticking
-            in the corner before there was anyone to share it with. Everything else — accounts, friends,
-            clubs, the economy — was deliberately absent. If the empty room didn't feel like somewhere you
-            wanted to sit, no feature list was going to rescue it.
-          </p>
-          <p>
-            What the prototype got wrong is equally visible: walls the color of a rental deposit, lighting
-            with no opinion, an interface in whatever font the browser found first. It didn't feel cheap —
-            it felt <em>unowned</em>, which for this product was the same failure. The next two phases were
-            mostly about earning the right to the word "cozy": a real pixel typeface with hand-redrawn
-            digits, a single confident palette, and eventually a full art-direction overhaul that started
-            in a laboratory, not in the game.
-          </p>
+        <div className="sm-twolists rv">
+          <div>
+            <h3>What day one had to prove</h3>
+            <ul>
+              <li>A fixed isometric camera can feel alive, not static.</li>
+              <li>A browser can draw a furnished voxel room at 60fps on a 2019 laptop.</li>
+              <li>The communal clock ticks in the corner before there is anyone to share it with.</li>
+              <li>An empty room can still feel like somewhere you'd want to sit.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>What day one got wrong</h3>
+            <ul>
+              <li>Walls the color of a rental deposit.</li>
+              <li>Lighting with no opinion.</li>
+              <li>Whatever font the browser found first.</li>
+              <li>It didn't feel cheap. It felt <em>unowned</em>, which was the same failure.</li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -395,18 +477,15 @@ export default function StuddyMag() {
         </div>
         <div className="sm-cols rv">
           <p>
-            The chibi is two units tall and mostly head, on purpose: at diorama distance, a head is the
-            only thing big enough to carry identity. The eyes are calm vertical lines that blink and read —
-            never wide, never staring — because everyone in this world is minding their own business. There
-            is no walk cycle and no emote wheel. The character's entire expressive range is: what you wear,
-            what your napkin says, whether your headphones are on, and the fact that you came.
+            The chibi is two units tall and mostly head, on purpose. At diorama distance a head is the only
+            thing big enough to carry identity. The eyes are calm vertical lines that blink and read. Never
+            wide, never staring, because everyone in this world is minding their own business.
           </p>
           <p>
-            That restraint became the monetization surface much later. Hats are drawn directly into the
-            head's voxel grid so they turn and bob with it; a tag charm rides your floating name. Both
-            travel with you to every café — which is exactly why they're the most expensive things in the
-            game. Identity that others see is worth saving for. Identity itself — skin, hair, a room's
-            walls — is free forever, and the economy document says so in writing.
+            There is no walk cycle and no emote wheel. The character's entire expressive range is what you
+            wear, what your napkin says, whether your headphones are on, and the fact that you came. That
+            restraint became the monetization surface much later: hats are drawn into the head's voxel grid
+            so they turn and bob with it, and both hats and tag charms travel with you to every café.
           </p>
         </div>
       </section>
@@ -414,52 +493,58 @@ export default function StuddyMag() {
       {/* ---------------- part four: art direction ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>04</span> Art direction</div>
-        <h2 className="rv">Four treatments, one lab, no mercy.</h2>
+        <h2 className="rv">Four treatments. One lab. One survivor.</h2>
         <div className="sm-cols rv">
           <p>
-            Months in, the flat-shaded look had a diagnosis from its first users: "muddy, plasticky —
-            it looks AI-generated." The fix could have destroyed the game — retexturing every surface live —
-            so it didn't happen in the game. It happened in a lab: a separate page rendering one identical
-            scene four ways. <b>A</b>, the baseline. <b>B</b>, procedural grain — real wood, real paper.
-            <b> C</b>, a hard three-step toon ramp. <b>D</b>, the ramp plus gentle pixelation.
+            Months in, the flat-shaded look earned a diagnosis from its first users: muddy, plasticky,
+            "it looks AI-generated." The fix could have wrecked the live game, so it didn't happen in the
+            game. It happened in a lab: one identical scene, rendered four ways, screenshots sent for
+            verdicts like swatches at a tailor.
           </p>
           <p>
-            Grain lost — verdict from the user, verbatim: <em>"it muddies the color."</em> What won was a
-            rule borrowed from pixel artists who've fought low resolution for forty years: never darken a
-            shadow, <b>shift its hue</b>. Studdy's shadows bend toward violet, its highlights toward warm
-            yellow, in a four-band toon ramp whose bands land exactly on flat voxel faces. The palette
-            stopped being muddy the day the shadows stopped being gray.
+            The winning rule is borrowed from pixel artists, who have fought low resolution for forty
+            years: never simply darken a shadow. <b>Shift its hue.</b> Studdy's shadows bend toward violet
+            and its highlights toward warm yellow, in a four-band toon ramp whose bands land exactly on
+            flat voxel faces. The palette stopped being muddy the day the shadows stopped being gray.
           </p>
         </div>
         <figure className="sm-figure rv">
           <img src={texlabImg} alt="The texture lab: four treatments side by side" />
-          <figcaption>texture-lab.html — the same scene, four candidate skins. Screenshots went to the user; only D survived.</figcaption>
+          <figcaption>texture-lab.html: the same scene in four candidate skins.</figcaption>
         </figure>
+        <div className="sm-verdicts rv">
+          <div className="sm-verdict"><b>A · baseline</b><p>Flat Lambert. The "plasticky" control.</p><span className="sv-no">rejected</span></div>
+          <div className="sm-verdict"><b>B · grain</b><p>Procedural wood and paper texture.</p><span className="sv-no">"muddies the color"</span></div>
+          <div className="sm-verdict"><b>C · toon ramp</b><p>Hard three-step shading. Bands, but gray ones.</p><span className="sv-no">close</span></div>
+          <div className="sm-verdict"><b>D · hue-shift</b><p>Violet shadows, warm highlights, gentle pixels.</p><span className="sv-yes">shipped</span></div>
+        </div>
         <figure className="sm-figure rv">
-          <img src={roomlabImg} alt="The room lab: treatment D on a full café, crisp versus pixelated" />
+          <img src={roomlabImg} alt="The room lab: treatment D on a full café" />
           <figcaption>
-            room-lab.html — treatment D promoted to a full furnished café before touching the game,
-            with an adjustable pixel-size slider so the user could pick the level, not describe it.
+            room-lab.html: treatment D promoted to a full furnished café before touching the game. The
+            pixel-size slider let the user pick the level instead of describing it.
           </figcaption>
         </figure>
         <div className="sm-duo rv">
           <figure>
             <img src={badRetroImg} alt="The killed retro mode, heavily pixelated" />
-            <figcaption>The "retro" pixelation toggle, as shipped. Reconstructed here — it no longer exists to screenshot.</figcaption>
+            <figcaption>The "retro" toggle as shipped. Reconstructed; it no longer exists to screenshot.</figcaption>
           </figure>
           <div className="sm-duo-text">
             <h3>The toggle I shouldn't have shipped</h3>
             <p>
-              The user couldn't choose between crisp and pixelated, so I shipped both as a setting. Weeks
-              later, the verdict arrived: <em>"the retro effect is definitely wrong — overly pixelated and
-              buggy. Honestly just get rid of it."</em> It was deleted within the hour, replaced by one
-              crisp look with adaptive quality underneath — the renderer supersamples on strong hardware and
-              quietly steps down on weak machines, and nobody chooses anything.
+              I couldn't choose between crisp and pixelated, so I shipped both as a setting. Weeks later
+              the verdict arrived: <em>"the retro effect is definitely wrong — overly pixelated and buggy.
+              Honestly just get rid of it."</em>
             </p>
             <p>
-              The lesson stuck: a settings toggle is often a designer's indecision, exported. When both
-              options looked good in the lab, the right call was picking one — not making two users on two
-              laptops discover which one was a lie.
+              Deleted within the hour. What replaced it is one crisp look with adaptive quality underneath:
+              the renderer supersamples on strong hardware and quietly steps down on weak machines. Nobody
+              chooses anything.
+            </p>
+            <p>
+              The lesson stuck. A settings toggle is often a designer's indecision, exported. When both
+              options look good in the lab, pick one.
             </p>
           </div>
         </div>
@@ -472,24 +557,30 @@ export default function StuddyMag() {
         <div className="sm-duo rv">
           <div className="sm-duo-text">
             <p>
-              No subsystem ate more feedback than lighting, and every complaint arrived in feel-words, not
-              spec-words. <em>"The corners are darker than the middle — it should be even."</em> So the
-              single room light became a pendant grid that scales with the room. Then: <em>"now it's way too
-              strong,"</em> and — worse — <em>"dusk and night are as bright as day."</em> The grid's falloff
-              had been tuned against the old single lamp; every mode needed its own curve, and daytime
-              eventually got a lower ceiling on the brightness slider than dusk and night, because full
-              daylight plus full pendants was simply too much light to mean anything.
+              No subsystem ate more feedback than lighting, and every complaint arrived in feel-words,
+              never spec-words. The sequence, in order:
             </p>
-            <p>
-              The last rounds were pure taste: lamp glow that pools at 38 voxels instead of clipping through
-              walls, shades that never tint the light their own color, and a warm/cool bulb choice per café —
-              which users immediately treated as identity, not settings. The reconstruction on the right is
-              what "even lighting, first attempt" actually looked like: technically even, emotionally blank.
-            </p>
+            <ol className="sm-rounds">
+              <li>
+                <b>"The corners are darker than the middle. It should be even."</b>
+                The single room light became a pendant grid that scales with the room.
+              </li>
+              <li>
+                <b>"Now it's way too strong. And dusk looks like day."</b>
+                The grid's falloff had been tuned against the old single lamp. Every time-of-day mode got
+                its own curve, and daytime got a lower ceiling on the slider than dusk and night.
+              </li>
+              <li>
+                <b>Pure taste.</b>
+                Lamp glow that pools instead of clipping through walls. Shades that never tint the light
+                their own color. A warm/cool bulb choice per café, which users immediately treated as
+                identity rather than settings.
+              </li>
+            </ol>
           </div>
           <figure>
             <img src={badLightImg} alt="Reconstruction of the over-bright even lighting" />
-            <figcaption>Reconstructed: the flat, washed-out room after the first "make it even" fix. Even ≠ good.</figcaption>
+            <figcaption>Reconstructed: the room after round one. Technically even, emotionally blank. Even ≠ good.</figcaption>
           </figure>
         </div>
       </section>
@@ -498,60 +589,91 @@ export default function StuddyMag() {
       <section className="sm-part">
         <div className="sm-partmark rv"><span>06</span> Trust</div>
         <h2 className="rv">The line between honor and proof.</h2>
+        <p className="sm-lede rv">
+          Focused minutes are the only currency, so the oldest multiplayer question arrived first:
+          what stops me from lying? The answer is a boundary, not a police force.
+        </p>
+
+        <div className="sm-split rv">
+          <div className="sm-split-col">
+            <div className="sm-split-tag">On honor</div>
+            <h3>Anything private</h3>
+            <ul>
+              <li>Your beans (a diary, not a rank)</li>
+              <li>Your napkin, your goals</li>
+              <li>Your streak</li>
+            </ul>
+            <p>If you want to lie to a pixel cat, that's between you and the cat.</p>
+          </div>
+          <div className="sm-split-col is-witnessed">
+            <div className="sm-split-tag">Witnessed</div>
+            <h3>Anything others see</h3>
+            <ul>
+              <li>Leaderboard XP</li>
+              <li>Café star ratings</li>
+              <li>The club study bonus</li>
+            </ul>
+            <p>Granted only by the server, from live session heartbeats that cannot outrun a wall clock.</p>
+          </div>
+        </div>
+
         <div className="sm-cols rv">
           <p>
-            Focused minutes are the only currency, so the first design question was the oldest one in
-            multiplayer: what stops me from lying? The answer is a boundary, not a police force.
-            <b> Anything private runs on honor</b> — your beans are a diary, and if you want to lie to a
-            pixel cat, that's between you and the cat. <b>Anything another person can see is witnessed</b> —
-            leaderboard XP and café ratings are granted only by the server, which hears a heartbeat from a
-            live session about once a minute and refuses to credit time faster than a wall clock. Open the
-            devtools, inflate your save, enjoy your imaginary beans: your rank won't move.
+            The boundary got its stress test in week one, when a field tester closed her laptop mid-session
+            and woke up rich. The product question inside the bug was better than the bug: should idle time
+            be an honor call, should the clock pause, or should the game kick you out of your seat?
           </p>
           <p>
-            The boundary was stress-tested in week one, when a field tester closed her laptop mid-session
-            and woke up rich. The product question was better than the bug: should idle time be an honor
-            call, should the clock pause, or should the game kick you out of your seat? The shipped answer
-            is all three, in their kindest forms: the clock only counts while the app is truly awake, a long
-            absence stands you up gently — <em>"you drifted off — we tucked your chair in ♪"</em> — and you
-            keep every minute you actually did. The anti-cheat system speaks in the product's voice, because
-            users can't tell the difference between a rule and an accusation when the copy is cold.
+            The shipped answer is all three, in their kindest forms. The clock only counts while the app is
+            truly awake. A long absence stands you up gently, with the words <em>"you drifted off — we
+            tucked your chair in ♪"</em>, and you keep every minute you actually did. Anti-cheat in the
+            product's own voice, because users can't tell a rule from an accusation when the copy is cold.
           </p>
         </div>
+
         <figure className="sm-figure rv">
           <img src={loopImg} alt="Seated in the café, session HUD open" />
           <figcaption>
-            The loop as shipped: seated, on the communal clock, earning 2.2 beans a verified minute.
-            The napkin is a status; headphones mean do-not-disturb; the streak on the pill pauses instead of breaking.
+            The loop as shipped. Seated, on the communal clock, earning 2.2 beans a verified minute. The
+            napkin is a status; headphones mean do-not-disturb.
           </figcaption>
         </figure>
-        <div className="sm-cols rv">
-          <p>
-            The same philosophy runs the retention layer, tested against one question: <b>does this still
-            respect the user on their worst day?</b> Streaks pause when you miss a day and keep their count;
-            only a second missed day resets them, and nothing turns red either way. Self-set goals are
-            honor-system but claimable only the next day, which quietly kills impulse-claiming. The "a
-            friend is studying right now" banner — the closest thing to a notification in the product — is
-            one tap to join, one tap to snooze half an hour.
-          </p>
-          <p>
-            Technically, the trust line is Postgres. Row-level security everywhere, and the ranked columns —
-            XP, café stars — are writable by no client at all: security-definer functions grant them from
-            session heartbeats, with per-beat caps, a six-hour session ceiling, and a sixteen-hour day. When
-            a later feature (clubs) wanted a +10% bonus while a clubmate studies, the bonus was computed
-            server-side from live sessions too. If a number can rank you, no browser writes it.
-          </p>
-        </div>
+
+        <details className="sm-details rv">
+          <summary>Engineering notes: how the server draws the line</summary>
+          <ul>
+            <li>Postgres row-level security on every table; café docs, notes, and friendships all scoped by policy.</li>
+            <li>The ranked columns (XP, café stars) are writable by <b>no client at all</b>. Security-definer functions grant them from session heartbeats.</li>
+            <li>Heartbeats credit real elapsed time, capped at 90 seconds per beat, 6 hours per sitting, 16 hours per day.</li>
+            <li>The clubs feature wanted a +10% bonus while a clubmate studies. That bonus is computed server-side from live sessions too.</li>
+            <li>Rate limits in policies, not app code: one study-log row per 8 minutes, 3 gifts a day, 5 reports a day.</li>
+          </ul>
+        </details>
+
+        <details className="sm-details rv">
+          <summary>Retention, tested against one question</summary>
+          <p>Does this still respect the user on their worst day?</p>
+          <ul>
+            <li><b>Streaks pause.</b> Miss a day and the count keeps, quietly. Only a second missed day resets it. Nothing turns red, ever.</li>
+            <li><b>Goals are honor-system</b> but claimable only the next day, which kills impulse-claiming without policing anyone.</li>
+            <li><b>One interruption exists</b>: the "a friend is studying" banner. One tap to join, one tap to snooze for half an hour.</li>
+            <li><b>The weekly recap is a postcard</b>, not a report card.</li>
+          </ul>
+        </details>
       </section>
 
-      {/* ---------------- part seven: the ledger ---------------- */}
+      {/* ---------------- the workflow ---------------- */}
       <section className="sm-part">
-        <div className="sm-partmark rv"><span>07</span> The ledger</div>
-        <h2 className="rv">Everything the users broke.</h2>
+        <div className="sm-partmark rv"><span>07</span> The loop</div>
+        <h2 className="rv">How every change shipped.</h2>
+        <div className="sm-steps rv">
+          <div className="sm-step"><span>1</span><b>Lab first</b><p>Risky visuals prototyped on a separate page, never in the live game.</p></div>
+          <div className="sm-step"><span>2</span><b>Ship small</b><p>Same-day deploys to production. Two real users on the other end.</p></div>
+          <div className="sm-step"><span>3</span><b>Field test</b><p>They studied in it daily and reported in feel-words, not spec-words.</p></div>
+          <div className="sm-step"><span>4</span><b>Fix same day</b><p>Every break they found shipped a fix before the next session.</p></div>
+        </div>
         <p className="sm-lede rv">
-          Studdy's QA team was two people who actually studied in it, daily. This ledger is their words
-          (lightly compressed), what shipped in response — always the same day — and what each one taught.
-          A spec anticipates the product as imagined; these are collisions with the product as built.
+          Below: the actual ledger. Their words, lightly compressed. What shipped. What it taught.
         </p>
         <div className="sm-ledger">
           {COMPLAINTS.map((c, i) => (
@@ -569,55 +691,67 @@ export default function StuddyMag() {
           </figure>
           <figure>
             <img src={bugCatImg} alt="The café cat stretched into a tall gray tower" />
-            <figcaption>Not reconstructed so much as re-committed: the café cat, the day its breathing animation overwrote the voxel scale.</figcaption>
+            <figcaption>Re-committed for the camera: the café cat, the day its breathing animation overwrote the voxel scale.</figcaption>
           </figure>
         </div>
       </section>
 
-      {/* ---------------- part eight: the decisions, graded ---------------- */}
+      {/* ---------------- part eight: the audit ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>08</span> The audit</div>
         <h2 className="rv">Every UI decision, graded on two axes.</h2>
-        <div className="sm-cols rv">
-          <p>
-            The product's whole tension lives on two axes: does a feature <b>protect the sprint</b>, and does
-            it make you <b>feel accompanied</b>? Plotting the shipped interface against both is the most
-            honest self-review I know how to do. The communal clock earns its keep in the top right —
-            maximum company, maximum protection, because it IS the etiquette. The quiet presence layer
-            (napkins, headphones, name tags) clusters high on company at modest cost.
-          </p>
-          <p>
-            Two features are drawn as open circles because they're managed risks, not clean wins. The
-            leaderboard adds pressure by existing — it stays because it's the one place verified time gets
-            to matter, but it ranks a number, never a person, and it lives two taps deep. The "friend is
-            studying" banner is the only feature that interrupts, which is exactly why it's dismissable,
-            snoozable, and capped at one. Both would be the first cut if the worst-day test ever failed.
-          </p>
-        </div>
+        <p className="sm-lede rv">
+          The product's whole tension fits on one chart: does a feature <b>protect the sprint</b>, and does
+          it make you <b>feel accompanied</b>? Plotting the shipped interface against both is the most
+          honest self-review I know.
+        </p>
         <figure className="sm-figure rv">
           <DecisionMap />
           <figcaption>Filled dots held their ground in field testing. Open circles are risks with leashes on.</figcaption>
         </figure>
+        <div className="sm-riskcards rv">
+          <div className="sm-riskcard">
+            <h3>Why the leaderboard stays</h3>
+            <p>
+              It adds pressure by existing. It survives because it's the one place verified time gets to
+              matter, it ranks a number and never a person, and it lives two taps deep. First cut if the
+              worst-day test ever fails.
+            </p>
+          </div>
+          <div className="sm-riskcard">
+            <h3>Why the banner stays</h3>
+            <p>
+              "A friend is studying right now" is the only feature that interrupts. That's exactly why it's
+              dismissable, snoozable for half an hour, and capped at one. Presence should invite, never
+              summon.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* ---------------- part nine: economy ---------------- */}
       <section className="sm-part">
         <div className="sm-partmark rv"><span>09</span> The economy</div>
         <h2 className="rv">Priced in hours, written in one page.</h2>
-        <div className="sm-cols rv">
+        <p className="sm-lede rv">
+          One focused minute earns one bean, scaled gently by level. Every price in the game answers to
+          that anchor, in a one-page economy document with real bands:
+        </p>
+        <div className="sm-table rv">
+          <div className="sm-tr sm-th"><span>Band</span><span>Price</span><span>≈ study time</span><span>Examples</span></div>
+          <div className="sm-tr"><span>Impulse</span><span>8–45</span><span>minutes</span><span>everyday furniture, plants, mugs</span></div>
+          <div className="sm-tr"><span>Session</span><span>45–150</span><span>about an hour</span><span>café themes, statement pieces</span></div>
+          <div className="sm-tr"><span>Commitment</span><span>150–400</span><span>a day or two</span><span>hats, tag charms, big rugs</span></div>
+          <div className="sm-tr"><span>Atelier</span><span>250–800</span><span>up to a week</span><span>the café cat, the fireplace, the aquarium</span></div>
+        </div>
+        <div className="sm-decision rv">
+          <div className="sm-decision-tag">Decision record · reversed</div>
           <p>
-            One focused minute earns one bean, scaled gently by level and capped — that sentence anchors
-            every price in the game, and it's written down in a one-page economy document every new price
-            has to answer to. Impulse décor costs minutes. Statement furniture costs a session. The
-            animated endgame pieces cost up to a week of steady study. And the sinks only ever buy
-            <b> expression</b>: nothing purchasable earns faster or ranks higher, anywhere.
-          </p>
-          <p>
-            The document also records a reversal. Mid-build, I priced structural room edits — width, depth,
-            windows — with escalating costs, standard gacha logic. Living with it for a day exposed the
-            problem: the game gives you a free room, then charges you to keep shaping it. That's a
-            bait-and-switch wearing an economy costume. It was unshipped, and the principle went in writing
-            so it stays unshipped: <b>structure is identity, and identity is never priced.</b>
+            Mid-build, I priced structural room edits (width, depth, windows) with escalating costs.
+            Standard gacha logic. Living with it for a day exposed the problem: the game hands you a free
+            room, then charges you to keep shaping it. That's a bait-and-switch wearing an economy costume.
+            Unshipped, and the principle went in writing so it stays unshipped:
+            <b> structure is identity, and identity is never priced.</b>
           </p>
         </div>
         <figure className="sm-figure rv">
@@ -629,23 +763,24 @@ export default function StuddyMag() {
         </figure>
         <div className="sm-cols rv">
           <p>
-            The economy's real exam arrived when the first player finished it: level 21, 1,800 beans banked,
-            all goals cleared, and — her words — nothing left to want. The lazy patch is bigger numbers; the
-            actual answer was things worth wanting. The <b>atelier</b>: animated showpieces expensive enough
-            to be a project. The <b>wardrobe</b>: hats and name-tag charms that follow you to every café,
-            priced above furniture because identity that travels is worth more than décor that stays home.
+            The economy's real exam arrived when the first player finished it. Level 21, 1,800 beans
+            banked, all goals cleared, and, in her words, nothing left to want. Bigger numbers would have
+            been the lazy patch. What shipped instead was worth wanting: the atelier's animated showpieces,
+            and a wardrobe that follows you to every café. Identity that travels is worth more than décor
+            that stays home, and it's priced that way.
           </p>
           <p>
-            Everything ranked stayed protected while the sinks grew — that's the discipline the one-pager
-            enforces. The next sinks are already designed against the same rules: window views, pet
-            accessories, a room-wing extension as the one large structural purchase, adding space, never
-            power. An economy that respects its players is mostly a list of things it refuses to sell.
+            Sinks only ever buy <b>expression</b>. Nothing purchasable earns faster or ranks higher,
+            anywhere in the game. The next sinks are already designed against the same rules: window views,
+            pet accessories, a room-wing extension as the one large structural purchase. It adds space,
+            never power. An economy that respects its players is mostly a list of things it refuses to
+            sell.
           </p>
         </div>
         <figure className="sm-figure rv">
           <img src={salonImg} alt="The salon mirror with the wardrobe" />
           <figcaption>
-            The mirror: skin, hair, length, glasses — free forever, ten options each. Hats and charms carry
+            The mirror. Skin, hair, length, glasses: free forever, ten options each. Hats and charms carry
             price tags until you own them.
           </figcaption>
         </figure>
@@ -657,20 +792,19 @@ export default function StuddyMag() {
         <h2 className="rv">What this project is, underneath.</h2>
         <div className="sm-cols rv">
           <p>
-            On paper Studdy is a study tool. Underneath, it's a thesis about where social software goes
-            next: the generation that grew up in avatar worlds is aging into work, and they will keep
-            choosing <em>places</em> over apps — spaces with bodies, rooms, and ambient company, tuned for
-            what adult life actually needs. Studying is the first vertical because it's where the demand
-            already shows (a million muted students on Discord are the proof). The same architecture — one
-            shared clock, witnessed effort, expression-only economics — points at coworking, reading rooms,
+            On paper, Studdy is a study tool. Underneath, it's a thesis about where social software goes
+            next. The generation that grew up in avatar worlds will keep choosing places over apps as adult
+            life arrives: spaces with bodies, rooms, and ambient company, tuned for what that life actually
+            needs. Studying is the first vertical because the demand is already visible (a million muted
+            students on Discord are the proof). The same architecture points at coworking, reading rooms,
             practice spaces.
           </p>
           <p>
-            The craft under it: a voxel renderer with a hue-shifted toon ramp, one state store enforcing the
-            product's promises, Postgres row-level security drawing the trust line, realtime presence that
-            survived its ghosts, and an economy document that has already survived one reversal and one
-            maxed-out player. Every piece of it shipped to production, broke against two real users, and
-            got better. The café is open — it never closes — and the next complaint is already welcome.
+            The craft underneath: a voxel renderer with a hue-shifted toon ramp, one state store enforcing
+            the product's promises, Postgres row-level security drawing the trust line, realtime presence
+            that survived its ghosts, and an economy document that has already survived one reversal and
+            one maxed-out player. Every piece shipped to production, broke against two real users, and got
+            better. The café is open. It never closes. The next complaint is already welcome.
           </p>
         </div>
         <blockquote className="sm-pull rv">
@@ -686,7 +820,9 @@ export default function StuddyMag() {
             Forest: <a href="https://forestapp.cc/" target="_blank" rel="noreferrer">forestapp.cc</a> ·
             Focusmate: <a href="https://www.focusmate.com/business/" target="_blank" rel="noreferrer">focusmate.com</a> ·
             Gen Z loneliness &amp; third places: <a href="https://www.simplypsychology.com/articles/third-places-loneliness" target="_blank" rel="noreferrer">Simply Psychology</a>, <a href="https://www.huffpost.com/entry/third-spaces-and-gen-z_l_675ca0fee4b0a6324e3b58ad" target="_blank" rel="noreferrer">HuffPost</a> ·
+            Cyworld: <a href="https://en.wikipedia.org/wiki/Cyworld" target="_blank" rel="noreferrer">Wikipedia</a> ·
             platform aging-up: <a href="https://www.thebloxline.com/articles/roblox-now-has-123-million-daily-users-but-the-bigger-story-is-who-those-users-are-becoming" target="_blank" rel="noreferrer">The Bloxline</a>, <a href="https://backlinko.com/roblox-users" target="_blank" rel="noreferrer">Backlinko</a>.
+            Product screenshots appear for identification and commentary; all marks belong to their owners.
           </p>
         </div>
       </section>
