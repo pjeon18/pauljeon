@@ -28,6 +28,9 @@ import refFocusmate from '../assets/ref-focusmate.jpg'
 import refRoblox from '../assets/ref-roblox.jpg'
 import refCyworld from '../assets/ref-cyworld.jpg'
 import wordmark from '../assets/studdy-wordmark.png'
+import personaMina from '../assets/studdy-persona-mina.png'
+import personaDaniel from '../assets/studdy-persona-daniel.png'
+import personaCaroline from '../assets/studdy-persona-caroline.png'
 
 // ---------------------------------------------------------------------------
 
@@ -480,9 +483,98 @@ export default function StuddyMag() {
         </div>
       </section>
 
-      {/* ---------------- part two: the bet ---------------- */}
+      {/* ---------------- part two: the people ---------------- */}
+      <section className="sm-part">
+        <div className="sm-partmark rv"><span>02</span> The people</div>
+        <h2 className="rv">Three personas from the research</h2>
+        <p className="sm-lede rv">
+          The market map says where the gap is. These three say who is standing in it. They are composites
+          drawn from the communities above: stream chats, study servers, and the playtesters who later
+          lived in the prototype. Their portraits are rendered by the game's own character engine.
+        </p>
+
+        <div className="sm-personas rv">
+          <article className="sm-persona">
+            <header>mina · 19 · sophomore</header>
+            <div className="sm-persona-fig"><img src={personaMina} alt="Mina's Studdy character: long lavender hair and cat ears" loading="lazy" /></div>
+            <p className="sm-persona-bio">
+              Studies alone in her dorm with Lofi Girl on a second monitor every night. Deleted two social
+              apps because they drained her, but the silence in the room gets heavy around 11pm.
+            </p>
+            <h4>What she wants</h4>
+            <ul>
+              <li>Company that asks nothing back</li>
+              <li>Atmosphere: music, rain, warm light</li>
+              <li>Something gentle to look at between sprints</li>
+            </ul>
+            <p className="sm-persona-pain"><b>Breaking point</b> The stream never knows she is there, and YouTube keeps a distraction one recommendation away.</p>
+          </article>
+
+          <article className="sm-persona">
+            <header>daniel · 22 · pre-med</header>
+            <div className="sm-persona-fig"><img src={personaDaniel} alt="Daniel's Studdy character: short dark hair and glasses" loading="lazy" /></div>
+            <p className="sm-persona-bio">
+              Closes the library most nights and still distrusts his own tally of hours. Tried camera-on
+              coworking once; being watched by a stranger on video felt like a job interview.
+            </p>
+            <h4>What he wants</h4>
+            <ul>
+              <li>A body at the next desk, no talking required</li>
+              <li>An honest count of his focused time</li>
+              <li>Structure that the room imposes, not a calendar</li>
+            </ul>
+            <p className="sm-persona-pain"><b>Breaking point</b> Every focus timer he tried could be gamed, so the numbers meant nothing to him within a week.</p>
+          </article>
+
+          <article className="sm-persona">
+            <header>caroline · 21 · junior</header>
+            <div className="sm-persona-fig"><img src={personaCaroline} alt="Caroline's Studdy character: caramel hair and a red beret" loading="lazy" /></div>
+            <p className="sm-persona-bio">
+              Plays cozy games between problem sets and finishes every checklist she meets. Studies plenty
+              already; what bothers her is that the hours vanish without leaving anything behind.
+            </p>
+            <h4>What she wants</h4>
+            <ul>
+              <li>A space of her own that accrues over time</li>
+              <li>Goals worth finishing and things worth saving for</li>
+              <li>Progress she can show someone</li>
+            </ul>
+            <p className="sm-persona-pain"><b>Breaking point</b> Streak mechanics that punish one rest day read as guilt, not motivation, and she churns out.</p>
+          </article>
+        </div>
+
+        <h3 className="sm-serve-head rv">What each of them needs the product to be</h3>
+        <div className="sm-serves rv">
+          <div className="sm-serve">
+            <span>for mina</span>
+            <p>
+              The café itself is the ambience. Every café runs a lofi radio on one shared schedule, rain
+              falls outside the windows, and she sets her own light. Presence carries no obligation: no
+              camera, no DMs, sitting down is the whole contribution, and chat only opens on the shared break.
+            </p>
+          </div>
+          <div className="sm-serve">
+            <span>for daniel</span>
+            <p>
+              The clock has to be honest before it can mean anything. Focused time is verified on the
+              server and only accrues while the app is actually awake, so a closed laptop earns one beat
+              and not a night. The communal 25/5 sprint clock gives the room its structure; he schedules nothing.
+            </p>
+          </div>
+          <div className="sm-serve">
+            <span>for caroline</span>
+            <p>
+              Hours leave a residue. Every focused minute becomes a bean, beans buy expression and never
+              advantage, and the long game is cosmetic: café themes, a wardrobe, animated atelier pieces.
+              She became the real playtester who maxed the economy, and her complaint drives part ten.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- part three: the bet ---------------- */}
       <section className="sm-part sm-band sm-band-pink">
-        <div className="sm-partmark rv"><span>02</span> The bet</div>
+        <div className="sm-partmark rv"><span>03</span> The bet</div>
         <h2 className="rv">Defining the product</h2>
         <div className="sm-duo rv">
           <div className="sm-duo-text">
@@ -528,7 +620,7 @@ export default function StuddyMag() {
 
       {/* ---------------- part three: day one ---------------- */}
       <section className="sm-part">
-        <div className="sm-partmark rv"><span>03</span> Day one</div>
+        <div className="sm-partmark rv"><span>04</span> Day one</div>
         <h2 className="rv">The first prototype</h2>
         <figure className="sm-figure rv">
           <img src={v0Img} alt="The first committed build of Studdy" />
@@ -585,7 +677,7 @@ export default function StuddyMag() {
 
       {/* ---------------- part four: art direction ---------------- */}
       <section className="sm-part">
-        <div className="sm-partmark rv"><span>04</span> Art direction</div>
+        <div className="sm-partmark rv"><span>05</span> Art direction</div>
         <h2 className="rv">Choosing the art direction</h2>
         <div className="sm-cols rv">
           <p>
@@ -645,7 +737,7 @@ export default function StuddyMag() {
 
       {/* ---------------- part five: light ---------------- */}
       <section className="sm-part sm-band sm-band-butter">
-        <div className="sm-partmark rv"><span>05</span> Light</div>
+        <div className="sm-partmark rv"><span>06</span> Light</div>
         <h2 className="rv">Tuning the lighting</h2>
         <div className="sm-duo rv">
           <div className="sm-duo-text">
@@ -680,7 +772,7 @@ export default function StuddyMag() {
 
       {/* ---------------- part six: trust ---------------- */}
       <section className="sm-part">
-        <div className="sm-partmark rv"><span>06</span> Trust</div>
+        <div className="sm-partmark rv"><span>07</span> Trust</div>
         <h2 className="rv">Designing trust: honor vs. proof</h2>
         <p className="sm-lede rv">
           Focused minutes are the only currency, so the oldest multiplayer question arrived first:
@@ -757,7 +849,7 @@ export default function StuddyMag() {
 
       {/* ---------------- the workflow ---------------- */}
       <section className="sm-part">
-        <div className="sm-partmark rv"><span>07</span> The loop</div>
+        <div className="sm-partmark rv"><span>08</span> The loop</div>
         <h2 className="rv">How every change shipped</h2>
         <div className="sm-steps rv">
           <div className="sm-step"><span>1</span><b>Lab first</b><p>Risky visuals prototyped on a separate page, never in the live game.</p></div>
@@ -791,7 +883,7 @@ export default function StuddyMag() {
 
       {/* ---------------- part eight: the audit ---------------- */}
       <section className="sm-part">
-        <div className="sm-partmark rv"><span>08</span> The audit</div>
+        <div className="sm-partmark rv"><span>09</span> The audit</div>
         <h2 className="rv">Grading the interface</h2>
         <p className="sm-lede rv">
           Two questions grade every feature: does it <b>support focus</b>, and does it <b>add company</b>?
@@ -829,7 +921,7 @@ export default function StuddyMag() {
 
       {/* ---------------- part nine: economy ---------------- */}
       <section className="sm-part">
-        <div className="sm-partmark rv"><span>09</span> The economy</div>
+        <div className="sm-partmark rv"><span>10</span> The economy</div>
         <h2 className="rv">Designing the economy</h2>
         <p className="sm-lede rv">
           One focused minute earns one bean, scaled gently by level. Every price in the game answers to
@@ -886,7 +978,7 @@ export default function StuddyMag() {
 
       {/* ---------------- coda ---------------- */}
       <section className="sm-part sm-coda">
-        <div className="sm-partmark rv"><span>10</span> Where this goes</div>
+        <div className="sm-partmark rv"><span>11</span> Where this goes</div>
         <h2 className="rv">Takeaways</h2>
         <div className="sm-takeaways rv">
           <div className="sm-take"><b>Places beat apps</b><p>The avatar generation is aging into work. They'll bring their platform expectations with them.</p></div>
