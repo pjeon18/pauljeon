@@ -13,10 +13,10 @@ import CardArt from '../CardArt'
 // Links) built from the card + its case study.
 // ============================================================================
 
-const STEP = 15 // degrees between cards — five in view, none touching
-const R = 950 // arc radius
-const OVERHANG = 510 // pivot distance past the pane's right edge
-const CARD_W = 240 // must match .af-card width in home2.css
+const STEP = 26 // degrees between cards — five in view, none touching
+const R = 600 // arc radius — tight wheel, pronounced curve
+const OVERHANG = 160 // pivot distance past the pane's right edge
+const CARD_W = 264 // must match .af-card width in home2.css
 const TILT = 0.55 // cards counter-rotate to 55% of their arc angle (flatter corners)
 const DOCK_PAD = 28 // pane edge padding around the docked layout
 const DOCK_GAP = 44 // space between the tab panel and the docked card
@@ -237,7 +237,7 @@ export default function ArcFocus() {
           const fade = absOff <= 1 ? 1 - 0.28 * absOff : Math.max(0, 0.72 - 0.4 * (absOff - 1))
           const hidden = fade <= 0.01
           // size falls off with distance from focus: 1 -> 0.62 -> 0.50
-          const size = 1 - 0.38 * Math.min(absOff, 1) - 0.12 * Math.max(0, Math.min(absOff - 1, 1))
+          const size = 1 - 0.42 * Math.min(absOff, 1) - 0.10 * Math.max(0, Math.min(absOff - 1, 1))
           return (
             <button
               key={card.id}
