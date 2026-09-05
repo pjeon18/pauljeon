@@ -58,6 +58,7 @@ body.sh-lock { overflow: hidden; }
     opacity 320ms ease;
 }
 .mf-win:active { cursor: grabbing; }
+.mf-win.mf-dragging { transition: none !important; }
 /* filed away: everything collapses into the folder */
 .mf-field:not(.mf-open) .mf-win {
   left: 50% !important; top: 40% !important;
