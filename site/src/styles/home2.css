@@ -125,7 +125,7 @@ body.sh-lock { overflow: hidden; }
   position: absolute; top: 50%; width: 0; height: 0;
   transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.af-popped .af-arc { transform: translateX(185px); }
+.af-popped .af-arc { transform: translateX(200px); }
 
 .af-card {
   position: absolute; top: 0; left: 0; width: 302px;
@@ -137,12 +137,12 @@ body.sh-lock { overflow: hidden; }
   display: block; background: #FFFFFF; border: 1px solid #EDEBE5; border-radius: 14px;
   padding: 10px 10px 12px;
   box-shadow: 0 1px 2px rgba(20, 16, 10, 0.05), 0 18px 40px -20px rgba(20, 16, 10, 0.3);
-  transform: scale(0.86); opacity: 1;
+  transform: scale(0.8); opacity: 1;
   transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1), opacity 260ms ease, box-shadow 300ms ease;
 }
-.af-card.af-active .af-lift { transform: scale(1); opacity: 1; }
+.af-card.af-active .af-lift { transform: scale(1.12); opacity: 1; }
 .af-card.af-out .af-lift {
-  transform: translateX(-92px) scale(1.04);
+  transform: translateX(-96px) scale(1.15);
   box-shadow: 0 2px 5px rgba(20, 16, 10, 0.07), 0 34px 64px -24px rgba(20, 16, 10, 0.42);
 }
 .af-popped .af-card:not(.af-out) .af-lift { opacity: 0.18; }
@@ -181,24 +181,47 @@ body.sh-lock { overflow: hidden; }
   margin: 8px 0 18px; line-height: 1.12;
 }
 
-.af-tab { border-top: 1px solid #EDEBE5; }
-.af-tab:last-child { border-bottom: 1px solid #EDEBE5; }
+.af-tab {
+  position: relative; margin: 2px 0;
+  border-radius: 16px; background: transparent;
+  transition: background 260ms ease;
+}
+.af-tab.on { background: #EDF2FA; }
+.af-tab.on::after {
+  content: ""; position: absolute; right: -8px; top: 28px;
+  border: 8px solid transparent; border-right: none; border-left: 9px solid #EDF2FA;
+}
 .af-tab-label {
   display: block; width: 100%; text-align: left; background: none; border: none;
-  padding: 13px 2px; cursor: pointer;
-  font-size: 16px; font-weight: 700; letter-spacing: -0.015em; color: #A19D94;
-  transition: color 200ms ease, padding-left 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  padding: 13px 18px; cursor: pointer;
+  font-size: 17px; font-weight: 700; letter-spacing: -0.015em; color: #121110;
+  transition: opacity 200ms ease;
 }
-.af-tab.on .af-tab-label { color: #121110; padding-left: 10px; }
+.af-tab:not(.on) .af-tab-label { opacity: 0.85; }
+.af-tab:not(.on) .af-tab-label:hover { opacity: 1; }
 .af-tab-body {
-  max-height: 0; overflow: hidden; padding: 0 10px;
+  max-height: 0; overflow: hidden; padding: 0 18px;
   transition: max-height 380ms cubic-bezier(0.22, 1, 0.36, 1), padding 380ms ease;
 }
-.af-tab.on .af-tab-body { max-height: 240px; padding: 0 10px 16px; }
+.af-tab.on .af-tab-body { max-height: 240px; padding: 0 18px 16px; }
 .af-tab-body p {
   font-family: 'Inter', -apple-system, sans-serif;
   font-size: 13px; line-height: 1.65; color: #55524B; margin: 0;
 }
+
+/* on open, the tabs slide in from the left with a springy overshoot */
+@keyframes afTabIn {
+  0% { opacity: 0; transform: translateX(-38px); }
+  70% { opacity: 1; transform: translateX(5px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.af-popped .af-tab {
+  animation: afTabIn 620ms cubic-bezier(0.3, 0.9, 0.35, 1) both;
+  animation-delay: calc(120ms + var(--i, 0) * 75ms);
+}
+.af-popped .af-panel-kicker { animation: afTabIn 560ms cubic-bezier(0.3, 0.9, 0.35, 1) both; }
+.af-popped .af-panel-title { animation: afTabIn 560ms cubic-bezier(0.3, 0.9, 0.35, 1) both; animation-delay: 50ms; }
+
 .af-links { display: flex; flex-direction: column; gap: 9px; }
 .af-link { font-size: 13.5px; font-weight: 700; color: #121110; }
 .af-link .arr { color: #E05C1F; }
@@ -219,7 +242,8 @@ body.sh-lock { overflow: hidden; }
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .af-lift, .af-panel, .af-tab-body, .af-tab-label, .mf-win, .mf-folder-front { transition: none !important; }
+  .af-lift, .af-panel, .af-tab-body, .af-tab-label, .af-tab, .mf-win, .mf-folder-front { transition: none !important; }
+  .af-popped .af-tab, .af-popped .af-panel-kicker, .af-popped .af-panel-title { animation: none !important; }
 }
 
 /* ---------- small screens: stack ---------- */

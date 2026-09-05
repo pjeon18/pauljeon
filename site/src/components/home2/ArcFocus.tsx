@@ -225,8 +225,12 @@ export default function ArcFocus() {
         <div className="af-panel-kicker">{activeCard.meta}</div>
         <h2 className="af-panel-title">{activeCard.title}</h2>
         <div className="af-tabs">
-          {tabs.map((t) => (
-            <div key={t.id} className={'af-tab' + (activeTab === t.id ? ' on' : '')}>
+          {tabs.map((t, ti) => (
+            <div
+              key={t.id}
+              className={'af-tab' + (activeTab === t.id ? ' on' : '')}
+              style={{ '--i': ti } as React.CSSProperties}
+            >
               <button
                 className="af-tab-label"
                 onMouseEnter={() => setActiveTab(t.id)}
