@@ -1,0 +1,570 @@
+/* ==========================================================================
+   the box — homepage entry experience
+   A hand-rolled CSS-3D cardboard box in a white void. Geometry: 460 × 300 ×
+   340 (W×H×D), camera = perspective 1600 with a raised origin; the dolly is
+   translateZ on .bx-world (written by JS). Kraft detail is procedural: one
+   SVG-noise grain data-URI + gradients (corrugation ribbing, tape, flute
+   edges). Light is authored upper-left-front and baked per face.
+   Safari rules: coplanar planes get ≥1px translateZ separation; no opacity/
+   overflow/filter on any preserve-3d ancestor — fades live on flat leaves.
+   ========================================================================== */
+
+.bx-home {
+  position: relative;
+  min-height: 100dvh;
+  background: #FDFDFB;
+  overflow: hidden;
+  --bx-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.34 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+  --bx-rib: repeating-linear-gradient(90deg,
+    rgba(58, 38, 14, 0.05) 0 2px, rgba(255, 255, 255, 0.025) 2px 4px, transparent 4px 8px);
+  --bx-flute: repeating-linear-gradient(90deg, #8A6A3D 0 2.5px, #C9A268 2.5px 7px);
+  --bx-tape: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.07) 47%, transparent 56%),
+    linear-gradient(180deg, rgba(122, 86, 42, 0.30), rgba(104, 72, 34, 0.34));
+}
+
+/* ---------- chrome ---------- */
+.bx-chrome {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 5;
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 26px 48px 0; pointer-events: none;
+}
+.bx-logo { font-weight: 700; font-size: 13px; letter-spacing: -0.01em; color: #121110; }
+.bx-time {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 11.5px; font-weight: 500; letter-spacing: 0.08em;
+  color: #A19D94; font-variant-numeric: tabular-nums;
+}
+
+/* ---------- stage & camera rig ---------- */
+.bx-stage {
+  position: relative; height: 100dvh; min-height: 520px;
+  perspective: 1600px; perspective-origin: 50% 42%;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.bx-world {
+  width: 460px; height: 300px; transform-style: preserve-3d;
+  transform: translateZ(-10500px) rotateX(-9deg); /* far pose; JS takes over */
+}
+.bx-fit { width: 100%; height: 100%; transform-style: preserve-3d; transform: translateY(14px); }
+.bx-rig { width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateY(-38deg); }
+.is-approaching .bx-world, .is-closing .bx-world,
+.is-approaching .bx-rig, .is-closing .bx-rig { will-change: transform; }
+
+/* the click target hugs the far box itself — no hover from a distance */
+.bx-open-btn {
+  position: absolute; left: 50%; top: 43.5%; translate: -50% -50%;
+  width: 118px; height: 104px; z-index: 4;
+  background: none; border: none; cursor: pointer; border-radius: 10px;
+}
+.bx-open-btn:focus-visible { outline: 2px solid #E05C1F; outline-offset: -4px; }
+
+/* free-look while browsing */
+.is-browsing .bx-stage { cursor: grab; touch-action: none; }
+.bx-stage.bx-dragging { cursor: grabbing; }
+
+/* far-state hover: the camera notices you — leans in a touch while the box
+   stirs off the floor and its shadow responds. A preview of the click. */
+.bx-fit { transition: scale 700ms cubic-bezier(0.25, 0.8, 0.3, 1); }
+.bx-lift {
+  position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none;
+  transition: translate 600ms cubic-bezier(0.25, 0.8, 0.3, 1);
+}
+/* note: never animate .bx-ground opacity — layerizing the near-edge-on plane
+   re-rasterizes it (pixelation) and flattens its gradients (brown disc) */
+@media (hover: hover) and (min-width: 721px) and (prefers-reduced-motion: no-preference) {
+  .is-far .bx-stage:has(.bx-open-btn:hover) .bx-fit,
+  .is-far .bx-stage:has(.bx-open-btn:focus-visible) .bx-fit { scale: 1.05; }
+  .is-far .bx-stage:has(.bx-open-btn:hover) .bx-lift,
+  .is-far .bx-stage:has(.bx-open-btn:focus-visible) .bx-lift { translate: 0 -26px; }
+}
+
+.bx-closebox {
+  position: absolute; left: 30px; bottom: 24px; z-index: 4;
+  background: none; border: none; padding: 8px 10px; cursor: pointer;
+  font-family: 'Sentient', Georgia, serif; font-style: italic;
+  font-size: 15px; color: #A19D94; transition: color 180ms ease;
+  animation: bx-fade 500ms ease 300ms backwards;
+}
+.bx-closebox:hover, .bx-closebox:focus-visible { color: #121110; }
+@keyframes bx-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- ground ---------- */
+.bx-ground {
+  position: absolute; left: -170px; top: -190px; width: 800px; height: 680px;
+  transform: rotateX(90deg) translateZ(-152px);
+  background:
+    radial-gradient(ellipse 34% 30% at 50% 50%, rgba(26, 20, 12, 0.28), rgba(26, 20, 12, 0.10) 55%, transparent 74%),
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgba(26, 20, 12, 0.05), transparent 78%);
+  pointer-events: none;
+}
+
+/* ---------- the box: outer faces ---------- */
+.bx-box { position: absolute; inset: 0; transform-style: preserve-3d; }
+/* every part of the scene is hit-inert — only folder tabs (and 2D chrome)
+   are live. Transparent 3D wrapper rects otherwise intercept clicks where
+   their own plane crosses in front of deeper content. */
+.bx-world, .bx-fit, .bx-rig, .bx-box, .bx-box *, .bx-ground,
+.bx-folders, .bx-folders ul, .bx-slot { pointer-events: none; }
+
+.bx-face {
+  position: absolute;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background-image: var(--bx-grain), var(--bx-rib),
+    linear-gradient(174deg, #CDAC7C, #BC9765 55%, #B08B58);
+  pointer-events: none;
+}
+.bx-f-front  { left: 0; top: 0; width: 460px; height: 300px; transform: translateZ(170px); }
+.bx-f-back   { left: 0; top: 0; width: 460px; height: 300px; transform: rotateY(180deg) translateZ(170px); }
+.bx-f-left   { left: 60px; top: 0; width: 340px; height: 300px; transform: rotateY(-90deg) translateZ(230px); }
+.bx-f-right  { left: 60px; top: 0; width: 340px; height: 300px; transform: rotateY(90deg) translateZ(230px); }
+.bx-f-bottom { left: 0; top: -20px; width: 460px; height: 340px; transform: rotateX(-90deg) translateZ(150px); }
+
+/* baked light: upper-left-front */
+.bx-shade { position: absolute; inset: 0; background: #1A140C; pointer-events: none; }
+.bx-shade-front { opacity: 0.04; }
+.bx-shade-back  { opacity: 0.30; }
+.bx-shade-left  { opacity: 0.15; }
+.bx-shade-right { opacity: 0.24; }
+
+/* ---------- inner walls + floor ---------- */
+.bx-inner {
+  position: absolute;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background-image: var(--bx-grain),
+    linear-gradient(180deg, rgba(20, 12, 4, 0.30), rgba(20, 12, 4, 0.05) 40%),
+    linear-gradient(174deg, #A5824F, #92703F);
+  pointer-events: none;
+}
+.bx-inner::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px;
+  background: var(--bx-flute);
+}
+.bx-i-front { left: 2px; top: 0; width: 456px; height: 300px; transform: rotateY(180deg) translateZ(-168px); }
+.bx-i-back  { left: 2px; top: 0; width: 456px; height: 300px; transform: translateZ(-168px); }
+.bx-i-left  { left: 62px; top: 0; width: 336px; height: 300px; transform: rotateY(90deg) translateZ(-228px); }
+.bx-i-right { left: 62px; top: 0; width: 336px; height: 300px; transform: rotateY(-90deg) translateZ(-228px); }
+.bx-i-floor {
+  left: 0; top: -20px; width: 460px; height: 340px;
+  transform: rotateX(90deg) translateZ(-148px);
+  background-image: var(--bx-grain),
+    radial-gradient(ellipse 70% 70% at 50% 50%, rgba(20, 12, 4, 0.18), rgba(20, 12, 4, 0.42)),
+    linear-gradient(180deg, #8A6A3E, #7C5E36);
+}
+.bx-i-floor::before { display: none; }
+
+/* the deck: a kraft plane just under the rim that backs the hairline slit
+   between the closed lid (floats 2px above the rim) and the wall tops —
+   without it the void shows through. Hidden once the flaps are opening. */
+.bx-deck {
+  position: absolute; left: 2px; top: -18px; width: 456px; height: 336px;
+  transform: rotateX(90deg) translateZ(148px);
+  background-image: var(--bx-grain), linear-gradient(180deg, #C2A26E, #AE8B5A);
+  visibility: visible; transition: visibility 0s 1950ms;
+}
+.is-open .bx-deck { visibility: hidden; transition: visibility 0s 950ms; }
+
+/* the blade line that slices along the tape seam as the box starts to open */
+.bx-cut {
+  position: absolute; left: 228px; top: -20px; width: 4px; height: 340px;
+  transform: rotateX(90deg) translateZ(152.5px) scaleY(0);
+  transform-origin: 50% 100%;
+  background: linear-gradient(180deg, rgba(46, 28, 8, 0.55), rgba(46, 28, 8, 0.72));
+  opacity: 0;
+}
+.is-opening .bx-cut { animation: bx-slice 900ms linear forwards; }
+@keyframes bx-slice {
+  0%   { opacity: 1; transform: rotateX(90deg) translateZ(152.5px) scaleY(0); }
+  42%  { opacity: 1; transform: rotateX(90deg) translateZ(152.5px) scaleY(1); }
+  70%  { opacity: 1; transform: rotateX(90deg) translateZ(152.5px) scaleY(1); }
+  100% { opacity: 0; transform: rotateX(90deg) translateZ(152.5px) scaleY(1); }
+}
+
+/* file rails along the side walls */
+.bx-rail {
+  position: absolute; left: 0; right: 0; top: 9px; height: 5px;
+  background: linear-gradient(180deg, #D2CFC9, #8E8B85);
+  border-radius: 2px;
+}
+
+/* ---------- flaps ---------- */
+/* Majors hinge on left/right (the taped pair, seam runs front-to-back);
+   minors on front/back. Closed = folded flat over the opening (rotateX 90
+   in each wall's local frame); majors ride 3px above the minors, exactly
+   like a real packed box. */
+.bx-flapmount { position: absolute; transform-style: preserve-3d; pointer-events: none; }
+.bx-fm-front { left: 0; top: 0; width: 460px; height: 300px; transform: translateZ(170px); }
+.bx-fm-back  { left: 0; top: 0; width: 460px; height: 300px; transform: rotateY(180deg) translateZ(170px); }
+.bx-fm-left  { left: 60px; top: 0; width: 340px; height: 300px; transform: rotateY(-90deg) translateZ(230px); }
+.bx-fm-right { left: 60px; top: 0; width: 340px; height: 300px; transform: rotateY(90deg) translateZ(230px); }
+
+.bx-flap {
+  position: absolute; left: 0; width: 100%;
+  transform-origin: 50% 100%;
+  background-image: var(--bx-grain), var(--bx-rib),
+    linear-gradient(178deg, #D2B385, #C2A06E);
+  transition: transform 1150ms cubic-bezier(0.3, 0.9, 0.32, 1); /* slow, damped */
+}
+.bx-flap-major { top: -228px; height: 228px; transform: rotateX(90deg) translateZ(2px); }
+.bx-flap-minor { top: -150px; height: 150px; transform: rotateX(90deg) translateZ(0.8px); }
+
+/* closing: the facing pairs move together — minors tuck in first (front/back),
+   then the taped majors land on top of them, exactly like packing a real box.
+   Generous buffer so the pairs never sweep through each other mid-air. */
+.bx-fm-front .bx-flap { transition-delay: 0ms; }
+.bx-fm-back  .bx-flap { transition-delay: 110ms; }
+.bx-fm-left  .bx-flap { transition-delay: 620ms; }
+.bx-fm-right .bx-flap { transition-delay: 700ms; }
+
+/* opening: the tape is cut (0–420ms), then the taped majors lift together,
+   then the front/back pair. Facing pairs open at near-identical times. */
+/* majors scale down 28% along their reach as they swing — full cover when
+   closed, visually right length when open; interpolates invisibly mid-swing */
+.is-open .bx-fm-left  .bx-flap { transform: rotateX(-122deg) translateZ(2px) scaleY(0.72); transition-delay: 430ms; }
+.is-open .bx-fm-right .bx-flap { transform: rotateX(-125deg) translateZ(2px) scaleY(0.72); transition-delay: 510ms; }
+.is-open .bx-fm-back  .bx-flap { transform: rotateX(-26deg) translateZ(0.8px);  transition-delay: 980ms; }
+/* front flap hangs deep (-150°) — that presents its outer face, and the
+   sharpie key on it, almost square to the elevated camera */
+.is-open .bx-fm-front .bx-flap { transform: rotateX(-150deg) translateZ(0.8px); transition-delay: 1080ms; }
+
+/* exposed flute along each flap's free edge */
+.bx-corrug {
+  position: absolute; left: 0; right: 0; top: 0; height: 6px;
+  background: var(--bx-flute);
+  box-shadow: 0 1px 0 rgba(40, 24, 6, 0.35) inset;
+}
+
+/* ---------- tape ---------- */
+.bx-tape-half {
+  position: absolute; left: 0; right: 0; top: 0; height: 26px;
+  background-image: var(--bx-tape);
+  border-bottom: 1px solid rgba(80, 52, 20, 0.28);
+}
+.bx-tape-tail {
+  position: absolute; left: 50%; top: 0; width: 52px; height: 64px; margin-left: -26px;
+  background-image: var(--bx-tape);
+  border-left: 1px solid rgba(80, 52, 20, 0.22);
+  border-right: 1px solid rgba(80, 52, 20, 0.22);
+}
+
+/* ---------- front-face print: label, stamp, band ---------- */
+.bx-label {
+  position: absolute; top: 34px; right: 62px; width: 152px;
+  background: #FFFFFF; border: 1px solid #D9D4C9; border-radius: 2px;
+  padding: 9px 11px 8px; transform: rotate(-1.6deg);
+  box-shadow: 0 1px 3px rgba(40, 24, 6, 0.18);
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.bx-label-row {
+  font-size: 7.5px; font-weight: 500; color: #38352F; line-height: 1.5;
+  padding: 3px 0; border-bottom: 1px solid #EDEBE5;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bx-label-row span {
+  display: block; font-size: 5.8px; font-weight: 600; letter-spacing: 0.18em;
+  text-transform: uppercase; color: #A19D94; margin-bottom: 1px;
+}
+.bx-label-foot { display: flex; align-items: flex-end; justify-content: space-between; padding-top: 6px; }
+.bx-barcode {
+  width: 82px; height: 15px;
+  background:
+    repeating-linear-gradient(90deg, #121110 0 2px, transparent 2px 4px, #121110 4px 5px, transparent 5px 9px),
+    repeating-linear-gradient(90deg, transparent 0 6px, #121110 6px 7px, transparent 7px 13px);
+}
+.bx-label-qty { font-size: 6.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #38352F; }
+
+.bx-band {
+  position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%);
+  border: 2px solid rgba(24, 16, 8, 0.5); padding: 7px 16px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(24, 16, 8, 0.6); white-space: nowrap;
+}
+
+/* ---------- the stickers (laptop-sticker energy) ---------- */
+.bx-sticker, .bx-sticker-b { position: absolute; }
+.bx-sticker { left: 58px; bottom: 92px; width: 78px; height: 78px; transform: rotate(-8deg); }
+.bx-sticker-b { right: 50px; bottom: 50px; width: 84px; height: 84px; transform: rotate(6deg); }
+.bx-sticker svg, .bx-sticker-b svg { display: block; width: 100%; height: 100%; }
+.bx-sticker::after, .bx-sticker-b::after { /* vinyl sheen */
+  content: ""; position: absolute; inset: 5%; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.30), transparent 44%);
+}
+
+/* ---------- the sharpie key on the front flap's inner face ---------- */
+.bx-legend {
+  position: absolute; inset: 0;
+  /* lives on the flap's outer face; the flap swings past horizontal when it
+     opens, which flips it vertically — scaleY(-1) pre-flips so the writing
+     lands upright (verified: rotate(180) here renders mirrored) */
+  transform: scaleY(-1) translateZ(0.4px);
+  display: flex; align-items: center; justify-content: center; gap: 26px;
+  font-family: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive;
+  font-weight: 600;
+  color: rgba(28, 22, 14, 0.85);
+  pointer-events: none;
+  /* only readable on the settled inner face — invisible while closed and
+     mid-swing, so it never ghosts through the flap's other side */
+  opacity: 0; transition: opacity 160ms ease;
+}
+/* the flap's eased 240° swing crosses −90° (face becomes visible) at ≈45% of
+   its 1150ms run; delay = 1080ms flap delay + that crossing, so the ink
+   appears the moment the turning face exposes itself, not after landing */
+.is-open .bx-legend { opacity: 1; transition: opacity 380ms ease 1560ms; }
+.bx-legend-title {
+  font-size: 23px; transform: rotate(-2.5deg);
+  text-decoration: underline; text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px; text-decoration-color: rgba(28, 22, 14, 0.55);
+}
+.bx-legend-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 22px; font-weight: 500;
+}
+.bx-legend-row:nth-child(2) { transform: rotate(-1.4deg); }
+.bx-legend-row:nth-child(3) { transform: rotate(1deg) translateY(2px); }
+.bx-legend-row:nth-child(4) { transform: rotate(-1.8deg); }
+.bx-legend-dot {
+  width: 11px; height: 11px; flex: none;
+  border-radius: 46% 54% 51% 49% / 55% 47% 53% 45%; /* hand-filled blob */
+  transform: rotate(12deg);
+}
+.bx-legend-dot.is-product { background: #D64B12; }
+.bx-legend-dot.is-engineering { background: #2B4C8C; }
+.bx-legend-dot.is-ml { background: #2E7A4C; }
+.bx-legend-row:nth-child(3) .bx-legend-dot { border-radius: 53% 47% 45% 55% / 48% 56% 44% 52%; transform: rotate(-8deg); }
+.bx-legend-row:nth-child(4) .bx-legend-dot { border-radius: 49% 51% 56% 44% / 52% 44% 56% 48%; transform: rotate(24deg); }
+
+/* matching dots on the folder tabs */
+.bx-tab-dot {
+  display: inline-block; width: 8px; height: 8px; margin-right: 7px;
+  vertical-align: 1px;
+  border-radius: 46% 54% 51% 49% / 55% 47% 53% 45%;
+}
+.bx-tab-dot.is-product { background: #D64B12; }
+.bx-tab-dot.is-engineering { background: #2B4C8C; }
+.bx-tab-dot.is-ml { background: #2E7A4C; }
+
+/* ---------- back print ---------- */
+.bx-recycle {
+  position: absolute; right: 28px; bottom: 24px; color: rgba(30, 20, 8, 0.5);
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 8.5px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+}
+
+/* ---------- folders ---------- */
+.bx-folders {
+  position: absolute; left: 30px; top: 10px; width: 400px; height: 240px;
+  transform-style: preserve-3d; pointer-events: none;
+}
+.bx-folders ul {
+  list-style: none; margin: 0; padding: 0; position: absolute; inset: 0;
+  transform-style: preserve-3d;
+}
+.bx-slot {
+  position: absolute; inset: 0; transform-style: preserve-3d;
+  transform: translateZ(var(--z)) translateY(46px); /* sunken below the rim while closed */
+  transition: transform 700ms cubic-bezier(0.3, 1.05, 0.4, 1) 0ms;
+}
+.is-open .bx-slot {
+  transform: translateZ(var(--z)) translateY(0);
+  /* also the return-home glide after a card closes: unhurried, eased both ways */
+  transition: transform 850ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+/* the settle-in stagger applies ONLY while the box is opening — otherwise a
+   folder returning from a closed card would inherit the long delay and hang
+   in the air before sliding home */
+.is-opening .bx-slot { transition-delay: var(--rise-d); }
+.is-open .bx-slot.is-up {
+  transform: translateZ(var(--z)) translateY(-310px); /* rises out of the box */
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1) 0ms;
+}
+
+.bx-folder {
+  position: absolute; inset: 0;
+  background: none; border: none; padding: 0; cursor: pointer;
+  pointer-events: none;
+  transition: transform 240ms cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+/* only the tab is the click handle — folder bodies occlude each other */
+.is-browsing .bx-folder .bx-folder-tab { pointer-events: auto; cursor: pointer; }
+@media (hover: hover) {
+  .is-browsing .bx-folder:hover { transform: translateY(-16px); }
+}
+.bx-folder:focus-visible { transform: translateY(-16px); outline: none; }
+.bx-folder:focus-visible .bx-folder-tab { outline: 2px solid #E05C1F; outline-offset: 2px; }
+
+.bx-folder-back {
+  position: absolute; left: 8px; right: 8px; top: -5px; height: 12px;
+  background: #C4A97B; border-radius: 2px 2px 0 0;
+}
+.bx-folder-body {
+  position: absolute; inset: 0; border-radius: 3px;
+  background-image: var(--bx-grain), linear-gradient(178deg, #DAC49E, #CBB287);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -14px 22px -14px rgba(40, 24, 6, 0.35);
+}
+.bx-folder-body::before { /* the steel hanging rod, hooked over the rails */
+  content: ""; position: absolute; left: -16px; right: -16px; top: -2px; height: 5px;
+  background: linear-gradient(180deg, #DBD8D3, #94918C);
+  border-radius: 3px;
+}
+.bx-folder-body::after { /* depth dimming — deeper files are darker */
+  content: ""; position: absolute; inset: 0; border-radius: 3px;
+  background: #1A140C; opacity: var(--dim);
+}
+.bx-folder-tab {
+  position: absolute; top: -32px; left: var(--tabx); width: 120px; height: 33px;
+  background: linear-gradient(180deg, #FFFFFF, #F2F0EA);
+  border: 1px solid #D9D4C9; border-bottom: none; border-radius: 5px 5px 0 0;
+  box-shadow: inset 0 1px 0 #FFFFFF;
+  font-size: 12.5px; font-weight: 700; line-height: 31px; letter-spacing: -0.01em;
+  color: #121110; text-align: center;
+  padding: 0 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.bx-folder-tab::after { /* deeper tabs sit in the box's shade */
+  content: ""; position: absolute; inset: 0; border-radius: 4px 4px 0 0;
+  background: #241A0E; opacity: calc(var(--dim) * 0.5); pointer-events: none;
+}
+.bx-folder-tab::before { /* hover keeper: when the tab lifts 16px it would
+  slide out from under a slow cursor, un-hover, drop back, and oscillate —
+  this invisible zone below the tab keeps the pointer "on" it through the lift */
+  content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 22px;
+}
+
+/* FLIP hand-off: the risen folder yields to the 2D card (leaf-only opacity) */
+.bx-hand-off .bx-folder-back,
+.bx-hand-off .bx-folder-body,
+.bx-hand-off .bx-folder-tab { opacity: 0; transition: opacity 150ms ease; }
+.bx-folder-back, .bx-folder-body, .bx-folder-tab { transition: opacity 150ms ease; }
+
+/* ---------- folder card overlay (2D, outside the scene) ---------- */
+.bx-card-layer {
+  position: fixed; inset: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.bx-scrim {
+  position: absolute; inset: 0; background: rgba(253, 253, 251, 0.72);
+  backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+  animation: bx-fade 300ms ease;
+}
+.bx-leaving .bx-scrim { opacity: 0; transition: opacity 260ms ease; }
+
+.bx-card {
+  position: relative; width: min(720px, 100%); max-height: min(88dvh, 860px);
+  background: #FFFFFF; border: 1px solid #EDEBE5; border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(20, 16, 10, 0.05), 0 60px 120px -40px rgba(20, 16, 10, 0.45);
+  display: flex; flex-direction: column;
+}
+.bx-card-in { padding: 34px 40px 38px; overflow: auto; border-radius: 16px; }
+.bx-card-tab {
+  position: absolute; top: -31px; left: 28px; height: 32px; padding: 0 20px;
+  background: linear-gradient(180deg, #DAC49E, #CBB287);
+  border-radius: 7px 7px 0 0;
+  font-size: 12.5px; font-weight: 700; line-height: 32px; letter-spacing: 0.02em;
+  color: rgba(30, 20, 8, 0.75);
+}
+.bx-card-close {
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid #EDEBE5; background: #FFFFFF;
+  font-size: 22px; line-height: 1; color: #55524B; cursor: pointer;
+  transition: border-color 180ms ease, color 180ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bx-card-close:hover, .bx-card-close:focus-visible {
+  border-color: #121110; color: #121110; transform: rotate(90deg);
+}
+
+/* content settles in as a stagger once the FLIP lands */
+.bx-card.is-in .bx-card-in > * {
+  animation: bx-up 560ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.bx-card.is-in .bx-card-in > *:nth-child(1) { animation-delay: 100ms; }
+.bx-card.is-in .bx-card-in > *:nth-child(2) { animation-delay: 160ms; }
+.bx-card.is-in .bx-card-in > *:nth-child(3) { animation-delay: 220ms; }
+.bx-card.is-in .bx-card-in > *:nth-child(4) { animation-delay: 280ms; }
+.bx-card.is-in .bx-card-in > *:nth-child(5) { animation-delay: 340ms; }
+.bx-card.is-in .bx-card-in > *:nth-child(n + 6) { animation-delay: 400ms; }
+@keyframes bx-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* visuals keep their native aspect ratio — no cropping, no zoom. Tall images
+   letterbox inside the warm frame instead of being cut. */
+.bx-card-visual {
+  position: relative; margin-bottom: 24px;
+  border-radius: 10px; overflow: hidden; border: 1px solid #EDEBE5;
+  background: #FFFFFF; /* letterbox space blends into the card, not warm-tinted */
+}
+.bx-card-visual > img.art {
+  display: block; width: 100%; height: auto; max-height: min(56dvh, 460px);
+  object-fit: contain;
+}
+.bx-card-visual > div.art { position: relative; height: 300px; }
+.bx-card-visual.is-icon .art { display: flex; align-items: center; justify-content: center; }
+/* constrain the ISO app icon by height so the full mark is always in view */
+.bx-card-visual .art-iso-icon img { width: auto; height: 78%; max-width: 70%; object-fit: contain; }
+.bx-card-visual.is-portrait img {
+  display: block; width: 100%; height: auto; max-height: min(60dvh, 520px);
+  object-fit: contain;
+}
+
+.bx-card-meta {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #A19D94; margin: 0 0 10px;
+}
+.bx-card-title {
+  font-size: clamp(28px, 4.5vw, 38px); font-weight: 900; letter-spacing: -0.028em;
+  color: #121110; margin: 0 0 14px; text-wrap: balance;
+}
+.bx-card-blurb { font-size: 15.5px; line-height: 1.7; color: #55524B; margin: 0 0 12px; }
+.bx-card-blurb b { color: #121110; }
+.bx-card-links {
+  display: flex; gap: 10px 24px; flex-wrap: wrap; align-items: baseline;
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid #EDEBE5;
+}
+.bx-link {
+  font-size: 14.5px; font-weight: 600; color: #55524B;
+  transition: color 180ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bx-link:hover { color: #121110; transform: translateX(2px); }
+.bx-link-primary {
+  color: #121110; font-weight: 700; text-decoration: underline;
+  text-underline-offset: 3px; text-decoration-color: #E05C1F;
+}
+.bx-link-primary:hover { color: #E05C1F; }
+
+/* ---------- utility ---------- */
+.bx-vh {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .bx-flap, .bx-slot, .bx-folder, .bx-cue, .bx-fit, .bx-lift,
+  .bx-folder-back, .bx-folder-body, .bx-folder-tab, .bx-link { transition: none !important; }
+  .bx-cue-hint { animation: none; }
+  .bx-closebox { animation: none; }
+  .bx-cut { animation: none !important; }
+  .bx-card.is-in .bx-card-in > * { animation: none; }
+  .bx-scrim { animation: none; }
+}
+
+/* ---------- touch ---------- */
+@media (hover: none) {
+  .bx-folder-tab { top: -40px; height: 41px; line-height: 39px; }
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .bx-stage { perspective: 1300px; }
+  .bx-fit { transform: translateY(4px); scale: 0.64; }
+  .bx-chrome { padding: 18px 20px 0; }
+  .bx-cue { bottom: 11dvh; }
+  .bx-closebox { left: 12px; bottom: 14px; }
+  .bx-card-layer { padding: 10px; }
+  .bx-card { max-height: 92dvh; }
+  .bx-card-in { padding: 22px 20px 24px; }
+  .bx-card-visual { height: 210px; }
+}
