@@ -13,9 +13,9 @@ import CardArt from '../CardArt'
 // Links) built from the card + its case study.
 // ============================================================================
 
-const STEP = 22 // degrees between cards — 5 in view, outer pair straddling the edges
-const R = 900 // arc radius (card width lives in .af-card CSS)
-const OVERHANG = 500 // pivot distance past the pane's right edge
+const STEP = 25 // degrees between cards — clear air between neighbours
+const R = 950 // arc radius (card width lives in .af-card CSS)
+const OVERHANG = 550 // pivot distance past the pane's right edge
 
 interface TabDef {
   id: string
