@@ -43,24 +43,31 @@ export default function MediaFolder() {
   const onWinDown = (id: string) => (e: React.PointerEvent) => {
     if (!open) return
     e.stopPropagation()
+    e.preventDefault()
     zTop.current += 1
     zRef.current[id] = zTop.current
     const el = e.currentTarget as HTMLElement
+    const rot = WINDOWS.find((w) => w.id === id)?.rot ?? 0
     const start = { x: e.clientX, y: e.clientY }
     const base = drag[id] ?? { dx: 0, dy: 0 }
+    let last = base
+    // transitions off + direct style writes while dragging — the open/close
+    // spring transition otherwise fights the cursor and lags behind it
+    el.classList.add('mf-dragging')
+    el.style.zIndex = String(zTop.current)
     try { el.setPointerCapture(e.pointerId) } catch { /* no-op */ }
     const move = (ev: PointerEvent) => {
-      setDrag((d) => ({
-        ...d,
-        [id]: { dx: base.dx + ev.clientX - start.x, dy: base.dy + ev.clientY - start.y },
-      }))
+      last = { dx: base.dx + ev.clientX - start.x, dy: base.dy + ev.clientY - start.y }
+      el.style.transform = `translate(${last.dx}px, ${last.dy}px) rotate(${rot}deg)`
     }
     const up = () => {
-      el.removeEventListener('pointermove', move as EventListener)
+      el.removeEventListener('pointermove', move)
       el.removeEventListener('pointerup', up)
       el.removeEventListener('pointercancel', up)
+      el.classList.remove('mf-dragging')
+      setDrag((d) => ({ ...d, [id]: last }))
     }
-    el.addEventListener('pointermove', move as EventListener)
+    el.addEventListener('pointermove', move)
     el.addEventListener('pointerup', up)
     el.addEventListener('pointercancel', up)
   }
