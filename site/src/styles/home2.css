@@ -127,6 +127,7 @@ body.sh-lock { overflow: hidden; }
 }
 .af-popped .af-arc { transform: translateX(200px); }
 
+.af-anim .af-card { transition: transform 540ms cubic-bezier(0.3, 0.9, 0.35, 1); }
 .af-card {
   position: absolute; top: 0; left: 0; width: 302px;
   margin-left: -151px; margin-top: -186px;
@@ -142,7 +143,7 @@ body.sh-lock { overflow: hidden; }
 }
 .af-card.af-active .af-lift { transform: scale(1.12); opacity: 1; }
 .af-card.af-out .af-lift {
-  transform: translateX(-96px) scale(1.15);
+  transform: scale(1.16);
   box-shadow: 0 2px 5px rgba(20, 16, 10, 0.07), 0 34px 64px -24px rgba(20, 16, 10, 0.42);
 }
 .af-popped .af-card:not(.af-out) .af-lift { opacity: 0.18; }
@@ -166,8 +167,8 @@ body.sh-lock { overflow: hidden; }
 
 /* switch-on-hover tabs panel */
 .af-panel {
-  position: absolute; left: 20px; top: 50%; transform: translateY(-50%) translateX(-14px);
-  width: 292px; max-height: 86vh; overflow-y: auto;
+  position: absolute; top: 50%; transform: translateY(-50%) translateX(-14px);
+  max-height: 86vh; overflow-y: auto;
   opacity: 0; pointer-events: none;
   transition: opacity 300ms ease 60ms, transform 380ms cubic-bezier(0.22, 1, 0.36, 1) 60ms;
 }

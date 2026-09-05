@@ -13,9 +13,15 @@ import CardArt from '../CardArt'
 // Links) built from the card + its case study.
 // ============================================================================
 
-const STEP = 25 // degrees between cards — clear air between neighbours
-const R = 950 // arc radius (card width lives in .af-card CSS)
+const STEP = 27 // degrees between cards — clear air between neighbours
+const R = 950 // arc radius
 const OVERHANG = 550 // pivot distance past the pane's right edge
+const CARD_W = 302 // must match .af-card width in home2.css
+const TILT = 0.55 // cards counter-rotate to 55% of their arc angle (flatter corners)
+const POP_SCALE = 1.16
+const DOCK_PAD = 28 // pane edge padding around the docked layout
+const DOCK_GAP = 44 // space between the tab panel and the docked card
+const ARC_SHIFT = 200 // .af-popped .af-arc translateX in home2.css — dock compensates
 
 interface TabDef {
   id: string
@@ -49,13 +55,38 @@ export default function ArcFocus() {
   const paneRef = useRef<HTMLDivElement>(null)
   const posRef = useRef(0) // continuous card index along the arc
   const [pos, setPos] = useState(0)
-  const [popped, setPopped] = useState(false)
+  const [popped, setPoppedRaw] = useState(false)
+  const [paneW, setPaneW] = useState(0)
   const snapRaf = useRef(0)
   const idleTimer = useRef(0)
   const reduced = useMemo(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     [],
   )
+
+  // toggling the pop opens a brief window where card transforms animate
+  const setPopped = (v: boolean | ((p: boolean) => boolean)) => {
+    const pane = paneRef.current
+    if (pane) {
+      pane.classList.add('af-anim')
+      window.setTimeout(() => pane.classList.remove('af-anim'), 640)
+    }
+    setPoppedRaw(v)
+  }
+
+  // the docked detail layout is computed from the pane's real width
+  useEffect(() => {
+    const pane = paneRef.current
+    if (!pane) return
+    const ro = new ResizeObserver(() => setPaneW(pane.clientWidth))
+    ro.observe(pane)
+    setPaneW(pane.clientWidth)
+    return () => ro.disconnect()
+  }, [])
+
+  const cardW = CARD_W * POP_SCALE
+  const panelW = Math.round(Math.min(330, Math.max(190, paneW - DOCK_PAD * 2 - cardW - DOCK_GAP)))
+  const dockCenterX = DOCK_PAD + panelW + DOCK_GAP + cardW / 2
 
   const n = cards.length
   const active = ((Math.round(pos) % n) + n) % n
@@ -199,9 +230,11 @@ export default function ArcFocus() {
                 'af-card' + (isActive ? ' af-active' : '') + (isPop ? ' af-out' : '')
               }
               style={{
-                transform: `rotate(${theta}deg) translateX(${-R}px)`,
+                transform: isPop
+                  ? `translateX(${Math.round(dockCenterX - (paneW + OVERHANG) - ARC_SHIFT)}px)`
+                  : `rotate(${theta}deg) translateX(${-R}px) rotate(${-theta * TILT}deg)`,
                 opacity: hidden ? 0 : fade,
-                zIndex: 100 - Math.round(Math.abs(theta)),
+                zIndex: isPop ? 300 : 100 - Math.round(Math.abs(theta)),
                 pointerEvents: hidden ? 'none' : 'auto',
               }}
               onClick={() => onCardClick(i)}
@@ -221,7 +254,7 @@ export default function ArcFocus() {
       </div>
 
       {/* switch-on-hover tabs for the pulled card */}
-      <div className="af-panel" aria-hidden={!popped}>
+      <div className="af-panel" style={{ width: panelW, left: DOCK_PAD }} aria-hidden={!popped}>
         <div className="af-panel-kicker">{activeCard.meta}</div>
         <h2 className="af-panel-title">{activeCard.title}</h2>
         <div className="af-tabs">
