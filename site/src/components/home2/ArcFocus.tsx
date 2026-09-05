@@ -13,12 +13,12 @@ import CardArt from '../CardArt'
 // Links) built from the card + its case study.
 // ============================================================================
 
-const STEP = 27 // degrees between cards — clear air between neighbours
+const STEP = 14 // degrees between cards — five in view, none touching
 const R = 950 // arc radius
 const OVERHANG = 550 // pivot distance past the pane's right edge
-const CARD_W = 302 // must match .af-card width in home2.css
+const CARD_W = 216 // must match .af-card width in home2.css
 const TILT = 0.55 // cards counter-rotate to 55% of their arc angle (flatter corners)
-const POP_SCALE = 1.16
+const POP_SCALE = 1.4
 const DOCK_PAD = 28 // pane edge padding around the docked layout
 const DOCK_GAP = 44 // space between the tab panel and the docked card
 const ARC_SHIFT = 200 // .af-popped .af-arc translateX in home2.css — dock compensates
@@ -223,6 +223,8 @@ export default function ArcFocus() {
           const absOff = Math.abs(off)
           const fade = absOff <= 1 ? 1 - 0.28 * absOff : Math.max(0, 0.72 - 0.4 * (absOff - 1))
           const hidden = fade <= 0.01
+          // size falls off with distance from focus: 1 -> 0.62 -> 0.50
+          const size = 1 - 0.38 * Math.min(absOff, 1) - 0.12 * Math.max(0, Math.min(absOff - 1, 1))
           return (
             <button
               key={card.id}
@@ -232,7 +234,7 @@ export default function ArcFocus() {
               style={{
                 transform: isPop
                   ? `translateX(${Math.round(dockCenterX - (paneW + OVERHANG) - ARC_SHIFT)}px)`
-                  : `rotate(${theta}deg) translateX(${-R}px) rotate(${-theta * TILT}deg)`,
+                  : `rotate(${theta}deg) translateX(${-R}px) rotate(${-theta * TILT}deg) scale(${size.toFixed(3)})`,
                 opacity: hidden ? 0 : fade,
                 zIndex: isPop ? 300 : 100 - Math.round(Math.abs(theta)),
                 pointerEvents: hidden ? 'none' : 'auto',
