@@ -13,10 +13,10 @@ import CardArt from '../CardArt'
 // Links) built from the card + its case study.
 // ============================================================================
 
-const STEP = 14 // degrees between cards — five in view, none touching
+const STEP = 15 // degrees between cards — five in view, none touching
 const R = 950 // arc radius
-const OVERHANG = 550 // pivot distance past the pane's right edge
-const CARD_W = 216 // must match .af-card width in home2.css
+const OVERHANG = 510 // pivot distance past the pane's right edge
+const CARD_W = 240 // must match .af-card width in home2.css
 const TILT = 0.55 // cards counter-rotate to 55% of their arc angle (flatter corners)
 const POP_SCALE = 1.4
 const DOCK_PAD = 28 // pane edge padding around the docked layout
