@@ -110,7 +110,6 @@ export default function MediaFolder() {
           <span className="mf-folder-front" />
         </span>
         <span className="mf-folder-label">About Paul</span>
-        <span className="mf-folder-hint">{open ? 'click to tidy up' : 'click to open'}</span>
       </button>
     </div>
   )

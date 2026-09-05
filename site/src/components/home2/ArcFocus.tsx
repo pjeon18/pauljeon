@@ -13,9 +13,9 @@ import CardArt from '../CardArt'
 // Links) built from the card + its case study.
 // ============================================================================
 
-const STEP = 17 // degrees between cards
-const R = 620 // arc radius (card width lives in .af-card CSS)
-const OVERHANG = 150 // pivot distance past the pane's right edge
+const STEP = 22 // degrees between cards — 5 in view, outer pair straddling the edges
+const R = 900 // arc radius (card width lives in .af-card CSS)
+const OVERHANG = 500 // pivot distance past the pane's right edge
 
 interface TabDef {
   id: string
@@ -188,7 +188,10 @@ export default function ArcFocus() {
           const theta = off * STEP
           const isActive = i === active && settled
           const isPop = isActive && popped
-          const hidden = Math.abs(theta) > 78
+          // 5 cards visible: neighbours full-ish, the outer pair faint and cut
+          const absOff = Math.abs(off)
+          const fade = absOff <= 1 ? 1 - 0.28 * absOff : Math.max(0, 0.72 - 0.4 * (absOff - 1))
+          const hidden = fade <= 0.01
           return (
             <button
               key={card.id}
@@ -197,7 +200,7 @@ export default function ArcFocus() {
               }
               style={{
                 transform: `rotate(${theta}deg) translateX(${-R}px)`,
-                opacity: hidden ? 0 : 1,
+                opacity: hidden ? 0 : fade,
                 zIndex: 100 - Math.round(Math.abs(theta)),
                 pointerEvents: hidden ? 'none' : 'auto',
               }}
