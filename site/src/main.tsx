@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './styles/site.css'
 import './styles/box.css'
+import './styles/home2.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
