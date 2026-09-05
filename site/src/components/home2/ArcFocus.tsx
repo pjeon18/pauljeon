@@ -18,7 +18,6 @@ const R = 950 // arc radius
 const OVERHANG = 510 // pivot distance past the pane's right edge
 const CARD_W = 240 // must match .af-card width in home2.css
 const TILT = 0.55 // cards counter-rotate to 55% of their arc angle (flatter corners)
-const POP_SCALE = 1.4
 const DOCK_PAD = 28 // pane edge padding around the docked layout
 const DOCK_GAP = 44 // space between the tab panel and the docked card
 const ARC_SHIFT = 200 // .af-popped .af-arc translateX in home2.css — dock compensates
@@ -56,7 +55,7 @@ export default function ArcFocus() {
   const posRef = useRef(0) // continuous card index along the arc
   const [pos, setPos] = useState(0)
   const [popped, setPoppedRaw] = useState(false)
-  const [paneW, setPaneW] = useState(0)
+  const [pane, setPane] = useState({ w: 0, h: 900 })
   const snapRaf = useRef(0)
   const idleTimer = useRef(0)
   const reduced = useMemo(
@@ -76,17 +75,24 @@ export default function ArcFocus() {
 
   // the docked detail layout is computed from the pane's real width
   useEffect(() => {
-    const pane = paneRef.current
-    if (!pane) return
-    const ro = new ResizeObserver(() => setPaneW(pane.clientWidth))
-    ro.observe(pane)
-    setPaneW(pane.clientWidth)
+    const el = paneRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setPane({ w: el.clientWidth, h: el.clientHeight }))
+    ro.observe(el)
+    setPane({ w: el.clientWidth, h: el.clientHeight })
     return () => ro.disconnect()
   }, [])
 
-  const cardW = CARD_W * POP_SCALE
-  const panelW = Math.round(Math.min(330, Math.max(190, paneW - DOCK_PAD * 2 - cardW - DOCK_GAP)))
-  const dockCenterX = DOCK_PAD + panelW + DOCK_GAP + cardW / 2
+  // the whole arc scales with pane height: the 900px-tall composition is the
+  // design space, taller windows see it proportionally larger (bigger cards,
+  // same rhythm). Scale origin sits on the focused card so it stays anchored.
+  const S = Math.min(1.7, Math.max(0.8, pane.h / 900))
+  const popW = Math.min(400, Math.max(280, pane.w * 0.34))
+  const panelW = Math.round(Math.max(180, pane.w - DOCK_PAD * 2 - DOCK_GAP - popW))
+  const popLift = popW / (CARD_W * S)
+  const dockCenterX = DOCK_PAD + panelW + DOCK_GAP + popW / 2
+  // dock translate lives inside the scaled arc: invert shift + scale
+  const dockT = (dockCenterX - ARC_SHIFT - (pane.w + OVERHANG) + R) / S - R
 
   const n = cards.length
   const active = ((Math.round(pos) % n) + n) % n
@@ -213,7 +219,14 @@ export default function ArcFocus() {
       role="listbox"
       aria-label="Projects — scroll to browse, click to open"
     >
-      <div className="af-arc" style={{ right: -OVERHANG }}>
+      <div
+        className="af-arc"
+        style={{
+          right: -OVERHANG,
+          transformOrigin: `${-R}px 0px`,
+          transform: `translateX(${popped ? ARC_SHIFT : 0}px) scale(${S.toFixed(4)})`,
+        }}
+      >
         {cards.map((card, i) => {
           const off = wrapOffset(i, pos, n)
           const theta = off * STEP
@@ -233,7 +246,7 @@ export default function ArcFocus() {
               }
               style={{
                 transform: isPop
-                  ? `translateX(${Math.round(dockCenterX - (paneW + OVERHANG) - ARC_SHIFT)}px)`
+                  ? `translateX(${Math.round(dockT)}px)`
                   : `rotate(${theta}deg) translateX(${-R}px) rotate(${-theta * TILT}deg) scale(${size.toFixed(3)})`,
                 opacity: hidden ? 0 : fade,
                 zIndex: isPop ? 300 : 100 - Math.round(Math.abs(theta)),
@@ -243,7 +256,7 @@ export default function ArcFocus() {
               aria-selected={isActive}
               aria-label={card.title}
             >
-              <span className="af-lift">
+              <span className="af-lift" style={isPop ? { transform: `scale(${popLift.toFixed(3)})` } : undefined}>
                 <span className="af-photo"><CardArt card={card} /></span>
                 <span className="af-caption">
                   <span className="af-t">{card.title}</span>
