@@ -276,30 +276,24 @@ body.sh-lock { overflow: hidden; }
   border-left: 16px solid #FFFFFF; margin-left: 5px;
 }
 
-/* ---------- boot loader: a little deck shuffling in the middle ---------- */
-.sh-loader {
-  position: fixed; inset: 0; z-index: 999; background: #FDFDFB;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 1; transition: opacity 420ms ease;
+/* ---------- boot loader: the drop ---------- */
+.dl-overlay {
+  position: fixed; inset: 0; z-index: 999; background: #131210;
+  will-change: mask-image, -webkit-mask-image;
 }
-.sh-loader-off { opacity: 0; pointer-events: none; }
-.ld-deck { position: relative; width: 104px; height: 130px; }
-.ld-card {
-  position: absolute; inset: 0; border-radius: 13px;
-  border: 1px solid rgba(20, 16, 10, 0.07);
-  box-shadow: 0 2px 4px rgba(20, 16, 10, 0.06), 0 18px 36px -16px rgba(20, 16, 10, 0.3);
-  animation: ldShuffle 1.5s cubic-bezier(0.45, 0.05, 0.3, 1) infinite;
+.dl-drop {
+  position: absolute; left: 0; top: 0; width: 30px; height: 30px;
+  border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
+  background: #FDFDFB; will-change: transform;
 }
-.ld-card.c1 { background: linear-gradient(165deg, #FFCE65, #F08A3C); animation-delay: 0ms; }
-.ld-card.c2 { background: linear-gradient(165deg, #EAF1FB, #C9DCF4); animation-delay: 300ms; }
-.ld-card.c3 { background: linear-gradient(165deg, #1B1C22, #3A3C46); animation-delay: 600ms; }
-.ld-card.c4 { background: linear-gradient(165deg, #E9F3EB, #BFDECB); animation-delay: 900ms; }
-.ld-card.c5 { background: linear-gradient(165deg, #FBF9F4, #EDE7D8); animation-delay: 1200ms; }
-@keyframes ldShuffle {
-  0% { transform: translate(0, 0) rotate(0deg); z-index: 5; }
-  24% { transform: translate(96px, -26px) rotate(11deg); z-index: 5; }
-  40% { transform: translate(10px, 6px) rotate(2deg); z-index: 0; }
-  100% { transform: translate(0, 0) rotate(0deg); z-index: 0; }
+.dl-ring {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; opacity: 0;
+  border: 2px solid rgba(253, 253, 251, 0.9); border-radius: 50%;
+  will-change: transform, width, height, opacity;
+}
+.dl-p {
+  position: absolute; left: 0; top: 0; border-radius: 50%;
+  background: #FDFDFB; opacity: 0; will-change: transform, opacity;
 }
 
 /* the site deals itself in once the loader lifts */
@@ -318,7 +312,7 @@ body.sh-lock { overflow: hidden; }
 .sh-ready .sh-links { animation: shDealIn 620ms cubic-bezier(0.3, 0.9, 0.35, 1) both; animation-delay: 220ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  .sh-loader { display: none; }
+  .dl-overlay { display: none; }
   .sh-ready .af-lift, .sh-ready .sh-intro, .sh-ready .mf-field, .sh-ready .sh-links { animation: none; }
   .sh-page:not(.sh-ready) .af-lift, .sh-page:not(.sh-ready) .sh-intro,
   .sh-page:not(.sh-ready) .mf-field, .sh-page:not(.sh-ready) .sh-links { opacity: 1; }
