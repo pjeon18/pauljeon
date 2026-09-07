@@ -30,10 +30,10 @@ export default function SplashDrop({
     const vw = window.innerWidth
     const vh = window.innerHeight
     const ix = vw / 2
-    const iy = vh * 0.58
-    // fall: real kinematics, ~660ms from just above the viewport to impact
+    const iy = vh * 0.8
+    // fall: real kinematics, ~740ms from just above the viewport to impact
     const y0 = -40
-    const T = 0.66
+    const T = 0.74
     const g = (2 * (iy - y0)) / (T * T)
     // reveal must cover the farthest corner
     const R =
