@@ -35,6 +35,24 @@ export function RlArt() {
 }
 
 export default function CardArt({ card }: { card: Card }) {
+  if (card.logo) {
+    const l = card.logo
+    return (
+      <div className="art art-logo" style={{ background: l.bg }}>
+        {l.img && <img src={l.img} alt={card.title} style={{ width: l.imgW ?? '46%' }} />}
+        {l.play && <span className="art-play" aria-hidden="true" />}
+        {l.text && (
+          <span
+            className={'art-wordmark' + (l.serif ? ' is-serif' : '')}
+            style={{ color: l.color ?? '#121110' }}
+          >
+            {l.text}
+            {l.accent && <span className="art-wm-accent">{l.accent}</span>}
+          </span>
+        )}
+      </div>
+    )
+  }
   if (card.usePortrait) return <img className="art" src={about.portraitFront} alt="Paul Jeon" />
   if (card.icon) {
     return (

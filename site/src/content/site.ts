@@ -17,6 +17,7 @@ import gYtViz from '../assets/g-yt-viz.jpg'
 import gPokemaps from '../assets/g-pokemaps.jpg'
 import gImpostor from '../assets/g-impostor.jpg'
 import posterHumanInventory from '../assets/poster-human-inventory.jpg'
+import pokemapsMark from '../assets/pokemaps-mark.svg'
 import gPrepioRoom from '../assets/g-prepio-room.jpg'
 import gDearData from '../assets/g-dear-data.jpg'
 import prepioCard from '../assets/prepio.jpg'
@@ -59,6 +60,18 @@ export interface Card {
   linkLabel?: string
   image?: string         // photographic card
   icon?: string          // small mark centered on a warm field (ISO app icon treatment)
+  // clean brand-card thumbnail (the Onapsis treatment): a tinted field with a
+  // centered mark image or a typeset wordmark. Takes precedence over image.
+  logo?: {
+    bg: string           // field color/gradient
+    img?: string         // mark image, centered
+    imgW?: string        // mark width (CSS), default 46%
+    text?: string        // wordmark
+    accent?: string      // trailing accent glyph in ember
+    color?: string       // wordmark color
+    serif?: boolean      // Sentient italic wordmark
+    play?: boolean       // red play badge (the video project)
+  }
   art?: 'org' | 'rl'     // remaining hand-drawn placeholder art
   usePortrait?: boolean  // reuse the About portrait
 }
@@ -76,6 +89,7 @@ export const cards: Card[] = [
   },
   {
     id: 'studdy',
+    logo: { bg: 'linear-gradient(165deg, #EAF1FB, #D8E6F6)', text: 'Studdy', color: '#2A3E5C' },
     cats: ['product', 'engineering'],
     title: 'Studdy',
     meta: 'Product · live multiplayer · 2026',
@@ -86,6 +100,7 @@ export const cards: Card[] = [
   },
   {
     id: 'prepio',
+    logo: { bg: 'linear-gradient(165deg, #FBF9F4, #F3EFE6)', text: 'prep.io', serif: true, color: '#1C1A17' },
     cats: ['product', 'engineering'],
     title: 'Prep.io',
     meta: 'Product · live office hours · 2026',
@@ -96,6 +111,7 @@ export const cards: Card[] = [
   },
   {
     id: 'pocket-tactics',
+    logo: { bg: 'linear-gradient(165deg, #E9F3EB, #DCEDE1)', text: 'Pocket Tactics', color: '#1E3A2A' },
     cats: ['product', 'engineering'],
     title: 'Pocket Tactics',
     meta: 'Game · 60 units · Online rooms',
@@ -107,6 +123,7 @@ export const cards: Card[] = [
   },
   {
     id: 'pokemaps',
+    logo: { bg: 'linear-gradient(165deg, #F6F8EC, #EDF3DE)', img: pokemapsMark, imgW: '44%' },
     cats: ['product', 'engineering'],
     title: 'PokéMAPs',
     meta: 'Product · 373 locations · Live daily',
@@ -128,6 +145,7 @@ export const cards: Card[] = [
   },
   {
     id: 'f1',
+    logo: { bg: 'linear-gradient(165deg, #1B1C22, #2A1210)', text: 'Undercut?', color: '#FDFDFB' },
     cats: ['ml'],
     title: 'Undercut, or stay out?',
     meta: 'AI / ML · F1 telemetry · 0.71 AUC-ROC',
@@ -147,6 +165,7 @@ export const cards: Card[] = [
   },
   {
     id: 'media',
+    logo: { bg: 'linear-gradient(165deg, #FFF6F4, #FDEAE6)', play: true },
     cats: ['engineering', 'ml'],
     title: 'Where YouTube is going',
     meta: 'Data · YouTube API · d3',
@@ -168,6 +187,7 @@ export const cards: Card[] = [
   },
   {
     id: 'impostor',
+    logo: { bg: 'linear-gradient(165deg, #F7F5EF, #EFEBE1)', text: 'impostor', accent: '.', color: '#121110' },
     cats: ['all'],
     title: 'Play Impostor',
     meta: 'Party game · 3–12 players · pass-and-play',

@@ -25,6 +25,23 @@ function useClock() {
 export default function SplitHome() {
   const time = useClock()
 
+  // a short card-shuffle boot before the site deals itself in — once per
+  // session, skipped for reduced motion
+  const [boot, setBoot] = useState(() => {
+    if (typeof window === 'undefined') return false
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
+    if (sessionStorage.getItem('pj-booted')) return false
+    try { sessionStorage.setItem('pj-booted', '1') } catch { /* no-op */ }
+    return true
+  })
+  const [gone, setGone] = useState(!boot)
+  useEffect(() => {
+    if (!boot) return
+    const t1 = window.setTimeout(() => setBoot(false), 1900)
+    const t2 = window.setTimeout(() => setGone(true), 2350)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [])
+
   useEffect(() => {
     document.title = 'Paul Jeon — Product & Engineering'
     document.body.classList.add('sh-lock')
@@ -32,7 +49,18 @@ export default function SplitHome() {
   }, [])
 
   return (
-    <div className="sh-page">
+    <div className={'sh-page' + (boot ? '' : ' sh-ready')}>
+      {!gone && (
+        <div className={'sh-loader' + (boot ? '' : ' sh-loader-off')} aria-hidden="true">
+          <div className="ld-deck">
+            <span className="ld-card c1" />
+            <span className="ld-card c2" />
+            <span className="ld-card c3" />
+            <span className="ld-card c4" />
+            <span className="ld-card c5" />
+          </div>
+        </div>
+      )}
       <div className="sh-left">
         <header className="sh-nav">
           <span className="sh-logo">Paul Jeon</span>

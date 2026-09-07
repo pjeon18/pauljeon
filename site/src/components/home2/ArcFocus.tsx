@@ -245,6 +245,7 @@ export default function ArcFocus() {
                 'af-card' + (isActive ? ' af-active' : '') + (isPop ? ' af-out' : '')
               }
               style={{
+                ['--di' as string]: `${i * 55}ms`,
                 transform: isPop
                   ? `translateX(${Math.round(dockT)}px)`
                   : `rotate(${theta}deg) translateX(${-R}px) rotate(${-theta * TILT}deg) scale(${size.toFixed(3)})`,
