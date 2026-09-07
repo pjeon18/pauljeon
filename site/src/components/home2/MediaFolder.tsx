@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import portraitFront from '../../assets/portrait-front.jpg'
-import portraitBack from '../../assets/portrait-back.jpg'
 import harvardShop from '../../assets/harvard-shop.jpg'
 import poster from '../../assets/poster-human-inventory.jpg'
 
@@ -25,12 +24,11 @@ interface Win {
 }
 
 const WINDOWS: Win[] = [
-  { id: 'me', title: 'Just Me.jpg', w: 132, x: 6, y: 4, rot: -2, img: portraitFront, imgH: 118 },
-  { id: 'snack', title: 'Snack Inspection.jpg', w: 124, x: 71, y: 2, rot: 2, img: portraitBack, imgH: 122 },
-  { id: 'shop', title: 'The Shop.jpg', w: 148, x: 66, y: 52, rot: -1.5, img: harvardShop, imgH: 108 },
-  { id: 'series', title: 'Film Series.png', w: 106, x: 33, y: 0, rot: 1.5, img: poster, imgH: 128 },
-  { id: 'stats', title: 'Stats.txt', w: 148, x: 3, y: 56, rot: 1, lines: ["Harvard CS '27", 'Visual Studies', 'Cambridge, MA'] },
-  { id: 'free', title: 'Free Time.txt', w: 170, x: 30, y: 66, rot: -1, lines: ['painting · music', 'Gameboy Pokémon', '2018 Harden highlights'] },
+  { id: 'me', title: 'Just Me.jpg', w: 172, x: 4, y: 2, rot: -2, img: portraitFront, imgH: 152 },
+  { id: 'series', title: 'Film Series.png', w: 138, x: 40, y: 0, rot: 1.5, img: poster, imgH: 168 },
+  { id: 'shop', title: 'The Shop.jpg', w: 188, x: 62, y: 10, rot: -1.5, img: harvardShop, imgH: 136 },
+  { id: 'stats', title: 'Stats.txt', w: 186, x: 5, y: 58, rot: 1, lines: ["Harvard CS '27", 'Visual Studies', 'Cambridge, MA'] },
+  { id: 'free', title: 'Free Time.txt', w: 210, x: 52, y: 62, rot: -1, lines: ['painting · music', 'Gameboy Pokémon', '2018 Harden highlights'] },
 ]
 
 export default function MediaFolder() {
