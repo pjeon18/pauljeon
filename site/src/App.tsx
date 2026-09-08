@@ -4,6 +4,7 @@ import SplitHome from './components/home2/SplitHome'
 import CaseStudy from './components/CaseStudy'
 import StuddyMag from './components/StuddyMag'
 import IsoMag from './components/IsoMag'
+import PrepMag from './components/PrepMag'
 import Pamphlet from './components/Pamphlet'
 import Impostor from './games/Impostor'
 
@@ -14,6 +15,7 @@ export default function App() {
       <Route path="/box" element={<BoxHome />} />
       <Route path="/work/studdy" element={<StuddyMag />} />
       <Route path="/work/iso" element={<IsoMag />} />
+      <Route path="/work/prep-io" element={<PrepMag />} />
       <Route path="/work/:slug" element={<CaseStudy />} />
       <Route path="/human-inventory" element={<Pamphlet />} />
       <Route path="/impostor" element={<Impostor />} />
