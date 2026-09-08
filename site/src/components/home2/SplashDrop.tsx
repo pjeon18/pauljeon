@@ -31,10 +31,14 @@ export default function SplashDrop({
     const vh = window.innerHeight
     const ix = vw / 2
     const iy = vh * 0.8
-    // fall: real kinematics, ~740ms from just above the viewport to impact
-    const y0 = -40
-    const T = 0.74
+    // fall: real kinematics. It starts nearly at the top edge rather than well
+    // above it, so the slow part of the curve happens on screen instead of off
+    // it, and T is long enough that the first moments read as a release rather
+    // than a launch.
+    const y0 = -12
+    const T = 0.88
     const g = (2 * (iy - y0)) / (T * T)
+    const fadeIn = 0.14 // seconds; the drop is partly on screen at t=0
     // reveal must cover the farthest corner
     const R =
       Math.max(
@@ -80,6 +84,7 @@ export default function SplashDrop({
         const y = y0 + 0.5 * g * t * t
         const v = g * t
         const stretch = Math.min(v / 2400, 0.45)
+        drop.style.opacity = String(Math.min(1, t / fadeIn))
         drop.style.transform =
           `translate(${ix}px, ${y}px) translate(-50%, -50%) scale(${1 - stretch * 0.35}, ${1 + stretch})`
         raf = requestAnimationFrame(frame)

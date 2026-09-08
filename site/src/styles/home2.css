@@ -363,3 +363,20 @@ body.sh-lock { overflow: hidden; }
   .sh-page:not(.sh-ready) .sh-intro p, .sh-page:not(.sh-ready) .mf-folder,
   .sh-page:not(.sh-ready) .sh-nav, .sh-page:not(.sh-ready) .sh-links { opacity: 1; }
 }
+
+/* a window that opens a route. The transform is written inline by the drag
+   handler, so the hover cue has to be shadow and border, never transform. */
+.mf-win.mf-link {
+  border-color: rgba(20, 30, 50, 0.16);
+  box-shadow: 0 2px 4px rgba(20, 30, 60, 0.06), 0 16px 32px -16px rgba(20, 30, 60, 0.28);
+}
+.mf-win.mf-link:hover {
+  border-color: rgba(20, 30, 50, 0.3);
+  box-shadow: 0 3px 6px rgba(20, 30, 60, 0.1), 0 26px 46px -18px rgba(20, 30, 60, 0.42);
+}
+.mf-win.mf-link:focus-visible { outline: 2px solid #5EA4F5; outline-offset: 3px; }
+.mf-goto {
+  margin-left: auto; padding-left: 6px; flex: none;
+  font-size: 11px; font-weight: 700; color: #8A8F98;
+}
+.mf-win.mf-link:hover .mf-goto { color: #3E8DEF; }
