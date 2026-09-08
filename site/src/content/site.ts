@@ -27,6 +27,16 @@ import studdySalon from '../assets/studdy-salon.jpg'
 import studdyShop from '../assets/studdy-shop.jpg'
 import studdyCard from '../assets/studdy-card.jpg'
 import studdyTile from '../assets/studdy-tile.jpg'
+import org01 from '../assets/org-01-upload.png'
+import org02 from '../assets/org-02-imported.png'
+import org03 from '../assets/org-03-expanded.png'
+import org04 from '../assets/org-04-filtered.png'
+import org06 from '../assets/org-06-detail.png'
+import ytOverview from '../assets/yt-overview.png'
+import ytDrilldown from '../assets/yt-drilldown.png'
+import ytShortVLong from '../assets/yt-shortvlong.png'
+import ytBubbles from '../assets/yt-bubbles.png'
+import ytShorter from '../assets/yt-shorter.png'
 
 export type Category = 'product' | 'engineering' | 'ml' | 'all'
 
@@ -148,8 +158,8 @@ export const cards: Card[] = [
     logo: { bg: 'linear-gradient(165deg, #1B1C22, #2A1210)', text: 'Undercut?', color: '#FDFDFB' },
     cats: ['ml'],
     title: 'Undercut, or stay out?',
-    meta: 'AI / ML · F1 telemetry · 0.71 AUC-ROC',
-    blurb: 'Given live race telemetry, should you pit now? 761 hand-labeled undercut attempts and a weighted logistic regression that calls it at 0.71 AUC-ROC.',
+    meta: 'AI / ML · 761 attempts · 0.71 AUC-ROC',
+    blurb: 'Should you pit now? We built the dataset ourselves, 761 undercut attempts across eleven seasons, and found that the gap to your rival barely predicts anything. The circuit does.',
     slug: 'f1-undercut',
     demo: { label: 'GitHub', href: 'https://github.com/evanjiang943/cs1090a' },
     image: f1,
@@ -157,9 +167,9 @@ export const cards: Card[] = [
   {
     id: 'rl',
     cats: ['ml'],
-    title: 'Teaching Pac-Man to hunt',
+    title: 'Reinforcement learning by hand',
     meta: 'AI / ML · CS182',
-    blurb: 'Q-learning written from the Bellman equation up. The ghost-hunting feature extractor wins more than 70% of its games.',
+    blurb: 'Value functions derived on paper, then policy iteration in NumPy on a three-state MDP. Change the discount factor and the optimal policy reverses.',
     slug: 'rl-agents',
     art: 'rl',
   },
@@ -167,9 +177,9 @@ export const cards: Card[] = [
     id: 'media',
     logo: { bg: 'linear-gradient(165deg, #FFF6F4, #FDEAE6)', play: true },
     cats: ['engineering', 'ml'],
-    title: 'Where YouTube is going',
-    meta: 'Data · YouTube API · d3',
-    blurb: 'An automated pipeline watching major channels shift between Shorts and long-form, published as an interactive visualization.',
+    title: 'Are videos getting shorter?',
+    meta: 'Data viz · 62k videos · d3',
+    blurb: 'A scrolling data story on 62,000 videos we collected ourselves. On seven major media channels, Shorts were half the uploads and three quarters of the views.',
     slug: 'media-analytics',
     demo: { label: 'Live visualization', href: 'https://xiaoman21.github.io/CS171/' },
     image: mediaGlobe,
@@ -476,157 +486,209 @@ export const caseStudies: Record<string, CaseStudy> = {
 
   'org-chart-explorer': {
     slug: 'org-chart-explorer',
-    kicker: 'Engineering Case Study · AWS',
+    kicker: 'Engineering Case Study · Onapsis · 2026',
     title: 'Org Chart Explorer: nothing leaves the browser.',
-    lead: "A BDR team needed to find the right contacts inside target organizations — fast — without scrolling a 699-employee static org tree. I built them a client-side web app that turns a raw spreadsheet into an interactive, searchable reporting hierarchy.",
-    role: 'Design + engineering — solo, shipped to an internal team',
-    stack: 'React · TypeScript · Vite · SheetJS · PapaParse · AWS S3 · CloudFront · ACM · IAM',
+    lead: "A business development team was working reporting lines out of a 699-row org export, navigable only by scrolling and squinting. I built them a tool that turns any messy spreadsheet into a searchable reporting tree, with an architecture chosen so that personnel data never needs a security review: there is no server to send it to.",
+    role: 'Design and engineering — solo, built for the BDR team I sat with and handed to IT',
+    stack: 'React · JavaScript · Vite · SheetJS · PapaParse · Tailwind · S3 + CloudFront',
     links: [{ label: 'GitHub repository', href: 'https://github.com/pjeon18/orgcharexplorer' }],
-    art: 'org',
+    image: org02,
     stats: [
-      { value: '699', label: 'employees in the real dataset it was built and validated against' },
-      { value: '100%', label: 'client-side — uploaded files are never transmitted or persisted' },
-      { value: '0', label: 'backend services to run, patch, or trust' },
+      { value: '699', label: 'rows in the real export it was built and validated against' },
+      { value: '0', label: 'bytes transmitted — parsing, search and the tree all run in the tab' },
+      { value: '190 kB', label: 'gzipped, the entire application' },
     ],
     sections: [
       {
-        heading: 'The problem',
-        body: '<p>Business development reps work reporting lines: who owns a division, who reports to whom, who is the right first call. The source of truth was a giant exported org chart that could only be navigated by scrolling and squinting — slow, error-prone, and useless under time pressure.</p>',
+        heading: 'The job to be done',
+        body: "<p>A rep does not want an org chart. A rep wants <b>one person, in context, fast</b>: who owns this division, who do they report to, who is the right first call. That sentence became the guiding principle in the repo, and it has a sharp consequence for the design. The tree is scaffolding around a found person. It is not the product.</p><p>What existed before was a single exported chart of a 699-person organization. Every question required scrolling to the right region of a very large image and reading small text, which is slow on a good day and useless between calls.</p>",
+        image: org01,
+        imageCaption: 'The upload screen. The privacy promise is made to the user here, not buried in a policy: your file is read in your browser and never uploaded to a server.',
       },
       {
-        heading: 'Privacy by design',
-        body: '<p>Personnel data is sensitive, so the architecture makes the safe thing the only thing: the entire pipeline — parsing, validation, tree building, search — runs in the browser. <b>Uploaded files are never transmitted or persisted anywhere.</b> That wasn\'t a nice-to-have; it was the requirement that shaped everything else.</p>',
+        heading: 'Privacy as the constraining requirement',
+        body: "<p>The input is a complete personnel roster: every name, title, manager and division in a company. Uploading that anywhere creates a retention question, a vendor-review question and a breach surface, and it would need sign-off before a rep could use it once.</p><p>So the architecture removes the question instead of answering it. Files are read through the browser file API, parsed in the page, and held in memory. <b>No fetch, no storage, no analytics, no third-party calls at runtime.</b> Nothing to review, because nothing moves.</p><p>That choice has costs, and they were accepted deliberately. There is no persistence, so a reload loses the file. There is no server-side pagination, so all 699 rows are indexed in the tab on every keystroke, which is what forced the lazy-expansion design. And because the app cannot authenticate anyone, access control had to move entirely into infrastructure.</p>",
       },
       {
-        heading: 'The data pipeline',
-        body: '<p>Reps import CSV/XLSX exports as-is. The pipeline (SheetJS + PapaParse) normalizes inconsistent column names through header aliasing, validates the schema, models people as <b>id-keyed nodes</b> so duplicate names can\'t collide, resolves manager links into derived reporting paths with root detection, and produces a human-readable import report so a rep knows exactly what loaded and what didn\'t.</p>',
+        heading: 'Making a messy export usable',
+        body: "<p>Real exports are inconsistent, so the parser is built to bend. A <b>header aliasing</b> layer maps whatever the file calls a column onto eight canonical fields, so <em>Manager</em>, <em>Reports To</em> and <em>Supervisor</em> all land in the same place. For a multi-sheet workbook it picks the sheet with the most rows, so a legend tab never wins. Only a name column is strictly required. Everything else degrades rather than failing.</p><p>The part I would keep in any future version is the <b>import report</b>. Rather than silently doing its best, the app tells you what it just did: how many people loaded, how many manager links pointed at somebody who is not in the file, and how many duplicate names it found. Node identity is the row index rather than the name, so a duplicate cannot corrupt the tree structure. The reporting edge for a duplicate is still a guess, and the banner says so.</p>",
+        image: org02,
+        imageCaption: 'A 227-row synthetic file, deliberately dirty. One manager link points at somebody absent and one name appears twice, and the banner surfaces both instead of hiding them.',
       },
       {
-        heading: 'The product',
-        body: '<p>Faceted exact-match filtering, fuzzy search by name, title, or division, level-based lazy expansion so huge trees stay fast, and a branch-navigation panel that preserves hierarchy context while you traverse up and down the org. Find any person in seconds; understand their reporting line in one glance.</p>',
+        heading: 'Filtering that keeps the hierarchy',
+        body: "<p>Filtering a tree normally forces a bad trade: you either get a flat list of matches with the structure gone, or the whole tree with nothing actually filtered. This does neither. Selecting a division shows the matches <b>plus every ancestor above them</b>, with those ancestors dimmed and labelled as context, so a filtered result still hangs off the real reporting line.</p><p>Facet counts are computed by evaluating every filter except the one being counted, which is what makes them true counts rather than decoration, so a rep never clicks into an empty result. Search stays deliberately separate and fuzzy, falling back to subsequence matching, because a rep half-remembers a name or heard a title once. The facets stay exact-match on purpose: silently merging two spellings of a division would hide a data-quality problem the rep should see.</p>",
+        image: org04,
+        imageCaption: 'One division selected. Faded rows are the manager chain, kept so the match has somewhere to hang, and the depth toolbar controls how much tree comes with it.',
       },
       {
-        heading: 'Shipping it properly',
-        body: '<p>I converted the working prototype to TypeScript with a strongly-typed domain model (person, import report, tree node), which eliminated a whole class of data-shape bugs at the parsing boundary. Deployed as a static site on AWS — S3 behind CloudFront with HTTPS via ACM — and handed off with deployment runbooks and least-privilege IAM policies for the internal IT team.</p>',
+        heading: 'The output is a sentence, not a screenshot',
+        body: "<p>Selecting somebody opens a branch navigator: the full trail from the top down to them as clickable pills, their division, their level, how many people report to them directly and in total, and their siblings as a scrolling strip.</p><p>The trail has one behavior I am still pleased with. Walking back <em>up</em> the chain moves your position without truncating the trail, so the branch below stays remembered and renders as ahead of you. Exploring an org is an up-and-down motion, and losing your place on every click is exactly what made the static chart useless.</p><p>The two buttons at the bottom are the actual deliverable. <b>Copy intro path</b> yields the whole chain as a single line, which is what a rep pastes into an email to ask for a warm introduction. The tool's job finishes in another application.</p>",
+        image: org06,
+        imageCaption: 'The branch navigator. The trail, the sibling strip, the direct and total report counts, and the two copy actions that turn a lookup into a sendable sentence.',
+      },
+      {
+        heading: 'Handing it to IT',
+        body: "<p>This shipped to a team rather than to a portfolio, so the handoff artifact mattered as much as the app. It went out with a deployment runbook covering the recommended shape (a private bucket behind a CDN with origin access control, a certificate in the region the CDN requires, and explicit cache rules that treat hashed assets as immutable and the entry document as no-cache), a deploy IAM policy scoped to <b>four actions</b> and nothing else, a rollback procedure, and a browser-support and sizing note.</p><p>Two things in there I would do again. First, a written <b>security-advisory disposition table</b>, so their review was not surprised: the spreadsheet parser had a known high-severity advisory and ships in the browser, so it was moved off the frozen package registry build onto the vendor's current release, while a dev-server-only advisory was documented as accepted with the reason. Second, access control was raised as an open decision rather than assumed, because the app has no authentication of its own and the right answer depended on how broadly they wanted to roll it out.</p>",
+        image: org03,
+        imageCaption: 'Expanded two levels deep. The default is fully collapsed, because opening 699 rows at once is not a starting point anybody wants.',
+      },
+      {
+        heading: 'What it does not do',
+        body: "<p><b>It is JavaScript, not TypeScript.</b> The plan was always to type the domain model, and the roadmap names the right risk site: the function where arbitrary spreadsheet cells become application objects, which is where every shape assumption lives. It was deliberately deferred so the artifact could reach IT first, and the internship ended before the follow-up. I would rather say that than claim a migration that did not happen.</p><p>Other honest gaps: there is no routing, so nothing is deep-linkable and a reload loses your file. Three parsed fields are carried through the pipeline and never used, one of which means the copy-contact action has no email in it. Duplicate-name reporting edges resolve to whichever row came first, disclosed rather than solved. Fuzzy search has no relevance ranking, so very short queries match almost everything. The two copy buttons do not render below the small breakpoint. There is a latent cycle risk in the descendant walk that the real data never triggered. And there are no tests.</p>",
       },
     ],
   },
 
   'onapsis-gtm': {
     slug: 'onapsis-gtm',
-    kicker: 'AI GTM · Internship · Now',
-    title: 'Onapsis: prospecting with agents.',
-    lead: 'My current role: building LLM-assisted GTM automation at Onapsis. The flagship project enriched leads across a 13,000-contact TAM and surfaced the qualified handful worth a rep\'s time.',
-    role: 'AI GTM Intern — Boston, MA',
-    stack: 'Python · LLM agents · ZoomInfo enrichment',
-    links: [{ label: 'Org Chart Explorer on GitHub', href: 'https://github.com/pjeon18/orgcharexplorer' }],
+    kicker: 'AI GTM · Onapsis · Summer 2026',
+    title: 'Prospecting with agents, and knowing when not to trust them.',
+    lead: "Onapsis sells SAP security to large enterprises, where the buying decision splits between the security org and the SAP team. The BDR team was prospecting into a 13,000-contact market with no structured way to rank it, so outreach was spread flat across every account. I built the pipeline that ranked it, and then the guardrail that made the ranking trustworthy.",
+    role: 'AI GTM Intern — Boston, reporting into business development',
+    stack: 'Google Apps Script · ZoomInfo API · Gemini API · Google Sheets',
     image: onapsis,
     stats: [
-      { value: '13,000', label: 'contacts in the raw TAM' },
-      { value: '74', label: 'qualified leads surfaced for the BDR team' },
-      { value: '1', label: 'script replacing hours of manual enrichment' },
+      { value: '13,000', label: 'contacts in the addressable market, unranked' },
+      { value: '300+', label: 'scored, sales-ready leads delivered across 70+ target accounts' },
+      { value: 'High/Med/Low', label: 'confidence on every score, because the model was confident and wrong on odd titles' },
     ],
     sections: [
       {
-        heading: 'The TAM problem',
-        body: '<p>A 13,000-row contact list is not a pipeline — it\'s a haystack. Manually enriching and qualifying it burns exactly the hours BDRs should spend talking to people.</p>',
+        heading: 'The problem was prioritization, not data',
+        body: "<p>A 13,000-row contact list is not a pipeline. The team already had the rows. What they did not have was any structured way to say which accounts deserved a rep's morning, so effort landed evenly across accounts that were not evenly worth it.</p><p>This is harder than it sounds for this product specifically. Onapsis sits across two buying centers, so the ideal customer profile is not one job family: it spans security leadership and the SAP and IT side. The target personas were <b>CISO, CIO, VP Security and SAP Basis</b>, which is a list no keyword filter handles well.</p>",
       },
       {
-        heading: 'Agentic enrichment',
-        body: '<p>I built automation that enriches contacts through ZoomInfo and applies LLM-assisted scoring against the ideal customer profile, turning the haystack into a ranked, reasoned shortlist — <b>74 qualified leads</b> delivered to the team, each with the context to open a conversation.</p>',
+        heading: 'The pipeline',
+        body: "<p>A multi-step pipeline in Google Apps Script, sitting where the team already worked, calling the ZoomInfo API to search, enrich and consolidate security-leadership and SAP-technical contacts across target accounts. Output went to CRM-ready Sheets, so the deliverable was a ranked list a rep could act on that morning rather than a database somebody had to be taught.</p><p>On top of that sits a Gemini layer doing the part a filter cannot: <b>parsing unstructured job titles</b> and scoring each contact against the ideal customer profile. Titles are free text, and the interesting failures are all in the middle, where a title is technically senior but functionally irrelevant, or vice versa.</p>",
       },
       {
-        heading: 'Why it rhymes with the rest of this portfolio',
-        body: '<p>Same conviction as Org Chart Explorer, different altitude: sales teams don\'t need more data, they need <em>clarity</em> — the right person, the right reason, right now.</p>',
+        heading: 'The guardrail is the actual contribution',
+        body: "<p>The model was <b>confident and wrong</b> on unusual titles often enough to matter. A scoring system that is right most of the time and gives no indication of when it is guessing is worse than no scoring system, because a rep learns to distrust all of it after being burned twice.</p><p>So every score carries a confidence rating. High-confidence leads route straight to the BDR team. Low-confidence leads route to human review. The output tells you which of its own answers to trust.</p><p>That is the working philosophy I would bring to any AI-in-the-loop tool: <b>agents do retrieval and structuring at scale, humans keep the judgment, and the system says which is which.</b> The first automated batch produced 74 qualified contacts from 47 accounts, and by the end of the internship the cumulative figure was over 300 scored leads across more than 70 accounts, in production with the team.</p>",
+      },
+      {
+        heading: 'What I would want to measure next',
+        body: "<p>Being straight about the limits: <b>300 leads is an output count, not an outcome.</b> The things that would actually prove the pipeline worked are the things I did not have time to instrument: acceptance rate on routed leads, meetings booked per hundred, and precision against a hand-checked sample. There is also no measured baseline for the manual process it replaced, only the team's description of it.</p><p>If I picked this up again, the first work would be an eval set of a few hundred hand-labelled titles, so the confidence thresholds could be calibrated against something rather than chosen. The guardrail is the right idea, and right now its cut points are a judgment call.</p>",
       },
     ],
   },
 
   'f1-undercut': {
     slug: 'f1-undercut',
-    kicker: 'Machine Learning · Motorsport',
+    kicker: 'Machine Learning · Harvard CS1090A · group project',
     title: 'Should we pit? Modeling the undercut.',
-    lead: 'The undercut is Formula 1\'s highest-stakes timing decision: pit first, gain track position on fresh tires — or lose it all. I trained a model to predict whether an undercut attempt will succeed, from live race telemetry.',
-    role: 'ML — independent project',
-    stack: 'Python · weighted logistic regression · race telemetry',
+    lead: "The undercut is Formula 1's highest-stakes timing bet: pit before your rival, run fresh tires, and try to come out ahead. We asked whether a model could call it from race conditions. It can, weakly, and the interesting part is what the model reveals about where the advantage actually comes from.",
+    role: 'Machine learning — a three-person course final project, and my work sat in the modeling and write-up rounds',
+    stack: 'Python · pandas · scikit-learn · statsmodels · Ergast historical race data',
     links: [{ label: 'GitHub repository', href: 'https://github.com/evanjiang943/cs1090a' }],
     image: f1,
     stats: [
-      { value: '761', label: 'undercut attempts hand-labeled from race data' },
-      { value: '0.71', label: 'AUC-ROC on held-out races' },
-      { value: '1 lap', label: 'the decision window the model has to matter in' },
+      { value: '761', label: 'undercut attempts extracted from eleven seasons' },
+      { value: '10.1%', label: 'of them succeeded, which is the modeling problem in one number' },
+      { value: '0.713', label: 'test AUC-ROC on the baseline, against 0.900 on train' },
     ],
     sections: [
       {
-        heading: 'The call',
-        body: '<p>An undercut succeeds or fails on tire delta, gap, traffic, and timing — variables a strategist juggles in seconds. The question: can a model read the same telemetry and call it?</p>',
+        heading: 'Building the dataset, because there is not one',
+        body: "<p>No labelled undercut dataset exists, so the first job was defining the event. Working from historical lap timing and pit-stop tables across the hybrid era (2014 onward), we found every pit stop where a rival pitted within the next five laps, then labelled the attempt a success if the attacker came out ahead once both had stopped.</p><p>Two decisions did most of the work. First, a rolling three-lap pace average, <b>shifted so it never includes the lap being predicted</b>, which is the difference between a model and a leak. Second, a filter keeping only attempts where the gap was under two seconds, on the grounds that a five-second gap is not a strategic undercut. That filter moves the success rate from roughly 6% to 10.1% and leaves <b>761 attempts</b>, of which only 77 are successes.</p>",
       },
       {
-        heading: 'The data',
-        body: '<p>There is no labeled undercut dataset, so I built one: <b>761 hand-labeled undercut attempts</b> extracted from race telemetry. Data-sparse and class-imbalanced — every design choice flowed from that constraint.</p>',
+        heading: 'A rare-event problem wearing a classification costume',
+        body: "<p>With 77 positives, accuracy is a useless metric: predicting failure every time scores about 90%. The baseline was a class-weighted logistic regression over race-state features, deliberately interpretable, because on a pit wall a probability you can explain beats a black box you cannot.</p><p>It reaches <b>0.713 AUC-ROC on the test split against 0.900 on train</b>, which is visible overfitting and worth stating plainly. Four imbalance strategies were compared head to head. Moving the decision threshold to 0.47 gave the best F1 at 0.34, and random undersampling made everything worse. Precision peaked around 0.23, meaning <b>four in five predicted successes were wrong</b>. For a decision tool that matters more than the AUC does.</p>",
       },
       {
-        heading: 'The model',
-        body: '<p>Weighted logistic regression over engineered race-state features, reaching <b>0.71 AUC-ROC</b>. Deliberately interpretable: on a pit wall, a probability you can explain beats a black box you can\'t — and with hundreds (not millions) of examples, simpler models are also the honest choice.</p>',
+        heading: 'What the model actually learned',
+        body: "<p>The finding that reframed the project: <b>every linear correlation with the outcome is under 0.15.</b> The gap to the rival, the pace differential, the attacker's tire age — all effectively uncorrelated on their own. The headline variable everyone would name first carries almost no linear signal.</p><p>What does carry signal is the circuit. Thirteen of the top fifteen baseline coefficients are circuit indicators, and the spread is large: some tracks convert undercuts at two and a half to three and a half times the 10.1% average. After circuit, the strongest non-track effect is <b>pit-lane execution</b>, the stop time itself. So the honest summary of the baseline is that it mostly learns which track it is at, and then how well the crew works.</p>",
+      },
+      {
+        heading: 'The final model traded accuracy for structure',
+        body: "<p>Circuit indicators dominating is a warning sign, not a result, because some circuits have only five to ten attempts and the model was fitting noise per track. The final version is a hierarchical logistic regression with <b>partially pooled circuit effects</b>, shrinking each track's estimate toward the global mean in proportion to how little data supports it.</p><p>It scores <b>0.683 AUC on fifteen features</b>, against 0.713 on roughly forty-eight. Slightly worse on the metric, substantially more trustworthy, and a two-thirds reduction in parameters. Choosing it was the right call and it is the version I would defend.</p>",
+      },
+      {
+        heading: 'What I would fix',
+        body: "<p><b>The split is random over attempts rather than grouped by race</b>, so two attempts from the same afternoon can land on opposite sides of it. Given how much of the signal is circuit and conditions, that is a genuine leakage path and it likely flatters the test number. Grouping by race is the first thing I would change.</p><p>Beyond that: no sensitivity analysis on either of the two judgment calls that define the dataset, the two-second gap and the five-lap window, both of which move the label distribution. Twenty positive examples in the test set is too few to be confident about any of these numbers. And there is no calibration curve, which for a tool meant to output a probability is the measurement that actually matters.</p>",
       },
     ],
   },
 
   'rl-agents': {
     slug: 'rl-agents',
-    kicker: 'Machine Learning · CS182',
-    title: 'RL agents, from the equation up.',
-    lead: 'Reinforcement learning built from the equations up: Bellman updates by hand, feature engineering that turns a losing agent into a winning one, and convolutional networks trained from scratch.',
-    role: 'ML — Harvard CS182 coursework',
-    stack: 'Python · NumPy · CNNs',
+    kicker: 'Machine Learning · Harvard CS182',
+    title: 'Reinforcement learning, from the equation up.',
+    lead: "Coursework where the point was doing the arithmetic yourself: deriving value functions by hand, implementing policy iteration on a small Markov decision process in NumPy, and watching the optimal policy flip when you change how much the agent cares about the future.",
+    role: 'Coursework — Harvard CS182, individual problem sets',
+    stack: 'Python · NumPy · PyTorch',
     art: 'rl',
     stats: [
-      { value: '>70%', label: 'Pacman win rate with the engineered feature extractor' },
-      { value: '80%+', label: 'FashionMNIST accuracy with a from-scratch CNN' },
-      { value: '0', label: 'RL libraries — the updates are the point' },
+      { value: '3', label: 'states, 2 actions, and a policy that reverses on one parameter' },
+      { value: '46.92', label: 'optimal value of the good state at a 0.9 discount' },
+      { value: '0', label: 'RL libraries in the tabular work — the updates are the exercise' },
     ],
     sections: [
       {
-        heading: 'From equations to agents',
-        body: '<p>Value iteration and Q-learning implemented directly — writing the Bellman updates yourself is the difference between knowing the formula and knowing why an agent behaves the way it does.</p>',
+        heading: 'A tiny MDP with a real dilemma',
+        body: "<p>The setup is deliberately small enough to solve by hand and still be interesting: three states (good standing, academic probation, expelled as terminal) and two actions (work, or watch YouTube). Working pays a little. YouTube pays four times as much immediately and raises your probability of sliding toward the absorbing state you can never leave.</p><p>I derived the closed-form value functions for both fixed policies before writing any code, which is the part that makes the rest legible. Always-YouTube has a clean geometric form. Always-work resolves to a simple expression in the discount factor. Comparing them symbolically tells you where the crossover has to be before a single iteration runs.</p>",
       },
       {
-        heading: 'Feature engineering wins games',
-        body: '<p>Raw Q-learning flails in Pacman\'s state space. The fix was a <b>scared-ghost hunter</b> feature extractor — encoding distances to food, active threats, and edible ghosts — which lifted the agent past a <b>70% win rate</b>. The lesson generalizes: representation beats brute force.</p>',
+        heading: 'Policy iteration, written out',
+        body: "<p>Implemented directly in NumPy: nested policy evaluation sweeping to a convergence threshold, then policy improvement taking the greedy action over Q-values, with the terminal state skipped rather than special-cased. The Bellman update is written as one line of arithmetic over the transition tensor, because typing it is the exercise.</p><p>At a 0.9 discount the optimal policy is <b>YouTube in good standing, work on probation</b>, with optimal values of about 46.92 and 42.03. That asymmetry is the whole lesson: when you are safe, the immediate payoff is worth taking, and when you are one bad outcome from an absorbing state, it is not. The agent is not risk-averse. It is doing arithmetic about how much future is left.</p>",
       },
       {
-        heading: 'Then the deep end',
-        body: '<p>Convolutional networks trained from scratch to <b>80%+ on FashionMNIST</b> — closing the arc from tabular RL to learned representations.</p>',
+        heading: 'Then change one number',
+        body: "<p>Drop the discount to 0.5 and the policy flips to YouTube in both states. Nothing about the rewards or the transitions changed. The agent simply weights the future less, so avoiding expulsion stops being worth the cost of working.</p><p>This is the most useful intuition I took from the course, and it generalizes well past gridworlds: <b>a lot of behavior that looks like a preference is actually a discount rate.</b> An agent that appears reckless may just have a short horizon, and the fix is in the objective rather than the policy.</p>",
+      },
+      {
+        heading: 'The neural network half',
+        body: "<p>Separately, a convolutional classifier for FashionMNIST written as a module from scratch: three convolution blocks stepping 32, 64 and 128 channels, each with ReLU and max pooling, spatial dropout at 0.25 after the last block, then a 512-unit fully connected layer with dropout at 0.5 before the ten-way output. Adam at a 0.001 learning rate, cross-entropy, five epochs, batches of 64.</p><p>One detail I would keep: the training loop carries its own <b>time budget check</b> and returns early rather than being killed by the grader's five-minute limit. Writing the network myself means defining the architecture and the loop, not implementing backpropagation, and the assignment's own accuracy bar was 0.85.</p>",
       },
     ],
   },
 
   'media-analytics': {
     slug: 'media-analytics',
-    kicker: 'Data · Visualization',
-    title: 'Watching video formats shift.',
-    lead: 'An automated pipeline tracking how major channels\' output is shifting between Shorts and long-form — collected via the YouTube Data API and published as an interactive visualization.',
-    role: 'Data + visualization',
-    stack: 'Python · YouTube Data API · d3.js',
-    links: [{ label: 'Live visualization', href: 'https://xiaoman21.github.io/CS171/' }],
-    image: mediaGlobe,
+    kicker: 'Data Visualization · Harvard CS171 · 2026',
+    title: 'Are videos getting shorter?',
+    lead: "A scrolling data story about short-form video taking over media, built on about 62,000 videos we collected ourselves from the YouTube API. The finding that carried it: across seven major media channels, Shorts were half the uploads and three quarters of the views, and for four of the seven a single Short now out-earns a single long upload.",
+    role: 'Data collection, pipeline and front-end — I wrote 74 of the project’s 102 commits on a three-person team',
+    stack: 'Python · YouTube Data API v3 · d3.js v7 · React · Recharts',
+    links: [
+      { label: 'Open the story', href: 'https://xiaoman21.github.io/CS171/' },
+      { label: 'GitHub repository', href: 'https://github.com/xiaoman21/CS171' },
+    ],
+    image: ytOverview,
     stats: [
-      { value: 'API', label: 'automated collection — no manual pulls' },
-      { value: '2', label: 'formats in tension: Shorts vs. long-form' },
-      { value: 'd3', label: 'interactive, explorable output — not a static chart' },
+      { value: '~62,500', label: 'videos collected across two channel sets and two years' },
+      { value: '74%', label: 'of 2024 views on seven media channels came from Shorts, on 51% of uploads' },
+      { value: '14', label: 'chapters in the story, driven by a scrubber built like a video player' },
     ],
     sections: [
       {
-        heading: 'The question',
-        body: '<p>Every creator feels the pull toward short-form. Is it visible in the data? Across major channels, how is the actual mix of uploads shifting?</p>',
+        heading: 'The question, and the eleven we did not pick',
+        body: "<p>We started from eleven candidate questions: whether duration is falling, whether the share of very short videos is rising, whether engagement differs by format, whether views decay faster, whether there is a structural break after Shorts launched, and so on. Narrowing them was the actual design work, because each one implies a different dataset.</p><p>What we settled on is a question with a visible answer and a real tension underneath: <b>the balance between short and long form shows how platforms trade quick reach for lasting connection.</b> The data supports both halves of that, which is what made it worth building rather than just asserting.</p>",
       },
       {
-        heading: 'The pipeline',
-        body: '<p>Automated collection through the YouTube Data API across major channels — upload metadata normalized into a dataset that can answer format-mix questions over time without a single manual export.</p>',
+        heading: 'Collecting it, and the classifier that made it honest',
+        body: "<p>No existing dataset answers this, so the pipeline resolves each channel through the API, walks its entire uploads playlist, and pulls statistics and content details per video. Two channel sets: five of the largest global creators, and seven media brands, each across 2024 and 2025 to date. Roughly 62,500 video rows, plus derived per-video columns for engagement rates, upload timing and video age.</p><p>The piece I am most pleased with is the Shorts classifier, because the obvious version is wrong. A fixed duration cutoff misclassifies everything after YouTube <b>raised its own Shorts limit from 60 seconds to 3 minutes</b> in late 2024. So the threshold is <em>date-aware</em>: it applies 61 seconds before the policy change and 181 seconds after, with a hashtag check as a fallback. Classifying a decade of video against today's rule would have manufactured a trend that was really a definition change.</p>",
+        image: ytShorter,
+        imageCaption: 'The finding stated up front: average length trending down while upload counts climb. Two curves that only make sense together.',
       },
       {
-        heading: 'The visualization',
-        body: '<p>Published as an interactive d3 visualization — explorable by channel and time rather than frozen into one chart, because the interesting answers are in the comparisons.</p>',
+        heading: 'What the numbers say',
+        body: "<p>For the seven media channels in 2024: <b>13,833 uploads, 51% of them Shorts, and 7.01 billion views of which 74% came from Shorts.</b> Short-form was already claiming a disproportionate share of attention relative to its share of output.</p><p>The individual pivots are sharper than the aggregate. One national newspaper's channel went from Shorts being 14% of its uploads in 2024 to <b>93% in 2025 to date</b>. Two channels moved the other way, which matters, because it means this is a strategy choice rather than a tide.</p><p>The engagement split is the part that supports the thesis rather than just the headline: Shorts earn several times the likes per thousand views and roughly a ninth of the comments. <b>Reach without conversation</b>, measured rather than asserted.</p>",
+        image: ytShortVLong,
+        imageCaption: 'The multiplier on a log scale with a 1x reference line. Four of seven channels sit right of it, and the single outlier at 42.6x is why the median is reported alongside.',
+      },
+      {
+        heading: 'Building the story',
+        body: "<p>The story runs as fourteen chapters behind a scrubber built like a video player, with click-to-jump and a progress rail. Six substantive visualizations carry it, all hand-built in d3 rather than charted from a library: an orthographic globe you can drag and spin for regional short-video reach, a force-directed bubble chart where clicking a channel morphs its circle into a Shorts-versus-long donut, an animated multi-series line chart where channel avatars ride their own lines, an annotated single-creator chart with promo markers, and a scroll-triggered sequence that lights up each platform's name in the prose as its line draws.</p><p>A dashboard section built in React sits inside the story for the numbers that need comparison rather than narrative, including a scatter of upload share against view share with a reference line, so a channel above it is over-delivering on short-form relative to how much it posts.</p>",
+        image: ytBubbles,
+        imageCaption: 'Circle area is upload volume, and clicking a channel opens its format split. Real channel art, so a viewer recognizes who they are looking at.',
+      },
+      {
+        heading: 'Where the argument is weaker than it looks',
+        body: "<p>The story claims Shorts function like trailers, warming an audience so the next long upload lands bigger. That is operationalized as a flag for months where a channel posted both formats and the following month's views rose. It is <b>correlation, and it is presented more confidently on the page than the evidence supports</b>: no lag regression, no control, and obvious confounds in seasonality and news cycles. Naming it here is more useful than defending it.</p><p>Other honest limits. The multiplier finding is four of seven channels, not most, and one outlier at 42.6x drags any average. The engagement metric is a proxy, because the API exposes no share counts. API quota meant sampling periods rather than collecting the full population. Coverage has gaps: two channels are missing several months. And the shipped dashboard hardcodes 2024, so half of what we collected has no path to the screen, which is a real unfinished edge rather than a scoping decision.</p>",
+        image: ytDrilldown,
+        imageCaption: 'Per-channel drilldown. Monthly series for uploads and views by format, which is where the aggregate story either holds up per channel or does not.',
       },
     ],
   },
