@@ -62,7 +62,7 @@ function useProgress() {
 }
 
 // ---------------------------------------------------------------------------
-// The market: how career help is delivered, on two axes that matter.
+// The market, mapped on the two axes that matter.
 
 function MarketMap() {
   const dots: { x: number; y: number; label: string; sub: string; hero?: boolean; end?: boolean }[] = [
@@ -138,8 +138,8 @@ function Funnel() {
         </div>
       ))}
       <p style={{ fontSize: 12.5, color: '#8F8B83', margin: '4px 2px 0', lineHeight: 1.6 }}>
-        Every step down is a mutual opt-in. The gate between step two and step three lives in the
-        state store, which is what made it safe to sell attention at step two.
+        Every step down is a mutual opt-in. The gate between steps two and three lives in the state
+        store, which is what made it safe to sell attention at step two.
       </p>
     </div>
   )
@@ -221,13 +221,13 @@ interface Fix { quote: string; fix: string; lesson: string }
 const LEDGER: Fix[] = [
   {
     quote: 'The whole thing reads as generated and generic',
-    fix: 'The first build was navy and amber, dark everywhere, and it looked like every AI-designed product of the last two years. Rebuilt around paper and ink for browse surfaces with one dark theater scope for live rooms, a serif display face, and exactly three semantic color roles.',
-    lesson: 'A palette that could belong to any product belongs to none. Picking a register on purpose, in this case the commercial one that a finance and consulting audience already reads as credible, does more than any amount of polish.',
+    fix: 'The first build was navy and amber, dark everywhere, and looked like every AI-designed product of the last two years. Rebuilt around paper and ink, with one dark theater scope for live rooms, a serif display face, and three semantic color roles.',
+    lesson: 'A palette that could belong to any product belongs to none. Picking a register on purpose beats any amount of polish.',
   },
   {
     quote: 'Ambient color behind the thumbnails looks like smudges',
-    fix: 'The ambient gradient field sat at 0.16 alpha in dark mode and read as coloured stains behind the video tiles. Dialed to 0.05 through 0.07.',
-    lesson: 'On a video platform the thumbnails are the content. Any chrome with a hue fights them, which is also why the glass is neutral and the dark theme is graphite rather than blue.',
+    fix: 'The ambient gradient sat at 0.16 alpha in dark mode and read as coloured stains behind the video tiles. Dialed down to 0.05.',
+    lesson: 'On a video platform the thumbnails are the content. Chrome with a hue fights them, which is why the glass is neutral and the dark theme is graphite.',
   },
   {
     quote: 'Course chips in the sidebar read CS5, STA and EC1',
@@ -236,18 +236,18 @@ const LEDGER: Fix[] = [
   },
   {
     quote: 'A campus URL opens with careers navigation around it',
-    fix: 'Mode was persisted state rather than derived from the route, so arriving at a course link from a careers session rendered course content inside the wrong shell. Mode now follows the route.',
-    lesson: 'Anything a deep link can contradict should be derived from the URL, not remembered. Persisted state and shareable links are natural enemies.',
+    fix: 'Mode was persisted rather than derived from the route, so a course link opened inside the careers shell. Mode now follows the route.',
+    lesson: 'Anything a deep link can contradict belongs in the URL, not in memory. Persisted state and shareable links are natural enemies.',
   },
   {
     quote: 'A campus room is full of recruiting chatter',
-    fix: 'The crowd simulation drew from the careers line pool everywhere. Campus rooms now have their own pool, and campus search has its own index for the same reason.',
-    lesson: 'Two audiences on one platform need separate data islands, or the cheaper one leaks into the serious one and undermines both.',
+    fix: 'The crowd simulation drew from the careers line pool everywhere. Campus rooms now have their own pool, and campus search its own index.',
+    lesson: 'Two audiences on one platform need separate data islands, or one leaks into the other and undermines both.',
   },
   {
     quote: 'A wrapped meta line can start with a floating separator',
-    fix: 'The middle dot between metadata items could land at the beginning of a wrapped line. Separators are now emitted between items rather than appended to them.',
-    lesson: 'Small, but this is the class of detail that decides whether a page reads as crafted. It only appears at specific widths, so it only shows up if you look.',
+    fix: 'The middle dot between metadata items could land at the start of a wrapped line. Separators are now emitted between items rather than appended to them.',
+    lesson: 'Small, but this is the class of detail that decides whether a page reads as crafted. It only appears at certain widths.',
   },
 ]
 
@@ -278,9 +278,9 @@ export default function PrepMag() {
         </h1>
         <p className="mg-dek mg-rv">
           A live streaming platform shaped like a college club fair. Verified professionals hold
-          drop-in office hours, and you move from lurking in the crowd, to the hot seat, to a paid
-          one on one. Eighteen dated decisions took it from a one-page pitch to a deployed prototype,
-          and two of them reversed.
+          drop-in office hours. You move from lurking in the crowd, to the hot seat, to a paid one on
+          one. Eighteen dated decisions took it from a pitch to a deployed prototype, and two of them
+          reversed.
         </p>
         <div className="mg-meta mg-rv">
           <span><b>Role</b> product, design, engineering, solo</span>
@@ -335,17 +335,21 @@ export default function PrepMag() {
         <h2 className="mg-rv">Career advice is stuck at two extremes</h2>
         <div className="mg-cols mg-rv">
           <p>
-            On one side, recorded content: passive, engagement-optimized, and impossible to verify.
-            Anyone can claim to be a Goldman analyst. On the other, booked one to one mentorship,
-            which is genuinely good and has no leverage at all. One hour helps one person, and it is
-            gated behind booking friction, calendar friction, and the social cost of asking a
-            stranger for thirty minutes.
+            One side is recorded content. Passive, engagement-optimized, and impossible to verify.
+            Anyone can claim to be a Goldman analyst.
+          </p>
+          <p>
+            The other is booked one to one mentorship. Genuinely good, and no leverage at all. One
+            hour helps one person, behind booking friction and the social cost of asking a stranger
+            for thirty minutes.
           </p>
           <p>
             The user this fails hardest is the one nobody builds for. A sophomore who does not know
             what an analyst does all day <b>cannot form the question</b> a one-to-one platform
-            requires. They do not need an appointment. They need to wander and overhear, which is
-            exactly what a club fair provides and no career platform does.
+            requires.
+          </p>
+          <p>
+            They do not need an appointment. They need to wander and overhear.
           </p>
         </div>
 
@@ -363,8 +367,7 @@ export default function PrepMag() {
           <p className="mg-statement-sub">
             Every player owns exactly one layer. ADPList owns supply, Intro owns pricing, Twitch owns
             liveness, LinkedIn owns the network and kills candor by being performative. Nobody
-            connects them, because connecting them means running a format nobody has built for
-            careers.
+            connects them.
           </p>
           <p className="mg-statement-big">The professor's office hours has <em>no online home</em>.</p>
         </div>
@@ -372,7 +375,7 @@ export default function PrepMag() {
         <figure className="mg-figure mg-rv">
           <MarketMap />
           <figcaption>
-            Two axes decide this market: whether it happens live, and whether you can trust who is
+            Two axes decide this market. Whether it happens live, and whether you can trust who is
             talking. The top-right corner needs both, which is why it stays empty.
           </figcaption>
         </figure>
@@ -383,9 +386,9 @@ export default function PrepMag() {
         <div className="mg-partmark mg-rv"><span>02</span> The people</div>
         <h2 className="mg-rv">A marketplace with two sides and three kinds of demand</h2>
         <p className="mg-lede mg-rv">
-          Three viewer personas, and they want incompatible things, which is the whole reason the
-          product is a funnel rather than a feature. One wants to lurk forever. One wants help before
-          Thursday. One wants candor from someone two years ahead.
+          Three viewer personas who want incompatible things. That is why the product is a funnel
+          rather than a feature. One wants to lurk forever, one wants help before Thursday, one wants
+          candor from someone two years ahead.
         </p>
 
         <div className="mg-personas mg-rv">
@@ -443,26 +446,29 @@ export default function PrepMag() {
           <div className="mg-serve">
             <span>the young professional</span>
             <p>
-              Two to six years in, wants to mentor with <b>leverage</b> rather than repeat the same
+              Two to six years in. Wants to mentor with <b>leverage</b> rather than repeat the same
               answer forty times, and would like the income. What they do not want is to become a
-              content creator. So the product asks for an hour of talking and nothing else: no
-              editing, no thumbnails, no posting schedule. The room records and chapters itself.
+              content creator.
+            </p>
+            <p>
+              So the product asks for an hour of talking and nothing else. No editing, no thumbnails,
+              no posting schedule. The room records and chapters itself.
             </p>
           </div>
           <div className="mg-serve">
             <span>the domain personality</span>
             <p>
-              Recruiters, admissions consultants, portfolio reviewers. They already sell expertise and
-              need a funnel rather than an audience. The hot seat is that funnel, and it is honest
-              about it: public answers build the case for the private session.
+              Recruiters, admissions consultants, portfolio reviewers. They already sell expertise
+              and need a funnel rather than an audience. The hot seat is that funnel, and it is honest
+              about being one. Public answers build the case for the private session.
             </p>
           </div>
           <div className="mg-serve">
             <span>the institution</span>
             <p>
               Career centers and alumni offices buying branded fairs. This is the business wedge and
-              also the cold-start answer, because an institution brings both sides of the marketplace
-              on the same afternoon.
+              the cold-start answer, because an institution brings both sides of the marketplace on
+              the same afternoon.
             </p>
           </div>
         </div>
@@ -475,16 +481,17 @@ export default function PrepMag() {
         <Funnel />
         <div className="mg-cols mg-rv">
           <p>
-            Each layer feeds the next, and each competitor owns only one of them. Lurking is free and
-            anonymous forever, because the explorer persona dies at a signup wall. Raising a hand is
-            the first time your name appears anywhere, which is stated plainly in the privacy
-            settings: <em>"You watch anonymously. Your name appears only when you raise your hand."</em>
+            Each layer feeds the next, and each competitor owns only one. Lurking stays free and
+            anonymous forever, because the explorer dies at a signup wall.
           </p>
           <p>
-            The hot seat is the piece that makes the economics work. Answering one question in front
-            of two hundred people is the leverage the host came for and the overhearing the explorer
-            came for, at the same time, from the same minute of work. It is also why the recording is
-            chaptered by question rather than by timestamp.
+            Raising a hand is the first time your name appears anywhere. The privacy settings say so.
+            <em>"You watch anonymously. Your name appears only when you raise your hand."</em>
+          </p>
+          <p>
+            The hot seat makes the economics work. One question answered in front of two hundred
+            people is the leverage the host came for and the overhearing the explorer came for, from
+            the same minute of work.
           </p>
         </div>
         <div className="mg-shots mg-shots-3 mg-rv">
@@ -499,9 +506,9 @@ export default function PrepMag() {
         <div className="mg-partmark mg-rv"><span>04</span> The rules, in code</div>
         <h2 className="mg-rv">Where money is allowed to touch the product</h2>
         <p className="mg-lede mg-rv">
-          The founding principle is one sentence: <b>monetize the host's time and tools, never viewer
-          visibility and never placement.</b> That is easy to write and easy to violate by accident,
-          so it lives in the state layer where a future screen cannot route around it.
+          The founding principle is one sentence. <b>Monetize the host's time and tools, never viewer
+          visibility and never placement.</b> Easy to write, easy to violate by accident, so it lives
+          in the state layer where a future screen cannot route around it.
         </p>
 
         <div className="mg-split mg-rv">
@@ -532,21 +539,24 @@ export default function PrepMag() {
         <div className="mg-decision mg-rv">
           <div className="mg-decision-tag">Decision record · the one that needed the most care</div>
           <p>
-            <b>Boosts raise visibility, never buy the stage.</b> The obvious version of this feature is
-            a super chat: pay more, get answered. It funds the host immediately and it destroys the
-            thing the product is selling, which is that the queue is fair.
+            <b>Boosts raise visibility, never buy the stage.</b> The obvious version is a super chat.
+            Pay more, get answered. It funds the host immediately and destroys the thing the product
+            is selling, which is that the queue is fair.
           </p>
           <p>
-            What shipped instead: a boost pins your question higher <em>in the host's queue view</em>,
-            and the points go to the host. Promotion still requires the host's explicit pick, and the
-            only route onto the stage is a hand you raised yourself. The simulated host models this
-            honestly rather than flattering it, taking the top boosted question about seventy percent
-            of the time, because a boosted question genuinely is more visible.
+            What shipped instead pins your question higher <em>in the host's queue view</em> and pays
+            the points to the host. Promotion still requires the host's explicit pick, and the only
+            route onto the stage is a hand you raised yourself.
           </p>
           <p>
-            The founding principle was <b>amended rather than repealed</b>, and the amendment is one
-            line: money may buy the host's attention, never a place on stage or in discovery. The
-            product says it out loud in the raise-hand sheet, so the user can hold it to the promise.
+            The simulated host models this honestly rather than flattering it, taking the top boosted
+            question about seventy percent of the time, because a boosted question genuinely is more
+            visible.
+          </p>
+          <p>
+            The principle was <b>amended rather than repealed</b>. Money may buy the host's
+            attention, never a place on stage or in discovery. The raise-hand sheet says it out loud,
+            so the user can hold the product to it.
           </p>
         </div>
 
@@ -557,7 +567,7 @@ export default function PrepMag() {
             <li><b>Archives can never fake liveness.</b> A recording refuses to open as a live session, checked by kind rather than by a flag.</li>
             <li><b>The consent gate.</b> Only a queued hand can be promoted, one hot seat at a time. There is no code path that puts a person on stage without a hand they raised.</li>
             <li><b>Breakouts need two consents.</b> The host offers, the viewer accepts, and payment is a third separate step.</li>
-            <li><b>Live state is deliberately not persisted.</b> Persisting a live room would resurrect fake liveness on reload, so the room is excluded from the saved slice.</li>
+            <li><b>Live state is deliberately not persisted.</b> Saving a live room would resurrect fake liveness on reload, so the room is excluded from the saved slice.</li>
             <li><b>There is no direct-message shape in the store at all.</b> The absence is the feature.</li>
             <li>Capacity, duplicate tickets, and empty questions are all refused in the action rather than disabled in the interface.</li>
           </ul>
@@ -576,24 +586,24 @@ export default function PrepMag() {
           <div className="mg-duo-text">
             <p>
               If the pitch is that recorded advice is unverifiable, then verification is not a feature
-              of this product, it is the product. So the badge has three states and one rule:
-              <b> the marking never lies in either direction.</b>
+              of this product. It is the product.
+            </p>
+            <p>
+              So the badge has three states and one rule. <b>The marking never lies in either
+              direction.</b>
             </p>
             <p>
               Verified role and verified school get a green pill, and green appears nowhere else in
-              the entire application. Unverified hosts are not removed and not quietly delisted. They
-              carry a gray outline shield everywhere they appear, and their profile shows a callout
-              saying role and employer are self-reported, so weigh the advice accordingly.
+              the application. Unverified hosts are not removed or quietly delisted. They carry a
+              gray shield everywhere, and their profile says role and employer are self-reported.
             </p>
             <p>
-              The seed data includes deliberately unverified hosts for exactly this reason. One of
-              them writes it into her own bio: <em>"Verification pending, treat my takes
-              accordingly."</em> A trust system you only ever see in the passing state is not legible,
-              and the failing state is what teaches people the badge means something.
+              The seed data includes deliberately unverified hosts for that reason. One writes it into
+              her own bio. <em>"Verification pending, treat my takes accordingly."</em>
             </p>
             <p>
-              The verification screen says the quiet part in its own header: <b>trust is the product</b>,
-              and while a check is pending you appear as unverified anywhere you host.
+              A trust system you only ever see passing is not legible. The failing state is what
+              teaches people the badge means something.
             </p>
           </div>
         </div>
@@ -610,18 +620,17 @@ export default function PrepMag() {
         <h2 className="mg-rv">Simulating a crowd without lying about one</h2>
         <div className="mg-cols mg-rv">
           <p>
-            A prototype of a live platform has an obvious cheat available: hardcode a viewer count,
-            script some chat, ship the screenshot. It would look identical in a portfolio and it would
-            teach me nothing, so the rule became that <b>no number on screen is a constant.</b> Viewer
-            counts move because simulated people arrive and leave, on a real clock, every two to four
-            seconds.
+            A prototype of a live platform has an obvious cheat. Hardcode a viewer count, script some
+            chat, ship the screenshot. It would look identical in a portfolio and teach me nothing.
           </p>
           <p>
-            Twelve named personas carry a style, and the engine honors it. Lurkers mostly stay silent,
-            with an explicit early return that skips their turn about seventy percent of the time.
-            Chatters talk. Askers raise hands, roughly every fourteen to twenty-six seconds, capped at
-            four in the queue, never duplicating an asker, and about a quarter of the time they attach
-            a boost. The room fills, and sometimes a system line notices it filling.
+            So the rule became that <b>no number on screen is a constant.</b> Counts move because
+            simulated people arrive and leave every two to four seconds.
+          </p>
+          <p>
+            Twelve named personas carry a style and the engine honors it. Lurkers stay silent about
+            seventy percent of their turns. Askers raise hands every fourteen to twenty-six seconds,
+            capped at four in the queue, and about a quarter of the time they attach a boost.
           </p>
         </div>
         <figure className="mg-figure mg-rv">
@@ -654,16 +663,18 @@ export default function PrepMag() {
         <div className="mg-decision mg-rv" style={{ marginTop: 26 }}>
           <div className="mg-decision-tag">Decision record · mocking video without faking it</div>
           <p>
-            Real streaming infrastructure was explicitly out of scope, because the portfolio value here
-            is product thinking made visible in an interface rather than WebRTC plumbing. That leaves
-            the question of what a stage should look like when there is no video.
+            Real streaming infrastructure was out of scope, because the value here is product
+            thinking made visible in an interface rather than WebRTC plumbing. That leaves the
+            question of what a stage looks like with no video.
           </p>
           <p>
-            The answer was a hue-keyed gradient portrait that breathes while the person speaks, over a
-            radial glow, with an animated waveform. <b>Human without pretending to be a camera.</b> The
-            same grammar carries into breakouts with two waveforms, and into recordings where muted gray
-            means not live. The stage label even says <em>camera mocked</em>, because the alternative is
-            a screenshot that quietly claims something untrue.
+            The answer was a gradient portrait that breathes while the person speaks, over a radial
+            glow, with an animated waveform. <b>Human without pretending to be a camera.</b>
+          </p>
+          <p>
+            The same grammar carries into breakouts and into recordings, where muted gray means not
+            live. The stage label says <em>camera mocked</em>, because the alternative is a screenshot
+            that quietly claims something untrue.
           </p>
         </div>
       </section>
@@ -673,9 +684,9 @@ export default function PrepMag() {
         <div className="mg-partmark mg-rv"><span>07</span> The design system</div>
         <h2 className="mg-rv">One token set, two worlds, three colors</h2>
         <p className="mg-lede mg-rv">
-          The reskin described below was the largest single change in the project, and it was possible
-          in an afternoon only because color, type and spacing were tokens from the start. Reskinning
-          meant editing the token file, not the thirty screens on top of it.
+          The reskin below was the largest single change in the project. It took an afternoon only
+          because color, type and spacing were tokens from the start. Reskinning meant editing the
+          token file rather than the thirty screens on top of it.
         </p>
         <div className="mg-table mg-table-3 mg-rv">
           <div className="mg-tr mg-th"><span>Role</span><span>Value</span><span>Why it exists</span></div>
@@ -686,15 +697,20 @@ export default function PrepMag() {
         </div>
         <div className="mg-cols mg-rv">
           <p>
-            Dark mode is not an inversion. The page is a true neutral graphite, because a video product
-            with a hue cast fights its own thumbnails, and both semantic colors have to lift on dark or
-            they go muddy. Glass is chrome only, never on content surfaces, for the same reason.
+            Dark mode is not an inversion. The page is true neutral graphite, because a video product
+            with a hue cast fights its own thumbnails. Both semantic colors lift on dark or they go
+            muddy.
           </p>
           <p>
-            Motion runs entirely from named presets, six springs and four durations, with a rule of
-            thumb worth keeping: springs for anything the user caused, durations for ambient things
-            nobody triggered. The stagger helper caps at eight items, because twenty items at fifty
-            milliseconds is a full second of somebody waiting on choreography.
+            Glass is chrome only, never on content surfaces, for the same reason.
+          </p>
+          <p>
+            Motion runs from named presets, six springs and four durations. Springs for anything the
+            user caused, durations for ambient things nobody triggered.
+          </p>
+          <p>
+            The stagger helper caps at eight items, because twenty items at fifty milliseconds is a
+            full second of somebody waiting on choreography.
           </p>
         </div>
         <div className="mg-shots mg-rv">
@@ -714,21 +730,22 @@ export default function PrepMag() {
         <div className="mg-duo mg-rv">
           <div className="mg-duo-text">
             <p>
-              Partway through I asked for a recommendations page. The product principles ban
-              algorithmic feeds outright, so the request and the spec were in direct conflict, and
-              somebody had to lose.
+              Partway through I asked for a recommendations page. The principles ban algorithmic
+              feeds outright, so the request and the spec were in direct conflict.
             </p>
             <p>
-              Neither did. What shipped is goal-driven rather than behavioral: you <b>state</b> your
-              career goals, and the page renders finite, labeled shelves matched against them, each
-              headed with the reason it is there. Nothing is inferred from what you watched. Nothing
-              scrolls forever. The page even says so.
+              What shipped is goal-driven rather than behavioral. You <b>state</b> your career goals,
+              and the page renders finite labeled shelves matched against them. Nothing is inferred
+              from what you watched, and nothing scrolls forever.
             </p>
             <p>
-              This is the decision I would defend hardest, because the resolution is better than
-              either input. A feed would have been faster to build and would have made the product
-              indistinguishable from everything it criticizes. Writing the constraint down early is
-              what made the conflict visible instead of letting it get absorbed.
+              I would defend this one hardest, because the resolution beats either input. A feed
+              would have been faster and would have made the product indistinguishable from what it
+              criticizes.
+            </p>
+            <p>
+              Writing the constraint down early is what made the conflict visible instead of letting
+              it get absorbed.
             </p>
           </div>
           <figure>
@@ -744,19 +761,20 @@ export default function PrepMag() {
           <div className="mg-riskcard">
             <h3>The dollar that is not revenue</h3>
             <p>
-              Free events charge a one dollar commitment, refunded on attendance. It is explicitly not
-              a revenue line. It is a bot filter and an attendance stake, so that the forty people in
-              the room actually meant to be there. Pricing something at a dollar to make it
-              <em> mean</em> something is the cheapest retention mechanic in the product.
+              Free events charge a one dollar commitment, refunded on attendance. Not a revenue line.
+              A bot filter and an attendance stake, so the forty people in the room meant to be there.
+            </p>
+            <p>
+              Charging a dollar to make something <em>mean</em> something is the cheapest retention
+              mechanic in the product.
             </p>
           </div>
           <div className="mg-riskcard">
             <h3>The recordings decision that got reversed halfway</h3>
             <p>
-              New recordings default to the premium library, which contradicts an earlier decision to
-              keep the archive free. The earlier decision was superseded rather than quietly dropped,
-              and the boundary held: <b>watching live stays free for everyone.</b> Lurking was never
-              on the table.
+              New recordings default to the premium library, contradicting an earlier decision to
+              keep the archive free. That decision was superseded rather than quietly dropped, and
+              the boundary held. <b>Watching live stays free for everyone.</b>
             </p>
           </div>
         </div>
@@ -781,21 +799,21 @@ export default function PrepMag() {
           <div className="mg-duo-text">
             <p>
               Late in the build the product grew a second world. A course today is a learning
-              management system, a video call, a calendar and a lecture recorder, and none of them
-              know about each other. Here a course is <b>one channel</b>, and office hours are a live
-              room on it.
+              management system, a video call, a calendar and a lecture recorder, none of which know
+              about each other. Here a course is <b>one channel</b>.
             </p>
             <p>
-              The reason it fit at all is that the consent gate needed no changes whatsoever. Raise
-              your hand and get called on is what office hours already are. The mechanic was designed
-              for a stranger asking a Goldman analyst about superdays, and it transferred without
-              modification to a student asking about a problem set.
+              It fit because the consent gate needed no changes at all. Raise your hand and get called
+              on is what office hours already are.
+            </p>
+            <p>
+              The mechanic was designed for a stranger asking a Goldman analyst about superdays. It
+              transferred without modification to a student asking about a problem set.
             </p>
             <p>
               The hard part was isolation. Campus is a separate data island with its own search index,
-              specifically so course content cannot leak into careers discovery, and a bug during
-              integration proved why: arriving at a course link from a careers session rendered the
-              course inside careers navigation.
+              so course content cannot leak into careers discovery. A bug during integration proved
+              why, rendering a course inside careers navigation.
             </p>
           </div>
         </div>
@@ -813,9 +831,8 @@ export default function PrepMag() {
         <div className="mg-partmark mg-rv"><span>10</span> What broke</div>
         <h2 className="mg-rv">The critique log, including the one that cost a rebuild</h2>
         <p className="mg-lede mg-rv">
-          Everything below came from looking at the running product and writing down what was wrong,
-          rather than from a bug tracker. The first entry is the most expensive note I have ever
-          written to myself.
+          Everything below came from looking at the running product and writing down what was wrong.
+          The first entry is the most expensive note I have ever written to myself.
         </p>
         <div className="mg-ledger">
           {LEDGER.map((c, i) => (
@@ -836,15 +853,12 @@ export default function PrepMag() {
             <h3>The cold start, left visible on purpose</h3>
             <p>
               One section is stocked and seven are thin. That was a decision, not an unfinished task.
-              A marketplace demo where all eight categories are equally busy is a marketplace demo
-              that has never met a cold start, and the empty states are where the product's manners
-              actually show.
+              A demo where all eight categories are equally busy has never met a cold start.
             </p>
             <p>
-              The launch shape follows from the same reasoning. Ambient, always-on liveness is what
-              killed Clubhouse, so this launches <b>scheduled events first</b>, with a calendar as a
-              co-equal surface, and uses the campus wedge to concentrate both sides of the market in
-              one place at one time.
+              The launch shape follows the same reasoning. Ambient always-on liveness is what killed
+              Clubhouse, so this launches <b>scheduled events first</b> and uses the campus wedge to
+              concentrate both sides of the market in one place at one time.
             </p>
           </div>
         </div>
@@ -896,15 +910,15 @@ export default function PrepMag() {
         <div className="mg-takeaways mg-rv">
           <div className="mg-take">
             <b>Write the decision down, with the date</b>
-            <p>Eighteen entries meant every later argument started from what was already settled. The two reversals are legible as reversals rather than drift.</p>
+            <p>Eighteen entries meant every later argument started from what was settled. The two reversals read as reversals rather than drift.</p>
           </div>
           <div className="mg-take">
             <b>Amend a principle, do not quietly break it</b>
-            <p>Boosts needed the money rule to bend. Naming the amendment kept the rest of the rule enforceable instead of turning it into a suggestion.</p>
+            <p>Boosts needed the money rule to bend. Naming the amendment kept the rest enforceable instead of turning it into a suggestion.</p>
           </div>
           <div className="mg-take">
             <b>Tokens are what make a rebrand survivable</b>
-            <p>The reskin that fixed a generic-looking product touched a token file rather than thirty screens, twice.</p>
+            <p>The reskin that fixed a generic-looking product touched a token file rather than thirty screens. Twice.</p>
           </div>
           <div className="mg-take">
             <b>Fake the medium, never the market</b>
@@ -936,12 +950,11 @@ export default function PrepMag() {
         <summary>Sources &amp; notes</summary>
         <p className="mg-sources-p">
           Market sizing and comparables are as cited in the project's requirements document and
-          decision log: career coaching market size and growth (Market Research Intellect), online
+          decision log. Career coaching market size and growth (Market Research Intellect), online
           coaching platforms (Global Growth Insights), mentor supply (ADPList), pricing at the top of
           the market (Intro.co), and concurrent-viewer scale for unstructured live talk (Twitch). All
-          hosts, courses, viewers and chat in the prototype are fictional seed data, and the crowd is
-          simulated rather than recorded. Company names appear for identification and commentary, and
-          all marks belong to their owners.
+          hosts, courses, viewers and chat in the prototype are fictional seed data. Company names
+          appear for identification and commentary, and all marks belong to their owners.
         </p>
       </details>
 

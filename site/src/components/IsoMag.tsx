@@ -1,7 +1,7 @@
 // The ISO case study, magazine edition. Content lives inline because the page
 // IS the deliverable: its structure follows this product's argument, not a
 // generic template. Shared furniture comes from styles/mag.css.
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
 import '../styles/mag.css'
@@ -176,72 +176,37 @@ function AuditMap() {
 
 const INCUMBENTS = [
   {
-    img: queue,
     name: 'The swipe deck',
-    stat: 'Tinder, ~9M payers, down 7% YoY',
-    line: 'Volume is the product. Liquidity and brand are real, and so is the fatigue: it is the app people name when they say they are tired.',
+    stat: 'Tinder · ~9M payers, down 7%',
+    line: 'Volume is the product. The liquidity and the brand are real, and so is the fatigue.',
   },
   {
-    img: oneChat,
     name: 'The intentional inbox',
-    stat: 'Hinge, revenue up 25%',
-    line: 'Better prompts, better brand, same shape underneath. You still end up holding a roster of half-finished chats, and ghosting still works.',
+    stat: 'Hinge · revenue up 25%',
+    line: 'Better prompts, better brand, same shape underneath. You still hold a roster, and ghosting still works.',
   },
   {
-    img: roomTimer,
     name: 'The match timer',
-    stat: 'Bumble, 24 hours to reply',
+    stat: 'Bumble · 24 hours to reply',
     line: 'A clock on the match adds pressure without adding presence. The backlog stays, it just expires.',
   },
   {
-    img: trend,
     name: 'The reflection loop',
-    stat: 'Beli, ranking restaurants',
-    line: 'Borrowed on purpose, with one line drawn hard. Beli ranks places. ISO tracks how conversations felt and never scores a person.',
+    stat: 'Beli · ranks restaurants',
+    line: 'Borrowed on purpose, with one line drawn hard. Beli ranks places. ISO tracks how a conversation felt.',
   },
 ]
 
-function IncumbentCarousel() {
-  const [i, setI] = useState(0)
-  const n = INCUMBENTS.length
-  const go = (d: number) => setI((v) => (v + d + n) % n)
+function Incumbents() {
   return (
-    <div className="mg-carousel mg-rv">
-      <div className="mg-caro-stage">
-        {INCUMBENTS.map((r, j) => {
-          let off = j - i
-          if (off > n / 2) off -= n
-          if (off < -n / 2) off += n
-          const cls = off === 0 ? 'is-focus' : Math.abs(off) === 1 ? 'is-side' : 'is-hidden'
-          return (
-            <div
-              className={'mg-caro-card ' + cls}
-              key={r.name}
-              style={{ transform: `translateX(${off * 72}%) scale(${off === 0 ? 1 : 0.82})` }}
-              onClick={() => off !== 0 && setI(j)}
-            >
-              <img src={r.img} alt={r.name} loading="lazy" />
-              <div className="mg-caro-body">
-                <div className="mg-caro-name">{r.name}</div>
-                <div className="mg-caro-stat">{r.stat}</div>
-                <p>{r.line}</p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      <div className="mg-caro-nav">
-        <button onClick={() => go(-1)} aria-label="Previous">←</button>
-        <div className="mg-caro-dots">
-          {INCUMBENTS.map((x, j) => (
-            <button key={x.name} className={j === i ? 'on' : ''} onClick={() => setI(j)} aria-label={x.name} />
-          ))}
+    <div className="mg-verdicts mg-rv">
+      {INCUMBENTS.map((r) => (
+        <div className="mg-verdict" key={r.name}>
+          <b>{r.name}</b>
+          <p>{r.line}</p>
+          <span className="mv-no">{r.stat}</span>
         </div>
-        <button onClick={() => go(1)} aria-label="Next">→</button>
-      </div>
-      <p className="mg-lede" style={{ textAlign: 'center', marginTop: 14, fontSize: 13, color: '#8F8B83' }}>
-        Screens are ISO's own, standing in for each shape. Click a card to bring it forward.
-      </p>
+      ))}
     </div>
   )
 }
@@ -251,23 +216,23 @@ interface Fix { quote: string; fix: string; lesson: string }
 const LEDGER: Fix[] = [
   {
     quote: 'Two people finally choose each other, and the partner goes silent forever',
-    fix: 'The reply scheduler guarded on phase !== "live", which muted the partner the instant a conversation became mutual. The guard now excludes only the deciding takeover.',
-    lesson: 'The reward for the product’s best moment was its worst bug. Any state machine with a celebratory new phase needs the old behavior explicitly re-permitted, not assumed.',
+    fix: 'The reply scheduler guarded on phase !== "live", so the partner went mute the instant a conversation became mutual. The guard now excludes only the deciding takeover.',
+    lesson: 'The reward for the product’s best moment was its worst bug. A state machine that gains a celebratory new phase has to re-permit the old behavior explicitly.',
   },
   {
     quote: 'Onboarding wedges on step three and never advances',
-    fix: 'AnimatePresence mode="wait" gated the next step on an exit animation completing, which stalls in a throttled or background tab. Replaced with a keyed entrance-only transition.',
-    lesson: 'Animation should never be load-bearing for navigation. If a frame never arrives, the user should still get where they were going.',
+    fix: 'The step transition waited on an exit animation to finish, which stalls in a throttled or background tab. Replaced with an entrance-only transition.',
+    lesson: 'Animation should never be load-bearing for navigation. If a frame never arrives, the user still has to get where they were going.',
   },
   {
     quote: 'The brand green is two different greens',
-    fix: 'Green was corrected mid-build from #20C55E to #00FF77, and the token moved. Three rgba literals of the old value survive in the pulse keyframes, the orbiting presence dot, and the "said yes" card border.',
-    lesson: 'A token rename only finds declarations. Colors written inline as rgba are invisible to it, so a find-and-replace pass has to run on the literal too.',
+    fix: 'Green moved from #20C55E to #00FF77 mid-build. Three rgba literals of the old value still survive, in the pulse keyframes, the orbiting presence dot, and the "said yes" card border.',
+    lesson: 'A token rename only finds declarations. Colors written inline as rgba are invisible to it.',
   },
   {
     quote: 'The design document argues against emoji while using them',
     fix: 'Still open. The annotated design doc predates the emoji purge and the nine-photo grid, so it renders face-scale emoji and still says three photo slots.',
-    lesson: 'A generated artifact that describes the product becomes wrong the moment the product moves. Either regenerate it in the same commit or date it clearly.',
+    lesson: 'An artifact that describes the product goes wrong the moment the product moves. Regenerate it in the same commit or date it clearly.',
   },
   {
     quote: 'The logomark is clipped flat at the bottom of the letters',
@@ -276,8 +241,8 @@ const LEDGER: Fix[] = [
   },
   {
     quote: 'Sixty frames per second, but only on a laptop',
-    fix: 'The wave and match reveal animate transform and opacity only, with willChange set, and hold 60fps through CPU-throttled runs. A physical mid-range phone was never available in this environment.',
-    lesson: 'Write the caveat down rather than rounding it up to "verified". A throttled desktop is evidence, not proof.',
+    fix: 'The wave and match reveal animate transform and opacity only, and hold 60fps through CPU-throttled runs. A physical mid-range phone was never available here.',
+    lesson: 'Write the caveat down rather than rounding it up to verified. A throttled desktop is evidence, not proof.',
   },
 ]
 
@@ -308,10 +273,9 @@ export default function IsoMag() {
           A dating app<br />built on a <em>refusal</em>
         </h1>
         <p className="mg-dek mg-rv">
-          ISO matches you with one present person, live, and gives you no way to hold a second conversation.
-          No inbox, no roster, no feed. This is the whole argument: the research that found the gap, the
-          people it is for, the mechanics that enforce it, the things it deliberately will not do, and the
-          bugs that taught me the most.
+          ISO matches you with one person, live. You cannot hold a second conversation, because there is
+          no inbox and no roster to hold it in. Here is the research, the users, the mechanics, and what
+          broke along the way.
         </p>
         <div className="mg-meta mg-rv">
           <span><b>Role</b> product, design, engineering, solo</span>
@@ -346,10 +310,10 @@ export default function IsoMag() {
           </figure>
         </div>
         <div className="mg-shots mg-rv" style={{ marginTop: 34 }}>
-          <figure><img src={splash} alt="The ISO splash screen" loading="lazy" /><figcaption>The boot, staged over five seconds. Buttons stay inert until they have visibly arrived.</figcaption></figure>
-          <figure><img src={queue} alt="The queue home screen" loading="lazy" /><figcaption>Home is one button. The count of people nearby is live, and it is the only number on screen.</figcaption></figure>
+          <figure><img src={splash} alt="The ISO splash screen" loading="lazy" /><figcaption>The boot runs over five seconds. Buttons stay inert until they have visibly arrived.</figcaption></figure>
+          <figure><img src={queue} alt="The queue home screen" loading="lazy" /><figcaption>Home is one button. The nearby count is live, and it is the only number on screen.</figcaption></figure>
           <figure><img src={match} alt="A match found" loading="lazy" /><figcaption>The face lands first, the name half a second later, then a shared ice-breaker.</figcaption></figure>
-          <figure><img src={keepMutual} alt="A mutual keep-talking result" loading="lazy" /><figcaption>Both envelopes open at once. This is the only moment the app turns green.</figcaption></figure>
+          <figure><img src={keepMutual} alt="A mutual keep-talking result" loading="lazy" /><figcaption>Both envelopes open at once. The only moment the app turns green.</figcaption></figure>
         </div>
       </section>
 
@@ -359,17 +323,19 @@ export default function IsoMag() {
         <h2 className="mg-rv">Why people are quitting the apps they are still on</h2>
         <div className="mg-cols mg-rv">
           <p>
-            The complaint is not that dating apps fail to produce matches. They produce plenty. The
-            complaint is what a pile of matches turns into: five open conversations, none of them
-            exciting, all of them owed a reply. My primary persona says it better than I can, and she
-            is a composite of exactly this feedback: <em>"I have five chats going and I'm not excited
-            about any of them. It's a part-time job I didn't sign up for."</em>
+            Dating apps produce plenty of matches. The problem is what a pile of matches becomes.
+            Five open conversations, none exciting, all owed a reply.
           </p>
           <p>
-            The root cause is a business model, not a design mistake. Revenue scales with engagement
-            and optionality, so more matches and more time in-app are the things worth building. The
-            talking stage is not a cultural accident. It is what the mechanics reward. Anything that
-            makes people feel disposable also makes the quarter look good.
+            One line from the research kept coming back. <em>"I have five chats going and I'm not
+            excited about any of them. It's a part-time job I didn't sign up for."</em>
+          </p>
+          <p>
+            The cause is a business model, not a design mistake. Revenue scales with engagement and
+            optionality, so more matches and more time in-app are what get built.
+          </p>
+          <p>
+            The talking stage is not a cultural accident. It is what the mechanics reward.
           </p>
         </div>
 
@@ -382,17 +348,17 @@ export default function IsoMag() {
           <div><span className="v">18–26</span><span className="l">the beachhead: campus density is what makes live matching work</span></div>
         </div>
 
-        <p className="mg-lede mg-rv">Four shapes already own this space. Each solves one thing and inherits the same backlog:</p>
-        <IncumbentCarousel />
+        <p className="mg-lede mg-rv">Four shapes already own this space. Each solves one thing and inherits the same backlog.</p>
+        <Incumbents />
 
         <div className="mg-statement mg-band mg-band-dark mg-rv">
           <p>Nobody enforces one conversation at a time.</p>
           <p className="mg-statement-sub">
-            Every incumbent lets you hold a roster, because a roster is the thing that keeps you
-            opening the app. The quadrant that is both live and exclusive sits empty, and it stays
-            empty because filling it means giving up the revenue mechanic underneath.
+            Every incumbent lets you hold a roster, because the roster is what keeps you opening the
+            app. The live and exclusive quadrant stays empty because filling it costs them the
+            revenue mechanic underneath.
           </p>
-          <p className="mg-statement-big">That is not a gap in the market. It is a <em>refusal</em> the market cannot afford.</p>
+          <p className="mg-statement-big">Not a gap in the market. A <em>refusal</em> the market cannot afford.</p>
         </div>
 
         <figure className="mg-figure mg-rv">
@@ -409,9 +375,9 @@ export default function IsoMag() {
         <div className="mg-partmark mg-rv"><span>02</span> The people</div>
         <h2 className="mg-rv">Three kinds of user, and what each is actually asking for</h2>
         <p className="mg-lede mg-rv">
-          These segments come out of the research above and they are load-bearing in the code, not just
-          the deck. Every simulated person in the prototype carries a <b>segment</b> field, and their
-          scripted voice is written to match it, so testing the loop means testing it against all three.
+          Three segments, and they are load-bearing in the code rather than the deck. Every simulated
+          person in the prototype carries a segment field and a voice written to match it, so testing
+          the loop tests it against all three.
         </p>
 
         <div className="mg-personas mg-rv">
@@ -469,31 +435,37 @@ export default function IsoMag() {
           <div className="mg-serve">
             <span>burned out</span>
             <p>
-              The roster is removed at the level of the data model, so there is nothing to manage even
-              if she wants to. One conversation exists or none does. When one ends it writes a history
-              record and returns her to the queue, so <b>nothing rots and nothing is owed</b>. The
-              burnout nudge exists for her specifically: after three rough conversations the app
-              suggests she stop for the night, and makes that the primary button.
+              The roster is gone at the data-model level, so there is nothing to manage. One
+              conversation exists or none does. When one ends it returns her to the queue, so
+              <b>nothing rots and nothing is owed</b>.
+            </p>
+            <p>
+              The burnout nudge is hers specifically. After three rough conversations the app suggests
+              she stop for the night, and makes stopping the primary button.
             </p>
           </div>
           <div className="mg-serve">
             <span>intentional</span>
             <p>
-              Presence is the precondition rather than a feature. Matching is live, so the person on
-              the other side is there right now, and the reply timer makes turn-taking visible without
-              threatening anyone. Continuation is <b>mutual only</b>, which means no conversation
-              continues out of politeness. The paid tier is printed with its own limit: it never buys
-              matches, visibility, or queue position.
+              Presence is the precondition, not a feature. Matching is live, so the other person is
+              there right now.
+            </p>
+            <p>
+              Continuation is <b>mutual only</b>, so nothing continues out of politeness. The paid
+              tier prints its own limit and never buys matches, visibility, or queue position.
             </p>
           </div>
           <div className="mg-serve">
             <span>safety first</span>
             <p>
-              Verification happens before a first match, not after a report. The product line is
-              stated plainly in-app: <em>"Only verified students can ever match with you, that's not a
-              setting, it's the product."</em> Blocking is absolute and retroactive, clearing held
-              flags and filtering that person out of history. And because there is no inbox and no
-              profile browsing, <b>there is no surface on which someone can collect her</b>.
+              Verification happens before a first match, not after a report. The app says it plainly.
+              <em>"Only verified students can ever match with you, that's not a setting, it's the
+              product."</em>
+            </p>
+            <p>
+              Blocking is absolute and retroactive. It clears held flags and filters that person out
+              of history. With no inbox and no browsing, <b>there is no surface on which someone can
+              collect her</b>.
             </p>
           </div>
         </div>
@@ -510,9 +482,9 @@ export default function IsoMag() {
         <div className="mg-partmark mg-rv"><span>03</span> The bet</div>
         <h2 className="mg-rv">Defining the product by what it will not do</h2>
         <p className="mg-lede mg-rv">
-          Most product specs list features. This one is easier to defend as a list of refusals, because
-          every refusal maps to a symptom in the research. Three of them are marked permanent, which in
-          practice means a request to add them gets flagged rather than built.
+          Most specs list features. This one is easier to defend as a list of refusals, because each
+          refusal answers a symptom in the research. Three are marked permanent, so a request to add
+          them gets flagged rather than built.
         </p>
 
         <div className="mg-pillars mg-rv">
@@ -564,37 +536,39 @@ export default function IsoMag() {
         <div className="mg-partmark mg-rv"><span>04</span> The loop</div>
         <h2 className="mg-rv">How one conversation actually runs</h2>
         <div className="mg-shots mg-shots-3 mg-rv">
-          <figure><img src={searching} alt="Searching for a match" loading="lazy" /><figcaption>Waiting shows liquidity instead of hiding it. The count is live and the phrases rotate at reading pace.</figcaption></figure>
-          <figure><img src={roomTimer} alt="The reply timer running" loading="lazy" /><figcaption>Forty seconds a turn, under the header rather than above the composer, where it would read as a countdown bomb.</figcaption></figure>
-          <figure><img src={keepAsk} alt="The keep talking decision" loading="lazy" /><figcaption>Sealed envelopes. Your answer is computed and withheld for two to four seconds, so it lands as a held breath.</figcaption></figure>
-          <figure><img src={keepDeclined} alt="A non-mutual reveal" loading="lazy" /><figcaption>The other ending, and the one that had to be gotten right. Both cards flip together, so nobody watches the other person decide.</figcaption></figure>
-          <figure><img src={closedView} alt="The polite close" loading="lazy" /><figcaption>Straight into a soft landing, with an optional reflection and a way back to the queue.</figcaption></figure>
-          <figure><img src={oneChat} alt="The one ongoing chat" loading="lazy" /><figcaption>The reward is singular and labelled as such. There is no second row under it.</figcaption></figure>
+          <figure><img src={searching} alt="Searching for a match" loading="lazy" /><figcaption>Waiting shows liquidity instead of hiding it. Phrases rotate at reading pace, not ticker pace.</figcaption></figure>
+          <figure><img src={roomTimer} alt="The reply timer running" loading="lazy" /><figcaption>Forty seconds a turn, under the header rather than above the composer, where it would read as a countdown.</figcaption></figure>
+          <figure><img src={keepAsk} alt="The keep talking decision" loading="lazy" /><figcaption>Sealed envelopes. The partner's answer is computed immediately and withheld for two to four seconds.</figcaption></figure>
+          <figure><img src={keepDeclined} alt="A non-mutual reveal" loading="lazy" /><figcaption>The ending that had to be right. Both cards flip together, so nobody watches the other person decide.</figcaption></figure>
+          <figure><img src={closedView} alt="The polite close" loading="lazy" /><figcaption>A soft landing, with an optional reflection and a route back to the queue.</figcaption></figure>
+          <figure><img src={oneChat} alt="The one ongoing chat" loading="lazy" /><figcaption>The reward is singular and labelled as such. No second row under it.</figcaption></figure>
         </div>
 
         <div className="mg-cols mg-rv" style={{ marginTop: 30 }}>
           <p>
-            The timer is the piece I rewrote most, because a clock in a conversation is inherently
-            threatening and the whole product depends on it not being. It runs only when it is
-            genuinely your turn. It softens as it drains instead of reddening. At zero it says
-            <em> "no rush, whenever you're ready"</em> and nothing happens. Beside it, permanently,
-            two words that are the product thesis in miniature: <b>presence, not pressure</b>.
+            The timer took the most rewriting. A clock in a conversation is threatening by default,
+            and the product depends on it not being.
           </p>
           <p>
-            Let it lapse and you get a system line asking if you are still there. Let it lapse twice
-            in a row and the app reads the room, says <em>"seems like a natural pause"</em>, and opens
-            the keep-talking decision early. That is the whole penalty. A dating app that punishes a
-            slow reply is just the anxiety it claims to be fixing, wearing a timer.
+            It runs only when it is your turn. It softens as it drains rather than reddening. At zero
+            it says <em>"no rush, whenever you're ready"</em> and nothing happens.
+          </p>
+          <p>
+            Let it lapse twice and the app says <em>"seems like a natural pause"</em> and opens the
+            keep-talking decision early. That is the entire penalty.
+          </p>
+          <p>
+            Two words sit beside it permanently. <b>Presence, not pressure.</b>
           </p>
         </div>
 
         <details className="mg-details mg-rv">
           <summary>The three ways keep-talking fires, and why there are three</summary>
           <ul>
-            <li><b>Turns.</b> At twelve human messages, after a beat. The headline reads "That was a good one." This is the common path and it catches conversations that are going well.</li>
-            <li><b>Decide.</b> Either person taps a quiet underlined link, available once there are at least four messages. Headline: "Ready to decide." This exists so nobody is trapped waiting for a counter.</li>
-            <li><b>Pause.</b> Two consecutive timer lapses. Headline: "Seems like a natural pause." This converts a conversation dying of silence into a clean ending rather than a ghost.</li>
-            <li>All three land in the same sealed simultaneous reveal, and all three write the same history record, so the analytics never have to guess how a conversation ended.</li>
+            <li><b>Turns.</b> Twelve human messages, then a beat. The common path, and it catches conversations that are going well.</li>
+            <li><b>Decide.</b> Either person taps a quiet link, available after four messages. Nobody is trapped waiting for a counter to fill.</li>
+            <li><b>Pause.</b> Two consecutive timer lapses. This turns a conversation dying of silence into a clean ending rather than a ghost.</li>
+            <li>All three land in the same sealed reveal and write the same history record, so analytics never guess how a conversation ended.</li>
           </ul>
         </details>
       </section>
@@ -606,27 +580,27 @@ export default function IsoMag() {
         <div className="mg-duo mg-duo-narrow mg-rv">
           <figure className="mg-phone">
             <img src={noMatch} alt="The no match screen" loading="lazy" />
-            <figcaption>Thin liquidity, narrated as integrity rather than hidden behind a spinner.</figcaption>
+            <figcaption>Thin liquidity, stated rather than hidden behind a spinner.</figcaption>
           </figure>
           <div className="mg-duo-text">
             <p>
-              A product principle that lives in the interface is a suggestion. The one-conversation
-              rule is enforced in the state store, where the UI cannot route around it. Entering the
-              queue is a no-op whenever a chat exists, and it returns an explanatory message instead
-              of failing silently. The single comment in that file is the design thesis of the whole
-              project: <b>disabled buttons are decoration, the invariant lives in the action</b>.
+              A principle that lives in the interface is a suggestion. This one is enforced in the
+              state store, where the UI cannot route around it.
             </p>
             <p>
-              There is a second guard inside the matchmaker's own callback, commented
-              <em> "belt-and-braces: never match while chatting"</em>, defending a rule that was
-              already enforced at the entry point. Saying hi and accepting a revival check it
-              independently too. I tried to break it three ways while validating and could not.
+              Entering the queue is a no-op whenever a chat exists. One comment in that file is the
+              thesis of the whole project. <b>Disabled buttons are decoration, the invariant lives in
+              the action.</b>
             </p>
             <p>
-              The consequence in the UI is the part I like most. The queue button <b>stays tappable</b>
-              during an active conversation. It does not gray out. It answers with a sentence and
-              points you back to the person you are already talking to. The product explains itself
-              rather than going dim.
+              A second guard sits inside the matchmaker's own callback, defending a rule already
+              enforced at the entry point. Saying hi and accepting a revival check it independently.
+              I tried three ways to break it during validation and could not.
+            </p>
+            <p>
+              The UI consequence is my favourite part. The queue button <b>stays tappable</b> during a
+              conversation. It answers with a sentence and points you back to the person you are
+              already talking to.
             </p>
           </div>
         </div>
@@ -634,12 +608,12 @@ export default function IsoMag() {
         <details className="mg-details mg-rv">
           <summary>Engineering notes: how the store holds the line</summary>
           <ul>
-            <li>The active conversation is a <b>nullable singleton</b>, typed and commented as such. There is no collection of chats to accidentally grow.</li>
-            <li><code>enterQueue()</code> returns early while a chat exists. The queue timeout callback re-checks before matching.</li>
-            <li>Revival can only surface when you are free. Forcing it mid-chat refuses with a message rather than queueing it up.</li>
-            <li>Blocking is retroactive: it clears the held flag, filters that person out of history, ends the conversation, and clears any pending match.</li>
-            <li>Nothing in the matchmaker reads the subscription flag. That is the mechanical form of the no-pay-to-win promise, and it is greppable.</li>
-            <li>Matchmaking is mocked with a 2 to 6 second delay and a persona draw that avoids immediately redrawing the last person.</li>
+            <li>The active conversation is a <b>nullable singleton</b>. There is no collection of chats that could accidentally grow.</li>
+            <li><code>enterQueue()</code> returns early while a chat exists, and the queue timeout callback re-checks before matching.</li>
+            <li>Revival surfaces only when you are free. Forcing it mid-chat refuses with a message.</li>
+            <li>Blocking is retroactive. It clears the held flag, filters that person from history, ends the conversation, and drops any pending match.</li>
+            <li>Nothing in the matchmaker reads the subscription flag. That is the no-pay-to-win promise in mechanical form, and it is greppable.</li>
+            <li>Matchmaking is mocked with a 2 to 6 second delay and avoids redrawing the last person.</li>
           </ul>
         </details>
       </section>
@@ -647,9 +621,9 @@ export default function IsoMag() {
       {/* ---------------- 06 the refusals in the UI ---------------- */}
       <section className="mg-part mg-band" style={{ background: '#F2F6F3' }}>
         <div className="mg-partmark mg-rv"><span>06</span> The refusals, on screen</div>
-        <h2 className="mg-rv">Four screens that argue against their own engagement</h2>
+        <h2 className="mg-rv">Screens that argue against their own engagement</h2>
         <p className="mg-lede mg-rv">
-          Anyone can write principles into a document. These are the four places the product pays for
+          Anyone can write principles into a document. These are the places the product pays for
           them, in sessions it chose not to have.
         </p>
         <div className="mg-shots mg-shots-3 mg-rv">
@@ -663,18 +637,23 @@ export default function IsoMag() {
             <h3>The burnout nudge is the clearest one</h3>
             <p>
               After three low-satisfaction conversations the app offers to end your night, and
-              <b> pausing is the primary button</b>. The copy refuses to blame the user: "that's on the
-              night, not on you." An engagement-optimized product cannot ship this screen, which is
-              exactly why it is the best evidence that this one is not.
+              <b>pausing is the primary button</b>. The copy refuses to blame the user. "That's on the
+              night, not on you."
+            </p>
+            <p>
+              An engagement-optimized product cannot ship this screen. That is why it is the best
+              evidence that this one is not.
             </p>
           </div>
           <div className="mg-riskcard">
             <h3>The no-match screen turns a weakness into the pitch</h3>
             <p>
-              Live matching depends on density, so a quiet campus is a real structural flaw. Instead of
-              a spinner, the screen says nobody compatible is free this exact minute, <em>and that's the
-              point</em>, because when you do match they are really there. The honest version of the
-              weakness is more convincing than hiding it.
+              Live matching depends on density, so a quiet campus is a real structural flaw. Instead
+              of a spinner, the screen says nobody compatible is free this minute, <em>and that's the
+              point</em>, because when you do match they are really there.
+            </p>
+            <p>
+              The honest version of the weakness turned out to be more convincing than hiding it.
             </p>
           </div>
         </div>
@@ -687,24 +666,25 @@ export default function IsoMag() {
         <div className="mg-duo mg-rv">
           <div className="mg-duo-text">
             <p>
-              The first version asked you to rate every conversation. I cut it, and the reasoning is
-              the most useful thing in the spec: ISO is deliberately low-volume and every conversation
-              is already an emotionally loaded event. Rating each one turns a human moment into
-              homework, and worse, it quietly reframes the product as <em>grade the person you just
-              talked to</em>.
+              The first version asked you to rate every conversation. I cut it.
             </p>
             <p>
-              What shipped is implicit-first, in three tiers. Behavior carries the matching signal, and
-              there is plenty of it already: keep-talking answers, reply latency, whether the
-              conversation reached the outcome question, whether they met. On top of that, an optional
-              one-tap check-in, dismissible with no friction. The real explicit moment is
-              <b> batched weekly</b> into a recap, which makes it one calm ritual instead of a tax on
-              every interaction.
+              ISO is low-volume by design, and every conversation is already emotionally loaded.
+              Rating each one turns a human moment into homework, and it quietly reframes the product
+              as <em>grade the person you just talked to</em>.
             </p>
             <p>
-              The trend chart has a floor built into its geometry. Satisfaction maps into a bounded
-              band, so a slow week reads as resting and the line cannot crash. The comment in that
-              code is a rule I would keep: <b>metric shame is a design bug</b>.
+              What shipped is implicit-first. Behavior carries the matching signal, and there is
+              plenty of it already. Keep-talking answers, reply latency, whether the conversation
+              reached the outcome question, whether they met.
+            </p>
+            <p>
+              The explicit moment is <b>batched weekly</b> into a recap, so it is one calm ritual
+              rather than a tax on every interaction.
+            </p>
+            <p>
+              The trend chart has a floor built into its geometry, so a slow week reads as resting and
+              the line cannot crash. <b>Metric shame is a design bug.</b>
             </p>
           </div>
           <figure className="mg-phone">
@@ -719,28 +699,27 @@ export default function IsoMag() {
         <div className="mg-shots mg-shots-3 mg-rv" style={{ marginTop: 30 }}>
           <figure><img src={closeoutOutcome} alt="The outcome question" loading="lazy" /><figcaption>The only question the North Star is made of. Asked at most once per conversation.</figcaption></figure>
           <figure><img src={closeoutReflection} alt="The reflection step" loading="lazy" /><figcaption>"Private, about the experience, never a score on a person. Skip freely."</figcaption></figure>
-          <figure><img src={maybeAgain} alt="Maybe we'll meet again" loading="lazy" /><figcaption>One slot, with its own expiry shown as live arithmetic.</figcaption></figure>
+          <figure><img src={maybeAgain} alt="Maybe we'll meet again" loading="lazy" /><figcaption>One slot, with its expiry shown as live arithmetic.</figcaption></figure>
         </div>
 
         <div className="mg-decision mg-rv" style={{ marginTop: 30 }}>
           <div className="mg-decision-tag">Decision record · the hardest one to get right</div>
           <p>
-            <b>Revival, or "Maybe We'll Meet Again", is the feature most likely to smuggle the roster
-            back in.</b> Letting people hold someone in reserve is optionality hoarding with better
-            manners. It shipped anyway, under four constraints that each close a specific hole.
+            <b>Revival is the feature most likely to smuggle the roster back in.</b> Holding someone
+            in reserve is optionality hoarding with better manners. It shipped anyway, under four
+            constraints that each close a specific hole.
           </p>
           <p>
-            <b>One slot</b>, because reserving someone new means un-reserving whoever was there, which
-            mirrors the live constraint exactly. <b>Blind</b>, so a one-sided hold is invisible and no
-            second rejection is possible. <b>Decaying</b>, at fourteen days or after three strong later
-            conversations, silently, because holding someone on ice forever is its own unkindness.
-            And <b>only when you are free</b>, absolutely.
+            <b>One slot</b>, so reserving someone new un-reserves whoever was there. <b>Blind</b>, so
+            a one-sided hold is invisible and no second rejection is possible. <b>Decaying</b> at
+            fourteen days, silently, because holding someone on ice forever is its own unkindness.
+            And <b>only when you are free</b>.
           </p>
           <p>
-            Going from one slot to three later is additive and easy. Going from three to one would feel
-            like a confiscation, so it starts restrictive. There is even a guardrail metric watching
-            for the failure mode: if revival attempts per user climb abnormally, the feature is driving
-            the exact behavior the product exists to remove.
+            One slot to three later is additive and easy. Three to one would feel like a
+            confiscation, so it starts restrictive. A guardrail metric watches the failure mode. If
+            revival attempts per user climb abnormally, the feature is driving the behavior the
+            product exists to remove.
           </p>
         </div>
       </section>
@@ -750,9 +729,9 @@ export default function IsoMag() {
         <div className="mg-partmark mg-rv"><span>08</span> Motion</div>
         <h2 className="mg-rv">Five moments loud, everything else quiet</h2>
         <p className="mg-lede mg-rv">
-          Thirty-one screens only feel like one product if they share one set of physics, so every
-          transition pulls from a named preset and ad-hoc easing counts as an audit failure. On top of
-          that sits one deliberately loud effect, spent five times.
+          Thirty-one screens only feel like one product if they share one set of physics. Every
+          transition pulls from a named preset, and ad-hoc easing counts as an audit failure. On top
+          sits one deliberately loud effect, spent five times.
         </p>
         <div className="mg-table mg-rv">
           <div className="mg-tr mg-th"><span>Moment</span><span>Color</span><span>Tempo</span><span>What it means</span></div>
@@ -764,22 +743,23 @@ export default function IsoMag() {
         </div>
         <div className="mg-cols mg-rv">
           <p>
-            The effect is a disc of brand color blooming from the exact point you touched, sized to
-            reach the farthest corner. The destination screen mounts underneath while the color is at
-            full cover, then it clears to reveal it. That makes it a <b>handoff rather than a curtain</b>,
-            and it is interruptible: a new bloom replaces the current one, and if the host is not
-            mounted the action still fires.
+            A disc of brand color blooms from the point you touched, sized to reach the farthest
+            corner. The destination mounts underneath at full cover, then the color clears to reveal
+            it. That makes it a <b>handoff rather than a curtain</b>.
           </p>
           <p>
-            The reason to use color rather than a page transition is a sentence I kept coming back to
-            while building. A route change says "different page". A flood of color from your fingertip
-            says <em>you did something that matters</em>. Those five moments are the five sentences of
-            the product thesis: commit, meet, choose each other, meet for real, end well.
+            It is interruptible. A new bloom replaces the current one, and if the host is not mounted
+            the action still fires.
+          </p>
+          <p>
+            A route change says "different page". A flood of color from your fingertip says
+            <em>you did something that matters</em>. Those five moments are the product thesis in
+            order. Commit, meet, choose each other, meet for real, end well.
           </p>
         </div>
         <div className="mg-shots mg-shots-3 mg-rv">
           <figure><img src={editProfile} alt="Edit profile" loading="lazy" /><figcaption>Nine captioned photo slots, rebuilt from three during the build. Prompts are framed as talking points rather than a résumé.</figcaption></figure>
-          <figure><img src={maybeAgain} alt="Maybe we'll meet again" loading="lazy" /><figcaption>Deep routes nest under Profile and arrive with a morph, so the three-tab rule never bends.</figcaption></figure>
+          <figure><img src={maybeAgain} alt="Maybe we'll meet again" loading="lazy" /><figcaption>Deep routes nest under Profile, so the three-tab rule never bends.</figcaption></figure>
           <figure><img src={profile} alt="The profile bento" loading="lazy" /><figcaption>An asymmetric bento of nine destinations, each showing its own state at a glance.</figcaption></figure>
         </div>
       </section>
@@ -790,8 +770,7 @@ export default function IsoMag() {
         <h2 className="mg-rv">Grading every surface against the two risks</h2>
         <p className="mg-lede mg-rv">
           Two questions decide whether a feature belongs here. Does it <b>force intention</b>, and
-          could it <b>rebuild a roster</b>? Plotting the shipped product against both is the most
-          honest review I know how to do, because the interesting entries are the ones near the edge.
+          could it <b>rebuild a roster</b>? The interesting entries are the ones near the edge.
         </p>
         <figure className="mg-figure mg-rv">
           <AuditMap />
@@ -804,27 +783,28 @@ export default function IsoMag() {
           <div className="mg-riskcard">
             <h3>Why Memories stays</h3>
             <p>
-              A list of people you connected with is a roster wearing a scrapbook cover. It survives
-              because it is strictly read-only, and one clause in its own description does the work:
-              <em> "nothing here can be replied to, and no one is waiting."</em> That sentence is the
-              difference between a journal and an inbox.
+              A list of people you connected with is a roster with a scrapbook cover. It survives
+              because it is strictly read-only. One clause in its own description does the work.
+              <em>"Nothing here can be replied to, and no one is waiting."</em>
+            </p>
+            <p>
+              That sentence is the difference between a journal and an inbox.
             </p>
           </div>
           <div className="mg-riskcard">
             <h3>Why the paid tier stays</h3>
             <p>
               Any subscription in a dating app invites the suspicion that money buys reach. It stays
-              because the matchmaker provably never reads the flag, and because the limit is printed on
-              the paywall rather than buried in terms. It would be the first thing cut if that ever
-              stopped being true.
+              because the matchmaker provably never reads the flag, and the limit is printed on the
+              paywall rather than buried in terms.
             </p>
           </div>
         </div>
 
         <h3 className="mg-subhead mg-rv">Prioritizing the build</h3>
         <p className="mg-lede mg-rv">
-          The same surfaces, sorted the way they were actually planned. The bottom-right quadrant is the
-          most useful one on the board, because it is the list of things this product said no to.
+          The same surfaces, sorted the way they were planned. The bottom-right quadrant is the most
+          useful one on the board, because it lists what this product said no to.
         </p>
         <div className="mg-matrix mg-rv">
           <div className="mg-matrix-y"><span>High value</span><span>Low value</span></div>
@@ -870,9 +850,8 @@ export default function IsoMag() {
         <div className="mg-partmark mg-rv"><span>10</span> What broke</div>
         <h2 className="mg-rv">The bugs, and what each one taught</h2>
         <p className="mg-lede mg-rv">
-          Every item below was found by exercising the running app against its own acceptance criteria,
-          which is also how the nine criteria got traced in the first place. The first one is my
-          favourite bug in anything I have built.
+          Every item below came from exercising the running app against its own acceptance criteria.
+          The first is my favourite bug in anything I have built.
         </p>
         <div className="mg-ledger">
           {LEDGER.map((c, i) => (
@@ -892,21 +871,20 @@ export default function IsoMag() {
           <div className="mg-duo-text">
             <h3>What is still open, stated plainly</h3>
             <p>
-              <b>Two-tab live mode was never built.</b> The build spec called it the most convincing
-              possible demonstration of presence: open the app in two tabs and watch a real conversation
-              cross between them over a broadcast channel. It was scoped as a stretch goal and it is the
-              one scoped feature that did not ship. It remains the single highest-value thing left.
+              <b>Two-tab live mode was never built.</b> The spec called it the most convincing
+              possible demonstration of presence. Open the app in two tabs and watch a conversation
+              cross between them. It was a stretch goal and it is the one scoped feature that did not
+              ship.
             </p>
             <p>
-              <b>The chat-open morph is an approximation.</b> A true shared-element transition carries
-              the searching disc into the match reveal and then into the room header. The rest of the
-              screen fades in beneath it, and it holds up, but it is not the full continuous morph the
-              motion brief describes.
+              <b>The chat-open morph is an approximation.</b> A shared element carries the searching
+              disc into the match reveal and then the room header, and the rest fades in beneath it.
+              It holds up, but it is not the full continuous morph the motion brief describes.
             </p>
             <p>
-              <b>The design document has drifted.</b> It predates two shipped changes and now contradicts
-              the product on photo count and on emoji. It is a good artifact that needs regenerating,
-              and it is listed here rather than quietly fixed because the drift is the interesting part.
+              <b>The design document has drifted.</b> It predates two shipped changes and now
+              contradicts the product on photo count and on emoji. It needs regenerating. The drift
+              is the interesting part, so it is listed rather than quietly fixed.
             </p>
           </div>
         </div>
@@ -935,7 +913,7 @@ export default function IsoMag() {
               <li>Both flat means the loop itself is not landing</li>
               <li>North Star up on thin conversation volume means the queue is under-serving a group that is already succeeding</li>
             </ul>
-            <p>A single metric cannot tell those three apart, which is the argument for keeping both.</p>
+            <p>One metric cannot tell those three apart. That is the argument for keeping both.</p>
           </div>
         </div>
 
@@ -969,19 +947,19 @@ export default function IsoMag() {
         <div className="mg-takeaways mg-rv">
           <div className="mg-take">
             <b>Put the principle in the store</b>
-            <p>A rule enforced in the state layer survives every future screen. A rule enforced in the UI survives until someone adds a button.</p>
+            <p>A rule in the state layer survives every future screen. A rule in the UI survives until someone adds a button.</p>
           </div>
           <div className="mg-take">
             <b>Refusals are a positioning strategy</b>
-            <p>The empty quadrant was empty because filling it costs incumbents revenue. That makes a refusal defensible in a way a feature never is.</p>
+            <p>The quadrant was empty because filling it costs incumbents revenue. That makes a refusal defensible in a way a feature is not.</p>
           </div>
           <div className="mg-take">
             <b>Narrate the weakness</b>
-            <p>Thin liquidity is a real flaw. Saying so on the no-match screen converted it into the most persuasive copy in the product.</p>
+            <p>Thin liquidity is a real flaw. Saying so on the no-match screen turned it into the most persuasive copy in the product.</p>
           </div>
           <div className="mg-take">
             <b>Measure the thing you actually want</b>
-            <p>Mutual conversations were easy to move and easy to fake. Dates initiated is harder to report and impossible to game, so it became the number.</p>
+            <p>Mutual conversations were easy to move and easy to fake. Dates initiated is harder to report and impossible to game.</p>
           </div>
         </div>
         <div className="mg-shipchips mg-rv">
@@ -1008,14 +986,12 @@ export default function IsoMag() {
       <details className="mg-details mg-sources mg-rv">
         <summary>Sources &amp; notes</summary>
         <p className="mg-sources-p">
-          Market and behavior figures are as cited in the product requirements document: college
-          non-adoption (Axios), Gen Z burnout (Forbes Health 2025), offline preference (Kinsey /
-          DatingAdvice), safety concern (2025 survey), and payer and revenue movement from public
-          quarterly reporting. Personas are composites written from that research, not interview
-          subjects. All conversation partners in the prototype are fictional, with scripted voices and
-          an optional model-driven mode that runs behind a development proxy so no key reaches the
-          browser. Competitor names appear for identification and commentary, and all marks belong to
-          their owners.
+          Figures are as cited in the product requirements document. College non-adoption (Axios),
+          Gen Z burnout (Forbes Health 2025), offline preference (Kinsey / DatingAdvice), safety
+          concern (2025 survey), and payer and revenue movement from public quarterly reporting.
+          Personas are composites written from that research rather than interview subjects. All
+          conversation partners in the prototype are fictional. Competitor names appear for
+          identification and commentary, and all marks belong to their owners.
         </p>
       </details>
 
