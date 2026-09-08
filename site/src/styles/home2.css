@@ -296,24 +296,70 @@ body.sh-lock { overflow: hidden; }
   background: #FDFDFB; opacity: 0; will-change: transform, opacity;
 }
 
-/* the site deals itself in once the loader lifts */
+/* ---------------------------------------------------------------------------
+   Boot choreography — plays once, after the splash drop lifts the mask.
+   Three motions on one clock: the intro carries in from the left with its
+   velocity decaying, the folder pops with a small overshoot, and the arc
+   (ArcFocus spinIn) decelerates onto its focused card.
+   --------------------------------------------------------------------------- */
 .sh-page:not(.sh-ready) .af-lift,
-.sh-page:not(.sh-ready) .sh-intro,
-.sh-page:not(.sh-ready) .mf-field,
+.sh-page:not(.sh-ready) .sh-intro h1,
+.sh-page:not(.sh-ready) .sh-intro p,
+.sh-page:not(.sh-ready) .mf-folder,
+.sh-page:not(.sh-ready) .sh-nav,
 .sh-page:not(.sh-ready) .sh-links { opacity: 0; }
-@keyframes shDealIn {
-  0% { opacity: 0; transform: translateY(26px) scale(0.96); }
-  70% { opacity: 1; transform: translateY(-3px) scale(1.004); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+
+/* carried in from the left: fast entry, long settle, no bounce */
+@keyframes shCarryIn {
+  0% { opacity: 0; transform: translate3d(-78px, 0, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-.sh-ready .af-lift { animation: shDealIn 640ms cubic-bezier(0.3, 0.9, 0.35, 1) both; animation-delay: var(--di, 0ms); }
-.sh-ready .sh-intro { animation: shDealIn 620ms cubic-bezier(0.3, 0.9, 0.35, 1) both; }
-.sh-ready .mf-field { animation: shDealIn 620ms cubic-bezier(0.3, 0.9, 0.35, 1) both; animation-delay: 120ms; }
-.sh-ready .sh-links { animation: shDealIn 620ms cubic-bezier(0.3, 0.9, 0.35, 1) both; animation-delay: 220ms; }
+/* the Apple pop: rises through its own size and eases back down to 1.
+   Keeps the folder's centering translate in every frame — a bare scale()
+   here would drop it and the button would jump to the container corner. */
+@keyframes shFolderPop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.74); }
+  55% { opacity: 1; transform: translate(-50%, -50%) scale(1.035); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes shRiseIn {
+  0% { opacity: 0; transform: translate3d(0, 16px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* fill-mode is `backwards`, never `both`: a forwards fill would keep the
+   final keyframe transform in force forever, outranking the folder's hover
+   scale and the inline transform ArcFocus writes on the docked card. */
+
+/* easeOutExpo: velocity dumps almost all at once, then it coasts in */
+.sh-ready .sh-intro h1,
+.sh-ready .sh-intro p {
+  animation: shCarryIn 1000ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  will-change: transform, opacity;
+}
+.sh-ready .sh-intro h1 { animation-delay: 340ms; }
+.sh-ready .sh-intro p { animation-delay: 450ms; }
+
+.sh-ready .sh-nav { animation: shRiseIn 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 300ms; }
+
+.sh-ready .mf-folder {
+  animation: shFolderPop 780ms cubic-bezier(0.34, 1.32, 0.5, 1) backwards;
+  animation-delay: 800ms;
+  will-change: transform, opacity;
+}
+
+/* the cards only fade; their travel is the arc's own deceleration */
+.sh-ready .af-lift {
+  animation: shRiseIn 620ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--di, 0ms) + 320ms);
+}
+.sh-ready .sh-links { animation: shRiseIn 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 1040ms; }
 
 @media (prefers-reduced-motion: reduce) {
   .dl-overlay { display: none; }
-  .sh-ready .af-lift, .sh-ready .sh-intro, .sh-ready .mf-field, .sh-ready .sh-links { animation: none; }
-  .sh-page:not(.sh-ready) .af-lift, .sh-page:not(.sh-ready) .sh-intro,
-  .sh-page:not(.sh-ready) .mf-field, .sh-page:not(.sh-ready) .sh-links { opacity: 1; }
+  .sh-ready .af-lift, .sh-ready .sh-intro h1, .sh-ready .sh-intro p,
+  .sh-ready .mf-folder, .sh-ready .sh-nav, .sh-ready .sh-links { animation: none; }
+  .sh-page:not(.sh-ready) .af-lift, .sh-page:not(.sh-ready) .sh-intro h1,
+  .sh-page:not(.sh-ready) .sh-intro p, .sh-page:not(.sh-ready) .mf-folder,
+  .sh-page:not(.sh-ready) .sh-nav, .sh-page:not(.sh-ready) .sh-links { opacity: 1; }
 }

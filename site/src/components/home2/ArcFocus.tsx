@@ -50,7 +50,7 @@ function wrapOffset(i: number, pos: number, n: number) {
   return off
 }
 
-export default function ArcFocus() {
+export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
   const paneRef = useRef<HTMLDivElement>(null)
   const posRef = useRef(0) // continuous card index along the arc
   const [pos, setPos] = useState(0)
@@ -121,6 +121,30 @@ export default function ArcFocus() {
     }
     snapRaf.current = requestAnimationFrame(step)
   }
+
+  // boot: the arc arrives already turning and decelerates onto the focused
+  // card. Position is integrated with a quintic ease-out so the last few
+  // degrees crawl, which is what reads as mass rather than a transition.
+  const spun = useRef(false)
+  useEffect(() => {
+    if (!spinIn || spun.current) return
+    spun.current = true
+    if (reduced) return
+    const FROM = -2.9
+    const MS = 1600
+    const DELAY = 320 // let the splash mask finish opening first
+    const t0 = performance.now() + DELAY
+    setPosBoth(FROM)
+    const step = () => {
+      const t = Math.min(1, Math.max(0, (performance.now() - t0) / MS))
+      const e = 1 - Math.pow(1 - t, 5)
+      setPosBoth(FROM * (1 - e))
+      if (t < 1) snapRaf.current = requestAnimationFrame(step)
+      else setPosBoth(0)
+    }
+    snapRaf.current = requestAnimationFrame(step)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spinIn])
 
   // wheel spins the arc (scoped to the pane — page never scrolls here)
   useEffect(() => {

@@ -71,7 +71,7 @@ export default function SplitHome() {
         </footer>
       </div>
 
-      <ArcFocus />
+      <ArcFocus spinIn={!boot} />
     </div>
   )
 }
