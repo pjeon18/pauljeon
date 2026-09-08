@@ -26,9 +26,9 @@ interface Win {
 const WINDOWS: Win[] = [
   { id: 'me', title: 'Just Me.jpg', w: 172, x: 4, y: 2, rot: -2, img: portraitFront, imgH: 152 },
   { id: 'series', title: 'Film Series.png', w: 138, x: 40, y: 0, rot: 1.5, img: poster, imgH: 168 },
-  { id: 'shop', title: 'The Shop.jpg', w: 188, x: 62, y: 10, rot: -1.5, img: harvardShop, imgH: 136 },
-  { id: 'stats', title: 'Stats.txt', w: 186, x: 5, y: 58, rot: 1, lines: ["Harvard CS '27", 'Visual Studies', 'Cambridge, MA'] },
-  { id: 'free', title: 'Free Time.txt', w: 210, x: 52, y: 62, rot: -1, lines: ['painting · music', 'Gameboy Pokémon', '2018 Harden highlights'] },
+  { id: 'shop', title: 'Designer @TheHarvardShop', w: 212, x: 62, y: 10, rot: -1.5, img: harvardShop, imgH: 136 },
+  { id: 'stats', title: 'Stats.txt', w: 186, x: 5, y: 58, rot: 1, lines: ['CS @Harvard', 'Secondary in Art, Film,', '& Visual Studies', 'Cambridge, MA'] },
+  { id: 'free', title: 'Free Time.txt', w: 210, x: 52, y: 62, rot: -1, lines: ['I love to draw, paint,', 'design clothing, and', 'make logos on figma!'] },
 ]
 
 export default function MediaFolder() {
