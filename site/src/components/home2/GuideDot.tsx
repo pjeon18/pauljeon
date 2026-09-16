@@ -208,10 +208,19 @@ export default function GuideDot({ run }: { run: boolean }) {
       return { size: Math.max(x1 - x0 + 1, y1 - y0 + 1), dx: (x0 + x1) / 2 - pad, dy: (y0 + y1) / 2 - pad }
     }
 
+    // the dot lives inside the camera, so a rect read through a zoomed camera
+    // must be undone. The tour measures at 1x, but an abort measures mid-move.
+    const toPage = (x: number, y: number): P => {
+      const r = camEl.getBoundingClientRect()
+      const z = r.width / camEl.offsetWidth || 1
+      return { x: (x - r.left) / z, y: (y - r.top) / z }
+    }
     const measureHome = () => {
       const ink = periodInk()
       const pr = period.getBoundingClientRect()
-      S.home = { x: pr.left + ink.dx, y: baseline.getBoundingClientRect().top + ink.dy }
+      const r = camEl.getBoundingClientRect()
+      const z = r.width / camEl.offsetWidth || 1
+      S.home = toPage(pr.left + ink.dx * z, baseline.getBoundingClientRect().top + ink.dy * z)
       S.restScale = ink.size / DOT
     }
 

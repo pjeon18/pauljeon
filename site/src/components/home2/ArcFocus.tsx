@@ -156,6 +156,19 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
   }
   const aim = (target: number) => { aimRef.current = target; velRef.current = 0; startMotion() }
   const fling = (dv: number) => { aimRef.current = null; velRef.current += dv; startMotion() }
+  // A wheel tick from rest always reaches the next card. Coasting from v0
+  // covers (v0 - SNAP_V) / (60 (1 - FRICTION)) cards before the spring takes
+  // over, so a light scroll is topped up to just clear the halfway point. A
+  // scroll that lands while already moving keeps its own momentum.
+  const nudge = (dv: number) => {
+    const p = posRef.current, v0 = velRef.current, dir = Math.sign(dv)
+    if (aimRef.current === null && Math.abs(v0) < SNAP_V && dir !== 0) {
+      const need = SNAP_V + 60 * (1 - FRICTION) * (0.56 - dir * (p - Math.round(p)))
+      const v = v0 + dv
+      if (Math.abs(v) < need) { aimRef.current = null; velRef.current = dir * need; startMotion(); return }
+    }
+    fling(dv)
+  }
 
   // boot: the arc arrives already turning and decelerates onto the focused
   // card. Position is integrated with a quintic ease-out so the last few
@@ -180,6 +193,12 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
     snapRaf.current = requestAnimationFrame(step)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinIn])
+
+  // the dial steps aside while a card is docked, it sits where the dock lands
+  useEffect(() => {
+    document.body.classList.toggle('af-docked', popped)
+    return () => document.body.classList.remove('af-docked')
+  }, [popped])
 
   // the guide dot colliding with the wheel: a hard fling that the same friction
   // and spring bring to rest, so it moves like every other input
@@ -210,7 +229,7 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
       if (popped) { setPopped(false); return }
-      fling(e.deltaY * 0.055)
+      nudge(e.deltaY * 0.055)
     }
     pane.addEventListener('wheel', onWheel, { passive: false })
     return () => { pane.removeEventListener('wheel', onWheel); stopMotion() }

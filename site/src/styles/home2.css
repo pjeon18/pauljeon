@@ -428,6 +428,8 @@ body.sh-lock { overflow: hidden; }
   display: flex; align-items: center; gap: 14px;
   z-index: 30; user-select: none; -webkit-user-select: none;
 }
+.dial { transition: opacity 320ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1); }
+.af-docked .dial { opacity: 0; transform: translate(70px, -50%); pointer-events: none; }
 .dial-scale { position: relative; width: 30px; height: 300px; overflow: hidden; }
 .dial-scale svg { position: absolute; left: 0; top: 0; overflow: visible; }
 .dial-pointer {
