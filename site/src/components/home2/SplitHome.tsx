@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ArcFocus from './ArcFocus'
+import GuideDot from './GuideDot'
 import MediaFolder from './MediaFolder'
 import SplashDrop from './SplashDrop'
 import { about } from '../../content/site'
@@ -37,6 +38,15 @@ export default function SplitHome() {
   })
   const [boot, setBoot] = useState(sessionBoot)
   const [gone, setGone] = useState(!boot)
+  // the guide waits for the boot choreography to settle. Starting it earlier
+  // would have it circling a headline that is still sliding into place.
+  const [guide, setGuide] = useState(false)
+
+  useEffect(() => {
+    if (boot) return
+    const t = window.setTimeout(() => setGuide(true), 2100)
+    return () => window.clearTimeout(t)
+  }, [boot])
 
   useEffect(() => {
     document.title = 'Paul Jeon — Product & Engineering'
@@ -56,7 +66,9 @@ export default function SplitHome() {
         </header>
 
         <div className="sh-intro">
-          <h1>Hi, I'm Paul.</h1>
+          {/* the period is its own element so the guide dot can stand in for
+              it, and .sh-bl is a zero-size box whose top edge is the baseline */}
+          <h1>Hi, I'm Paul<span className="sh-period">.</span><span className="sh-bl" /></h1>
           <p>I build products centered around user productivity and clarity.</p>
         </div>
 
@@ -72,6 +84,7 @@ export default function SplitHome() {
       </div>
 
       <ArcFocus spinIn={!boot} />
+      <GuideDot run={guide} />
     </div>
   )
 }
