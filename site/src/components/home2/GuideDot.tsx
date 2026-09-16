@@ -397,6 +397,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     // the trailer is measured and framed before the splash lifts, so the
     // first frame anyone sees is already the period at 7x
     let armed: Seg[] | null = null
+    let settleT = 0                   // the trailer's hold on the period before the pull-back
     const arm = () => {
       camSnap(); goLive()
       armed = buildTour('trailer')
@@ -441,8 +442,15 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       }
       const finish = () => {
         S.touring = false
-        if (kind === 'trailer') { camSpring(CAM.glide); cam.kz = 9; cam.dz = 5.6; document.body.classList.remove('guide-trailer') }
-        camReset(); setBg(CREAM)
+        if (kind !== 'trailer') { camReset(); setBg(CREAM); return }
+        // the dot is home. Stay with it a beat, so the ending feels settled,
+        // then drift back to the whole page on a slow zoom.
+        settleT = window.setTimeout(() => {
+          settleT = 0
+          camSpring(CAM.glide); cam.kz = 6; cam.dz = 4.6
+          camReset(); setBg(CREAM)
+          document.body.classList.remove('guide-trailer')
+        }, 1100)
       }
       const frame = (now: number) => {
         if (!S.touring) return
@@ -497,6 +505,11 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     const abort = () => {
       S.cancelled = true
       disarm()
+      if (settleT) {
+        window.clearTimeout(settleT); settleT = 0
+        camSpring(CAM.glide); cam.kz = CAM_KZ; cam.dz = CAM_DZ
+        camReset(); setBg(CREAM); document.body.classList.remove('guide-trailer')
+      }
       if (!S.touring) return
       S.touring = false
       S.aborting = true
@@ -536,7 +549,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       if (S.live && !S.aborting) rest()
     }
     // the period itself is the replay control
-    const onDotClick = () => { if (!S.touring && !S.aborting) runTour('tour') }
+    const onDotClick = () => { if (!S.touring && !S.aborting) window.setTimeout(() => runTour('tour'), 30) }
     dot.addEventListener('click', onDotClick)
 
     window.addEventListener('keydown', onKey)
@@ -557,6 +570,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     return () => {
       cancelAnimationFrame(S.raf)
       cancelAnimationFrame(camRaf)
+      window.clearTimeout(settleT)
       camEl.style.transform = ''
       S.touring = false; S.aborting = false
       window.removeEventListener('keydown', onKey)
