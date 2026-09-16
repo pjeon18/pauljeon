@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { cards, caseStudies } from '../../content/site'
 import type { Card } from '../../content/site'
 import CardArt from '../CardArt'
+import { markArrival } from '../../lib/arrival'
 
 // ============================================================================
 // ArcFocus — the right half of the home page. All projects hang on a vertical
@@ -418,6 +419,7 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
                           const d = document as Document & { startViewTransition?: (cb: () => void) => void }
                           if (!d.startViewTransition) return
                           e.preventDefault()
+                          markArrival()
                           d.startViewTransition(() => { flushSync(() => navigate(l.href)) })
                         }}>
                           {l.label} <span className="arr">→</span>

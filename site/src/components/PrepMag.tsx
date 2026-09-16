@@ -1,41 +1,56 @@
 // The Prep.io case study, magazine edition. Structure follows the decision
 // log in the project's own CONCEPT.md, because the interesting story here is
 // eighteen dated decisions and the two that reversed.
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
+import LiveEmbed from './LiveEmbed'
+import { consumeArrival } from '../lib/arrival'
 import '../styles/mag.css'
 
-import mSplash from '../assets/prep-m-splash.png'
-import mFair from '../assets/prep-m-fair.png'
-import mExplore from '../assets/prep-m-explore.png'
-import mRoom from '../assets/prep-m-room.png'
-import mRoomHand from '../assets/prep-m-room-hand.png'
-import mHotseat from '../assets/prep-m-room-hotseat.png'
-import mCommit from '../assets/prep-m-event-commit.png'
-import mPremium from '../assets/prep-m-premium.png'
-import mVerify from '../assets/prep-m-verify.png'
-import mSettings from '../assets/prep-m-settings.png'
-import mGrace from '../assets/prep-m-profile-grace.png'
-import dFair from '../assets/prep-d-fair.png'
-import dExplore from '../assets/prep-d-explore.png'
-import dRoomQueue from '../assets/prep-d-room-queue.png'
-import dVod from '../assets/prep-d-vod.png'
-import dVodLocked from '../assets/prep-d-vod-locked.png'
-import dMaya from '../assets/prep-d-profile-maya.png'
-import dHostLive from '../assets/prep-d-host-live.png'
-import dRecap from '../assets/prep-d-host-recap.png'
-import dCampus from '../assets/prep-d-campus.png'
-import dCourse from '../assets/prep-d-course.png'
-import dSparse from '../assets/prep-d-section-sparse.png'
-import dLibrary from '../assets/prep-d-library.png'
+import mSplash from '../assets/prep-m-splash.webp'
+import mFair from '../assets/prep-m-fair.webp'
+import mExplore from '../assets/prep-m-explore.webp'
+import mRoom from '../assets/prep-m-room.webp'
+import mRoomHand from '../assets/prep-m-room-hand.webp'
+import mHotseat from '../assets/prep-m-room-hotseat.webp'
+import mCommit from '../assets/prep-m-event-commit.webp'
+import mPremium from '../assets/prep-m-premium.webp'
+import mVerify from '../assets/prep-m-verify.webp'
+import mSettings from '../assets/prep-m-settings.webp'
+import mGrace from '../assets/prep-m-profile-grace.webp'
+import dFair from '../assets/prep-d-fair.webp'
+import dExplore from '../assets/prep-d-explore.webp'
+import dRoomQueue from '../assets/prep-d-room-queue.webp'
+import dVod from '../assets/prep-d-vod.webp'
+import dVodLocked from '../assets/prep-d-vod-locked.webp'
+import dMaya from '../assets/prep-d-profile-maya.webp'
+import dHostLive from '../assets/prep-d-host-live.webp'
+import dRecap from '../assets/prep-d-host-recap.webp'
+import dCampus from '../assets/prep-d-campus.webp'
+import dCourse from '../assets/prep-d-course.webp'
+import dSparse from '../assets/prep-d-section-sparse.webp'
+import dLibrary from '../assets/prep-d-library.webp'
 
 // ---------------------------------------------------------------------------
 
 function useReveals() {
   const root = useRef<HTMLDivElement>(null)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const els = root.current?.querySelectorAll('.mg-rv') ?? []
+    // Arriving through the card's shared-element transition: the hero and the
+    // title must already be visible when the browser snapshots the new page,
+    // or the morph lands on nothing. The rest of the masthead settles in a
+    // stagger once the hero is down.
+    if (consumeArrival()) {
+      const top = root.current?.querySelectorAll<HTMLElement>('.mg-masthead .mg-rv, .mg-bleed.mg-rv, .sm-bleed.mg-rv') ?? []
+      let k = 0
+      top.forEach((el) => {
+        const anchor = el.tagName === 'H1' || el.querySelector('[style*="case-hero"]')
+        if (anchor) el.classList.add('in')
+        else el.style.transitionDelay = `${400 + k++ * 90}ms`
+      })
+    }
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('in')),
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
@@ -326,6 +341,19 @@ export default function PrepMag() {
           <figure><img src={mFair} alt="The fair on mobile" loading="lazy" /><figcaption>The same floor on mobile, with a bottom tab shell instead of a sidebar.</figcaption></figure>
           <figure><img src={mRoom} alt="A live room on mobile" loading="lazy" /><figcaption>A room mid-session. The stage is honest about being a mock rather than faking a webcam.</figcaption></figure>
           <figure><img src={mRoomHand} alt="A raised hand in the queue" loading="lazy" /><figcaption>Your question, publicly queued, with your position shown.</figcaption></figure>
+        </div>
+      </section>
+
+      {/* ---------------- try it ---------------- */}
+      <section className="mg-part mg-live-part">
+        <div className="mg-partmark mg-rv"><span>▶</span> Try it yourself</div>
+        <h2 className="mg-rv">The prototype, live</h2>
+        <p className="mg-rv">
+          Walk the fair floor. Watching a room needs no account, and the demo controls sit behind
+          the gear if you want to force a state.
+        </p>
+        <div className="mg-rv">
+          <LiveEmbed kind="browser" src="https://pjeon18.github.io/prep-io/" title="Prep.io prototype" poster={dFair} />
         </div>
       </section>
 

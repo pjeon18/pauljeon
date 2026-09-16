@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import outside from '../assets/pam-outside.jpg'
-import inside from '../assets/pam-inside.jpg'
+import outside from '../assets/pam-outside.webp'
+import inside from '../assets/pam-inside.webp'
 import Footer from './Footer'
 
 // ============================================================================

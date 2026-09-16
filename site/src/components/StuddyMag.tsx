@@ -1,43 +1,58 @@
 // The Studdy case study, magazine edition — a bespoke long-read with its own
 // layout system (see studdy-mag.css). Content lives inline: this page IS the
 // deliverable, and its structure changes with its story.
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
+import LiveEmbed from './LiveEmbed'
+import { consumeArrival } from '../lib/arrival'
 import '../styles/studdy-mag.css'
 
-import heroImg from '../assets/studdy-hero.jpg'
-import loopImg from '../assets/studdy-loop.jpg'
-import salonImg from '../assets/studdy-salon.jpg'
-import shopImg from '../assets/studdy-shop.jpg'
-import v0Img from '../assets/studdy-v0.jpg'
-import texlabImg from '../assets/studdy-texlab.jpg'
-import roomlabImg from '../assets/studdy-roomlab.jpg'
-import badLightImg from '../assets/studdy-bad-light.jpg'
-import badRetroImg from '../assets/studdy-bad-retro.jpg'
-import bugCatImg from '../assets/studdy-bug-cat.jpg'
-import bugGhostImg from '../assets/studdy-bug-ghost.jpg'
-import charBeret from '../assets/studdy-char-beret.jpg'
-import charCatears from '../assets/studdy-char-catears.jpg'
-import charPlain from '../assets/studdy-char-plain.jpg'
-import refLofigirl from '../assets/ref-lofigirl.jpg'
-import refStudywithme from '../assets/ref-studywithme.jpg'
-import refStudytogether from '../assets/ref-studytogether.jpg'
-import refForest from '../assets/ref-forest.jpg'
-import refFocusmate from '../assets/ref-focusmate.jpg'
-import refRoblox from '../assets/ref-roblox.jpg'
-import refCyworld from '../assets/ref-cyworld.jpg'
-import wordmark from '../assets/studdy-wordmark.png'
-import personaMina from '../assets/studdy-persona-mina.png'
-import personaDaniel from '../assets/studdy-persona-daniel.png'
-import personaCaroline from '../assets/studdy-persona-caroline.png'
+import heroImg from '../assets/studdy-hero.webp'
+import loopImg from '../assets/studdy-loop.webp'
+import salonImg from '../assets/studdy-salon.webp'
+import shopImg from '../assets/studdy-shop.webp'
+import v0Img from '../assets/studdy-v0.webp'
+import texlabImg from '../assets/studdy-texlab.webp'
+import roomlabImg from '../assets/studdy-roomlab.webp'
+import badLightImg from '../assets/studdy-bad-light.webp'
+import badRetroImg from '../assets/studdy-bad-retro.webp'
+import bugCatImg from '../assets/studdy-bug-cat.webp'
+import bugGhostImg from '../assets/studdy-bug-ghost.webp'
+import charBeret from '../assets/studdy-char-beret.webp'
+import charCatears from '../assets/studdy-char-catears.webp'
+import charPlain from '../assets/studdy-char-plain.webp'
+import refLofigirl from '../assets/ref-lofigirl.webp'
+import refStudywithme from '../assets/ref-studywithme.webp'
+import refStudytogether from '../assets/ref-studytogether.webp'
+import refForest from '../assets/ref-forest.webp'
+import refFocusmate from '../assets/ref-focusmate.webp'
+import refRoblox from '../assets/ref-roblox.webp'
+import refCyworld from '../assets/ref-cyworld.webp'
+import wordmark from '../assets/studdy-wordmark.webp'
+import personaMina from '../assets/studdy-persona-mina.webp'
+import personaDaniel from '../assets/studdy-persona-daniel.webp'
+import personaCaroline from '../assets/studdy-persona-caroline.webp'
 
 // ---------------------------------------------------------------------------
 
 function useReveals() {
   const root = useRef<HTMLDivElement>(null)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const els = root.current?.querySelectorAll('.rv') ?? []
+    // Arriving through the card's shared-element transition: the hero and the
+    // title must already be visible when the browser snapshots the new page,
+    // or the morph lands on nothing. The rest of the masthead settles in a
+    // stagger once the hero is down.
+    if (consumeArrival()) {
+      const top = root.current?.querySelectorAll<HTMLElement>('.sm-masthead .rv, .mg-bleed.rv, .sm-bleed.rv') ?? []
+      let k = 0
+      top.forEach((el) => {
+        const anchor = el.tagName === 'H1' || el.querySelector('[style*="case-hero"]')
+        if (anchor) el.classList.add('in')
+        else el.style.transitionDelay = `${400 + k++ * 90}ms`
+      })
+    }
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('in')),
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
@@ -410,6 +425,16 @@ export default function StuddyMag() {
           <figure className="sm-product-shot">
             <img src={loopImg} alt="Studying in Studdy" loading="lazy" />
           </figure>
+        </div>
+      </section>
+
+      {/* ---------------- try it ---------------- */}
+      <section className="sm-part mg-live-part">
+        <div className="sm-partmark rv"><span>▶</span> Try it yourself</div>
+        <h2 className="rv">The café, live</h2>
+        <p className="rv">This is the deployed build. Open a café and walk around it.</p>
+        <div className="rv">
+          <LiveEmbed kind="browser" src="https://pjeon18.github.io/studdy/" title="Studdy" />
         </div>
       </section>
 
