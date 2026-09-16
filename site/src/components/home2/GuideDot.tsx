@@ -125,7 +125,6 @@ type Program = 'tour' | 'trailer'
 const CAM = { follow: { k: 34, d: 10.5 }, lag: { k: 13, d: 5.2 }, glide: { k: 20, d: 8.4 } }
 const CAM_KZ = 26, CAM_DZ = 9.4    // zoom spring, slower still
 const CREAM = '#FDFDFB'
-const rgbOf = (h: string) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]
 
 // ============================================================================
 
@@ -162,25 +161,39 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
 
     const cam = { x: innerWidth / 2, y: innerHeight / 2, z: 1, vx: 0, vy: 0, vz: 0,
                   tx: innerWidth / 2, ty: innerHeight / 2, tz: 1,
-                  k: CAM.follow.k, d: CAM.follow.d, kz: CAM_KZ, dz: CAM_DZ }
+                  k: CAM.follow.k, d: CAM.follow.d, kz: CAM_KZ, dz: CAM_DZ,
+                  sx: innerWidth / 2, sy: innerHeight / 2 }   // where the look point lands on screen
     const camSpring = (sp: Spring) => { cam.k = sp.k; cam.d = sp.d }
-    // The room's light. A pool of the lighter tone sits where the camera is
-    // looking and falls off to the deeper one, and the pool tightens as the
-    // camera goes in, which is what reads as depth. Both tones lerp slowly,
-    // so a shot change is a wash, not a cut.
+    // The room's light: a pool of the lighter tone where the camera looks,
+    // falling off to the deeper one, tightening as the camera goes in. It is
+    // two layers behind the page that cross-fade on opacity and move only by
+    // transform, so nothing repaints per frame. A background gradient
+    // rewritten every frame flickered under the zoom layer.
     const CREAM_PAIR: [string, string] = [CREAM, CREAM]
-    let bgA = rgbOf(CREAM), bgB = rgbOf(CREAM), tgtA = rgbOf(CREAM), tgtB = rgbOf(CREAM)
-    const setBg = (pair: [string, string]) => { tgtA = rgbOf(pair[0]); tgtB = rgbOf(pair[1]) }
-    const paintBg = (f: number) => {
-      bgA = bgA.map((c, i) => c + (tgtA[i] - c) * f)
-      bgB = bgB.map((c, i) => c + (tgtB[i] - c) * f)
-      const flat = rgbOf(CREAM)
-      const idle = bgA.every((c, i) => Math.abs(c - flat[i]) < 0.4) && bgB.every((c, i) => Math.abs(c - flat[i]) < 0.4)
-      if (idle) { pageEl.style.background = ''; document.body.style.background = ''; return }
-      const A = `rgb(${bgA.map(Math.round).join(',')})`, B = `rgb(${bgB.map(Math.round).join(',')})`
-      const r = Math.max(innerWidth, innerHeight) * 0.95 / Math.max(1, cam.z)
-      pageEl.style.background = `radial-gradient(circle ${r.toFixed(0)}px at ${cam.x.toFixed(0)}px ${cam.y.toFixed(0)}px, ${A} 0%, ${B} 100%)`
-      document.body.style.background = B
+    const lights = [0, 1].map(() => {
+      const el = document.createElement('div')
+      el.className = 'sh-light'
+      pageEl.insertBefore(el, camEl)
+      return el
+    })
+    let lit = 0
+    let lightOn = false
+    const setBg = (pair: [string, string]) => {
+      if (pair[0] === CREAM && pair[1] === CREAM) {
+        lights.forEach((l) => { l.style.opacity = '0' }); lightOn = false; return
+      }
+      lit = 1 - lit
+      lights[lit].style.background = `radial-gradient(circle 60vmax at 50% 50%, ${pair[0]} 0%, ${pair[1]} 100%)`
+      lights[lit].style.opacity = '1'
+      lights[1 - lit].style.opacity = '0'
+      lightOn = true
+    }
+    const paintBg = () => {
+      if (!lightOn) return
+      // the pool sits where the look point lands on screen, at 1/z
+      const k = 1 / Math.max(1, cam.z) + 0.12
+      const tf = `translate(${(cam.sx - innerWidth / 2).toFixed(1)}px, ${(cam.sy - innerHeight / 2).toFixed(1)}px) scale(${k.toFixed(4)})`
+      lights.forEach((l) => { l.style.transform = tf })
     }
     const camReset = () => { cam.tx = innerWidth / 2; cam.ty = innerHeight / 2; cam.tz = 1 }
     const camApply = () => {
@@ -189,6 +202,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       const x = Math.max(hx, Math.min(W - hx, cam.x)), y = Math.max(hy, Math.min(H - hy, cam.y))
       const idle = Math.abs(cam.z - 1) < 0.0005 && Math.abs(x - W / 2) < 0.05 && Math.abs(y - H / 2) < 0.05
       camEl.style.transform = idle ? '' : `translate(${W / 2 - x * cam.z}px,${H / 2 - y * cam.z}px) scale(${cam.z})`
+      cam.sx = W / 2 + (cam.x - x) * cam.z; cam.sy = H / 2 + (cam.y - y) * cam.z
     }
     // measure the page at 1x, never through a moving camera
     const camSnap = () => { camReset(); cam.x = cam.tx; cam.y = cam.ty; cam.z = 1; cam.vx = cam.vy = cam.vz = 0; camApply() }
@@ -202,7 +216,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       cam.vy += ((ty - cam.y) * cam.k - cam.vy * cam.d) * dt; cam.y += cam.vy * dt
       cam.vz += ((cam.tz - cam.z) * cam.kz - cam.vz * cam.dz) * dt; cam.z += cam.vz * dt
       camApply()
-      paintBg(Math.min(1, dt * 2.4))
+      paintBg()
       camRaf = requestAnimationFrame(camLoop)
     }
     if (!reduced) camRaf = requestAnimationFrame(camLoop)
@@ -588,7 +602,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       window.removeEventListener('resize', onResize)
       dot.removeEventListener('click', onDotClick)
       document.body.classList.remove('guide-trailer')
-      pageEl.style.background = ''; document.body.style.background = ''
+      lights.forEach((l) => l.remove())
       document.documentElement.classList.remove('guide-live')
     }
   }, [])
