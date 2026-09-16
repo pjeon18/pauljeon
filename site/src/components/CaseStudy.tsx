@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { consumeArrival } from '../lib/arrival'
 import { caseOrder, caseStudies } from '../content/site'
 import { OrgArt, RlArt } from './CardArt'
+import BackToSite from './BackToSite'
 import Footer from './Footer'
 
 export default function CaseStudy() {
@@ -29,7 +30,7 @@ export default function CaseStudy() {
     <div className={'case' + (arrived ? ' case-arrive' : '')}>
       <nav className="case-nav">
         <Link className="case-logo" to="/">Paul Jeon</Link>
-        <Link className="case-back" to="/">← Back to site</Link>
+        <BackToSite />
       </nav>
 
       <header className="case-head">

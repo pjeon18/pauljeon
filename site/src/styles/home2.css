@@ -257,14 +257,27 @@ body.sh-lock { overflow: hidden; }
 /* ---------- small screens: stack ---------- */
 @media (max-width: 880px) {
   body.sh-lock { overflow: auto; }
-  .sh-page { flex-direction: column; height: auto; overflow: visible; }
+  .sh-page { height: auto; overflow: visible; }
+  /* the camera wrapper is the flex container now, so it is what stacks */
+  .sh-cam { flex-direction: column; height: auto; }
   .sh-left { width: 100%; min-width: 0; padding: 20px 22px 8px; }
   .sh-intro { margin-top: 24px; }
   .mf-field { min-height: 360px; margin: 26px 0 18px; }
-  .af-pane { height: 76vh; width: 100%; }
+  .af-pane { flex: none; height: 76vh; width: 100%; }   /* flex: 1 would collapse to 0 in a column of auto height */
   .af-card { width: 216px; margin-left: -108px; margin-top: -126px; }
   .af-photo { height: 186px; }
-  .af-panel { left: 18px; width: min(300px, 58vw); }
+  /* docked: the card rises and the details come up as a sheet beneath it */
+  .af-arc { transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), top 420ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .af-popped .af-arc { top: 30%; }
+  .af-panel {
+    left: 18px !important; right: 18px; width: auto !important; top: auto; bottom: 14px;
+    max-height: 44%; transform: translateY(14px);
+    background: #FFFFFF; border-radius: 16px; padding: 16px 18px 12px;
+    box-shadow: 0 2px 4px rgba(20, 16, 10, 0.06), 0 24px 48px -20px rgba(20, 16, 10, 0.35);
+  }
+  .af-popped .af-panel { transform: none; }
+  .mf-field { min-height: 300px; }
+  .af-hint { display: none; }   /* it names a scroll wheel and a click; on a phone it sits on the top card */
 }
 
 /* ---------- brand-card thumbnails ---------- */
@@ -357,6 +370,11 @@ body.sh-lock { overflow: hidden; }
   animation-delay: 800ms;
   will-change: transform, opacity;
 }
+
+/* coming back from a case study nothing re-enters. The page is already
+   there; only the hero is travelling. */
+.sh-return .af-lift, .sh-return .sh-intro h1, .sh-return .sh-intro p,
+.sh-return .mf-folder, .sh-return .sh-nav, .sh-return .sh-links { animation: none !important; }
 
 /* the cards only fade; their travel is the arc's own deceleration */
 .sh-ready .af-lift {
