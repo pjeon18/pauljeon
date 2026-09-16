@@ -146,6 +146,31 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinIn])
 
+  // the guide dot colliding with the wheel spins it hard, then it eases to a
+  // stop. Aggressive on purpose: a sixth-power ease-out passes most of the
+  // travel in the first few hundred milliseconds.
+  useEffect(() => {
+    const onSpin = () => {
+      if (reduced || popped) return
+      cancelAnimationFrame(snapRaf.current)
+      window.clearTimeout(idleTimer.current)
+      const from = posRef.current
+      const to = Math.round(from + 11)
+      const MS = 2800
+      const t0 = performance.now()
+      const step = () => {
+        const t = Math.min(1, (performance.now() - t0) / MS)
+        setPosBoth(from + (to - from) * (1 - Math.pow(1 - t, 6)))
+        if (t < 1) snapRaf.current = requestAnimationFrame(step)
+        else setPosBoth(to)
+      }
+      snapRaf.current = requestAnimationFrame(step)
+    }
+    window.addEventListener('pj:spin', onSpin)
+    return () => window.removeEventListener('pj:spin', onSpin)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popped])
+
   // wheel spins the arc (scoped to the pane — page never scrolls here)
   useEffect(() => {
     const pane = paneRef.current

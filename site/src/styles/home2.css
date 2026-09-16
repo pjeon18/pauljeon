@@ -380,3 +380,28 @@ body.sh-lock { overflow: hidden; }
   font-size: 11px; font-weight: 700; color: #8A8F98;
 }
 .mf-win.mf-link:hover .mf-goto { color: #3E8DEF; }
+
+/* ---------------------------------------------------------------------------
+   the guide dot: the period in "Hi, I'm Paul." leaves and comes back
+   --------------------------------------------------------------------------- */
+
+/* .sh-bl is a zero-size inline box whose top edge is the text baseline, which
+   is the only reliable way to find where the period's ink actually sits. */
+.sh-bl { display: inline-block; width: 0; height: 0; vertical-align: baseline; }
+
+/* The glyph only stops painting once the dot is in position to replace it, so
+   a failed mount or reduced motion still renders a normal full stop. */
+.guide-live .sh-period { color: transparent; }
+
+.guide-dot, .guide-ghost {
+  position: fixed; left: 0; top: 0; border-radius: 50%;
+  pointer-events: none; will-change: transform;
+}
+.guide-dot { width: 13px; height: 13px; background: #121110; z-index: 40; opacity: 0; }
+.guide-dot.live { opacity: 1; }
+.guide-ghost { width: 13px; height: 13px; background: #E02B1D; opacity: 0; z-index: 39; }
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-dot, .guide-ghost { display: none; }
+  .guide-live .sh-period { color: inherit; }
+}
