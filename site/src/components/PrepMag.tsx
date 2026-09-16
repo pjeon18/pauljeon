@@ -1,7 +1,7 @@
 // The Prep.io case study, magazine edition. Structure follows the decision
 // log in the project's own CONCEPT.md, because the interesting story here is
 // eighteen dated decisions and the two that reversed.
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
 import '../styles/mag.css'
@@ -273,7 +273,7 @@ export default function PrepMag() {
       {/* ---------------- masthead ---------------- */}
       <header className="mg-masthead">
         <div className="mg-kicker mg-rv">Product case study · shipped prototype · 2026</div>
-        <h1 className="mg-rv">
+        <h1 className="mg-rv" style={{ viewTransitionName: 'case-title' } as React.CSSProperties}>
           Office hours,<br /><em>made live</em>
         </h1>
         <p className="mg-dek mg-rv">
@@ -293,7 +293,7 @@ export default function PrepMag() {
       </header>
 
       <figure className="mg-bleed mg-rv">
-        <img src={dFair} alt="The Prep.io fair floor" />
+        <img src={dFair} alt="The Prep.io fair floor" style={{ viewTransitionName: 'case-hero' } as React.CSSProperties} />
         <figcaption>
           The fair floor on desktop. Live rooms first, then events, then the eight career booths you
           can wander through without an account.

@@ -1,7 +1,7 @@
 // The ISO case study, magazine edition. Content lives inline because the page
 // IS the deliverable: its structure follows this product's argument, not a
 // generic template. Shared furniture comes from styles/mag.css.
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
 import '../styles/mag.css'
@@ -267,9 +267,9 @@ export default function IsoMag() {
 
       {/* ---------------- masthead ---------------- */}
       <header className="mg-masthead">
-        <img src={isoIcon} alt="ISO" width="76" height="76" style={{ borderRadius: 18, display: 'block', marginBottom: 24 }} />
+        <img src={isoIcon} alt="ISO" width="76" height="76" style={{ borderRadius: 18, display: 'block', marginBottom: 24, viewTransitionName: 'case-hero' } as React.CSSProperties} />
         <div className="mg-kicker mg-rv">Product case study · interactive prototype · 2026</div>
-        <h1 className="mg-rv">
+        <h1 className="mg-rv" style={{ viewTransitionName: 'case-title' } as React.CSSProperties}>
           A dating app<br />built on a <em>refusal</em>
         </h1>
         <p className="mg-dek mg-rv">

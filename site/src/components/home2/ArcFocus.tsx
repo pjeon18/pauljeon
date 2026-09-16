@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { flushSync } from 'react-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { cards, caseStudies } from '../../content/site'
 import type { Card } from '../../content/site'
 import CardArt from '../CardArt'
@@ -51,13 +52,13 @@ function wrapOffset(i: number, pos: number, n: number) {
 }
 
 export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
+  const navigate = useNavigate()
   const paneRef = useRef<HTMLDivElement>(null)
   const posRef = useRef(0) // continuous card index along the arc
   const [pos, setPos] = useState(0)
   const [popped, setPoppedRaw] = useState(false)
   const [pane, setPane] = useState({ w: 0, h: 900 })
   const snapRaf = useRef(0)
-  const idleTimer = useRef(0)
   const reduced = useMemo(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     [],
@@ -101,26 +102,60 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
   const setPosBoth = (v: number) => {
     posRef.current = v
     setPos(v)
+    // the thumbwheel draws itself from this
+    window.dispatchEvent(new CustomEvent('pj:pos', { detail: v }))
   }
 
-  const snapToNearest = (to?: number) => {
-    cancelAnimationFrame(snapRaf.current)
-    const target = to ?? Math.round(posRef.current)
+  // One motion loop for everything that moves the arc once the hand lets go.
+  // It coasts under friction, then a spring pulls it onto the nearest card, or
+  // onto an explicit aim for keys and clicks. Input adds to velocity rather
+  // than resetting it, so gestures stack the way a real wheel's would.
+  const velRef = useRef(0)                       // cards per second
+  const aimRef = useRef<number | null>(null)
+  const motionRaf = useRef(0)
+  const lastT = useRef(0)
+  const FRICTION = 0.935, SNAP_V = 1.4, STIFF = 210, DAMP = 22
+
+  const stopMotion = () => { cancelAnimationFrame(motionRaf.current); motionRaf.current = 0 }
+  const startMotion = () => {
+    if (motionRaf.current) return
+    cancelAnimationFrame(snapRaf.current)          // a running boot spin yields to the hand
     if (reduced) {
-      setPosBoth(target)
+      velRef.current = 0
+      setPosBoth(aimRef.current ?? Math.round(posRef.current))
+      aimRef.current = null
       return
     }
-    const step = () => {
-      const d = target - posRef.current
-      if (Math.abs(d) < 0.003) {
-        setPosBoth(target)
-        return
+    lastT.current = performance.now()
+    const step = (now: number) => {
+      const dt = Math.min(0.05, (now - lastT.current) / 1000)
+      lastT.current = now
+      let p = posRef.current
+      let v = velRef.current
+      const a = aimRef.current
+      if (a === null && Math.abs(v) > SNAP_V) {
+        v *= Math.pow(FRICTION, dt * 60)
+        p += v * dt
+      } else {
+        const target = a ?? Math.round(p)
+        v += ((target - p) * STIFF - v * DAMP) * dt
+        p += v * dt
+        if (Math.abs(target - p) < 0.0006 && Math.abs(v) < 0.02) {
+          velRef.current = 0
+          aimRef.current = null
+          motionRaf.current = 0
+          setPosBoth(target)
+          return
+        }
       }
-      setPosBoth(posRef.current + d * 0.14)
-      snapRaf.current = requestAnimationFrame(step)
+      velRef.current = v
+      setPosBoth(p)
+      motionRaf.current = requestAnimationFrame(step)
     }
-    snapRaf.current = requestAnimationFrame(step)
+    motionRaf.current = requestAnimationFrame(step)
   }
+  const aim = (target: number) => { aimRef.current = target; velRef.current = 0; startMotion() }
+  const fling = (dv: number) => { aimRef.current = null; velRef.current += dv; startMotion() }
 
   // boot: the arc arrives already turning and decelerates onto the focused
   // card. Position is integrated with a quintic ease-out so the last few
@@ -146,52 +181,39 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinIn])
 
-  // the guide dot colliding with the wheel spins it hard, then it eases to a
-  // stop. Aggressive on purpose: a sixth-power ease-out passes most of the
-  // travel in the first few hundred milliseconds.
+  // the guide dot colliding with the wheel: a hard fling that the same friction
+  // and spring bring to rest, so it moves like every other input
   useEffect(() => {
-    const onSpin = () => {
-      if (reduced || popped) return
-      cancelAnimationFrame(snapRaf.current)
-      window.clearTimeout(idleTimer.current)
-      const from = posRef.current
-      const to = Math.round(from + 11)
-      const MS = 2800
-      const t0 = performance.now()
-      const step = () => {
-        const t = Math.min(1, (performance.now() - t0) / MS)
-        setPosBoth(from + (to - from) * (1 - Math.pow(1 - t, 6)))
-        if (t < 1) snapRaf.current = requestAnimationFrame(step)
-        else setPosBoth(to)
-      }
-      snapRaf.current = requestAnimationFrame(step)
-    }
+    const onSpin = () => { if (!popped) fling(44) }
     window.addEventListener('pj:spin', onSpin)
     return () => window.removeEventListener('pj:spin', onSpin)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popped])
 
-  // wheel spins the arc (scoped to the pane — page never scrolls here)
+  // the thumbwheel is a second hand on the same axle
+  useEffect(() => {
+    const onDial = (e: Event) => {
+      const d = (e as CustomEvent<{ type: string; dp?: number; vel?: number }>).detail
+      if (d.type === 'start') { stopMotion(); cancelAnimationFrame(snapRaf.current); aimRef.current = null; velRef.current = 0; setPopped(false) }
+      else if (d.type === 'move') { setPosBoth(posRef.current + (d.dp ?? 0)); velRef.current = d.vel ?? 0 }
+      else if (d.type === 'end') startMotion()
+    }
+    window.addEventListener('pj:dial', onDial)
+    return () => window.removeEventListener('pj:dial', onDial)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // wheel spins the arc (scoped to the pane, the page never scrolls here)
   useEffect(() => {
     const pane = paneRef.current
     if (!pane) return
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      if (popped) {
-        setPopped(false)
-        return
-      }
-      cancelAnimationFrame(snapRaf.current)
-      window.clearTimeout(idleTimer.current)
-      setPosBoth(posRef.current + e.deltaY * 0.0032)
-      idleTimer.current = window.setTimeout(() => snapToNearest(), 140)
+      if (popped) { setPopped(false); return }
+      fling(e.deltaY * 0.055)
     }
     pane.addEventListener('wheel', onWheel, { passive: false })
-    return () => {
-      pane.removeEventListener('wheel', onWheel)
-      cancelAnimationFrame(snapRaf.current)
-      window.clearTimeout(idleTimer.current)
-    }
+    return () => { pane.removeEventListener('wheel', onWheel); stopMotion() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popped])
 
@@ -199,28 +221,33 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
   useEffect(() => {
     const pane = paneRef.current
     if (!pane) return
+    const K = 1 / 260  // px of drag per card, the arc is big so it moves slowly under the hand
     const onDown = (e: PointerEvent) => {
       if ((e.target as HTMLElement).closest('.af-panel, a, .af-tab')) return
       let lastY = e.clientY
+      let lastTime = performance.now()
       let moved = false
       const pid = e.pointerId
       const move = (ev: PointerEvent) => {
-        const dy = ev.clientY - lastY
         if (!moved && Math.abs(ev.clientY - e.clientY) > 6) {
           moved = true
           try { pane.setPointerCapture(pid) } catch { /* no-op */ }
-          cancelAnimationFrame(snapRaf.current)
+          stopMotion(); cancelAnimationFrame(snapRaf.current); aimRef.current = null; velRef.current = 0
         }
         if (!moved) return
-        lastY = ev.clientY
-        setPosBoth(posRef.current - dy * 0.011)
+        const now = performance.now()
+        const dp = (ev.clientY - lastY) * K
+        setPosBoth(posRef.current + dp)
+        // velocity from the last movement, lightly smoothed
+        velRef.current = velRef.current * 0.4 + (dp / Math.max(1, now - lastTime) * 1000) * 0.6
+        lastY = ev.clientY; lastTime = now
       }
       const up = () => {
         pane.removeEventListener('pointermove', move)
         pane.removeEventListener('pointerup', up)
         pane.removeEventListener('pointercancel', up)
         try { pane.releasePointerCapture(pid) } catch { /* no-op */ }
-        if (moved) snapToNearest()
+        if (moved) startMotion()
       }
       pane.addEventListener('pointermove', move)
       pane.addEventListener('pointerup', up)
@@ -231,6 +258,31 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // card tilt: the card under the pointer leans toward it, a few degrees, and
+  // levels when the pointer leaves. Written straight to the element, so it
+  // costs nothing to React.
+  useEffect(() => {
+    const pane = paneRef.current
+    if (!pane || reduced) return
+    let cur: HTMLElement | null = null
+    const level = () => { if (cur) { cur.style.removeProperty('--rx'); cur.style.removeProperty('--ry'); cur.style.removeProperty('--tz'); cur = null } }
+    const onMove = (e: PointerEvent) => {
+      const card = (e.target as HTMLElement).closest('.af-card:not(.af-out)') as HTMLElement | null
+      const lift = card?.querySelector('.af-lift') as HTMLElement | null
+      if (lift !== cur) { level(); cur = lift }
+      if (!card || !lift) return
+      const r = card.getBoundingClientRect()
+      const ox = (e.clientX - r.left) / r.width - 0.5, oy = (e.clientY - r.top) / r.height - 0.5
+      lift.style.setProperty('--rx', `${(-oy * 5).toFixed(2)}deg`)
+      lift.style.setProperty('--ry', `${(ox * 5).toFixed(2)}deg`)
+      lift.style.setProperty('--tz', '8px')
+    }
+    pane.addEventListener('pointermove', onMove, { passive: true })
+    pane.addEventListener('pointerleave', level)
+    return () => { pane.removeEventListener('pointermove', onMove); pane.removeEventListener('pointerleave', level); level() }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // keyboard + escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -238,7 +290,7 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault()
         setPopped(false)
-        snapToNearest(Math.round(posRef.current) + (e.key === 'ArrowDown' ? 1 : -1))
+        aim(Math.round(posRef.current) + (e.key === 'ArrowDown' ? 1 : -1))
       }
     }
     document.addEventListener('keydown', onKey)
@@ -252,7 +304,7 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
       setPopped((p) => !p)
     } else {
       setPopped(false)
-      snapToNearest(Math.round(posRef.current) + off)
+      aim(Math.round(posRef.current) + off)
     }
   }
 
@@ -307,9 +359,9 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
               aria-label={card.title}
             >
               <span className="af-lift" style={isPop ? { transform: `scale(${popLift.toFixed(3)})` } : undefined}>
-                <span className="af-photo"><CardArt card={card} /></span>
+                <span className="af-photo" style={isPop ? ({ viewTransitionName: 'case-hero' } as React.CSSProperties) : undefined}><CardArt card={card} /></span>
                 <span className="af-caption">
-                  <span className="af-t">{card.title}</span>
+                  <span className="af-t" style={isPop ? ({ viewTransitionName: 'case-title' } as React.CSSProperties) : undefined}>{card.title}</span>
                   <span className="af-m">{card.meta}</span>
                 </span>
               </span>
@@ -343,7 +395,12 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
                   <div className="af-links">
                     {t.links.map((l) =>
                       l.internal ? (
-                        <Link key={l.href} to={l.href} className="af-link">
+                        <Link key={l.href} to={l.href} className="af-link" onClick={(e) => {
+                          const d = document as Document & { startViewTransition?: (cb: () => void) => void }
+                          if (!d.startViewTransition) return
+                          e.preventDefault()
+                          d.startViewTransition(() => { flushSync(() => navigate(l.href)) })
+                        }}>
                           {l.label} <span className="arr">→</span>
                         </Link>
                       ) : (

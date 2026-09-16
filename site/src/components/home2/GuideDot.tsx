@@ -109,8 +109,17 @@ interface Seg {
   sc?: [number, number]
   col?: [string, string]
   squash?: boolean
+  cam?: { z: number; at?: (u: number) => P }
   exit?: () => void
 }
+
+// ---------------------------------------------------------------- camera
+// The page is the subject and the camera follows the dot on a spring, so it
+// lags and settles like an operator rather than tracking 1:1. Zoom is small
+// on purpose. Pan is only possible while zoomed, because at 1x any pan would
+// reveal the edge of the page, so the clamp pins it centred.
+const CAM_K = 34, CAM_D = 10.5     // pan spring, a touch under critical
+const CAM_KZ = 26, CAM_DZ = 9.4    // zoom spring, slower still
 
 // ============================================================================
 
@@ -135,13 +144,40 @@ export default function GuideDot({ run }: { run: boolean }) {
     const S = state.current
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+    const camEl = document.querySelector('.sh-cam') as HTMLElement | null
     const period = document.querySelector('.sh-period') as HTMLElement | null
     const baseline = document.querySelector('.sh-bl') as HTMLElement | null
     const intro = document.querySelector('.sh-intro') as HTMLElement | null
     const folderEl = document.querySelector('.mf-folder') as HTMLElement | null
     const linksEl = document.querySelector('.sh-links') as HTMLElement | null
     const pane = document.querySelector('.af-pane') as HTMLElement | null
-    if (!period || !baseline || !intro || !folderEl || !linksEl || !pane) return
+    if (!period || !baseline || !intro || !folderEl || !linksEl || !pane || !camEl) return
+
+    const cam = { x: innerWidth / 2, y: innerHeight / 2, z: 1, vx: 0, vy: 0, vz: 0,
+                  tx: innerWidth / 2, ty: innerHeight / 2, tz: 1 }
+    const camReset = () => { cam.tx = innerWidth / 2; cam.ty = innerHeight / 2; cam.tz = 1 }
+    const camApply = () => {
+      const W = innerWidth, H = innerHeight
+      const hx = W / (2 * cam.z), hy = H / (2 * cam.z)
+      const x = Math.max(hx, Math.min(W - hx, cam.x)), y = Math.max(hy, Math.min(H - hy, cam.y))
+      const idle = Math.abs(cam.z - 1) < 0.0005 && Math.abs(x - W / 2) < 0.05 && Math.abs(y - H / 2) < 0.05
+      camEl.style.transform = idle ? '' : `translate(${W / 2 - x * cam.z}px,${H / 2 - y * cam.z}px) scale(${cam.z})`
+    }
+    // measure the page at 1x, never through a moving camera
+    const camSnap = () => { camReset(); cam.x = cam.tx; cam.y = cam.ty; cam.z = 1; cam.vx = cam.vy = cam.vz = 0; camApply() }
+    let camRaf = 0, camLast = performance.now()
+    const camLoop = (now: number) => {
+      const dt = Math.min(0.05, (now - camLast) / 1000); camLast = now
+      const W = innerWidth, H = innerHeight
+      const hx = W / (2 * cam.tz), hy = H / (2 * cam.tz)
+      const tx = Math.max(hx, Math.min(W - hx, cam.tx)), ty = Math.max(hy, Math.min(H - hy, cam.ty))
+      cam.vx += ((tx - cam.x) * CAM_K - cam.vx * CAM_D) * dt; cam.x += cam.vx * dt
+      cam.vy += ((ty - cam.y) * CAM_K - cam.vy * CAM_D) * dt; cam.y += cam.vy * dt
+      cam.vz += ((cam.tz - cam.z) * CAM_KZ - cam.vz * CAM_DZ) * dt; cam.z += cam.vz * dt
+      camApply()
+      camRaf = requestAnimationFrame(camLoop)
+    }
+    if (!reduced) camRaf = requestAnimationFrame(camLoop)
 
     // The exact ink box of the period glyph, drawn to a canvas in the same
     // font. The span's own rect is the line box, which is far taller than the
@@ -245,28 +281,36 @@ export default function GuideDot({ run }: { run: boolean }) {
       // it arrives from below left, so it carries a little past the period
       // and eases back down onto it
       const homeOver = { x: home.x + 11, y: home.y - 9 }
+      const linksMid = { x: (xs[0] + xs[xs.length - 1]) / 2, y: sweepY + 6 }
+      // camera briefs. Orbits look at their centre, not at the dot, or the
+      // shot would wobble in circles. Transits pull back to 1x.
+      const LOOK = {
+        headline: { z: 1.10, at: () => introFit.c }, folder: { z: 1.13, at: () => fo },
+        wheel: { z: 1.09, at: () => hit }, links: { z: 1.08, at: () => linksMid },
+      }
 
       return [
         { dur: 460, ease: easeInOutSine, at: (u) => ({ x: home.x - 8 * u, y: home.y - 14 * u }),
           sc: [S.restScale, 1], col: [INK, RED] },
 
         { dur: 460, ease: transit, at: (u) => qbez(anticip, { x: anticip.x + 30, y: anticip.y - 40 }, orbitStart, u) },
-        { dur: 1500, ease: LIN, at: introOrbit },
+        { dur: 1500, ease: LIN, at: introOrbit, cam: LOOK.headline },
 
         { dur: 820, ease: transit,
           at: (u) => qbez(orbitEnd, { x: orbitEnd.x - 80, y: (orbitEnd.y + folderStart.y) / 2 + 40 }, folderStart, u) },
-        { dur: 760, ease: LIN, at: folderOrbit },
+        { dur: 760, ease: LIN, at: folderOrbit, cam: LOOK.folder },
 
         { dur: 740, ease: launch,
           at: (u) => qbez(folderStart, { x: (folderStart.x + hit.x) / 2, y: folderStart.y - 210 }, hit, u) },
-        { dur: 170, ease: LIN, at: () => hit, squash: true,
+        { dur: 170, ease: LIN, at: () => hit, squash: true, cam: LOOK.wheel,
           exit: () => window.dispatchEvent(new CustomEvent('pj:spin')) },
 
         // the slow head of this move is the recoil off the wheel, which is
         // also when the spin is at its most violent
         { dur: 1150, ease: transit,
-          at: (u) => qbez(hit, { x: (hit.x + linksStart.x) / 2, y: hit.y - 150 }, linksStart, u) },
-        { dur: 1080, ease: LIN, at: linksSweep },
+          at: (u) => qbez(hit, { x: (hit.x + linksStart.x) / 2, y: hit.y - 150 }, linksStart, u),
+          cam: { z: 1.05, at: () => hit } },   // the camera stays on the wheel while it spins
+        { dur: 1080, ease: LIN, at: linksSweep, cam: LOOK.links },
 
         { dur: 900, ease: transit,
           at: (u) => qbez(linksEnd, { x: home.x + 40, y: (linksEnd.y + home.y) / 2 }, homeOver, u) },
@@ -281,6 +325,7 @@ export default function GuideDot({ run }: { run: boolean }) {
       goLive()
       S.touring = true
       S.aborting = false
+      camSnap()
       const segs = buildTour()
       S.px = S.home.x; S.py = S.home.y
       place(S.home.x, S.home.y, S.restScale, S.restScale, 0)
@@ -296,13 +341,15 @@ export default function GuideDot({ run }: { run: boolean }) {
           u = 1
           s.exit?.()
           i++; t0 = now
-          if (i >= segs.length) { S.touring = false; return }
+          if (i >= segs.length) { S.touring = false; camReset(); return }
         }
         const e = s.ease(Math.min(u, 1))
         const p = s.at(e)
 
         if (s.col) dot.style.background = mixCol(s.col[0], s.col[1], e)
         const base = s.sc ? s.sc[0] + (s.sc[1] - s.sc[0]) * e : 1
+        if (s.cam) { const f = s.cam.at ? s.cam.at(e) : p; cam.tx = f.x; cam.ty = f.y; cam.tz = s.cam.z }
+        else camReset()
 
         // speed drives the stretch, which is what sells it as a body
         const dx = p.x - S.px, dy = p.y - S.py
@@ -339,6 +386,7 @@ export default function GuideDot({ run }: { run: boolean }) {
       if (!S.touring) return
       S.touring = false
       S.aborting = true
+      camReset()
       cancelAnimationFrame(S.raf)
       measureHome()
       const from = { x: S.px, y: S.py }
@@ -378,6 +426,8 @@ export default function GuideDot({ run }: { run: boolean }) {
 
     return () => {
       cancelAnimationFrame(S.raf)
+      cancelAnimationFrame(camRaf)
+      camEl.style.transform = ''
       S.touring = false; S.aborting = false
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('pointerdown', abort)

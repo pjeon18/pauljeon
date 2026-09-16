@@ -6,8 +6,14 @@
 body.sh-lock { overflow: hidden; }
 
 .sh-page {
-  display: flex; height: 100vh; background: #FDFDFB; color: #121110;
+  position: relative; height: 100vh; background: #FDFDFB; color: #121110;
   overflow: hidden;
+}
+/* the camera's subject. Both panes and the guide dot move as one under the
+   tour's push-in; the dial and the cursor stay fixed to the viewport. */
+.sh-cam {
+  display: flex; width: 100%; height: 100vh;
+  transform-origin: 0 0; will-change: transform;
 }
 
 /* ---------- left pane ---------- */
@@ -132,14 +138,18 @@ body.sh-lock { overflow: hidden; }
   position: absolute; top: 0; left: 0; width: 264px;
   margin-left: -132px; margin-top: -151px;
   background: none; border: none; padding: 0; cursor: pointer;
-  will-change: transform;
+  will-change: transform; perspective: 700px;
 }
+/* the tilt lives in custom properties so the pointer can lean the card
+   without fighting the pop's inline scale */
 .af-lift {
   display: block; background: #FFFFFF; border: 1px solid #EDEBE5; border-radius: 14px;
   padding: 10px 10px 12px;
   box-shadow: 0 1px 2px rgba(20, 16, 10, 0.05), 0 18px 40px -20px rgba(20, 16, 10, 0.3);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(var(--tz, 0px));
   transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1), opacity 260ms ease, box-shadow 300ms ease;
 }
+.af-card:hover .af-lift { transition-duration: 120ms, 260ms, 300ms; }
 .af-card.af-out .af-lift {
   box-shadow: 0 2px 5px rgba(20, 16, 10, 0.07), 0 34px 64px -24px rgba(20, 16, 10, 0.42);
 }
@@ -393,8 +403,11 @@ body.sh-lock { overflow: hidden; }
    a failed mount or reduced motion still renders a normal full stop. */
 .guide-live .sh-period { color: transparent; }
 
+/* absolute, not fixed: they live inside .sh-cam in page coordinates, so when
+   the camera pushes in they travel with the headline rather than floating
+   over a page that has moved beneath them */
 .guide-dot, .guide-ghost {
-  position: fixed; left: 0; top: 0; border-radius: 50%;
+  position: absolute; left: 0; top: 0; border-radius: 50%;
   pointer-events: none; will-change: transform;
 }
 .guide-dot { width: 13px; height: 13px; background: #121110; z-index: 40; opacity: 0; }
@@ -405,3 +418,36 @@ body.sh-lock { overflow: hidden; }
   .guide-dot, .guide-ghost { display: none; }
   .guide-live .sh-period { color: inherit; }
 }
+
+
+/* ---------------------------------------------------------------------------
+   the thumbwheel: the visible axle the arc hangs from
+   --------------------------------------------------------------------------- */
+.dial {
+  position: fixed; right: 22px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 14px;
+  z-index: 30; user-select: none; -webkit-user-select: none;
+}
+.dial-scale { position: relative; width: 30px; height: 300px; overflow: hidden; }
+.dial-scale svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.dial-pointer {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  border-left: 7px solid #E05C1F;
+  transition: transform 90ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+.dial-pointer.tick { transform: translateY(-50%) scale(1.45); transition: none; }
+/* the recess the wheel sits in, cut into the page's own material */
+.dial-well {
+  position: relative; width: 44px; height: 300px; border-radius: 12px;
+  background: #ECEAE3;
+  box-shadow:
+    inset 0 2px 4px rgba(20, 16, 10, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.9),
+    inset 2px 0 3px rgba(20, 16, 10, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.8);
+  cursor: ns-resize; touch-action: none;
+}
+.dial-well canvas { position: absolute; left: 4px; top: 6px; width: 36px; height: 288px; border-radius: 9px; }
+@media (max-width: 900px) { .dial { display: none; } }
+@media (prefers-reduced-motion: reduce) { .dial-pointer { transition: none; } }
