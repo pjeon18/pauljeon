@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react'
 
 const HOT = [
   'a', 'button', '[role="button"]', 'summary',
-  '.af-card', '.mf-win', '.mf-folder', '.mg-caro-card', '.sm-caro-card',
+  '.af-card', '.af-tab', '.mf-win', '.mf-folder', '.mg-caro-card', '.sm-caro-card',
   '.bx-folder', '.mread', '.mless', '.dial-well', '.guide-dot.live',
 ].join(',')
 const REACH = 26 // px beyond a target's edge at which the glass takes over
@@ -36,6 +36,10 @@ export default function CursorDot() {
     const nearestHot = (mx: number, my: number): DOMRect | null => {
       let best: DOMRect | null = null, bestD = REACH, bestA = Infinity
       for (const el of document.querySelectorAll<HTMLElement>(HOT)) {
+        // the tab's label is a button, but the glass belongs to the whole tab,
+        // which grows as its body opens; the label alone would leave the
+        // expanded part uncovered
+        if (el.classList.contains('af-tab-label')) continue
         const r = el.getBoundingClientRect()
         if (!r.width || !r.height) continue
         const dx = Math.max(r.left - mx, 0, mx - r.right), dy = Math.max(r.top - my, 0, my - r.bottom)
