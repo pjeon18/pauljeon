@@ -26,7 +26,7 @@ export default function CaseStudy() {
     <div className="case">
       <nav className="case-nav">
         <Link className="case-logo" to="/">Paul Jeon</Link>
-        <Link className="case-back" to="/#work">← All work</Link>
+        <Link className="case-back" to="/">← Back to site</Link>
       </nav>
 
       <header className="case-head">

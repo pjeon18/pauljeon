@@ -131,7 +131,7 @@ export default function Pamphlet() {
     <div className="pam-page">
       <nav className="case-nav">
         <Link className="case-logo" to="/">Paul Jeon</Link>
-        <Link className="case-back" to="/#work">← All work</Link>
+        <Link className="case-back" to="/">← Back to site</Link>
       </nav>
 
       <header className="pam-head">

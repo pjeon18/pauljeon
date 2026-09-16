@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react'
 
 const HOT = [
   'a', 'button', '[role="button"]', 'summary',
-  '.af-card', '.af-tab', '.mf-win', '.mf-folder', '.mg-caro-card', '.sm-caro-card',
+  '.af-card', '.mf-win', '.mf-folder', '.mg-caro-card', '.sm-caro-card',
   '.bx-folder', '.mread', '.mless', '.dial-well',
 ].join(',')
 const REACH = 26 // px beyond a target's edge at which the glass takes over
@@ -34,13 +34,20 @@ export default function CursorDot() {
     const c = { x: -100, y: -100, w: 11, h: 11, r: 14, vx: 0, vy: 0, vw: 0, vh: 0, g: 0, mx: -100, my: -100, seen: false, down: 0 }
 
     const nearestHot = (mx: number, my: number): DOMRect | null => {
-      let best: DOMRect | null = null, bestD = REACH
+      let best: DOMRect | null = null, bestD = REACH, bestA = Infinity
       for (const el of document.querySelectorAll<HTMLElement>(HOT)) {
         const r = el.getBoundingClientRect()
         if (!r.width || !r.height) continue
         const dx = Math.max(r.left - mx, 0, mx - r.right), dy = Math.max(r.top - my, 0, my - r.bottom)
         const d = Math.hypot(dx, dy)
-        if (d < bestD) { bestD = d; best = r }
+        const area = r.width * r.height
+        // a link inside a clickable panel beats the panel: nearest first, then smallest
+        if (d > bestD || (d === bestD && area >= bestA)) continue
+        // hidden panels keep their links in layout at opacity 0, and the arc's
+        // far cards are faded out. Only a visible, clickable target draws the glass.
+        if (el.checkVisibility && !el.checkVisibility({ opacityProperty: true, visibilityProperty: true } as CheckVisibilityOptions)) continue
+        if (getComputedStyle(el).pointerEvents === 'none') continue
+        bestD = d; bestA = area; best = r
       }
       return best
     }
