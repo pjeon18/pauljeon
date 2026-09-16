@@ -109,7 +109,7 @@ interface Seg {
   col?: [string, string]
   squash?: boolean
   cam?: { z: number; at?: (u: number) => P; spring?: Spring }
-  bg?: string                       // the colour of the room for this shot
+  bg?: [string, string]             // the room for this shot: light at the dot, deeper at the edges
   exit?: () => void
 }
 type Spring = { k: number; d: number }
@@ -164,14 +164,23 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
                   tx: innerWidth / 2, ty: innerHeight / 2, tz: 1,
                   k: CAM.follow.k, d: CAM.follow.d, kz: CAM_KZ, dz: CAM_DZ }
     const camSpring = (sp: Spring) => { cam.k = sp.k; cam.d = sp.d }
-    // the room's colour. It lerps slowly, so a shot change is a wash, not a cut.
-    let bgCur = rgbOf(CREAM), bgTarget = rgbOf(CREAM)
-    const setBg = (hex: string) => { bgTarget = rgbOf(hex) }
+    // The room's light. A pool of the lighter tone sits where the camera is
+    // looking and falls off to the deeper one, and the pool tightens as the
+    // camera goes in, which is what reads as depth. Both tones lerp slowly,
+    // so a shot change is a wash, not a cut.
+    const CREAM_PAIR: [string, string] = [CREAM, CREAM]
+    let bgA = rgbOf(CREAM), bgB = rgbOf(CREAM), tgtA = rgbOf(CREAM), tgtB = rgbOf(CREAM)
+    const setBg = (pair: [string, string]) => { tgtA = rgbOf(pair[0]); tgtB = rgbOf(pair[1]) }
     const paintBg = (f: number) => {
-      bgCur = bgCur.map((c, i) => c + (bgTarget[i] - c) * f)
-      const idle = bgCur.every((c, i) => Math.abs(c - bgTarget[i]) < 0.4) && bgTarget.join() === rgbOf(CREAM).join()
-      const col = idle ? '' : `rgb(${bgCur.map(Math.round).join(',')})`
-      pageEl.style.background = col; document.body.style.background = col
+      bgA = bgA.map((c, i) => c + (tgtA[i] - c) * f)
+      bgB = bgB.map((c, i) => c + (tgtB[i] - c) * f)
+      const flat = rgbOf(CREAM)
+      const idle = bgA.every((c, i) => Math.abs(c - flat[i]) < 0.4) && bgB.every((c, i) => Math.abs(c - flat[i]) < 0.4)
+      if (idle) { pageEl.style.background = ''; document.body.style.background = ''; return }
+      const A = `rgb(${bgA.map(Math.round).join(',')})`, B = `rgb(${bgB.map(Math.round).join(',')})`
+      const r = Math.max(innerWidth, innerHeight) * 0.95 / Math.max(1, cam.z)
+      pageEl.style.background = `radial-gradient(circle ${r.toFixed(0)}px at ${cam.x.toFixed(0)}px ${cam.y.toFixed(0)}px, ${A} 0%, ${B} 100%)`
+      document.body.style.background = B
     }
     const camReset = () => { cam.tx = innerWidth / 2; cam.ty = innerHeight / 2; cam.tz = 1 }
     const camApply = () => {
@@ -330,32 +339,32 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
           // wakes up in place, filling the frame. The camera starts to pull
           // back only once it moves, so the first thing seen is the period.
           { dur: 900, ease: easeInOutSine, at: (u) => ({ x: home.x - 8 * u, y: home.y - 14 * u }),
-            sc: [S.restScale, 1], col: [INK, RED], cam: { z: 4.2, spring: CAM.glide }, bg: '#FBF4EA' },
+            sc: [S.restScale, 1], col: [INK, RED], cam: { z: 4.2, spring: CAM.glide }, bg: ['#FEF8F0', '#F2E2CC'] },
           { dur: 560, ease: transit, at: (u) => qbez(anticip, { x: anticip.x + 30, y: anticip.y - 40 }, orbitStart, u),
             cam: { z: 2.6, spring: CAM.follow } },
           { dur: 1700, ease: LIN, at: introOrbit,
-            cam: { z: 1.85, at: (u) => lerp(introOrbit(u), introFit.c, 0.6), spring: CAM.follow }, bg: '#FBE8D6' },
+            cam: { z: 1.85, at: (u) => lerp(introOrbit(u), introFit.c, 0.6), spring: CAM.follow }, bg: ['#FDEBD9', '#EFC9A8'] },
           { dur: 900, ease: transit,
             at: (u) => qbez(orbitEnd, { x: orbitEnd.x - 80, y: (orbitEnd.y + folderStart.y) / 2 + 40 }, folderStart, u),
-            cam: { z: 1.9, spring: CAM.glide }, bg: '#E3ECF8' },
+            cam: { z: 1.9, spring: CAM.glide }, bg: ['#EBF1FB', '#C4D5EE'] },
           { dur: 860, ease: LIN, at: folderOrbit,
             cam: { z: 2.7, at: (u) => lerp(folderOrbit(u), fo, 0.55), spring: CAM.follow } },
           // the launch pulls the camera back and it falls behind, so the hit
           // lands while the frame is still catching up
           { dur: 820, ease: launch,
             at: (u) => qbez(folderStart, { x: (folderStart.x + hit.x) / 2, y: folderStart.y - 210 }, hit, u),
-            cam: { z: 1.45, at: (u) => lerp(folderStart, wheelLook, u), spring: CAM.lag }, bg: '#FFE9CC' },
+            cam: { z: 1.45, at: (u) => lerp(folderStart, wheelLook, u), spring: CAM.lag }, bg: ['#FFEDD3', '#F3C892'] },
           { dur: 190, ease: LIN, at: () => hit, squash: true,
             cam: { z: 1.6, at: () => wheelLook, spring: CAM.lag },
             exit: () => window.dispatchEvent(new CustomEvent('pj:spin')) },
           { dur: 1250, ease: transit,
             at: (u) => qbez(hit, { x: (hit.x + linksStart.x) / 2, y: hit.y - 150 }, linksStart, u),
-            cam: { z: 1.5, at: (u) => lerp(wheelLook, linksLook, u * u), spring: CAM.lag }, bg: '#F1EEE6' },
+            cam: { z: 1.5, at: (u) => lerp(wheelLook, linksLook, u * u), spring: CAM.lag }, bg: ['#F4F1EA', '#D9D2C2'] },
           { dur: 1150, ease: LIN, at: linksSweep,
             cam: { z: 1.9, at: (u) => lerp(linksLook, linksSweep(u), 0.35), spring: CAM.follow } },
           { dur: 980, ease: transit,
             at: (u) => qbez(linksEnd, { x: home.x + 40, y: (linksEnd.y + home.y) / 2 }, homeOver, u),
-            cam: { z: 2.4, spring: CAM.glide }, bg: '#FBF4EA' },
+            cam: { z: 2.4, spring: CAM.glide }, bg: ['#FCF5EB', '#EBDBC4'] },
           { dur: 560, ease: easeOutCubic,
             at: (u) => ({ x: homeOver.x + (home.x - homeOver.x) * u, y: homeOver.y + (home.y - homeOver.y) * u }),
             sc: [1, S.restScale], col: [RED, INK], cam: { z: 3.2, spring: CAM.follow }, exit: rest },
@@ -410,7 +419,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     const disarm = () => {
       if (!armed) return
       armed = null
-      camSpring(CAM.glide); camReset(); setBg(CREAM)
+      camSpring(CAM.glide); camReset(); setBg(CREAM_PAIR)
       document.body.classList.remove('guide-trailer')
     }
 
@@ -442,13 +451,13 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       }
       const finish = () => {
         S.touring = false
-        if (kind !== 'trailer') { camReset(); setBg(CREAM); return }
+        if (kind !== 'trailer') { camReset(); setBg(CREAM_PAIR); return }
         // the dot is home. Stay with it a beat, so the ending feels settled,
         // then drift back to the whole page on a slow zoom.
         settleT = window.setTimeout(() => {
           settleT = 0
           camSpring(CAM.glide); cam.kz = 6; cam.dz = 4.6
-          camReset(); setBg(CREAM)
+          camReset(); setBg(CREAM_PAIR)
           document.body.classList.remove('guide-trailer')
         }, 1100)
       }
@@ -508,13 +517,13 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       if (settleT) {
         window.clearTimeout(settleT); settleT = 0
         camSpring(CAM.glide); cam.kz = CAM_KZ; cam.dz = CAM_DZ
-        camReset(); setBg(CREAM); document.body.classList.remove('guide-trailer')
+        camReset(); setBg(CREAM_PAIR); document.body.classList.remove('guide-trailer')
       }
       if (!S.touring) return
       S.touring = false
       S.aborting = true
       camSpring(CAM.follow); cam.kz = CAM_KZ; cam.dz = CAM_DZ
-      camReset(); setBg(CREAM)
+      camReset(); setBg(CREAM_PAIR)
       document.body.classList.remove('guide-trailer')
       cancelAnimationFrame(S.raf)
       measureHome()
