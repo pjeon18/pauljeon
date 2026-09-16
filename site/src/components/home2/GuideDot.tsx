@@ -223,7 +223,14 @@ export default function GuideDot({ run }: { run: boolean }) {
       const folderOrbit = gravityOrbit(fo, 60, -Math.PI / 2, 1)
       const folderStart = folderOrbit(0)
 
-      const hit = { x: pr.left + 52, y: pr.top + pr.height / 2 }
+      // Aim at the focused card itself, not at the pane. The arc's pivot sits
+      // off the right edge, so the card lands roughly 250px inside the pane
+      // and a hit measured from the pane edge misses it by about 200px.
+      const focused = pane.querySelector('.af-card.af-active') as HTMLElement | null
+      const cr = focused?.getBoundingClientRect()
+      const hit = cr
+        ? { x: cr.left + 2, y: cr.top + cr.height / 2 }
+        : { x: pr.left + 52, y: pr.top + pr.height / 2 }
 
       const sweepY = lr.top - 15
       const xs = [...linksEl.children].map((el) => {
