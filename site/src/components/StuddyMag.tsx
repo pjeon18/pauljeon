@@ -1,7 +1,7 @@
 // The Studdy case study, magazine edition — a bespoke long-read with its own
 // layout system (see studdy-mag.css). Content lives inline: this page IS the
 // deliverable, and its structure changes with its story.
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
 import '../styles/studdy-mag.css'
@@ -365,9 +365,9 @@ export default function StuddyMag() {
 
       {/* ---------------- masthead ---------------- */}
       <header className="sm-masthead">
-        <img className="sm-wordmark rv" src={wordmark} alt="Studdy" />
+        <img className="sm-wordmark rv" src={wordmark} alt="Studdy" style={{ viewTransitionName: 'case-hero' } as React.CSSProperties} />
         <div className="sm-kicker rv">Case study · shipped &amp; live · 2026</div>
-        <h1 className="rv">
+        <h1 className="rv" style={{ viewTransitionName: 'case-title' } as React.CSSProperties}>
           A study spot<br />that <em>never closes</em> ♪
         </h1>
         <p className="sm-dek rv">

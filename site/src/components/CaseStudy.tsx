@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { caseOrder, caseStudies } from '../content/site'
 import { OrgArt, RlArt } from './CardArt'
@@ -31,7 +31,7 @@ export default function CaseStudy() {
 
       <header className="case-head">
         <div className="case-kicker">{study.kicker}</div>
-        <h1>{study.title}</h1>
+        <h1 style={{ viewTransitionName: 'case-title' } as React.CSSProperties}>{study.title}</h1>
         <p className="case-lead">{study.lead}</p>
         <div className="case-meta">
           <div>
@@ -56,8 +56,8 @@ export default function CaseStudy() {
       </header>
 
       <div className={'case-visual' + (study.icon ? ' is-icon' : '')}>
-        {study.image && <img src={study.image} alt={study.title} />}
-        {study.icon && <img className="cv-icon" src={study.icon} alt={study.title} />}
+        {study.image && <img src={study.image} alt={study.title} style={{ viewTransitionName: 'case-hero' } as React.CSSProperties} />}
+        {study.icon && <img className="cv-icon" src={study.icon} alt={study.title} style={{ viewTransitionName: 'case-hero' } as React.CSSProperties} />}
         {study.art === 'org' && <div className="cv-art"><OrgArt /></div>}
         {study.art === 'rl' && <div className="cv-art"><RlArt /></div>}
       </div>
