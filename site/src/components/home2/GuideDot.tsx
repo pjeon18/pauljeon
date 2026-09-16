@@ -22,7 +22,6 @@ const DOT = 13 // must match .guide-dot in home2.css
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
 const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2
 const easeInOutQuint = (t: number) => (t < 0.5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2)
-const LIN = (t: number) => t
 
 // a quintic in-out peaks near 5x its average speed, which is where the zip
 // comes from. The linear share leaves the ends drifting instead of stopping.
@@ -109,21 +108,28 @@ interface Seg {
   sc?: [number, number]
   col?: [string, string]
   squash?: boolean
-  cam?: { z: number; at?: (u: number) => P }
+  cam?: { z: number; at?: (u: number) => P; spring?: Spring }
+  bg?: string                       // the colour of the room for this shot
   exit?: () => void
 }
+type Spring = { k: number; d: number }
+type Program = 'tour' | 'trailer'
 
 // ---------------------------------------------------------------- camera
 // The page is the subject and the camera follows the dot on a spring, so it
 // lags and settles like an operator rather than tracking 1:1. Zoom is small
 // on purpose. Pan is only possible while zoomed, because at 1x any pan would
 // reveal the edge of the page, so the clamp pins it centred.
-const CAM_K = 34, CAM_D = 10.5     // pan spring, a touch under critical
+// pan springs. follow is a touch under critical; lag is the hand-held one
+// that arrives after the dot; glide is for the long pull-backs.
+const CAM = { follow: { k: 34, d: 10.5 }, lag: { k: 13, d: 5.2 }, glide: { k: 20, d: 8.4 } }
 const CAM_KZ = 26, CAM_DZ = 9.4    // zoom spring, slower still
+const CREAM = '#FDFDFB'
+const rgbOf = (h: string) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]
 
 // ============================================================================
 
-export default function GuideDot({ run }: { run: boolean }) {
+export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: Program }) {
   const dotRef = useRef<HTMLDivElement>(null)
   const ghostRefs = useRef<(HTMLDivElement | null)[]>([])
   const state = useRef({
@@ -145,16 +151,28 @@ export default function GuideDot({ run }: { run: boolean }) {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const camEl = document.querySelector('.sh-cam') as HTMLElement | null
+    const pageEl = document.querySelector('.sh-page') as HTMLElement | null
     const period = document.querySelector('.sh-period') as HTMLElement | null
     const baseline = document.querySelector('.sh-bl') as HTMLElement | null
     const intro = document.querySelector('.sh-intro') as HTMLElement | null
     const folderEl = document.querySelector('.mf-folder') as HTMLElement | null
     const linksEl = document.querySelector('.sh-links') as HTMLElement | null
     const pane = document.querySelector('.af-pane') as HTMLElement | null
-    if (!period || !baseline || !intro || !folderEl || !linksEl || !pane || !camEl) return
+    if (!period || !baseline || !intro || !folderEl || !linksEl || !pane || !camEl || !pageEl) return
 
     const cam = { x: innerWidth / 2, y: innerHeight / 2, z: 1, vx: 0, vy: 0, vz: 0,
-                  tx: innerWidth / 2, ty: innerHeight / 2, tz: 1 }
+                  tx: innerWidth / 2, ty: innerHeight / 2, tz: 1,
+                  k: CAM.follow.k, d: CAM.follow.d, kz: CAM_KZ, dz: CAM_DZ }
+    const camSpring = (sp: Spring) => { cam.k = sp.k; cam.d = sp.d }
+    // the room's colour. It lerps slowly, so a shot change is a wash, not a cut.
+    let bgCur = rgbOf(CREAM), bgTarget = rgbOf(CREAM)
+    const setBg = (hex: string) => { bgTarget = rgbOf(hex) }
+    const paintBg = (f: number) => {
+      bgCur = bgCur.map((c, i) => c + (bgTarget[i] - c) * f)
+      const idle = bgCur.every((c, i) => Math.abs(c - bgTarget[i]) < 0.4) && bgTarget.join() === rgbOf(CREAM).join()
+      const col = idle ? '' : `rgb(${bgCur.map(Math.round).join(',')})`
+      pageEl.style.background = col; document.body.style.background = col
+    }
     const camReset = () => { cam.tx = innerWidth / 2; cam.ty = innerHeight / 2; cam.tz = 1 }
     const camApply = () => {
       const W = innerWidth, H = innerHeight
@@ -171,10 +189,11 @@ export default function GuideDot({ run }: { run: boolean }) {
       const W = innerWidth, H = innerHeight
       const hx = W / (2 * cam.tz), hy = H / (2 * cam.tz)
       const tx = Math.max(hx, Math.min(W - hx, cam.tx)), ty = Math.max(hy, Math.min(H - hy, cam.ty))
-      cam.vx += ((tx - cam.x) * CAM_K - cam.vx * CAM_D) * dt; cam.x += cam.vx * dt
-      cam.vy += ((ty - cam.y) * CAM_K - cam.vy * CAM_D) * dt; cam.y += cam.vy * dt
-      cam.vz += ((cam.tz - cam.z) * CAM_KZ - cam.vz * CAM_DZ) * dt; cam.z += cam.vz * dt
+      cam.vx += ((tx - cam.x) * cam.k - cam.vx * cam.d) * dt; cam.x += cam.vx * dt
+      cam.vy += ((ty - cam.y) * cam.k - cam.vy * cam.d) * dt; cam.y += cam.vy * dt
+      cam.vz += ((cam.tz - cam.z) * cam.kz - cam.vz * cam.dz) * dt; cam.z += cam.vz * dt
       camApply()
+      paintBg(Math.min(1, dt * 2.4))
       camRaf = requestAnimationFrame(camLoop)
     }
     if (!reduced) camRaf = requestAnimationFrame(camLoop)
@@ -245,14 +264,15 @@ export default function GuideDot({ run }: { run: boolean }) {
       dot.classList.add('live')
     }
 
-    const buildTour = (): Seg[] => {
+    const buildTour = (kind: Program): Seg[] => {
       measureHome()
       const home = S.home
       const h1 = intro.querySelector('h1')!
       const para = intro.querySelector('p')!
       const ir = unionRect(textRect(h1), textRect(para))
       const leftPane = (document.querySelector('.sh-left') as HTMLElement).getBoundingClientRect()
-      const fr = folderEl.getBoundingClientRect()
+      // the orbit circles the icon, not icon plus label
+      const fr = (folderEl.querySelector('.mf-folder-icon') ?? folderEl).getBoundingClientRect()
       const fo = { x: fr.left + fr.width / 2, y: fr.top + fr.height / 2 }
       const lr = linksEl.getBoundingClientRect()
       const pr = pane.getBoundingClientRect()
@@ -271,7 +291,12 @@ export default function GuideDot({ run }: { run: boolean }) {
       // Aim at the focused card itself, not at the pane. The arc's pivot sits
       // off the right edge, so the card lands roughly 250px inside the pane
       // and a hit measured from the pane edge misses it by about 200px.
-      const focused = pane.querySelector('.af-card.af-active') as HTMLElement | null
+      // While the arc is still turning nothing is marked active, so take the
+      // card nearest the focused slot: the slot is fixed in space either way.
+      const paneMidY = pr.top + pr.height / 2
+      const focused = ([...pane.querySelectorAll('.af-card')] as HTMLElement[])
+        .filter((el) => el.getBoundingClientRect().width > 0)
+        .sort((a, b) => { const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect(); return Math.abs(ra.top + ra.height / 2 - paneMidY) - Math.abs(rb.top + rb.height / 2 - paneMidY) })[0] ?? null
       const cr = focused?.getBoundingClientRect()
       const hit = cr
         ? { x: cr.left + 2, y: cr.top + cr.height / 2 }
@@ -291,36 +316,76 @@ export default function GuideDot({ run }: { run: boolean }) {
       // and eases back down onto it
       const homeOver = { x: home.x + 11, y: home.y - 9 }
       const linksMid = { x: (xs[0] + xs[xs.length - 1]) / 2, y: sweepY + 6 }
-      // camera briefs. Orbits look at their centre, not at the dot, or the
+      const LIN = (t: number) => t
+      const lerp = (a: P, b: P, k: number): P => ({ x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k })
+
+      if (kind === 'trailer') {
+        // The trailer's camera lives on the dot. It follows on a spring, so
+        // it lags and overshoots like a hand-held operator, and the zoom is
+        // the depth: close on the small moments, pulled back for the long
+        // crossings. Each shot also sets the colour of the room.
+        const wheelLook = { x: hit.x + 250, y: hit.y }          // into the cards, not the pane's edge
+        const linksLook = { x: linksMid.x, y: sweepY - 110 }    // the row sits in the lower third
+        return [
+          // wakes up in place, filling the frame. The camera starts to pull
+          // back only once it moves, so the first thing seen is the period.
+          { dur: 900, ease: easeInOutSine, at: (u) => ({ x: home.x - 8 * u, y: home.y - 14 * u }),
+            sc: [S.restScale, 1], col: [INK, RED], cam: { z: 4.2, spring: CAM.glide }, bg: '#FBF4EA' },
+          { dur: 560, ease: transit, at: (u) => qbez(anticip, { x: anticip.x + 30, y: anticip.y - 40 }, orbitStart, u),
+            cam: { z: 2.6, spring: CAM.follow } },
+          { dur: 1700, ease: LIN, at: introOrbit,
+            cam: { z: 1.85, at: (u) => lerp(introOrbit(u), introFit.c, 0.6), spring: CAM.follow }, bg: '#FBE8D6' },
+          { dur: 900, ease: transit,
+            at: (u) => qbez(orbitEnd, { x: orbitEnd.x - 80, y: (orbitEnd.y + folderStart.y) / 2 + 40 }, folderStart, u),
+            cam: { z: 1.9, spring: CAM.glide }, bg: '#E3ECF8' },
+          { dur: 860, ease: LIN, at: folderOrbit,
+            cam: { z: 2.7, at: (u) => lerp(folderOrbit(u), fo, 0.55), spring: CAM.follow } },
+          // the launch pulls the camera back and it falls behind, so the hit
+          // lands while the frame is still catching up
+          { dur: 820, ease: launch,
+            at: (u) => qbez(folderStart, { x: (folderStart.x + hit.x) / 2, y: folderStart.y - 210 }, hit, u),
+            cam: { z: 1.45, at: (u) => lerp(folderStart, wheelLook, u), spring: CAM.lag }, bg: '#FFE9CC' },
+          { dur: 190, ease: LIN, at: () => hit, squash: true,
+            cam: { z: 1.6, at: () => wheelLook, spring: CAM.lag },
+            exit: () => window.dispatchEvent(new CustomEvent('pj:spin')) },
+          { dur: 1250, ease: transit,
+            at: (u) => qbez(hit, { x: (hit.x + linksStart.x) / 2, y: hit.y - 150 }, linksStart, u),
+            cam: { z: 1.5, at: (u) => lerp(wheelLook, linksLook, u * u), spring: CAM.lag }, bg: '#F1EEE6' },
+          { dur: 1150, ease: LIN, at: linksSweep,
+            cam: { z: 1.9, at: (u) => lerp(linksLook, linksSweep(u), 0.35), spring: CAM.follow } },
+          { dur: 980, ease: transit,
+            at: (u) => qbez(linksEnd, { x: home.x + 40, y: (linksEnd.y + home.y) / 2 }, homeOver, u),
+            cam: { z: 2.4, spring: CAM.glide }, bg: '#FBF4EA' },
+          { dur: 560, ease: easeOutCubic,
+            at: (u) => ({ x: homeOver.x + (home.x - homeOver.x) * u, y: homeOver.y + (home.y - homeOver.y) * u }),
+            sc: [1, S.restScale], col: [RED, INK], cam: { z: 3.2, spring: CAM.follow }, exit: rest },
+        ]
+      }
+
+      // the light tour. Orbits look at their centre, not at the dot, or the
       // shot would wobble in circles. Transits pull back to 1x.
       const LOOK = {
         headline: { z: 1.10, at: () => introFit.c }, folder: { z: 1.13, at: () => fo },
         wheel: { z: 1.09, at: () => hit }, links: { z: 1.08, at: () => linksMid },
       }
-
       return [
         { dur: 460, ease: easeInOutSine, at: (u) => ({ x: home.x - 8 * u, y: home.y - 14 * u }),
           sc: [S.restScale, 1], col: [INK, RED] },
-
         { dur: 460, ease: transit, at: (u) => qbez(anticip, { x: anticip.x + 30, y: anticip.y - 40 }, orbitStart, u) },
         { dur: 1500, ease: LIN, at: introOrbit, cam: LOOK.headline },
-
         { dur: 820, ease: transit,
           at: (u) => qbez(orbitEnd, { x: orbitEnd.x - 80, y: (orbitEnd.y + folderStart.y) / 2 + 40 }, folderStart, u) },
         { dur: 760, ease: LIN, at: folderOrbit, cam: LOOK.folder },
-
         { dur: 740, ease: launch,
           at: (u) => qbez(folderStart, { x: (folderStart.x + hit.x) / 2, y: folderStart.y - 210 }, hit, u) },
         { dur: 170, ease: LIN, at: () => hit, squash: true, cam: LOOK.wheel,
           exit: () => window.dispatchEvent(new CustomEvent('pj:spin')) },
-
         // the slow head of this move is the recoil off the wheel, which is
         // also when the spin is at its most violent
         { dur: 1150, ease: transit,
           at: (u) => qbez(hit, { x: (hit.x + linksStart.x) / 2, y: hit.y - 150 }, linksStart, u),
-          cam: { z: 1.05, at: () => hit } },   // the camera stays on the wheel while it spins
+          cam: { z: 1.05, at: () => hit } },
         { dur: 1080, ease: LIN, at: linksSweep, cam: LOOK.links },
-
         { dur: 900, ease: transit,
           at: (u) => qbez(linksEnd, { x: home.x + 40, y: (linksEnd.y + home.y) / 2 }, homeOver, u) },
         { dur: 520, ease: easeOutCubic,
@@ -329,28 +394,67 @@ export default function GuideDot({ run }: { run: boolean }) {
       ]
     }
 
-    const runTour = () => {
-      if (S.touring || reduced) return
-      goLive()
+    // the trailer is measured and framed before the splash lifts, so the
+    // first frame anyone sees is already the period at 7x
+    let armed: Seg[] | null = null
+    const arm = () => {
+      camSnap(); goLive()
+      armed = buildTour('trailer')
+      camSpring(CAM.follow); cam.kz = 12; cam.dz = 6.6      // zoom eases out slowly through the trailer
+      cam.tx = cam.x = S.home.x; cam.ty = cam.y = S.home.y; cam.tz = cam.z = 7
+      cam.vx = cam.vy = cam.vz = 0
+      camApply()
+      document.body.classList.add('guide-trailer')
+    }
+    const disarm = () => {
+      if (!armed) return
+      armed = null
+      camSpring(CAM.glide); camReset(); setBg(CREAM)
+      document.body.classList.remove('guide-trailer')
+    }
+
+    const runTour = (kind: Program = 'tour') => {
+      if (S.touring) return
+      if (reduced) return
       S.touring = true
       S.aborting = false
-      camSnap()
-      const segs = buildTour()
+      let segs: Seg[]
+      let holdMs = 0
+      if (kind === 'trailer' && armed) {
+        segs = armed; armed = null; holdMs = 1000     // the period, huge and still, for a beat
+      } else {
+        camSnap()
+        camSpring(CAM.follow); cam.kz = CAM_KZ; cam.dz = CAM_DZ
+        goLive()
+        segs = buildTour(kind)
+      }
       S.px = S.home.x; S.py = S.home.y
       place(S.home.x, S.home.y, S.restScale, S.restScale, 0)
       let i = 0
-      let t0 = performance.now()
+      let t0 = performance.now() + holdMs
       let history: P[] = []
-
+      let entered = -1
+      const enter = (k: number) => {
+        entered = k
+        if (segs[k].cam?.spring) camSpring(segs[k].cam!.spring!)
+        if (segs[k].bg) setBg(segs[k].bg!)
+      }
+      const finish = () => {
+        S.touring = false
+        if (kind === 'trailer') { camSpring(CAM.glide); cam.kz = 9; cam.dz = 5.6; document.body.classList.remove('guide-trailer') }
+        camReset(); setBg(CREAM)
+      }
       const frame = (now: number) => {
         if (!S.touring) return
+        if (now < t0) { S.raf = requestAnimationFrame(frame); return }
+        if (entered !== i) enter(i)
         const s = segs[i]
         let u = (now - t0) / s.dur
         if (u >= 1) {
           u = 1
           s.exit?.()
           i++; t0 = now
-          if (i >= segs.length) { S.touring = false; camReset(); return }
+          if (i >= segs.length) { finish(); return }
         }
         const e = s.ease(Math.min(u, 1))
         const p = s.at(e)
@@ -392,10 +496,13 @@ export default function GuideDot({ run }: { run: boolean }) {
     // any real intent from the visitor wins, and the dot eases home
     const abort = () => {
       S.cancelled = true
+      disarm()
       if (!S.touring) return
       S.touring = false
       S.aborting = true
-      camReset()
+      camSpring(CAM.follow); cam.kz = CAM_KZ; cam.dz = CAM_DZ
+      camReset(); setBg(CREAM)
+      document.body.classList.remove('guide-trailer')
       cancelAnimationFrame(S.raf)
       measureHome()
       const from = { x: S.px, y: S.py }
@@ -419,19 +526,33 @@ export default function GuideDot({ run }: { run: boolean }) {
         // a tap on the full stop replays it, whenever
         if (e.target instanceof HTMLElement && /INPUT|TEXTAREA/.test(e.target.tagName)) return
         abort()
-        window.setTimeout(runTour, 60)
+        window.setTimeout(() => runTour('tour'), 60)
         return
       }
       abort()
     }
-    const onResize = () => { if (S.live && !S.touring && !S.aborting) rest() }
+    const onResize = () => {
+      if (S.touring) { abort(); return }
+      if (S.live && !S.aborting) rest()
+    }
+    // the period itself is the replay control
+    const onDotClick = () => { if (!S.touring && !S.aborting) runTour('tour') }
+    dot.addEventListener('click', onDotClick)
 
     window.addEventListener('keydown', onKey)
     window.addEventListener('pointerdown', abort)
     window.addEventListener('wheel', abort, { passive: true })
     window.addEventListener('resize', onResize)
 
-    ;(window as unknown as Record<string, unknown>).__pjGuide = runTour
+    ;(window as unknown as Record<string, unknown>).__pjGuide = () => runTour('tour')
+    ;(window as unknown as Record<string, unknown>).__pjRun = runTour
+
+    // the trailer frames itself while the splash still covers the page
+    if (mode === 'trailer' && !reduced) {
+      const go = () => { if (!S.cancelled && !S.touring) arm() }
+      if (document.fonts?.status === 'loaded') go()
+      else document.fonts?.ready.then(go)
+    }
 
     return () => {
       cancelAnimationFrame(S.raf)
@@ -442,6 +563,9 @@ export default function GuideDot({ run }: { run: boolean }) {
       window.removeEventListener('pointerdown', abort)
       window.removeEventListener('wheel', abort)
       window.removeEventListener('resize', onResize)
+      dot.removeEventListener('click', onDotClick)
+      document.body.classList.remove('guide-trailer')
+      pageEl.style.background = ''; document.body.style.background = ''
       document.documentElement.classList.remove('guide-live')
     }
   }, [])
@@ -451,8 +575,9 @@ export default function GuideDot({ run }: { run: boolean }) {
     if (!run) return
     const S = state.current
     if (S.cancelled) return
-    const go = (window as unknown as Record<string, unknown>).__pjGuide as (() => void) | undefined
-    if (!go) return
+    const run_ = (window as unknown as Record<string, unknown>).__pjRun as ((k: Program) => void) | undefined
+    if (!run_) return
+    const go = () => run_(mode)
     // wait for the webfont, or the glyph measurement is taken from a fallback
     if (document.fonts?.status === 'loaded') go()
     else document.fonts?.ready.then(() => { if (!state.current.cancelled) go() })

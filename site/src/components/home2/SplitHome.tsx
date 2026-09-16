@@ -53,12 +53,17 @@ export default function SplitHome() {
   })
   const [boot, setBoot] = useState(sessionBoot)
   const [gone, setGone] = useState(!boot)
+  // the first visit of a session opens with the trailer, after the drop.
+  // Later mounts get the light tour, and the period replays it on click.
+  const mode: 'trailer' | 'tour' = sessionBoot ? 'trailer' : 'tour'
   // the guide waits for the boot choreography to settle. Starting it earlier
   // would have it circling a headline that is still sliding into place.
   const [guide, setGuide] = useState(false)
 
   useEffect(() => {
     if (boot || !tourComing) return
+    // the trailer holds on the period while the mask opens, so it starts at once
+    if (mode === 'trailer') { setGuide(true); return }
     const t = window.setTimeout(() => setGuide(true), 2100)
     return () => window.clearTimeout(t)
   }, [boot])
@@ -70,7 +75,7 @@ export default function SplitHome() {
   }, [])
 
   return (
-    <div className={'sh-page' + (boot ? '' : ' sh-ready') + (returning ? ' sh-return' : '')}>
+    <div className={'sh-page' + (boot ? '' : ' sh-ready') + (returning ? ' sh-return' : '') + (sessionBoot ? ' sh-trailer' : '')}>
       {!gone && sessionBoot && (
         <SplashDrop onReveal={() => setBoot(false)} onDone={() => setGone(true)} />
       )}
@@ -103,7 +108,7 @@ export default function SplitHome() {
       </div>
 
       <ArcFocus spinIn={!boot && !returning} awaitCollision={tourComing} dockIndex={dockIndex} />
-      <GuideDot run={guide} />
+      <GuideDot run={guide} mode={mode} />
       </div>
       <Dial />
     </div>

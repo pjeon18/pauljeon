@@ -376,6 +376,18 @@ body.sh-lock { overflow: hidden; }
 .sh-return .af-lift, .sh-return .sh-intro h1, .sh-return .sh-intro p,
 .sh-return .mf-folder, .sh-return .sh-nav, .sh-return .sh-links { animation: none !important; }
 
+/* The trailer opens on the period at 7x, so nothing carries in: the page is
+   simply there when the mask lifts. Only the arc keeps its arrival. */
+.sh-trailer:not(.sh-ready) .sh-intro h1, .sh-trailer:not(.sh-ready) .sh-intro p,
+.sh-trailer:not(.sh-ready) .mf-folder, .sh-trailer:not(.sh-ready) .sh-nav,
+.sh-trailer:not(.sh-ready) .sh-links { opacity: 1; }
+.sh-trailer .sh-intro h1, .sh-trailer .sh-intro p, .sh-trailer .mf-folder,
+.sh-trailer .sh-nav, .sh-trailer .sh-links { animation: none !important; }
+/* the period is the replay control once the dot stands in for it */
+.guide-dot.live { pointer-events: auto; cursor: pointer; }
+/* hardware stays off the picture while the trailer plays */
+body.guide-trailer .dial { opacity: 0; pointer-events: none; transform: translate(70px, -50%); }
+
 /* the cards only fade; their travel is the arc's own deceleration */
 .sh-ready .af-lift {
   animation: shRiseIn 620ms cubic-bezier(0.16, 1, 0.3, 1) backwards;

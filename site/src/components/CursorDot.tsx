@@ -15,7 +15,7 @@ import { useEffect, useRef } from 'react'
 const HOT = [
   'a', 'button', '[role="button"]', 'summary',
   '.af-card', '.mf-win', '.mf-folder', '.mg-caro-card', '.sm-caro-card',
-  '.bx-folder', '.mread', '.mless', '.dial-well',
+  '.bx-folder', '.mread', '.mless', '.dial-well', '.guide-dot.live',
 ].join(',')
 const REACH = 26 // px beyond a target's edge at which the glass takes over
 
