@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import portraitFront from '../../assets/portrait-front.jpg'
-import harvardShop from '../../assets/harvard-shop.jpg'
-import poster from '../../assets/poster-human-inventory.jpg'
+import portraitFront from '../../assets/portrait-front.webp'
+import harvardShop from '../../assets/harvard-shop.webp'
+import poster from '../../assets/poster-human-inventory.webp'
 
 // ============================================================================
 // MediaFolder — the about-me corner of the home page. A closed macOS-style

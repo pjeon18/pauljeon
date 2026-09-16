@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { consumeArrival } from '../lib/arrival'
 import { caseOrder, caseStudies } from '../content/site'
 import { OrgArt, RlArt } from './CardArt'
 import Footer from './Footer'
@@ -8,6 +9,8 @@ export default function CaseStudy() {
   const { slug } = useParams()
   const navigate = useNavigate()
   const study = slug ? caseStudies[slug] : undefined
+  // set by the arc when it opened this page through the shared-element transition
+  const [arrived] = useState(() => consumeArrival())
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -23,7 +26,7 @@ export default function CaseStudy() {
   const next = caseStudies[caseOrder[(idx + 1) % caseOrder.length]]
 
   return (
-    <div className="case">
+    <div className={'case' + (arrived ? ' case-arrive' : '')}>
       <nav className="case-nav">
         <Link className="case-logo" to="/">Paul Jeon</Link>
         <Link className="case-back" to="/">← Back to site</Link>

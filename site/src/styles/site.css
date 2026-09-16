@@ -717,3 +717,15 @@ button { font-family: inherit; }
 }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 380ms; }
 
+
+
+/* arriving from the arc: the hero and title morph in, the rest of the head
+   follows once they have landed */
+@keyframes caseArrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.case-arrive .case-kicker, .case-arrive .case-lead, .case-arrive .case-meta {
+  animation: caseArrive 640ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.case-arrive .case-kicker { animation-delay: 400ms; }
+.case-arrive .case-lead { animation-delay: 490ms; }
+.case-arrive .case-meta { animation-delay: 580ms; }
+@media (prefers-reduced-motion: reduce) { .case-arrive .case-kicker, .case-arrive .case-lead, .case-arrive .case-meta { animation: none; } }

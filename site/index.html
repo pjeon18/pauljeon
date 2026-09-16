@@ -4,14 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Paul Jeon — Product &amp; Engineering</title>
-    <meta name="description" content="Paul Jeon designs and manages products for claircognizance — intuitive clarity. Harvard CS '27. ISO, Org Chart Explorer, and more." />
+    <meta name="description" content="Paul Jeon builds products centered around user productivity and clarity. Harvard CS '27. ISO, Prep.io, Studdy and more." />
+    <link rel="canonical" href="https://pjeon18.github.io/pauljeon/" />
+
+    <!-- the card that shows when the link is pasted into LinkedIn, iMessage or Slack -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Paul Jeon" />
+    <meta property="og:url" content="https://pjeon18.github.io/pauljeon/" />
+    <meta property="og:title" content="Paul Jeon, Product &amp; Engineering" />
+    <meta property="og:description" content="I build products centered around user productivity and clarity. Harvard CS '27." />
+    <meta property="og:image" content="https://pjeon18.github.io/pauljeon/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Hi, I'm Paul. A cream page with a wheel of project cards." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Paul Jeon, Product &amp; Engineering" />
+    <meta name="twitter:description" content="I build products centered around user productivity and clarity. Harvard CS '27." />
+    <meta name="twitter:image" content="https://pjeon18.github.io/pauljeon/og.png" />
+    <meta name="theme-color" content="#FDFDFB" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23E05C1F'/%3E%3Ctext x='32' y='44' font-family='Helvetica,Arial,sans-serif' font-size='36' font-weight='800' fill='%23FDFDFB' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E" />
-    <link rel="preconnect" href="https://api.fontshare.com" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&f[]=sentient@400,401,500,501&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap" rel="stylesheet" />
+    <!-- fonts are self-hosted (see src/styles/fonts.css). The four the first
+         paint needs are preloaded so the headline never flashes a fallback. -->
+    <link rel="preload" href="%BASE_URL%fonts/satoshi-900.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="%BASE_URL%fonts/satoshi-700.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="%BASE_URL%fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="%BASE_URL%fonts/sentient-400-italic.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <div id="root"></div>

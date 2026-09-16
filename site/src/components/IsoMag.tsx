@@ -1,44 +1,59 @@
 // The ISO case study, magazine edition. Content lives inline because the page
 // IS the deliverable: its structure follows this product's argument, not a
 // generic template. Shared furniture comes from styles/mag.css.
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
+import LiveEmbed from './LiveEmbed'
+import { consumeArrival } from '../lib/arrival'
 import '../styles/mag.css'
 
-import isoIcon from '../assets/iso-icon.png'
-import splash from '../assets/iso-splash-screen.png'
-import queue from '../assets/iso-queue.png'
-import searching from '../assets/iso-searching.png'
-import match from '../assets/iso-match.png'
-import room from '../assets/iso-room.png'
-import roomTimer from '../assets/iso-room-timer.png'
-import keepAsk from '../assets/iso-keep-ask.png'
-import keepMutual from '../assets/iso-keep-mutual.png'
-import keepDeclined from '../assets/iso-keep-declined.png'
-import closedView from '../assets/iso-closed-view.png'
-import oneChat from '../assets/iso-onechat.png'
-import noMatch from '../assets/iso-no-match.png'
-import closeoutOutcome from '../assets/iso-closeout-outcome.png'
-import closeoutReflection from '../assets/iso-closeout-reflection.png'
-import maybeAgain from '../assets/iso-maybe-again.png'
-import safety from '../assets/iso-safety-center.png'
-import profile from '../assets/iso-profile.png'
-import memories from '../assets/iso-memories.png'
-import trend from '../assets/iso-trend.png'
-import paywall from '../assets/iso-paywall.png'
-import settings from '../assets/iso-settings.png'
-import obSignup from '../assets/iso-ob-1-signup.png'
-import obEdu from '../assets/iso-ob-2-edu.png'
-import obPhoto from '../assets/iso-ob-3-photo.png'
-import editProfile from '../assets/iso-edit-profile.png'
+import isoIcon from '../assets/iso-icon.webp'
+import splash from '../assets/iso-splash-screen.webp'
+import queue from '../assets/iso-queue.webp'
+import searching from '../assets/iso-searching.webp'
+import match from '../assets/iso-match.webp'
+import room from '../assets/iso-room.webp'
+import roomTimer from '../assets/iso-room-timer.webp'
+import keepAsk from '../assets/iso-keep-ask.webp'
+import keepMutual from '../assets/iso-keep-mutual.webp'
+import keepDeclined from '../assets/iso-keep-declined.webp'
+import closedView from '../assets/iso-closed-view.webp'
+import oneChat from '../assets/iso-onechat.webp'
+import noMatch from '../assets/iso-no-match.webp'
+import closeoutOutcome from '../assets/iso-closeout-outcome.webp'
+import closeoutReflection from '../assets/iso-closeout-reflection.webp'
+import maybeAgain from '../assets/iso-maybe-again.webp'
+import safety from '../assets/iso-safety-center.webp'
+import profile from '../assets/iso-profile.webp'
+import memories from '../assets/iso-memories.webp'
+import trend from '../assets/iso-trend.webp'
+import paywall from '../assets/iso-paywall.webp'
+import settings from '../assets/iso-settings.webp'
+import obSignup from '../assets/iso-ob-1-signup.webp'
+import obEdu from '../assets/iso-ob-2-edu.webp'
+import obPhoto from '../assets/iso-ob-3-photo.webp'
+import editProfile from '../assets/iso-edit-profile.webp'
 
 // ---------------------------------------------------------------------------
 
 function useReveals() {
   const root = useRef<HTMLDivElement>(null)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const els = root.current?.querySelectorAll('.mg-rv') ?? []
+    // Arriving through the card's shared-element transition: the hero and the
+    // title must already be visible when the browser snapshots the new page,
+    // or the morph lands on nothing. The rest of the masthead settles in a
+    // stagger once the hero is down.
+    if (consumeArrival()) {
+      const top = root.current?.querySelectorAll<HTMLElement>('.mg-masthead .mg-rv, .mg-bleed.mg-rv, .sm-bleed.mg-rv') ?? []
+      let k = 0
+      top.forEach((el) => {
+        const anchor = el.tagName === 'H1' || el.querySelector('[style*="case-hero"]')
+        if (anchor) el.classList.add('in')
+        else el.style.transitionDelay = `${400 + k++ * 90}ms`
+      })
+    }
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('in')),
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
@@ -314,6 +329,19 @@ export default function IsoMag() {
           <figure><img src={queue} alt="The queue home screen" loading="lazy" /><figcaption>Home is one button. The nearby count is live, and it is the only number on screen.</figcaption></figure>
           <figure><img src={match} alt="A match found" loading="lazy" /><figcaption>The face lands first, the name half a second later, then a shared ice-breaker.</figcaption></figure>
           <figure><img src={keepMutual} alt="A mutual keep-talking result" loading="lazy" /><figcaption>Both envelopes open at once. The only moment the app turns green.</figcaption></figure>
+        </div>
+      </section>
+
+      {/* ---------------- try it ---------------- */}
+      <section className="mg-part mg-live-part">
+        <div className="mg-partmark mg-rv"><span>▶</span> Try it yourself</div>
+        <h2 className="mg-rv">The prototype, live</h2>
+        <p className="mg-rv">
+          This is the shipped build, with the backend mocked. Queue up, watch a match land, and
+          answer the keep-talking question. It was built for a phone, so it runs in one here.
+        </p>
+        <div className="mg-rv">
+          <LiveEmbed kind="phone" src="https://pjeon18.github.io/iso-prototype/" title="ISO prototype" poster={queue} />
         </div>
       </section>
 
