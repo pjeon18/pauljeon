@@ -385,6 +385,8 @@ body.sh-lock { overflow: hidden; }
 .sh-trailer .sh-nav, .sh-trailer .sh-links { animation: none !important; }
 /* the period is the replay control once the dot stands in for it */
 .guide-dot.live { pointer-events: auto; cursor: pointer; }
+/* the dot is 8px on screen; the target is not */
+.guide-dot.live::after { content: ''; position: absolute; inset: -16px; border-radius: 50%; }
 /* hardware stays off the picture while the trailer plays */
 body.guide-trailer .dial { opacity: 0; pointer-events: none; transform: translate(70px, -50%); }
 
