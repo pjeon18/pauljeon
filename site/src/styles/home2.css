@@ -12,8 +12,17 @@ body.sh-lock { overflow: hidden; }
 /* the camera's subject. Both panes and the guide dot move as one under the
    tour's push-in; the dial and the cursor stay fixed to the viewport. */
 .sh-cam {
-  display: flex; width: 100%; height: 100vh;
+  display: flex; width: 100%; height: 100vh; position: relative; z-index: 1;
   transform-origin: 0 0; will-change: transform;
+}
+/* the trailer's light, behind the page: a pool that moves by transform and
+   cross-fades between shots, so the compositor does all of it */
+.sh-light {
+  position: absolute; left: 50%; top: 50%; width: 300vmax; height: 300vmax;
+  margin: -150vmax 0 0 -150vmax; border-radius: 50%;
+  pointer-events: none; opacity: 0; z-index: 0;
+  transition: opacity 1100ms ease;
+  will-change: transform, opacity;
 }
 
 /* ---------- left pane ---------- */
