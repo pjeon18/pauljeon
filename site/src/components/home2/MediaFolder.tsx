@@ -40,6 +40,7 @@ export default function MediaFolder() {
   const zRef = useRef<Record<string, number>>({})
   const zTop = useRef(10)
   const fieldRef = useRef<HTMLDivElement>(null)
+  const coastRaf = useRef<Record<string, number>>({})
 
   const onWinDown = (id: string) => (e: React.PointerEvent) => {
     if (!open) return
@@ -50,28 +51,65 @@ export default function MediaFolder() {
     const el = e.currentTarget as HTMLElement
     const rot = WINDOWS.find((w) => w.id === id)?.rot ?? 0
     const start = { x: e.clientX, y: e.clientY }
-    const base = drag[id] ?? { dx: 0, dy: 0 }
+    const base = (() => {
+      const m = /translate\(([-\d.]+)px, ([-\d.]+)px\)/.exec(el.style.transform)
+      return m ? { dx: +m[1], dy: +m[2] } : (drag[id] ?? { dx: 0, dy: 0 })
+    })()
     let last = base
     let moved = false
     // transitions off + direct style writes while dragging — the open/close
     // spring transition otherwise fights the cursor and lags behind it
+    cancelAnimationFrame(coastRaf.current[id] ?? 0)
     el.classList.add('mf-dragging')
     el.style.zIndex = String(zTop.current)
     try { el.setPointerCapture(e.pointerId) } catch { /* no-op */ }
+    let vx = 0, vy = 0, lastT = performance.now(), lastX = e.clientX, lastY = e.clientY
     const move = (ev: PointerEvent) => {
       if (Math.hypot(ev.clientX - start.x, ev.clientY - start.y) > 5) moved = true
       last = { dx: base.dx + ev.clientX - start.x, dy: base.dy + ev.clientY - start.y }
       el.style.transform = `translate(${last.dx}px, ${last.dy}px) rotate(${rot}deg)`
+      // release velocity, lightly smoothed, in px per second
+      const now = performance.now(), dt = Math.max(1, now - lastT)
+      vx = vx * 0.4 + ((ev.clientX - lastX) / dt * 1000) * 0.6
+      vy = vy * 0.4 + ((ev.clientY - lastY) / dt * 1000) * 0.6
+      lastT = now; lastX = ev.clientX; lastY = ev.clientY
     }
     const up = () => {
       el.removeEventListener('pointermove', move)
       el.removeEventListener('pointerup', up)
       el.removeEventListener('pointercancel', up)
-      el.classList.remove('mf-dragging')
-      setDrag((d) => ({ ...d, [id]: last }))
       // a still press is a click, a dragged one never is
       const to = WINDOWS.find((w) => w.id === id)?.to
-      if (!moved && to) navigate(to)
+      if (!moved) { el.classList.remove('mf-dragging'); if (to) navigate(to); return }
+      // A thrown window keeps going and slows under friction, and it bounces
+      // off the edges of the field, losing some energy each time. Same
+      // language as the arc: nothing stops dead when the hand lets go.
+      const field = fieldRef.current?.getBoundingClientRect()
+      const box = el.getBoundingClientRect()
+      const homeL = box.left - last.dx, homeT = box.top - last.dy   // where translate(0,0) sits
+      let { dx, dy } = last
+      let t0 = performance.now()
+      const coast = (now: number) => {
+        const dt = Math.min(0.05, (now - t0) / 1000); t0 = now
+        const f = Math.pow(0.0035, dt)             // ~0.91 per frame at 60Hz
+        vx *= f; vy *= f
+        dx += vx * dt; dy += vy * dt
+        if (field) {
+          const l = homeL + dx, t = homeT + dy, r = l + box.width, btm = t + box.height
+          if (l < field.left - 8 && vx < 0) { vx = -vx * 0.45; dx += (field.left - 8 - l) }
+          if (r > field.right + 8 && vx > 0) { vx = -vx * 0.45; dx -= (r - field.right - 8) }
+          if (t < field.top - 8 && vy < 0) { vy = -vy * 0.45; dy += (field.top - 8 - t) }
+          if (btm > field.bottom + 8 && vy > 0) { vy = -vy * 0.45; dy -= (btm - field.bottom - 8) }
+        }
+        el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`
+        if (Math.hypot(vx, vy) > 12) { coastRaf.current[id] = requestAnimationFrame(coast) }
+        else {
+          el.classList.remove('mf-dragging')
+          setDrag((d) => ({ ...d, [id]: { dx, dy } }))
+        }
+      }
+      cancelAnimationFrame(coastRaf.current[id] ?? 0)
+      coastRaf.current[id] = requestAnimationFrame(coast)
     }
     el.addEventListener('pointermove', move)
     el.addEventListener('pointerup', up)

@@ -3,6 +3,7 @@
 // deliverable, and its structure changes with its story.
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import BackToSite from './BackToSite'
 import Footer from './Footer'
 import LiveEmbed from './LiveEmbed'
 import { consumeArrival } from '../lib/arrival'
@@ -375,7 +376,7 @@ export default function StuddyMag() {
 
       <nav className="case-nav sm-nav">
         <Link className="case-logo" to="/">Paul Jeon</Link>
-        <Link className="case-back" to="/">← Back to site</Link>
+        <BackToSite />
       </nav>
 
       {/* ---------------- masthead ---------------- */}

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import ArcFocus from './ArcFocus'
 import Dial from './Dial'
 import GuideDot from './GuideDot'
 import MediaFolder from './MediaFolder'
 import SplashDrop from './SplashDrop'
-import { about } from '../../content/site'
+import { about, cards } from '../../content/site'
 
 // ============================================================================
 // SplitHome — the homepage. Left: a minimal introduction and the About Paul
@@ -25,8 +25,22 @@ function useClock() {
   return time
 }
 
+// which card a case path belongs to, for the return morph
+const cardIndexFor = (path: string | undefined): number | null => {
+  if (!path) return null
+  const i = cards.findIndex((c) => (c.slug && path === `/work/${c.slug}`) || (c.page && path === c.page))
+  return i >= 0 ? i : null
+}
+
 export default function SplitHome() {
   const time = useClock()
+  // arriving back from a case study: mount with its card docked, skip the
+  // choreography, and let the tour wait for a fresh visit
+  const { state } = useLocation() as { state?: { from?: string } }
+  const [dockIndex] = useState<number | null>(() => cardIndexFor(state?.from))
+  const returning = dockIndex !== null
+  // the tour only plays on the two-pane layout, and never on a return
+  const [tourComing] = useState(() => !returning && !window.matchMedia('(max-width: 880px)').matches)
 
   // a white drop falls and splashes the site into view — once per session,
   // skipped for reduced motion
@@ -44,7 +58,7 @@ export default function SplitHome() {
   const [guide, setGuide] = useState(false)
 
   useEffect(() => {
-    if (boot) return
+    if (boot || !tourComing) return
     const t = window.setTimeout(() => setGuide(true), 2100)
     return () => window.clearTimeout(t)
   }, [boot])
@@ -56,7 +70,7 @@ export default function SplitHome() {
   }, [])
 
   return (
-    <div className={'sh-page' + (boot ? '' : ' sh-ready')}>
+    <div className={'sh-page' + (boot ? '' : ' sh-ready') + (returning ? ' sh-return' : '')}>
       {!gone && sessionBoot && (
         <SplashDrop onReveal={() => setBoot(false)} onDone={() => setGone(true)} />
       )}
@@ -88,7 +102,7 @@ export default function SplitHome() {
         </footer>
       </div>
 
-      <ArcFocus spinIn={!boot} />
+      <ArcFocus spinIn={!boot && !returning} awaitCollision={tourComing} dockIndex={dockIndex} />
       <GuideDot run={guide} />
       </div>
       <Dial />

@@ -52,12 +52,14 @@ function wrapOffset(i: number, pos: number, n: number) {
   return off
 }
 
-export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
+export default function ArcFocus({ spinIn = false, awaitCollision = false, dockIndex = null }: { spinIn?: boolean; awaitCollision?: boolean; dockIndex?: number | null }) {
   const navigate = useNavigate()
   const paneRef = useRef<HTMLDivElement>(null)
-  const posRef = useRef(0) // continuous card index along the arc
-  const [pos, setPos] = useState(0)
-  const [popped, setPoppedRaw] = useState(false)
+  const posRef = useRef(dockIndex ?? 0) // continuous card index along the arc
+  // returning from a case study, the arc mounts with that card already docked
+  // so the page's hero has a card to morph back into. It lets go a beat later.
+  const [pos, setPos] = useState(dockIndex ?? 0)
+  const [popped, setPoppedRaw] = useState(dockIndex !== null)
   const [pane, setPane] = useState({ w: 0, h: 900 })
   const snapRaf = useRef(0)
   const reduced = useMemo(
@@ -89,12 +91,18 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
   // design space, taller windows see it proportionally larger (bigger cards,
   // same rhythm). Scale origin sits on the focused card so it stays anchored.
   const S = Math.min(1.7, Math.max(0.8, pane.h / 900))
-  const popW = Math.min(400, Math.max(280, pane.w * 0.34))
-  const panelW = Math.round(Math.max(180, pane.w - DOCK_PAD * 2 - DOCK_GAP - popW))
+  // On a phone the pane is the full width and stacked under the intro. The
+  // pivot moves so the focused card sits centred, the neighbours curve off
+  // to the right, and a docked card centres too with the panel as a sheet.
+  const narrow = pane.w > 0 && pane.w < 880
+  const over = narrow ? R - pane.w / 2 : OVERHANG
+  const shift = narrow ? 0 : ARC_SHIFT
+  const popW = narrow ? Math.min(300, pane.w * 0.62) : Math.min(400, Math.max(280, pane.w * 0.34))
+  const panelW = narrow ? pane.w - DOCK_PAD * 2 : Math.round(Math.max(180, pane.w - DOCK_PAD * 2 - DOCK_GAP - popW))
   const popLift = popW / (CARD_W * S)
-  const dockCenterX = DOCK_PAD + panelW + DOCK_GAP + popW / 2
+  const dockCenterX = narrow ? pane.w / 2 : DOCK_PAD + panelW + DOCK_GAP + popW / 2
   // dock translate lives inside the scaled arc: invert shift + scale
-  const dockT = (dockCenterX - ARC_SHIFT - (pane.w + OVERHANG) + R) / S - R
+  const dockT = (dockCenterX - shift - (pane.w + over) + R) / S - R
 
   const n = cards.length
   const active = ((Math.round(pos) % n) + n) % n
@@ -179,21 +187,39 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
     if (!spinIn || spun.current) return
     spun.current = true
     if (reduced) return
-    const FROM = -2.9
-    const MS = 1600
-    const DELAY = 320 // let the splash mask finish opening first
+    // The arc arrives fast and decelerates like a wheel under friction, but
+    // with a long time constant, so it is still creeping when the guide dot
+    // reaches it about 6.8s in. The collision's fling cancels this and takes
+    // over, so boot and collision read as one motion, not two spins. If no
+    // collision comes, the spring parks it on the nearest card at the end.
+    // Without a tour coming (phones, replays) the same curve runs short, so
+    // the arc simply arrives and parks.
+    const FROM = -3.0
+    const TAU = awaitCollision ? 1.55 : 0.42   // seconds, the decay of the arrival speed
+    const MS = awaitCollision ? 6300 : 1700
+    const DELAY = 320         // let the splash mask finish opening first
+    const dist = FROM * -1
+    const v0 = dist / (TAU * (1 - Math.exp(-MS / 1000 / TAU)))
     const t0 = performance.now() + DELAY
     setPosBoth(FROM)
     const step = () => {
-      const t = Math.min(1, Math.max(0, (performance.now() - t0) / MS))
-      const e = 1 - Math.pow(1 - t, 5)
-      setPosBoth(FROM * (1 - e))
-      if (t < 1) snapRaf.current = requestAnimationFrame(step)
-      else setPosBoth(0)
+      const t = Math.min(MS / 1000, Math.max(0, (performance.now() - t0) / 1000))
+      const travelled = v0 * TAU * (1 - Math.exp(-t / TAU))
+      setPosBoth(FROM + travelled)
+      if (t < MS / 1000) snapRaf.current = requestAnimationFrame(step)
+      else startMotion()
     }
     snapRaf.current = requestAnimationFrame(step)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinIn])
+
+  // the returning dock lets go once the hero has landed in the card
+  useEffect(() => {
+    if (dockIndex === null) return
+    const t = window.setTimeout(() => setPopped(false), 900)
+    return () => window.clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // the dial steps aside while a card is docked, it sits where the dock lands
   useEffect(() => {
@@ -343,9 +369,9 @@ export default function ArcFocus({ spinIn = false }: { spinIn?: boolean }) {
       <div
         className="af-arc"
         style={{
-          right: -OVERHANG,
+          right: -over,
           transformOrigin: `${-R}px 0px`,
-          transform: `translateX(${popped ? ARC_SHIFT : 0}px) scale(${S.toFixed(4)})`,
+          transform: `translateX(${popped ? shift : 0}px) scale(${S.toFixed(4)})`,
         }}
       >
         {cards.map((card, i) => {

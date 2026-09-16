@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import outside from '../assets/pam-outside.webp'
 import inside from '../assets/pam-inside.webp'
+import BackToSite from './BackToSite'
 import Footer from './Footer'
 
 // ============================================================================
@@ -131,7 +132,7 @@ export default function Pamphlet() {
     <div className="pam-page">
       <nav className="case-nav">
         <Link className="case-logo" to="/">Paul Jeon</Link>
-        <Link className="case-back" to="/">← Back to site</Link>
+        <BackToSite />
       </nav>
 
       <header className="pam-head">
