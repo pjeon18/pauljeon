@@ -196,7 +196,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     // the arc simply arrives and parks.
     const FROM = -3.0
     const TAU = awaitCollision ? 1.55 : 0.42   // seconds, the decay of the arrival speed
-    const MS = awaitCollision ? 6300 : 1700
+    const MS = awaitCollision ? 6650 : 1700
     const DELAY = 320         // let the splash mask finish opening first
     const dist = FROM * -1
     const v0 = dist / (TAU * (1 - Math.exp(-MS / 1000 / TAU)))
