@@ -349,6 +349,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
         // crossings. Each shot also sets the colour of the room.
         const wheelLook = { x: hit.x + 250, y: hit.y }          // into the cards, not the pane's edge
         const linksLook = { x: linksMid.x, y: sweepY - 110 }    // the row sits in the lower third
+        const recoil = { x: hit.x - 46, y: hit.y - 18 }         // where the bounce-back leaves the dot
         return [
           // wakes up in place, filling the frame. The camera starts to pull
           // back only once it moves, so the first thing seen is the period.
@@ -371,8 +372,14 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
           { dur: 190, ease: LIN, at: () => hit, squash: true,
             cam: { z: 1.6, at: () => wheelLook, spring: CAM.lag },
             exit: () => window.dispatchEvent(new CustomEvent('pj:spin')) },
-          { dur: 1250, ease: transit,
-            at: (u) => qbez(hit, { x: (hit.x + linksStart.x) / 2, y: hit.y - 150 }, linksStart, u),
+          // the dot bounces back a little and hangs there while the wheel is
+          // at its most violent, long enough for the camera to catch up and
+          // settle on it before anything moves on
+          { dur: 900, ease: LIN,
+            at: (u) => ({ x: hit.x - 46 * (0.85 * easeOutCubic(u) + 0.15 * u), y: hit.y - 18 * (0.85 * easeOutCubic(u) + 0.15 * u) }),
+            cam: { z: 1.6, at: () => wheelLook, spring: CAM.follow } },
+          { dur: 1350, ease: transit,
+            at: (u) => qbez(recoil, { x: (recoil.x + linksStart.x) / 2, y: recoil.y - 140 }, linksStart, u),
             cam: { z: 1.5, at: (u) => lerp(wheelLook, linksLook, u * u), spring: CAM.lag }, bg: ['#F4F1EA', '#D9D2C2'] },
           { dur: 1150, ease: LIN, at: linksSweep,
             cam: { z: 1.9, at: (u) => lerp(linksLook, linksSweep(u), 0.35), spring: CAM.follow } },
