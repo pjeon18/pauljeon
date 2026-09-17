@@ -375,12 +375,18 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
           // the dot bounces back a little and hangs there while the wheel is
           // at its most violent, long enough for the camera to catch up and
           // settle on it before anything moves on
-          { dur: 900, ease: LIN,
+          { dur: 1500, ease: LIN,
             at: (u) => ({ x: hit.x - 46 * (0.85 * easeOutCubic(u) + 0.15 * u), y: hit.y - 18 * (0.85 * easeOutCubic(u) + 0.15 * u) }),
-            cam: { z: 1.6, at: () => wheelLook, spring: CAM.follow } },
+            cam: { z: 1.6, at: () => wheelLook, spring: CAM.lag } },
+          // the camera is sent toward the links from the first frame of the
+          // crossing, so it is arriving as the dot does rather than after
           { dur: 1350, ease: transit,
             at: (u) => qbez(recoil, { x: (recoil.x + linksStart.x) / 2, y: recoil.y - 140 }, linksStart, u),
-            cam: { z: 1.5, at: (u) => lerp(wheelLook, linksLook, u * u), spring: CAM.lag }, bg: ['#F4F1EA', '#D9D2C2'] },
+            cam: { z: 1.5, at: (u) => lerp(wheelLook, linksLook, easeOutCubic(u)), spring: CAM.lag }, bg: ['#F4F1EA', '#D9D2C2'] },
+          // hovers over the first link while the camera settles on the row
+          { dur: 700, ease: LIN,
+            at: (u) => ({ x: linksStart.x + 6 * Math.sin(u * Math.PI), y: linksStart.y - 5 * Math.sin(u * Math.PI) }),
+            cam: { z: 1.9, at: () => linksLook, spring: CAM.lag } },
           { dur: 1150, ease: LIN, at: linksSweep,
             cam: { z: 1.9, at: (u) => lerp(linksLook, linksSweep(u), 0.35), spring: CAM.follow } },
           { dur: 980, ease: transit,
