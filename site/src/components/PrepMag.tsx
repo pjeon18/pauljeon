@@ -8,6 +8,7 @@ import Footer from './Footer'
 import LiveEmbed from './LiveEmbed'
 import { consumeArrival } from '../lib/arrival'
 import '../styles/mag.css'
+import { StoryCards, Wireframes, HotSeatStates, PilotChart } from './prep/PrepSpec'
 
 import mSplash from '../assets/prep-m-splash.webp'
 import mFair from '../assets/prep-m-fair.webp'
@@ -503,9 +504,20 @@ export default function PrepMag() {
         </div>
       </section>
 
-      {/* ---------------- 03 the funnel ---------------- */}
+      {/* ---------------- 03 user stories ---------------- */}
+      <section className="mg-part">
+        <div className="mg-partmark mg-rv"><span>03</span> User stories</div>
+        <h2 className="mg-rv">Nine stories, and the check that decides each one</h2>
+        <p className="mg-lede mg-rv">
+          Each persona asks the product for something specific. Written as stories, with the
+          condition that counts as done. Two of them lean on a stub, and the chip names which part.
+        </p>
+        <StoryCards />
+      </section>
+
+      {/* ---------------- 04 the funnel ---------------- */}
       <section className="mg-part mg-band" style={{ background: '#F6F1EC' }}>
-        <div className="mg-partmark mg-rv"><span>03</span> The funnel</div>
+        <div className="mg-partmark mg-rv"><span>04</span> The funnel</div>
         <h2 className="mg-rv">One shape, four steps, consent at every gate</h2>
         <Funnel />
         <div className="mg-cols mg-rv">
@@ -530,9 +542,56 @@ export default function PrepMag() {
         </div>
       </section>
 
-      {/* ---------------- 04 the invariant ---------------- */}
+      {/* ---------------- 05 the hot seat, specified ---------------- */}
+      <section className="mg-part mg-band" style={{ background: '#F7F5EF' }}>
+        <div className="mg-partmark mg-rv"><span>05</span> The hot seat, specified</div>
+        <h2 className="mg-rv">Four screens, one state machine, nine rules</h2>
+        <p className="mg-lede mg-rv">
+          The prototype went from the written spec straight to code. The frames below are the spec's
+          screen inventory drawn as boxes, placed above what shipped, so the two can be read against
+          each other.
+        </p>
+        <Wireframes shots={{ fair: mFair, room: mRoom, sheet: mRoomHand, hotseat: mHotseat }} />
+
+        <h3 className="mg-subhead mg-rv">The states</h3>
+        <figure className="mg-figure mg-scrollfig mg-rv" style={{ marginTop: 12 }}>
+          <HotSeatStates />
+          <figcaption>
+            Every exit is labeled. The dashed paths return you to the crowd with nothing lost, which
+            is what keeps raising a hand cheap.
+          </figcaption>
+        </figure>
+
+        <h3 className="mg-subhead mg-rv">The rules</h3>
+        <div className="mg-table mg-table-3 mg-rv">
+          <div className="mg-tr mg-th"><span>Rule</span><span>Where it lives</span><span>What happens otherwise</span></div>
+          <div className="mg-tr"><span>Only a queued hand can be promoted</span><span data-l="Lives in">the promote action</span><span data-l="Otherwise">The call returns false and nothing changes.</span></div>
+          <div className="mg-tr"><span>One hot seat at a time</span><span data-l="Lives in">the same action</span><span data-l="Otherwise">A second promotion is refused while the seat is taken.</span></div>
+          <div className="mg-tr"><span>Your hand goes up once</span><span data-l="Lives in">the raise action</span><span data-l="Otherwise">A toast says your hand is already up.</span></div>
+          <div className="mg-tr"><span>No empty questions</span><span data-l="Lives in">the raise action</span><span data-l="Otherwise">The sheet cannot submit.</span></div>
+          <div className="mg-tr"><span>Hand raise can be off for a session</span><span data-l="Lives in">the room settings</span><span data-l="Otherwise">A toast explains, and the sheet stays closed.</span></div>
+          <div className="mg-tr"><span>The simulated queue caps at four</span><span data-l="Lives in">the crowd engine</span><span data-l="Otherwise">Simulated askers wait their turn.</span></div>
+          <div className="mg-tr"><span>Boosts sort the host's view only</span><span data-l="Lives in">the host queue sort</span><span data-l="Otherwise">The stage still needs the host's click. The simulated host takes the top boosted question about seventy percent of the time.</span></div>
+          <div className="mg-tr"><span>Lowering your hand is immediate</span><span data-l="Lives in">the lower action</span><span data-l="Otherwise">You are out of the queue on the next render.</span></div>
+          <div className="mg-tr"><span>An interrupted hot seat still counts</span><span data-l="Lives in">the end-session action</span><span data-l="Otherwise">The recap credits it and a chapter is minted.</span></div>
+        </div>
+
+        <details className="mg-details mg-rv">
+          <summary>Edge cases the spec had to answer</summary>
+          <ul>
+            <li><b>The host ends the session during a hot seat.</b> The question is credited, the recap counts it, and the chapter is minted.</li>
+            <li><b>You raise a hand with a boost you cannot afford.</b> The hand still goes up, without the boost, and a toast says so.</li>
+            <li><b>You reload mid session.</b> The room is gone, because live state is never saved. Nothing can come back pretending to be live.</li>
+            <li><b>The host turns hand raise off.</b> The button explains itself with a toast instead of failing silently.</li>
+            <li><b>Two rooms want you at once.</b> You are in one room at a time, and a second join returns early.</li>
+            <li><b>A breakout offer arrives while you are queued.</b> It carries its own accept, decline and pay steps. Accepting it does not touch the queue.</li>
+          </ul>
+        </details>
+      </section>
+
+      {/* ---------------- 06 the invariant ---------------- */}
       <section className="mg-part">
-        <div className="mg-partmark mg-rv"><span>04</span> The rules, in code</div>
+        <div className="mg-partmark mg-rv"><span>06</span> The rules, in code</div>
         <h2 className="mg-rv">Where money is allowed to touch the product</h2>
         <p className="mg-lede mg-rv">
           The founding principle is one sentence. <b>Monetize the host's time and tools, never viewer
@@ -605,7 +664,7 @@ export default function PrepMag() {
 
       {/* ---------------- 05 trust ---------------- */}
       <section className="mg-part mg-band" style={{ background: '#F1F6F3' }}>
-        <div className="mg-partmark mg-rv"><span>05</span> Trust</div>
+        <div className="mg-partmark mg-rv"><span>07</span> Trust</div>
         <h2 className="mg-rv">The badge, and the absence of one</h2>
         <div className="mg-duo mg-duo-narrow mg-rv">
           <figure className="mg-phone">
@@ -645,7 +704,7 @@ export default function PrepMag() {
 
       {/* ---------------- 06 honest liveness ---------------- */}
       <section className="mg-part">
-        <div className="mg-partmark mg-rv"><span>06</span> Honest liveness</div>
+        <div className="mg-partmark mg-rv"><span>08</span> Honest liveness</div>
         <h2 className="mg-rv">Simulating a crowd without lying about one</h2>
         <div className="mg-cols mg-rv">
           <p>
@@ -710,7 +769,7 @@ export default function PrepMag() {
 
       {/* ---------------- 07 the design system ---------------- */}
       <section className="mg-part">
-        <div className="mg-partmark mg-rv"><span>07</span> The design system</div>
+        <div className="mg-partmark mg-rv"><span>09</span> The design system</div>
         <h2 className="mg-rv">One token set, two worlds, three colors</h2>
         <p className="mg-lede mg-rv">
           The reskin below was the largest single change in the project. It took an afternoon only
@@ -754,13 +813,14 @@ export default function PrepMag() {
 
       {/* ---------------- 08 anti-feed ---------------- */}
       <section className="mg-part mg-band" style={{ background: '#FBF7F1' }}>
-        <div className="mg-partmark mg-rv"><span>08</span> The conflict</div>
-        <h2 className="mg-rv">When the request contradicts the principle</h2>
+        <div className="mg-partmark mg-rv"><span>10</span> The tradeoffs</div>
+        <h2 className="mg-rv">Seven calls, what was chosen and what it cost</h2>
         <div className="mg-duo mg-rv">
           <div className="mg-duo-text">
             <p>
-              Partway through I asked for a recommendations page. The principles ban algorithmic
-              feeds outright, so the request and the spec were in direct conflict.
+              The hardest one first. Partway through I asked for a recommendations page. The
+              principles ban algorithmic feeds outright, so the request and the spec were in direct
+              conflict.
             </p>
             <p>
               What shipped is goal-driven rather than behavioral. You <b>state</b> your career goals,
@@ -814,11 +874,71 @@ export default function PrepMag() {
           <figure><img src={mPremium} alt="The premium tier" loading="lazy" /><figcaption>Watching live is free and always will be. Premium is for the studying afterwards.</figcaption></figure>
           <figure><img src={dVodLocked} alt="A locked recording" loading="lazy" /><figcaption>The lock states the rule it is enforcing rather than just blocking.</figcaption></figure>
         </div>
+
+        <h3 className="mg-subhead mg-rv">The decision table</h3>
+        <p className="mg-lede mg-rv">
+          Every call below had a faster or more familiar alternative. The last column is the part a
+          decision log usually leaves out.
+        </p>
+        <div className="mg-table mg-rv">
+          <div className="mg-tr mg-th"><span>Decision</span><span>Chosen</span><span>Rejected</span><span>What it cost</span></div>
+          <div className="mg-tr"><span>Launch shape</span><span data-l="Chosen">Scheduled events first</span><span data-l="Rejected">Always-on ambient liveness</span><span data-l="Cost">Spontaneity waits. The calendar is co-equal with live now, because Clubhouse died of empty rooms.</span></div>
+          <div className="mg-tr"><span>Paid questions</span><span data-l="Chosen">Boosts pin higher in the host's view</span><span data-l="Rejected">Super chat, pay to be answered</span><span data-l="Cost">Less immediate revenue. The queue stays fair, which is the thing being sold.</span></div>
+          <div className="mg-tr"><span>Discovery</span><span data-l="Chosen">Shelves matched to goals you state</span><span data-l="Rejected">A behavioral feed</span><span data-l="Cost">Less time on site, by design. Nothing scrolls forever and nothing is inferred.</span></div>
+          <div className="mg-tr"><span>The stage</span><span data-l="Chosen">Gradient portrait and a waveform</span><span data-l="Rejected">Real WebRTC video</span><span data-l="Cost">Nothing streams, and the stage label says so. The prototype argues product, not plumbing.</span></div>
+          <div className="mg-tr"><span>Recordings</span><span data-l="Chosen">Premium by default, live always free</span><span data-l="Rejected">Every recording free</span><span data-l="Cost">Reversed an earlier call. The free archive compounds slower, and the reversal is written down.</span></div>
+          <div className="mg-tr"><span>Demo content</span><span data-l="Chosen">One booth stocked, seven thin</span><span data-l="Rejected">Eight busy booths</span><span data-l="Cost">The demo looks thinner. It also looks like a cold start actually looks.</span></div>
+          <div className="mg-tr"><span>Follow-ups</span><span data-l="Chosen">Scheduled sessions and breakouts</span><span data-l="Rejected">Direct messages</span><span data-l="Cost">A familiar retention lever is gone. Harassment has no private channel to happen in.</span></div>
+        </div>
+
+        <h3 className="mg-subhead mg-rv">Prioritizing the build</h3>
+        <p className="mg-lede mg-rv">
+          The same surfaces, sorted the way they were planned. The bottom-right quadrant is the one
+          worth reading, because it lists what this product said no to.
+        </p>
+        <div className="mg-matrix mg-rv">
+          <div className="mg-matrix-y"><span>High value</span><span>Low value</span></div>
+          <div className="mg-matrix-grid">
+            <div className="mg-quad mg-q-blue">
+              <div className="mg-quad-tag">High value · low effort</div>
+              <div className="mg-quad-name">Shipped first</div>
+              <div className="mg-quad-chips">
+                <span>consent gate in the store</span><span>the badge and its absence</span><span>no signup wall</span>
+                <span>archive labels</span><span>the $1 commitment</span>
+              </div>
+            </div>
+            <div className="mg-quad mg-q-green">
+              <div className="mg-quad-tag">High value · high effort</div>
+              <div className="mg-quad-name">The big bets</div>
+              <div className="mg-quad-chips">
+                <span>the crowd simulation</span><span>the hot-seat beat</span><span>chaptered recordings</span>
+                <span>desktop shell</span><span>campus mode</span>
+              </div>
+            </div>
+            <div className="mg-quad mg-q-purple">
+              <div className="mg-quad-tag">Low value · low effort</div>
+              <div className="mg-quad-name">Nice to have</div>
+              <div className="mg-quad-chips">
+                <span>shorts</span><span>playlists</span><span>transcript download</span><span>theme toggle</span>
+              </div>
+            </div>
+            <div className="mg-quad mg-q-yellow">
+              <div className="mg-quad-tag">Low value · high effort</div>
+              <div className="mg-quad-name">Declined or deferred</div>
+              <div className="mg-quad-chips">
+                <span>algorithmic feed (never)</span><span>direct messages (never)</span><span>paid placement (never)</span>
+                <span>real video (deferred)</span><span>payments (stubbed)</span><span>branded institutional fairs (deferred)</span>
+                <span>moderation tooling (deferred)</span><span>native apps (deferred)</span>
+              </div>
+            </div>
+          </div>
+          <div className="mg-matrix-x"><span>Low effort</span><span>High effort</span></div>
+        </div>
       </section>
 
-      {/* ---------------- 09 second audience ---------------- */}
+      {/* ---------------- 11 second audience ---------------- */}
       <section className="mg-part">
-        <div className="mg-partmark mg-rv"><span>09</span> The second audience</div>
+        <div className="mg-partmark mg-rv"><span>11</span> The second audience</div>
         <h2 className="mg-rv">The same machinery, pointed at a lecture hall</h2>
         <div className="mg-duo mg-rv">
           <figure>
@@ -857,7 +977,7 @@ export default function PrepMag() {
 
       {/* ---------------- 10 the ledger ---------------- */}
       <section className="mg-part">
-        <div className="mg-partmark mg-rv"><span>10</span> What broke</div>
+        <div className="mg-partmark mg-rv"><span>12</span> What broke</div>
         <h2 className="mg-rv">The critique log, including the one that cost a rebuild</h2>
         <p className="mg-lede mg-rv">
           Everything below came from looking at the running product and writing down what was wrong.
@@ -895,7 +1015,7 @@ export default function PrepMag() {
 
       {/* ---------------- 11 metrics ---------------- */}
       <section className="mg-part">
-        <div className="mg-partmark mg-rv"><span>11</span> Metrics</div>
+        <div className="mg-partmark mg-rv"><span>13</span> Metrics</div>
         <h2 className="mg-rv">One number that catches both sides</h2>
         <div className="mg-split mg-rv">
           <div className="mg-split-col is-hi">
@@ -922,6 +1042,45 @@ export default function PrepMag() {
           </div>
         </div>
 
+        <h3 className="mg-subhead mg-rv">What a pilot would have to show</h3>
+        <p className="mg-lede mg-rv">
+          Nothing below has been measured. The prototype has no users. These are the numbers a
+          twelve-week campus pilot would need to hit for the thesis to survive, and the lines that
+          would end it early.
+        </p>
+        <div className="mg-table mg-table-3 mg-rv">
+          <div className="mg-tr mg-th"><span>Input</span><span>Assumption</span><span>Why that number</span></div>
+          <div className="mg-tr"><span>Hosts</span><span>12 verified alumni, one session a week each</span><span>The campus wedge supplies both sides on one calendar. A dozen is what one alumni office can recruit for a season.</span></div>
+          <div className="mg-tr"><span>Audience</span><span>45 concurrent at the median</span><span>A promoted campus event, not an ambient room. Most live talk rooms are far smaller than this.</span></div>
+          <div className="mg-tr"><span>Hands</span><span>7 raised, 5 answered, per session</span><span>A 45 minute session at roughly eight minutes a question, with the queue cap doing the rest.</span></div>
+          <div className="mg-tr"><span>Season</span><span>12 weeks, September to November</span><span>Superday season is the urgency the retention thesis depends on. It also ends, and the model shows that.</span></div>
+        </div>
+        <figure className="mg-figure mg-rv">
+          <PilotChart />
+          <figcaption>
+            A model of the North Star across one recruiting season. The shape follows superday
+            season, peaking in week eight and falling toward Thanksgiving. Hover a week for its
+            inputs.
+          </figcaption>
+        </figure>
+        <div className="mg-table mg-rv">
+          <div className="mg-tr mg-th"><span>Metric</span><span>Target</span><span>Stop line</span><span>Why this threshold</span></div>
+          <div className="mg-tr"><span>Questions answered live, weekly</span><span data-l="Target">60 by week six</span><span data-l="Stop line">under 25 at week six</span><span data-l="Why">At twelve sessions that is five a session, the pace of a real office hour.</span></div>
+          <div className="mg-tr"><span>Host four-week retention</span><span data-l="Target">75% or more</span><span data-l="Stop line">under 50%</span><span data-l="Why">Supply is the side that dies first, and it dies quietly.</span></div>
+          <div className="mg-tr"><span>Hot-seat conversion</span><span data-l="Target">60% or more</span><span data-l="Stop line">under 40%</span><span data-l="Why">A long queue nobody reaches teaches people not to raise a hand.</span></div>
+          <div className="mg-tr"><span>Sessions with a hot seat</span><span data-l="Target">90% or more</span><span data-l="Stop line">under 75%</span><span data-l="Why">A session with no question answered is a webinar.</span></div>
+          <div className="mg-tr"><span>Median concurrent viewers</span><span data-l="Target">30 or more</span><span data-l="Stop line">under 15</span><span data-l="Why">Below that a room stops feeling like a room, and lurking loses its point.</span></div>
+          <div className="mg-tr"><span>Breakout attach</span><span data-l="Target">5% of answered questions</span><span data-l="Stop line">none by week eight</span><span data-l="Why">The revenue check, set low on purpose. Discovery is not allowed to help it.</span></div>
+        </div>
+        <div className="mg-decision mg-rv">
+          <div className="mg-decision-tag">What would make me stop</div>
+          <p>
+            Host retention under half by week six, or more than a quarter of sessions ending with
+            no hot seat. Either one means the format has become a webinar with a queue attached, and
+            viewer growth would not fix that.
+          </p>
+        </div>
+
         <div className="mg-stats mg-rv">
           <div><span className="v">27</span><span className="l">routes shipped against about 15 planned</span></div>
           <div><span className="v">2</span><span className="l">full layouts, mobile tab shell and desktop sidebar chrome</span></div>
@@ -934,7 +1093,7 @@ export default function PrepMag() {
 
       {/* ---------------- coda ---------------- */}
       <section className="mg-part mg-coda">
-        <div className="mg-partmark mg-rv"><span>12</span> What I would carry forward</div>
+        <div className="mg-partmark mg-rv"><span>14</span> What I would carry forward</div>
         <h2 className="mg-rv">Takeaways</h2>
         <div className="mg-takeaways mg-rv">
           <div className="mg-take">
