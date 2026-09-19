@@ -383,8 +383,11 @@
 }
 .mg-th span:first-child { font-weight: 700; color: #A19D94; }
 @media (max-width: 640px) {
-  .mg-tr { grid-template-columns: 1fr 1fr; }
-  .mg-tr span:nth-child(n+3) { display: none; }
+  /* rows stack on phones so no column is lost; the header row goes, the
+     bold first span carries the row's label */
+  .mg-tr, .mg-table-3 .mg-tr { grid-template-columns: 1fr; gap: 4px; padding: 14px 18px; }
+  .mg-tr.mg-th { display: none; }
+  .mg-tr span:first-child { margin-bottom: 2px; }
 }
 /* a 3-column variant */
 .mg-table-3 .mg-tr { grid-template-columns: 1.1fr 1fr 2fr; }
@@ -669,4 +672,82 @@ section.mg-band { padding-top: 64px; padding-bottom: 56px; margin-top: 40px; mar
 @media (max-width: 720px) {
   .mg-live-browser .mg-live-screen { aspect-ratio: 4 / 5; }
   .mg-live-chrome { height: 34px; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   spec-shaped blocks (added for the Prep.io rubric pass)
+   --------------------------------------------------------------------------- */
+
+/* ---------- user stories ---------- */
+.mg-stories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 10px 0 8px; }
+@media (max-width: 900px) { .mg-stories { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 620px) { .mg-stories { grid-template-columns: 1fr; } }
+.mg-story {
+  border: 1px solid #EDEBE5; border-radius: 14px; background: #FDFDFB;
+  padding: 18px 20px 16px; display: flex; flex-direction: column;
+}
+.mg-story-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+.mg-story-who {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 700; color: var(--acc-deep);
+}
+.mg-story-status {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em;
+  border-radius: 99px; padding: 3px 9px 4px; white-space: nowrap;
+}
+.mg-story-status.is-shipped { background: #E3F2E8; color: #2E7A4C; }
+.mg-story-status.is-stubbed { background: #FBEFD6; color: #8A5A12; }
+.mg-story-status.is-deferred { background: #F0EEE7; color: #6E6A60; }
+.mg-story p {
+  font-size: 16px; font-weight: 600; line-height: 1.5; letter-spacing: -0.01em;
+  color: #121110; margin: 0 0 14px;
+}
+.mg-story h4 {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #A19D94; margin: auto 0 6px;
+}
+.mg-story ul { margin: 0; padding-left: 17px; }
+.mg-story li { font-size: 14px; font-weight: 440; line-height: 1.55; color: #45403A; margin-bottom: 4px; }
+
+/* ---------- wireframes read against shipped screens ---------- */
+.mg-wires { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin: 10px 0 8px; }
+@media (max-width: 860px) { .mg-wires { grid-template-columns: 1fr 1fr; } }
+.mg-wirepair { margin: 0; }
+.mg-wire-name {
+  font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 700; color: #121110; margin-bottom: 10px;
+}
+.mg-wire {
+  width: 100%; height: auto; display: block;
+  border-radius: 14px; border: 1px dashed #C9C4B8; background: #FBFAF6;
+}
+.mg-wirepair img {
+  width: 100%; display: block; margin-top: 12px; border-radius: 14px; border: 1px solid #E7E4DC;
+  box-shadow: 0 1px 3px rgba(20, 16, 10, 0.05), 0 16px 30px -22px rgba(20, 16, 10, 0.3);
+}
+.mg-wirepair figcaption { font-size: 13px; line-height: 1.5; color: #6E6A60; margin-top: 9px; }
+.mg-band .mg-story, .mg-band .mg-wire { background: #FFFFFF; }
+
+/* ---------- pilot chart ---------- */
+.mg-pilot { margin: 0; }
+.mg-pilot .mg-chart { background: #FDFDFB; }
+.mg-pilot rect[tabindex]:focus { outline: none; }
+.mg-pilot-table { margin-top: 12px; }
+
+/* a wide diagram scrolls sideways on phones instead of shrinking to nothing */
+@media (max-width: 700px) {
+  .mg-scrollfig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .mg-scrollfig .mg-chart { min-width: 640px; }
+}
+
+/* phones: every table variant stacks (placed last so it outranks the
+   column rules above), and cells that need it carry a small label */
+@media (max-width: 640px) {
+  .mg-table .mg-tr, .mg-table-3 .mg-tr { grid-template-columns: 1fr; }
+  .mg-tr span[data-l]::before {
+    content: attr(data-l) ' · ';
+    color: #A19D94; font-size: 10.5px; letter-spacing: 0.12em;
+    text-transform: uppercase; font-weight: 700;
+  }
 }

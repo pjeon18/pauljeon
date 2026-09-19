@@ -67,19 +67,25 @@ export default function Dial() {
       ctx.fillStyle = cap; ctx.fillRect(0, 0, CW, CH)
     }
 
-    // the scale moves, the pointer stays. One major tick per card, four minor.
+    // The scale is a timeline. It moves, the pointer stays. One major tick
+    // per card, four minor, and a month label wherever the month changes
+    // (plus always on the focused card), so a run of same-month work reads
+    // as one span rather than a stutter of repeated labels.
     const drawScale = (pos: number) => {
       let out = ''
+      const focus = Math.round(pos)
       for (let k = -4; k <= 4; k++) {
-        const idx = Math.round(pos) + k
+        const idx = focus + k
         const y = 150 - (idx - pos) * PITCH
         const card = ((idx % N) + N) % N
+        const prev = (((idx - 1) % N) + N) % N
         const near = Math.max(0, 1 - Math.abs(idx - pos) / 3.2)
-        out += `<line x1="12" x2="26" y1="${y}" y2="${y}" stroke="#121110" stroke-opacity="${0.25 + near * 0.75}" stroke-width="1.6"/>`
-        out += `<text x="0" y="${y + 3}" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" fill="#121110" fill-opacity="${0.25 + near * 0.6}">${String(card + 1).padStart(2, '0')}</text>`
+        const boundary = cards[card].when !== cards[prev].when || idx === focus
+        out += `<line x1="${boundary ? 34 : 40}" x2="52" y1="${y}" y2="${y}" stroke="#121110" stroke-opacity="${0.25 + near * 0.75}" stroke-width="1.6"/>`
+        if (boundary) out += `<text x="0" y="${y + 3}" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" letter-spacing="0.02em" fill="${idx === focus ? '#E05C1F' : '#121110'}" fill-opacity="${idx === focus ? 1 : 0.25 + near * 0.6}">${cards[card].when}</text>`
         for (let m = 1; m < 5; m++) {
           const my = y - m * PITCH / 5
-          out += `<line x1="19" x2="26" y1="${my}" y2="${my}" stroke="#121110" stroke-opacity="0.22" stroke-width="1"/>`
+          out += `<line x1="46" x2="52" y1="${my}" y2="${my}" stroke="#121110" stroke-opacity="0.22" stroke-width="1"/>`
         }
       }
       scale.innerHTML = out
@@ -132,7 +138,7 @@ export default function Dial() {
   return (
     <div className="dial" aria-hidden="true">
       <div className="dial-scale">
-        <svg ref={scaleRef} width="30" height="300" />
+        <svg ref={scaleRef} width="52" height="300" />
         <div className="dial-pointer" ref={pointerRef} />
       </div>
       <div className="dial-well" ref={wellRef}>

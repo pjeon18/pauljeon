@@ -418,7 +418,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
 
       {/* switch-on-hover tabs for the pulled card */}
       <div className="af-panel" style={{ width: panelW, left: DOCK_PAD }} aria-hidden={!popped}>
-        <div className="af-panel-kicker">{activeCard.meta}</div>
+        <div className="af-panel-kicker">{activeCard.when} · {activeCard.meta}</div>
         <h2 className="af-panel-title">{activeCard.title}</h2>
         <div className="af-tabs">
           {tabs.map((t, ti) => (
