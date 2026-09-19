@@ -45,6 +45,15 @@ import f1Corr from '../assets/f1-correlation-matrix.webp'
 import f1Perf from '../assets/f1-performance-comparison.webp'
 import f1Outcomes from '../assets/f1-undercut-outcomes.webp'
 import rlPolicy from '../assets/rl-policy-iteration.webp'
+import dotCard from '../assets/dot-card.webp'
+import dotTile from '../assets/dot-tile.webp'
+import dotHero from '../assets/dot-hero.webp'
+import dotLegend from '../assets/dot-legend.webp'
+import dotShake from '../assets/dot-shake.webp'
+import dotChips from '../assets/dot-chips.webp'
+import dotDraw from '../assets/dot-draw.webp'
+import dotBig from '../assets/dot-big.webp'
+import dotClassic from '../assets/dot-classic.webp'
 
 export type Category = 'product' | 'engineering' | 'ml' | 'all'
 
@@ -104,6 +113,16 @@ export const cards: Card[] = [
     slug: 'iso',
     demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
     icon: isoIcon,
+  },
+  {
+    id: 'the-dot',
+    cats: ['product'],
+    title: 'The Dot',
+    meta: 'Interaction concept · 2026',
+    blurb: 'Onboarding with no buttons. One dot is the whole navigation: red while it moves, black while it waits on you, green when you can go. It teaches its own rules in the first screen and leaves a trail you can tap to go back. Tested against Duolingo\'s five questions, side by side.',
+    slug: 'the-dot',
+    demo: { label: 'Open the demo', href: 'https://pjeon18.github.io/dot-onboarding/' },
+    image: dotCard,
   },
   {
     id: 'studdy',
@@ -259,6 +278,12 @@ export const tiles: Tile[] = [
     expand: 'The full choreography: <b>color waves</b> at five threshold moments, spring-based tab swipes, a sealed simultaneous reveal, and a reply timer that breathes. Built as a tokenized motion system — named springs, durations, easings — so every screen moves with one accent.',
   },
   {
+    id: 'the-dot', height: 340, image: dotTile,
+    title: 'The Dot',
+    sub: 'Onboarding with no buttons. Only a dot.',
+    to: '/work/the-dot',
+  },
+  {
     id: 'shop', height: 320, image: harvardShop,
     title: 'The Harvard Shop',
     sub: 'Procurement and project management, with real money on the line.',
@@ -309,6 +334,7 @@ export interface Folder {
 const TAB_LABELS: Record<string, string> = {
   about: 'About Me',
   iso: 'ISO',
+  'the-dot': 'The Dot',
   prepio: 'Prep.io',
   'pocket-tactics': 'Pocket Tactics',
   pokemaps: 'PokéMAPs',
@@ -354,7 +380,7 @@ export interface CaseStudy {
   sections: CaseSection[]
 }
 
-export const caseOrder = ['iso', 'studdy', 'prep-io', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
+export const caseOrder = ['iso', 'the-dot', 'studdy', 'prep-io', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
 
 export const caseStudies: Record<string, CaseStudy> = {
   iso: {
@@ -391,6 +417,67 @@ export const caseStudies: Record<string, CaseStudy> = {
       {
         heading: 'What shipped',
         body: '<p>A fully interactive prototype: the complete core loop (queue → live room → keep-talking → reflection), onboarding, revival, safety flows, and a subscription tier — with matchmaking simulated and an optional LLM-driven conversation partner behind a dev proxy. Plus the artifacts around it: a full PRD, a self-contained design document annotating every screen, and a narrated guided demo that drives the real store through the whole loop.</p>',
+      },
+    ],
+  },
+
+  'the-dot': {
+    slug: 'the-dot',
+    kicker: 'Interaction Concept · 2026',
+    title: 'The Dot. Onboarding without buttons.',
+    lead: 'One moving dot is the entire navigation of a form. Red while it moves, black while it waits on you, green when you can go. It parks where the Continue button used to be, teaches its own rules in the first screen, and leaves a trail in the margin you can tap to go back. Then it takes Duolingo\'s five onboarding questions and runs them both ways.',
+    role: 'Concept · motion · front end. Solo.',
+    stack: 'One HTML file · vanilla JavaScript · a spring camera · no framework',
+    links: [
+      { label: 'Open the demo', href: 'https://pjeon18.github.io/dot-onboarding/' },
+      { label: 'Source', href: 'https://github.com/pjeon18/dot-onboarding' },
+    ],
+    image: dotHero,
+    stats: [
+      { value: '3', label: 'colours. That is the whole grammar.' },
+      { value: '0', label: 'buttons between you and the end of the form' },
+      { value: '5', label: 'ways a question can arrive' },
+    ],
+    sections: [
+      {
+        heading: 'Where it came from',
+        body: '<p>On this site\'s homepage the period at the end of <em>Hi, I\'m Paul.</em> leaves the sentence and walks a first-time visitor around the page, with the camera following it on a spring. People kept mentioning the dot. The question this project asks is whether that dot could do a job instead of a tour.</p><p>A Next button is stateless. It looks the same whether you are allowed to press it or not, and it takes up the largest space on the screen to say the least. The dot is stateful. Its colour tells you where you are in the transaction before you have read anything.</p>',
+      },
+      {
+        heading: 'The grammar',
+        body: '<p><b>Red</b> means it is moving. Nothing you do lands. <b>Black</b> means it is waiting on you. <b>Green</b> means you can go: tap it, or press Enter. Waiting has two answers. Tap it with something missing and it darts to the gap and comes back. Tap it with something wrong, a name with digits in it, and it goes to the field and shakes its head, and the field shakes with it. The dot stays black through both, so three colours stay three.</p>',
+        image: dotLegend,
+        imageCaption: 'The first screen teaches the grammar with the grammar. The legend is a list the dot writes itself, and each bullet keeps the colour it describes.',
+      },
+      {
+        heading: 'The first line is the cinematic one',
+        body: '<p>The dot arrives huge, dead centre of a frame pushed in to about twice its size. It slides aside with a full ease in and out, parks, and only then does the line stream out beside it a letter at a time. It shrinks into a bullet as the camera opens to the rest of the list. The later lines pop in a word at a time, so the three reveals read as three different things rather than one repeated.</p><p>The motion is ported from the homepage dot rather than approximated: transits blend a quintic in-out with a slice of linear so the dot slows but never stops, speed stretches the body along its direction of travel, landings squash, and five ghosts trail it only when it is fast.</p>',
+        image: dotShake,
+        imageCaption: 'Wrong, not missing: the dot goes to the field and shakes its head. The underline goes red with it.',
+      },
+      {
+        heading: 'The margin is the memory',
+        body: '<p>Every time the dot leaves a screen, a small copy of it flies to a column in the left margin and settles there. Faint dots below mark the screens still to come, so the column is the progress bar. Tapping a filled dot flies the live one back to that screen with the answer preserved. A progress counter in the corner became redundant and was removed.</p><p>Tap the dot while it is red and it cuts to the end of the beat. The choreography costs seconds a screen; a first-time viewer wants them and a second-time user does not.</p>',
+        image: dotChips,
+        imageCaption: 'Three chips picked, the dot green, and the trail so far in the margin.',
+      },
+      {
+        heading: 'Against Duolingo',
+        body: '<p>A concept demo with made-up questions proves little, so the second and third tabs take Duolingo\'s five onboarding questions for Spanish, transcribed as shipped in 2026. One tab runs them behind a progress bar and a Continue button, redrawn in this palette with none of Duolingo\'s assets. The other runs the same five questions with the dot. Same questions, same type, same colours. The only thing being compared is the mechanism.</p><p>In the dot version nothing is on a screen until the dot puts it there, and each question arrives its own way: a slide in from the edge with the question following it on, a dive with the screen radiating out from the landing, a sweep that rules a line under the question and fills the letters in behind it, a hop down the options that taps each one into place, and the big-dot beat on the question itself.</p>',
+        image: dotDraw,
+        imageCaption: 'The third arrival: the dot rules a line under the question and the letters fill in behind it.',
+      },
+      {
+        heading: 'What I got wrong first',
+        body: '<p>A single easing curve stretched over both laps of the orbit made the first lap sluggish and the second a burst, then a crawl. Real gravity for the loop, speed as the square root of height, gave too shallow a hang at the top on a loop that wide; the curve is now a lower power with a floor, chosen from a simulated speed profile in pixels per frame rather than from watching it. Revealing the first line while the dot slid made the whole line appear at once. A 13 px dot scaled up five times was pixelated at the big moment, so it is drawn at 80 px and scaled down. Letters wrapped as free spans let the browser break a line inside a word.</p>',
+        image: dotBig,
+        imageCaption: 'The last Duolingo question, arriving the way the first line does.',
+      },
+      {
+        heading: 'Where it stops being a good idea',
+        body: '<p>It fits short flows with one decision per screen: onboarding, checkout, surveys, setup wizards, consent. It fits first runs, where you have someone\'s attention once and want the rules learned by watching. It fails on dense forms, where ten fields leave the dot no place to park and the nudge becomes a tour. It fails on anything done daily; choreography that delights once is a tax by the tenth time, and tap-to-skip softens that without removing it. It needs red and green to itself. And the size choice up front and a hidden Continue for screen readers are the floor of accessibility, not the answer.</p>',
+        image: dotClassic,
+        imageCaption: 'The baseline: the same question behind a Continue button, in the same palette.',
       },
     ],
   },
