@@ -31,7 +31,7 @@ const transit = (t: number) => (1 - DRIFT) * easeInOutQuint(t) + DRIFT * t
 const launch = (t: number) => 0.1 * t + 0.9 * t ** 4
 // one hop of the link sweep: eases down over a link without settling on it
 const hop = (f: number) =>
-  0.16 * f + 0.84 * (f < 0.5 ? 8 * f ** 4 : 1 - Math.pow(-2 * f + 2, 4) / 2)
+  0.10 * f + 0.90 * (f < 0.5 ? 32 * f ** 6 : 1 - Math.pow(-2 * f + 2, 6) / 2)
 
 interface P { x: number; y: number }
 const qbez = (p0: P, c: P, p1: P, u: number): P => ({
@@ -177,13 +177,17 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       return el
     })
     let lit = 0
+    const litAt = [0, 0]              // when each layer was last lit, for its bloom
     let lightOn = false
     const setBg = (pair: [string, string]) => {
       if (pair[0] === CREAM && pair[1] === CREAM) {
         lights.forEach((l) => { l.style.opacity = '0' }); lightOn = false; return
       }
       lit = 1 - lit
-      lights[lit].style.background = `radial-gradient(circle 60vmax at 50% 50%, ${pair[0]} 0%, ${pair[1]} 100%)`
+      // the deep tone dissolves to nothing at the edge, so there is never a
+      // rim, and the layer starts small and grows as it fades in
+      lights[lit].style.background = `radial-gradient(circle 150vmax at 50% 50%, ${pair[0]} 0%, ${pair[1]} 42%, ${pair[1]}00 100%)`
+      litAt[lit] = performance.now()
       lights[lit].style.opacity = '1'
       lights[1 - lit].style.opacity = '0'
       lightOn = true
@@ -192,8 +196,12 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       if (!lightOn) return
       // the pool sits where the look point lands on screen, at 1/z
       const k = 1 / Math.max(1, cam.z) + 0.12
-      const tf = `translate(${(cam.sx - innerWidth / 2).toFixed(1)}px, ${(cam.sy - innerHeight / 2).toFixed(1)}px) scale(${k.toFixed(4)})`
-      lights.forEach((l) => { l.style.transform = tf })
+      const now = performance.now()
+      lights.forEach((l, i) => {
+        const g = easeOutCubic(Math.min(1, (now - litAt[i]) / 1600))
+        const kk = k * (0.55 + 0.45 * g)
+        l.style.transform = `translate(${(cam.sx - innerWidth / 2).toFixed(1)}px, ${(cam.sy - innerHeight / 2).toFixed(1)}px) scale(${kk.toFixed(4)})`
+      })
     }
     const camReset = () => { cam.tx = innerWidth / 2; cam.ty = innerHeight / 2; cam.tz = 1 }
     const camApply = () => {
@@ -325,7 +333,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
         ? { x: cr.left + 2, y: cr.top + cr.height / 2 }
         : { x: pr.left + 52, y: pr.top + pr.height / 2 }
 
-      const sweepY = lr.top - 15
+      const sweepY = lr.top - 7
       const xs = [...linksEl.children].map((el) => {
         const r = el.getBoundingClientRect()
         return r.left + r.width / 2
