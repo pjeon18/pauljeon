@@ -10,7 +10,7 @@ body.sh-lock { overflow: hidden; }
   overflow: hidden;
 }
 /* the camera's subject. Both panes and the guide dot move as one under the
-   tour's push-in; the dial and the cursor stay fixed to the viewport. */
+   tour's push-in; the cursor stays fixed to the viewport. */
 .sh-cam {
   display: flex; width: 100%; height: 100vh; position: relative; z-index: 1;
   transform-origin: 0 0; will-change: transform;
@@ -396,8 +396,6 @@ body.sh-lock { overflow: hidden; }
 .guide-dot.live { pointer-events: auto; cursor: pointer; }
 /* the dot is 8px on screen; the target is not */
 .guide-dot.live::after { content: ''; position: absolute; inset: -16px; border-radius: 50%; }
-/* hardware stays off the picture while the trailer plays */
-body.guide-trailer .dial { opacity: 0; pointer-events: none; transform: translate(70px, -50%); }
 
 /* the cards only fade; their travel is the arc's own deceleration */
 .sh-ready .af-lift {
@@ -461,36 +459,3 @@ body.guide-trailer .dial { opacity: 0; pointer-events: none; transform: translat
 }
 
 
-/* ---------------------------------------------------------------------------
-   the thumbwheel: the visible axle the arc hangs from
-   --------------------------------------------------------------------------- */
-.dial {
-  position: fixed; right: 22px; top: 50%; transform: translateY(-50%);
-  display: flex; align-items: center; gap: 14px;
-  z-index: 30; user-select: none; -webkit-user-select: none;
-}
-.dial { transition: opacity 320ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1); }
-.af-docked .dial { opacity: 0; transform: translate(70px, -50%); pointer-events: none; }
-.dial-scale { position: relative; width: 52px; height: 300px; overflow: hidden; }
-.dial-scale svg { position: absolute; left: 0; top: 0; overflow: visible; }
-.dial-pointer {
-  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-  width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent;
-  border-left: 7px solid #E05C1F;
-  transition: transform 90ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
-}
-.dial-pointer.tick { transform: translateY(-50%) scale(1.45); transition: none; }
-/* the recess the wheel sits in, cut into the page's own material */
-.dial-well {
-  position: relative; width: 44px; height: 300px; border-radius: 12px;
-  background: #ECEAE3;
-  box-shadow:
-    inset 0 2px 4px rgba(20, 16, 10, 0.22),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.9),
-    inset 2px 0 3px rgba(20, 16, 10, 0.10),
-    0 1px 0 rgba(255, 255, 255, 0.8);
-  cursor: ns-resize; touch-action: none;
-}
-.dial-well canvas { position: absolute; left: 4px; top: 6px; width: 36px; height: 288px; border-radius: 9px; }
-@media (max-width: 900px) { .dial { display: none; } }
-@media (prefers-reduced-motion: reduce) { .dial-pointer { transition: none; } }
