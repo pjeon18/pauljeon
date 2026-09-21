@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import ArcFocus from './ArcFocus'
-import Dial from './Dial'
 import GuideDot from './GuideDot'
 import MediaFolder from './MediaFolder'
 import SplashDrop from './SplashDrop'
@@ -80,8 +79,7 @@ export default function SplitHome() {
         <SplashDrop onReveal={() => setBoot(false)} onDone={() => setGone(true)} />
       )}
       {/* .sh-cam is the camera's subject: both panes and the guide dot move as
-          one. The dial and the cursor sit outside it, fixed to the viewport,
-          because hardware lives on the chassis and not in the picture. */}
+          one. The cursor sits outside it, fixed to the viewport. */}
       <div className="sh-cam">
       <div className="sh-left">
         <header className="sh-nav">
@@ -110,7 +108,6 @@ export default function SplitHome() {
       <ArcFocus spinIn={!boot && !returning} awaitCollision={tourComing} dockIndex={dockIndex} />
       <GuideDot run={guide} mode={mode} />
       </div>
-      <Dial />
     </div>
   )
 }

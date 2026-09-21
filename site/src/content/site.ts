@@ -79,7 +79,7 @@ export interface Card {
   cats: Category[]
   title: string
   meta: string
-  when: string           // the dial's label for this card, e.g. "SEP ’26"
+  when: string           // the month label, e.g. "SEP ’26", shown in the docked panel
   t: number              // sort key, year.month, newest first on the wheel
   blurb: string          // shown in the hover reveal
   slug?: string          // links "Read the case study →" to /work/:slug

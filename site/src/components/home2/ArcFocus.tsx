@@ -111,8 +111,6 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   const setPosBoth = (v: number) => {
     posRef.current = v
     setPos(v)
-    // the thumbwheel draws itself from this
-    window.dispatchEvent(new CustomEvent('pj:pos', { detail: v }))
   }
 
   // One motion loop for everything that moves the arc once the hand lets go.
@@ -221,12 +219,6 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // the dial steps aside while a card is docked, it sits where the dock lands
-  useEffect(() => {
-    document.body.classList.toggle('af-docked', popped)
-    return () => document.body.classList.remove('af-docked')
-  }, [popped])
-
   // the guide dot colliding with the wheel: a hard fling that the same friction
   // and spring bring to rest, so it moves like every other input
   useEffect(() => {
@@ -235,19 +227,6 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     return () => window.removeEventListener('pj:spin', onSpin)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popped])
-
-  // the thumbwheel is a second hand on the same axle
-  useEffect(() => {
-    const onDial = (e: Event) => {
-      const d = (e as CustomEvent<{ type: string; dp?: number; vel?: number }>).detail
-      if (d.type === 'start') { stopMotion(); cancelAnimationFrame(snapRaf.current); aimRef.current = null; velRef.current = 0; setPopped(false) }
-      else if (d.type === 'move') { setPosBoth(posRef.current + (d.dp ?? 0)); velRef.current = d.vel ?? 0 }
-      else if (d.type === 'end') startMotion()
-    }
-    window.addEventListener('pj:dial', onDial)
-    return () => window.removeEventListener('pj:dial', onDial)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // wheel spins the arc (scoped to the pane, the page never scrolls here)
   useEffect(() => {
