@@ -87,7 +87,7 @@ export default function SplitHome() {
           <a href="https://github.com/pjeon18" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://www.linkedin.com/in/paul-j-jeon/" target="_blank" rel="noreferrer">LinkedIn</a>
           <a href={`${import.meta.env.BASE_URL}Paul_Jeon-Resume.pdf`} target="_blank" rel="noreferrer" data-soon>Résumé</a>
-          <Link to="/box">The Box</Link>
+          <Link to="/box" data-say="The old portfolio">The Box</Link>
         </footer>
       </div>
 

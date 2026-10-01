@@ -1,103 +1,143 @@
 import { useEffect, useRef } from 'react'
 
 // ============================================================================
-// CursorDot — the arrow is replaced by a small dot that inverts whatever it is
-// over. Near anything clickable it gives way to a glass slab that snaps onto
-// the target and hugs its shape, the way the iPadOS pointer does, so small
-// targets feel large without being large.
+// CursorDot — the arrow is the dot. It sits exactly under the pointer, and
+// the only thing that moves is its body: speed stretches it along the way it
+// is going and warms it from ink toward red, so a fast hand reads as a red
+// streak and a still one as a black point. The same grammar as the guide dot.
 //
-// The two states are two elements that cross-fade. The idle dot works by a
-// blend mode, and a blend mode cannot animate, so morphing one element would
-// always hard-switch somewhere. Position is written inside a rAF; nothing
-// here goes through React state.
+// The dot also speaks. Linger on a link that goes somewhere non-obvious and a
+// thin ring fills around the dot; when it fills, a glass bubble blooms from
+// the dot and says what the link opens, and the same line goes to a polite
+// live region for screen readers. Pass through quickly and it says nothing.
+// Everything is written per frame inside one rAF; no React state.
 // ============================================================================
 
-// The glass only takes over on the three things that are meant to be
-// touched on the home page: the footer links, the About Paul folder and the
-// period that replays the guide. Everything else keeps the plain dot.
-const HOT = ['.sh-links > a', '.mf-folder', '.guide-dot.live'].join(',')
-const REACH = 26 // px beyond a target's edge at which the glass takes over
+const RED = '#E02B1D', INK = '#121110'
+const DWELL = 500            // ms on a link before it speaks
+const RATE = 32              // follow rate: fraction of the gap closed per second, exp-decayed
+
+const rgb = (h: string) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]
+const mix = (a: string, b: string, t: number) => {
+  const A = rgb(a), B = rgb(b)
+  return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`
+}
+
+// What a link says when the dot lingers on it. Explicit copy wins; otherwise
+// the dot describes only what is not obvious from the label: leaving the
+// site, opening Mail, or a promise that is not kept yet.
+function describe(a: HTMLAnchorElement): { say: string; sub: string } | null {
+  if (a.dataset.say) return { say: a.dataset.say, sub: a.dataset.sub || '' }
+  if (a.hasAttribute('data-soon')) return { say: 'Not ready yet', sub: '' }
+  const href = a.getAttribute('href') || ''
+  if (href.startsWith('mailto:')) return { say: 'Opens Mail', sub: href.slice(7) }
+  if (/^https?:/.test(href)) {
+    try {
+      const u = new URL(href)
+      if (u.origin !== location.origin) return { say: 'Leaves the site', sub: (u.host + u.pathname).replace(/^www\./, '').replace(/\/$/, '') }
+    } catch { /* not a url */ }
+  }
+  return null
+}
 
 export default function CursorDot() {
   const dotRef = useRef<HTMLDivElement>(null)
-  const glassRef = useRef<HTMLDivElement>(null)
+  const ringRef = useRef<SVGSVGElement>(null)
+  const arcRef = useRef<SVGCircleElement>(null)
+  const bubbleRef = useRef<HTMLDivElement>(null)
+  const sayRef = useRef<HTMLParagraphElement>(null)
+  const subRef = useRef<HTMLElement>(null)
+  const liveRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // a dot is meaningless without a real pointer, and on touch it would
     // stick wherever the last tap landed
     if (!window.matchMedia('(pointer: fine)').matches) return
-    const dot = dotRef.current, glass = glassRef.current
-    if (!dot || !glass) return
+    const dot = dotRef.current, ring = ringRef.current, arc = arcRef.current
+    const bubble = bubbleRef.current, say = sayRef.current, sub = subRef.current, live = liveRef.current
+    if (!dot || !ring || !arc || !bubble || !say || !sub || !live) return
     document.body.classList.add('has-dot')
 
-    const c = { x: -100, y: -100, w: 11, h: 11, r: 14, vx: 0, vy: 0, vw: 0, vh: 0, g: 0, mx: -100, my: -100, seen: false, down: 0 }
+    const S = { x: -100, y: -100, mx: -100, my: -100, vx: 0, vy: 0, seen: false, over: null as HTMLAnchorElement | null, since: 0, speaking: null as HTMLAnchorElement | null, offT: 0 }
 
-    const nearestHot = (mx: number, my: number): DOMRect | null => {
-      let best: DOMRect | null = null, bestD = REACH, bestA = Infinity
-      for (const el of document.querySelectorAll<HTMLElement>(HOT)) {
-        const r = el.getBoundingClientRect()
-        if (!r.width || !r.height) continue
-        const dx = Math.max(r.left - mx, 0, mx - r.right), dy = Math.max(r.top - my, 0, my - r.bottom)
-        const d = Math.hypot(dx, dy)
-        const area = r.width * r.height
-        // a link inside a clickable panel beats the panel: nearest first, then smallest
-        if (d > bestD || (d === bestD && area >= bestA)) continue
-        // hidden panels keep their links in layout at opacity 0, and the arc's
-        // far cards are faded out. Only a visible, clickable target draws the glass.
-        if (el.checkVisibility && !el.checkVisibility({ opacityProperty: true, visibilityProperty: true } as CheckVisibilityOptions)) continue
-        if (getComputedStyle(el).pointerEvents === 'none') continue
-        bestD = d; bestA = area; best = r
-      }
-      return best
+    const under = (): HTMLAnchorElement | null => {
+      const el = document.elementFromPoint(S.x, S.y)
+      const a = el ? (el.closest('a[href]') as HTMLAnchorElement | null) : null
+      return a && describe(a) ? a : null
+    }
+    const placeBubble = () => {
+      // hangs off the dot's upper right, tail on the dot, kept on screen
+      const w = bubble.offsetWidth, h = bubble.offsetHeight
+      let x = S.x - 19, y = S.y - 22 - h
+      if (x + w > innerWidth - 16) x = innerWidth - 16 - w
+      if (x < 8) x = 8
+      if (y < 12) y = S.y + 18
+      bubble.style.left = `${x}px`; bubble.style.top = `${y}px`
+    }
+    const speak = (a: HTMLAnchorElement) => {
+      const d = describe(a); if (!d) return
+      S.speaking = a
+      window.clearTimeout(S.offT)
+      say.textContent = d.say; sub.textContent = d.sub
+      live.textContent = `${a.textContent?.trim()}: ${d.say}${d.sub ? ', ' + d.sub : ''}`
+      bubble.classList.remove('off'); bubble.classList.add('on')
+      placeBubble()
+    }
+    const hush = () => {
+      if (!S.speaking) return
+      S.speaking = null
+      bubble.classList.remove('on'); bubble.classList.add('off')
+      S.offT = window.setTimeout(() => bubble.classList.remove('off'), 220)
     }
 
     let raf = 0, last = performance.now()
     const loop = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000); last = now
-      if (c.seen) {
-        const hot = nearestHot(c.mx, c.my)
-        let tx = c.mx, ty = c.my, tw = 11, th = 11, tr = 14
-        if (hot) { tx = hot.left + hot.width / 2; ty = hot.top + hot.height / 2; tw = hot.width + 18; th = hot.height + 14; tr = Math.min(16, th / 2) }
-        // position on a stiff spring so the snap reads as magnetism; size on a
-        // softer one so the slab breathes onto a target rather than clicking to it
-        c.vx += ((tx - c.x) * 420 - c.vx * 34) * dt; c.x += c.vx * dt
-        c.vy += ((ty - c.y) * 420 - c.vy * 34) * dt; c.y += c.vy * dt
-        c.vw += ((tw - c.w) * 260 - c.vw * 24) * dt; c.w += c.vw * dt
-        c.vh += ((th - c.h) * 260 - c.vh * 24) * dt; c.h += c.vh * dt
-        c.r += (tr - c.r) * Math.min(1, dt * 12)
-        c.g += ((hot ? 1 : 0) - c.g) * Math.min(1, dt * 11)
-        c.down += ((0) - c.down) * Math.min(1, dt * 18)
-        const pos = `translate(${c.x}px,${c.y}px) translate(-50%,-50%)`
-        dot.style.transform = `${pos} scale(${(1 - c.g * 0.6) * (1 - c.down * 0.25)})`
-        dot.style.opacity = String(1 - c.g)
-        glass.style.transform = `${pos} scale(${1 - c.down * 0.04})`
-        glass.style.width = `${c.w}px`; glass.style.height = `${c.h}px`; glass.style.borderRadius = `${c.r}px`
-        glass.style.opacity = String(c.g)
-        // the tint thins as the target grows. On a link it is a lit slab; on a
-        // card the same fill would fog the artwork, so a card gets the rim and
-        // the float with only a whisper of glass over it.
-        const k = Math.max(0.14, Math.min(1, 64 / Math.max(64, Math.max(c.w, c.h))))
-        glass.style.background = `linear-gradient(180deg, rgba(255,255,255,${(0.62 * k).toFixed(3)}), rgba(255,255,255,${(0.20 * k).toFixed(3)}))`
+      const dt = Math.max(0.001, Math.min(0.05, (now - last) / 1000)); last = now
+      if (S.seen) {
+        // exponential follow: stable at any frame time, never overshoots, and
+        // tight enough that it reads as the pointer itself
+        const f = 1 - Math.exp(-RATE * dt)
+        const nx = S.x + (S.mx - S.x) * f, ny = S.y + (S.my - S.y) * f
+        S.vx = (nx - S.x) / dt; S.vy = (ny - S.y) / dt
+        S.x = nx; S.y = ny
+        const sp = Math.hypot(S.vx, S.vy)
+        const stretch = Math.min(sp / 2600, 0.3)
+        const ang = sp > 20 ? Math.atan2(S.vy, S.vx) : 0
+        dot.style.transform = `translate(${S.x}px,${S.y}px) translate(-50%,-50%) rotate(${ang}rad) scale(${(1 + stretch).toFixed(3)},${(1 - stretch * 0.5).toFixed(3)})`
+        dot.style.background = mix(INK, RED, Math.min(1, sp / 1400))
+        ring.style.transform = `translate(${S.x - 18}px,${S.y - 18}px)`
+
+        const a = under()
+        if (a !== S.over) { S.over = a; S.since = now; if (!a) hush() }
+        if (a) {
+          const k = Math.min(1, (now - S.since) / DWELL)
+          ring.classList.toggle('on', k < 1 && !S.speaking)
+          arc.style.strokeDashoffset = String(1 - k)
+          if (k >= 1 && S.speaking !== a) speak(a)
+        } else ring.classList.remove('on')
+        if (S.speaking) placeBubble()
       }
       raf = requestAnimationFrame(loop)
     }
     raf = requestAnimationFrame(loop)
 
     const onMove = (e: PointerEvent) => {
-      c.mx = e.clientX; c.my = e.clientY
-      if (!c.seen) { c.seen = true; c.x = e.clientX; c.y = e.clientY; dot.classList.add('on'); glass.classList.add('on') }
+      S.mx = e.clientX; S.my = e.clientY
+      if (!S.seen) { S.seen = true; S.x = e.clientX; S.y = e.clientY; dot.classList.add('on') }
     }
     const onOut = (e: PointerEvent) => {
       // relatedTarget is null only when the pointer actually leaves the window
-      if (e.relatedTarget === null) { c.seen = false; dot.classList.remove('on'); glass.classList.remove('on') }
+      if (e.relatedTarget === null) { S.seen = false; dot.classList.remove('on'); ring.classList.remove('on'); hush() }
     }
-    const onDown = () => { c.down = 1 }
+    // a click is an answer, so the dot stops talking
+    const onDown = () => { hush(); S.since = performance.now() + 400 }
     window.addEventListener('pointermove', onMove, { passive: true })
     window.addEventListener('pointerout', onOut, { passive: true })
     window.addEventListener('pointerdown', onDown, { passive: true })
     return () => {
       document.body.classList.remove('has-dot')
       cancelAnimationFrame(raf)
+      window.clearTimeout(S.offT)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerout', onOut)
       window.removeEventListener('pointerdown', onDown)
@@ -106,8 +146,14 @@ export default function CursorDot() {
 
   return (
     <>
+      <svg className="cursor-ring" ref={ringRef} viewBox="0 0 36 36" aria-hidden="true">
+        <circle ref={arcRef} cx="18" cy="18" r="15" pathLength={1} strokeDasharray="1" strokeDashoffset="1" />
+      </svg>
+      <div className="dot-bubble" ref={bubbleRef} aria-hidden="true">
+        <div className="dot-glass"><p ref={sayRef} /><small ref={subRef} /><span className="dot-tail" /></div>
+      </div>
+      <div className="sr-only" role="status" aria-live="polite" ref={liveRef} />
       <div className="cursor-dot" ref={dotRef} aria-hidden="true" />
-      <div className="cursor-glass" ref={glassRef} aria-hidden="true" />
     </>
   )
 }
