@@ -12,18 +12,6 @@ import { about, cards } from '../../content/site'
 // One viewport, no page scroll — the wheel belongs to the arc.
 // ============================================================================
 
-function useClock() {
-  const [time, setTime] = useState('')
-  useEffect(() => {
-    const fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' })
-    const tick = () => setTime(fmt.format(new Date()) + ' EST')
-    tick()
-    const iv = setInterval(tick, 15000)
-    return () => clearInterval(iv)
-  }, [])
-  return time
-}
-
 // which card a case path belongs to, for the return morph
 const cardIndexFor = (path: string | undefined): number | null => {
   if (!path) return null
@@ -32,7 +20,6 @@ const cardIndexFor = (path: string | undefined): number | null => {
 }
 
 export default function SplitHome() {
-  const time = useClock()
   // arriving back from a case study: mount with its card docked, skip the
   // choreography, and let the tour wait for a fresh visit
   const { state } = useLocation() as { state?: { from?: string } }
@@ -84,7 +71,6 @@ export default function SplitHome() {
       <div className="sh-left">
         <header className="sh-nav">
           <span className="sh-logo">Paul Jeon</span>
-          <span className="sh-time">{time}</span>
         </header>
 
         <div className="sh-intro">
@@ -99,8 +85,8 @@ export default function SplitHome() {
         <footer className="sh-links">
           <a href={`mailto:${about.email}`}>Email</a>
           <a href="https://github.com/pjeon18" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="https://www.linkedin.com/in/paul-j-jeon" target="_blank" rel="noreferrer">LinkedIn</a>
-          <a href={`${import.meta.env.BASE_URL}Paul_Jeon-Resume.pdf`} target="_blank" rel="noreferrer">Résumé</a>
+          <a href="https://www.linkedin.com/in/paul-j-jeon/" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a href={`${import.meta.env.BASE_URL}Paul_Jeon-Resume.pdf`} target="_blank" rel="noreferrer" data-soon>Résumé</a>
           <Link to="/box">The Box</Link>
         </footer>
       </div>

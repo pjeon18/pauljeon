@@ -51,7 +51,7 @@ export default function CaseStudy() {
               <h3>Links</h3>
               <p>
                 {study.links.map((l) => (
-                  <a key={l.href} href={l.href} target="_blank" rel="noreferrer">{l.label} ↗</a>
+                  <a key={l.href} href={l.href} target="_blank" rel="noreferrer" data-soon={l.soon || undefined}>{l.label} ↗</a>
                 ))}
               </p>
             </div>

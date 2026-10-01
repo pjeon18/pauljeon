@@ -10,7 +10,7 @@ export default function Footer() {
       <a className="foot-mail" href={`mailto:${footer.email}`}>{footer.email}</a>
       <div className="foot-links">
         {footer.links.map((l) => (
-          <a key={l.label} href={l.href} target="_blank" rel="noreferrer">{l.label}</a>
+          <a key={l.label} href={l.href} target="_blank" rel="noreferrer" data-soon={l.soon || undefined}>{l.label}</a>
         ))}
       </div>
       <div className="foot-fine">{footer.fine}</div>

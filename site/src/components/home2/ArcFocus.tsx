@@ -28,7 +28,7 @@ interface TabDef {
   id: string
   label: string
   body?: string
-  links?: { label: string; href: string; internal?: boolean }[]
+  links?: { label: string; href: string; internal?: boolean; soon?: boolean }[]
 }
 
 function tabsFor(card: Card): TabDef[] {
@@ -40,7 +40,7 @@ function tabsFor(card: Card): TabDef[] {
   if (card.slug) links.push({ label: 'Read the case study', href: `/work/${card.slug}`, internal: true })
   if (card.page) links.push({ label: card.linkLabel || 'Open', href: card.page, internal: true })
   if (card.href && !card.href.startsWith('#')) links.push({ label: card.linkLabel || 'Open', href: card.href })
-  if (card.demo) links.push({ label: card.demo.label, href: card.demo.href })
+  if (card.demo) links.push({ label: card.demo.label, href: card.demo.href, soon: card.demo.soon })
   if (links.length) tabs.push({ id: 'links', label: 'Links', links })
   return tabs
 }
@@ -430,7 +430,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
                           {l.label} <span className="arr">→</span>
                         </Link>
                       ) : (
-                        <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="af-link">
+                        <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="af-link" data-soon={l.soon || undefined}>
                           {l.label} <span className="arr">↗</span>
                         </a>
                       ),
