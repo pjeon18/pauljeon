@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import CursorDot from './components/CursorDot'
+import EdgeGlow from './components/EdgeGlow'
 import BoxHome from './components/box/BoxHome'
 import SplitHome from './components/home2/SplitHome'
 import CaseStudy from './components/CaseStudy'
@@ -15,6 +16,7 @@ installSoon()
 export default function App() {
   return (
     <>
+      <EdgeGlow />
       <CursorDot />
       <Routes>
         <Route path="/" element={<SplitHome />} />
