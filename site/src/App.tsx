@@ -8,6 +8,9 @@ import IsoMag from './components/IsoMag'
 import PrepMag from './components/PrepMag'
 import Pamphlet from './components/Pamphlet'
 import Impostor from './games/Impostor'
+import { installSoon } from './lib/soon'
+
+installSoon()
 
 export default function App() {
   return (

@@ -339,7 +339,7 @@ export default function BoxHome() {
           ))}
           <li><Link to="/impostor">Play Impostor</Link></li>
           <li><Link to="/human-inventory">The Human Inventory</Link></li>
-          <li><a href={`${import.meta.env.BASE_URL}Paul_Jeon-Resume.pdf`}>Résumé (PDF)</a></li>
+          <li><a href={`${import.meta.env.BASE_URL}Paul_Jeon-Resume.pdf`} data-soon>Résumé (PDF)</a></li>
         </ul>
       </nav>
 

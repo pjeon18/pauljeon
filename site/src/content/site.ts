@@ -6,7 +6,6 @@
 import isoIcon from '../assets/iso-icon.webp'
 import isoSplash from '../assets/iso-splash.webp'
 import f1 from '../assets/f1.webp'
-import mediaGlobe from '../assets/media-globe.webp'
 import onapsis from '../assets/onapsis.webp'
 import harvardShop from '../assets/harvard-shop.webp'
 import portraitFront from '../assets/portrait-front.webp'
@@ -17,7 +16,6 @@ import gYtViz from '../assets/g-yt-viz.webp'
 import gPokemaps from '../assets/g-pokemaps.webp'
 import gImpostor from '../assets/g-impostor.webp'
 import posterHumanInventory from '../assets/poster-human-inventory.webp'
-import pokemapsMark from '../assets/pokemaps-mark.svg'
 import gPrepioRoom from '../assets/g-prepio-room.webp'
 import gDearData from '../assets/g-dear-data.webp'
 import prepioCard from '../assets/prepio.webp'
@@ -45,7 +43,12 @@ import f1Corr from '../assets/f1-correlation-matrix.webp'
 import f1Perf from '../assets/f1-performance-comparison.webp'
 import f1Outcomes from '../assets/f1-undercut-outcomes.webp'
 import rlPolicy from '../assets/rl-policy-iteration.webp'
-import dotCard from '../assets/dot-card.webp'
+import ytLanding from '../assets/yt-landing.webp'
+import thumbDot from '../assets/thumb-dot.webp'
+import thumbLila from '../assets/thumb-lila.webp'
+import thumbImpostor from '../assets/thumb-impostor.webp'
+import thumbOrg from '../assets/thumb-org.webp'
+import thumbRl from '../assets/thumb-rl.webp'
 import dotTile from '../assets/dot-tile.webp'
 import dotHero from '../assets/dot-hero.webp'
 import dotLegend from '../assets/dot-legend.webp'
@@ -84,7 +87,7 @@ export interface Card {
   blurb: string          // shown in the hover reveal
   slug?: string          // links "Read the case study →" to /work/:slug
   page?: string          // internal page route (e.g. /impostor)
-  demo?: { label: string; href: string }  // external site/demo/repo for the project
+  demo?: { label: string; href: string; soon?: boolean }  // external site/demo/repo; soon = not public yet
   href?: string          // external or #anchor target; used when there's no slug
   linkLabel?: string
   image?: string         // photographic card
@@ -110,7 +113,7 @@ export interface Card {
 export const cards: Card[] = [
   {
     id: 'lila',
-    logo: { bg: 'linear-gradient(165deg, #F3F1F8, #E4E0EF)', text: 'Lila', color: '#17142A' },
+    image: thumbLila,
     cats: ['product'],
     title: 'Currently: Lila Sciences',
     meta: 'Enterprise GTM Co-op · Cambridge, MA',
@@ -129,11 +132,10 @@ export const cards: Card[] = [
     blurb: 'Onboarding with no buttons. One dot is the whole navigation: red while it moves, black while it waits on you, green when you can go. It teaches its own rules in the first screen and leaves a trail you can tap to go back. Tested against Duolingo\'s five questions, side by side.',
     slug: 'the-dot',
     demo: { label: 'Open the demo', href: 'https://pjeon18.github.io/dot-onboarding/' },
-    image: dotCard,
+    image: thumbDot,
   },
   {
     id: 'studdy',
-    logo: { bg: 'linear-gradient(165deg, #EAF1FB, #D8E6F6)', text: 'Studdy', color: '#2A3E5C' },
     cats: ['product', 'engineering'],
     title: 'Studdy',
     meta: 'Product · live multiplayer · 2026',
@@ -146,7 +148,6 @@ export const cards: Card[] = [
   },
   {
     id: 'pokemaps',
-    logo: { bg: 'linear-gradient(165deg, #F6F8EC, #EDF3DE)', img: pokemapsMark, imgW: '44%' },
     cats: ['product', 'engineering'],
     title: 'PokéMAPs',
     meta: 'Product · 373 locations · Live daily',
@@ -167,7 +168,7 @@ export const cards: Card[] = [
     t: 2026.081,
     blurb: 'Enriched 13,000 contacts into a scored pipeline for the BDR team, with agents doing the grunt work and a confidence rating on every lead.',
     slug: 'onapsis-gtm',
-    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/orgcharexplorer' },
+    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/orgcharexplorer', soon: true },
     image: onapsis,
   },
   {
@@ -179,12 +180,11 @@ export const cards: Card[] = [
     t: 2026.074,
     blurb: 'Upload an org spreadsheet, get an explorable reporting tree. Runs entirely in the browser, so personnel data never touches a server.',
     slug: 'org-chart-explorer',
-    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/orgcharexplorer' },
-    art: 'org',
+    demo: { label: 'GitHub', href: 'https://github.com/pjeon18/orgcharexplorer', soon: true },
+    image: thumbOrg,
   },
   {
     id: 'pocket-tactics',
-    logo: { bg: 'linear-gradient(165deg, #E9F3EB, #DCEDE1)', text: 'Pocket Tactics', color: '#1E3A2A' },
     cats: ['product', 'engineering'],
     title: 'Pocket Tactics',
     meta: 'Game · 60 units · Online rooms',
@@ -198,7 +198,6 @@ export const cards: Card[] = [
   },
   {
     id: 'prepio',
-    logo: { bg: 'linear-gradient(165deg, #FBF9F4, #F3EFE6)', text: 'prep.io', serif: true, color: '#1C1A17' },
     cats: ['product', 'engineering'],
     title: 'Prep.io',
     meta: 'Product · live office hours · 2026',
@@ -219,11 +218,10 @@ export const cards: Card[] = [
     blurb: 'A dating app that refuses inboxes. One live conversation at a time, or nothing. I wrote the PRD, built the design system, and shipped the working prototype.',
     slug: 'iso',
     demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
-    icon: isoIcon,
+    image: isoSplash,
   },
   {
     id: 'impostor',
-    logo: { bg: 'linear-gradient(165deg, #F7F5EF, #EFEBE1)', text: 'impostor', accent: '.', color: '#121110' },
     cats: ['all'],
     title: 'Play Impostor',
     meta: 'Party game · 3–12 players · pass-and-play',
@@ -232,11 +230,10 @@ export const cards: Card[] = [
     blurb: "Everyone gets the secret word. One of you doesn't. Good luck.",
     page: '/impostor',
     linkLabel: 'Play',
-    image: gImpostor,
+    image: thumbImpostor,
   },
   {
     id: 'f1',
-    logo: { bg: 'linear-gradient(165deg, #1B1C22, #2A1210)', text: 'Undercut?', color: '#FDFDFB' },
     cats: ['ml'],
     title: 'Undercut, or stay out?',
     meta: 'AI / ML · 761 attempts · 0.71 AUC-ROC',
@@ -249,7 +246,6 @@ export const cards: Card[] = [
   },
   {
     id: 'media',
-    logo: { bg: 'linear-gradient(165deg, #FFF6F4, #FDEAE6)', play: true },
     cats: ['engineering', 'ml'],
     title: 'Are videos getting shorter?',
     meta: 'Data viz · 62k videos · d3',
@@ -258,7 +254,7 @@ export const cards: Card[] = [
     blurb: 'A scrolling data story on 62,000 videos we collected ourselves. On seven major media channels, Shorts were half the uploads and three quarters of the views.',
     slug: 'media-analytics',
     demo: { label: 'Live visualization', href: 'https://xiaoman21.github.io/CS171/' },
-    image: mediaGlobe,
+    image: ytLanding,
   },
   {
     id: 'rl',
@@ -269,7 +265,7 @@ export const cards: Card[] = [
     t: 2025.111,
     blurb: 'Value functions derived on paper, then policy iteration in NumPy on a three-state MDP. Change the discount factor and the optimal policy reverses.',
     slug: 'rl-agents',
-    art: 'rl',
+    image: thumbRl,
   },
 ]
 
@@ -347,13 +343,13 @@ export const tiles: Tile[] = [
 ]
 
 // ---------- footer ----------
-export const footer = {
+export const footer: { kicker: string; email: string; links: { label: string; href: string; soon?: boolean }[]; fine: string } = {
   kicker: 'Want to Learn More?',
   email: 'pauljeon@college.harvard.edu',
   links: [
-    { label: 'Résumé', href: 'https://pjeon18.github.io/pauljeon/Paul_Jeon-Resume.pdf' },
+    { label: 'Résumé', href: 'https://pjeon18.github.io/pauljeon/Paul_Jeon-Resume.pdf', soon: true },
     { label: 'GitHub', href: 'https://github.com/pjeon18' },
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/paul-j-jeon' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/paul-j-jeon/' },
     { label: 'ISO prototype', href: 'https://pjeon18.github.io/iso-prototype/' },
   ],
   fine: '© 2026 Paul Jeon. Designed and built by hand.',
@@ -410,7 +406,7 @@ export interface CaseStudy {
   lead: string
   role: string
   stack: string
-  links?: { label: string; href: string }[]
+  links?: { label: string; href: string; soon?: boolean }[]
   image?: string
   icon?: string
   art?: 'org' | 'rl'
@@ -624,7 +620,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     lead: "A business development team was working reporting lines out of a 699-row org export, navigable only by scrolling and squinting. I built them a searchable reporting tree. Personnel data never needs a security review here, because there is no server to send it to.",
     role: 'Design and engineering — solo, built for the BDR team I sat with and handed to IT',
     stack: 'React · JavaScript · Vite · SheetJS · PapaParse · Tailwind · S3 + CloudFront',
-    links: [{ label: 'GitHub repository', href: 'https://github.com/pjeon18/orgcharexplorer' }],
+    links: [{ label: 'GitHub repository', href: 'https://github.com/pjeon18/orgcharexplorer', soon: true }],
     image: org02,
     stats: [
       { value: '699', label: 'rows in the real export it was built and validated against' },
