@@ -2,10 +2,11 @@ import { useEffect, useRef } from 'react'
 
 // ============================================================================
 // EdgeGlow — a thin chromatic band on the rim of the screen, as if the screen
-// were lit from its edge. A crisp ring carries the colour and breathes; a
-// blurred copy spills a short way inward and fades before it reaches the
-// content; a click lights one more ring for a moment. All of it is CSS; the
-// only script here is the click.
+// were lit from its edge. A crisp ring carries the colour and breathes; two
+// feathered copies crossfade from near to far so the light seems to spill a
+// short way inward and fade before the content; a click lights one more for
+// a moment. The only animated property is opacity, so the compositor does all
+// of it and nothing repaints per frame. The only script here is the click.
 // ============================================================================
 
 export default function EdgeGlow() {
@@ -13,14 +14,19 @@ export default function EdgeGlow() {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const flare = () => { el.classList.remove('go'); void el.offsetWidth; el.classList.add('go') }
-    window.addEventListener('pointerdown', flare, { passive: true })
-    return () => window.removeEventListener('pointerdown', flare)
+    const flare = el.querySelector('.edge-flare') as HTMLElement
+    let t = 0
+    // light instantly, hold a beat, let the transition carry it back down.
+    // A second click while lit simply holds it a little longer; nothing restarts.
+    const onDown = () => { flare.classList.add('lit'); window.clearTimeout(t); t = window.setTimeout(() => flare.classList.remove('lit'), 120) }
+    window.addEventListener('pointerdown', onDown, { passive: true })
+    return () => { window.removeEventListener('pointerdown', onDown); window.clearTimeout(t) }
   }, [])
   return (
     <div className="edge" ref={ref} aria-hidden="true">
-      <span className="edge-spill"><i /></span>
-      <span className="edge-flare"><i /></span>
+      <span className="edge-spill near" />
+      <span className="edge-spill far" />
+      <span className="edge-flare" />
       <span className="edge-ring" />
     </div>
   )

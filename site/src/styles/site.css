@@ -721,32 +721,46 @@ button { font-family: inherit; }
 
 /* ==========================================================================
    the edge glow: a thin chromatic band on the rim of the screen
+   Nothing here repaints per frame. The gradients are static and the only
+   animated property is opacity, which the compositor handles alone. The soft
+   spill is not a blur: a blur on a full-viewport layer re-rasterises every
+   frame and halved the frame rate. It is the same gradient masked by two
+   feathered linear gradients, so the softness is painted once.
    ========================================================================== */
-@property --edge-ang { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
-@property --edge-w { syntax: '<length>'; inherits: false; initial-value: 10px; }
-.edge { position: fixed; inset: 0; z-index: 2147482990; pointer-events: none; animation: edgeTurn 16s linear infinite; }
-.edge .edge-ring, .edge .edge-spill i, .edge .edge-flare i {
-  position: absolute; inset: 0; border-radius: 18px; display: block;
-  background: conic-gradient(from var(--edge-ang) at 50% 50%, #FF8A3D, #FF5BA8, #B86BFF, #5A9BFF, #3FDCD2, #FFD36B, #FF8A3D);
+.edge { position: fixed; inset: 0; z-index: 2147482990; pointer-events: none; }
+.edge > span, .edge .edge-ring {
+  position: absolute; inset: 0; display: block; border-radius: 18px;
+  background: conic-gradient(from 210deg at 50% 50%, #FF8A3D, #FF5BA8, #B86BFF, #5A9BFF, #3FDCD2, #FFD36B, #FF8A3D);
+  will-change: opacity;
+}
+/* the ring: a hard 2px frame */
+.edge .edge-ring {
+  padding: 2px;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  animation: edgeBreathe 7s cubic-bezier(0.45, 0, 0.3, 1) infinite;
 }
-.edge .edge-ring { padding: 2px; animation: edgeBreathe 7s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
-/* the blur sits on a wrapper, outside the mask: filter runs before mask in
-   CSS, so a blurred ring masked in the same element gets a hard inner edge */
-.edge .edge-spill { position: absolute; inset: 0; filter: blur(18px); animation: edgeSpill 7s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
-.edge .edge-spill i { padding: var(--edge-w); animation: edgeWiden 7s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
-.edge .edge-flare { position: absolute; inset: 0; filter: blur(12px); opacity: 0; }
-.edge .edge-flare i { padding: 4px; }
-.edge.go .edge-flare { animation: edgeFlare 760ms cubic-bezier(0.2, 0.8, 0.3, 1) 1; }
-.edge.go .edge-flare i { animation: edgeFlareWiden 760ms cubic-bezier(0.2, 0.8, 0.3, 1) 1; }
-@keyframes edgeTurn { to { --edge-ang: 360deg; } }
+/* the spill and the flare: the frame fading to nothing toward the middle,
+   from the edges in, with --w setting how far the light reaches */
+.edge .edge-spill, .edge .edge-flare {
+  -webkit-mask:
+    linear-gradient(to right, #000, transparent var(--w), transparent calc(100% - var(--w)), #000),
+    linear-gradient(to bottom, #000, transparent var(--w), transparent calc(100% - var(--w)), #000);
+  -webkit-mask-composite: source-over;
+  mask:
+    linear-gradient(to right, #000, transparent var(--w), transparent calc(100% - var(--w)), #000),
+    linear-gradient(to bottom, #000, transparent var(--w), transparent calc(100% - var(--w)), #000);
+  mask-composite: add;
+  opacity: 0;
+}
+.edge .edge-spill.near { --w: 26px; animation: edgeNear 7s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
+.edge .edge-spill.far { --w: 70px; animation: edgeFar 7s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
+.edge .edge-flare { --w: 48px; transition: opacity 900ms cubic-bezier(0.2, 0.6, 0.3, 1); }
+.edge .edge-flare.lit { opacity: 0.5; transition: opacity 70ms ease-out; }
 @keyframes edgeBreathe { 0%, 100% { opacity: 0.14; } 45% { opacity: 0.44; } }
-@keyframes edgeSpill { 0% { opacity: 0; } 40% { opacity: 0.24; } 85%, 100% { opacity: 0; } }
-@keyframes edgeWiden { 0% { --edge-w: 6px; } 85% { --edge-w: 44px; } 100% { --edge-w: 6px; } }
-@keyframes edgeFlare { 0% { opacity: 0; } 12% { opacity: 0.75; } 100% { opacity: 0; } }
-@keyframes edgeFlareWiden { 0% { --edge-w: 3px; } 100% { --edge-w: 34px; } }
-@media (prefers-reduced-motion: reduce) { .edge { animation: none; } .edge .edge-ring { animation: none; opacity: 0.3; } .edge .edge-spill, .edge .edge-flare { display: none; } }
+@keyframes edgeNear { 0%, 100% { opacity: 0; } 35% { opacity: 0.3; } 70% { opacity: 0; } }
+@keyframes edgeFar { 0%, 20% { opacity: 0; } 55% { opacity: 0.18; } 90%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .edge .edge-ring { animation: none; opacity: 0.3; } .edge .edge-spill, .edge .edge-flare { display: none; } }
 
 /* the docked card's art and title travel into the case study's hero and h1 */
 ::view-transition-group(case-hero),
