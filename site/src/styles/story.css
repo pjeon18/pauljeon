@@ -455,3 +455,5 @@
 
 /* dark finales take each study's own night instead of one shared black */
 .mag .mg-finale, .smag .sm-finale { background: var(--st-night); }
+
+.prep-film { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 22px; background: #fbfaf6; box-shadow: 0 30px 70px rgba(14, 28, 21, 0.18); }
