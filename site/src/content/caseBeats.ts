@@ -58,7 +58,7 @@ export const caseBeats: Record<string, StoryLayer> = {
       { beats: [
         'It fits short flows with one decision per screen. Onboarding, checkout, surveys, consent.',
         'It fails on dense forms, where ten fields leave the dot nowhere to park.',
-        'It fails on anything done daily. Choreography that delights once is a tax by the tenth time.',
+        'It fails on anything done daily. An animation that is charming once gets tiresome by the tenth time.',
         'A hidden Continue for screen readers is the floor of accessibility, not the answer.',
       ], cap: 'The baseline. The same question behind a Continue button, in the same palette.' },
     ],
@@ -77,14 +77,14 @@ export const caseBeats: Record<string, StoryLayer> = {
       { beats: [
         'A rep does not want an org chart. A rep wants one person, in context, fast.',
         'Who owns this division, who they report to, and who is the right first call.',
-        'So the tree is scaffolding around a found person. It is not the product.',
+        'So the tree is only there to give context around the person you searched for.',
         'Before this, every question meant scrolling one very large image and reading small text.',
       ], cap: 'The upload screen makes the privacy promise up front. Your file is read in your browser and never uploaded.' },
       { dark: true, beats: [
         'The input is a complete personnel roster. Every name, title and manager in a company.',
         'Uploading that would need sign-off before a rep could use it once.',
         'So the file is read and parsed in the browser and held in memory. No fetch, no storage, no analytics.',
-        'Nothing to review, because nothing moves.',
+        'Nothing leaves the browser, so there is nothing to review.',
       ] },
       { beats: [
         'Real exports are inconsistent, so the parser bends.',
@@ -95,7 +95,7 @@ export const caseBeats: Record<string, StoryLayer> = {
       { beats: [
         'Filtering a tree usually means losing the structure or filtering nothing.',
         'Selecting a division shows the matches plus every manager above them, dimmed as context.',
-        'Facet counts are true counts, so a rep never clicks into an empty result.',
+        'The number beside each filter is exact, so a rep never clicks into an empty result.',
         'Search is fuzzy because reps half-remember names. Facets stay exact so data problems stay visible.',
       ] },
       { beats: [
@@ -129,19 +129,19 @@ export const caseBeats: Record<string, StoryLayer> = {
       { beats: [
         'A 13,000-row contact list is not a pipeline. The team already had the rows.',
         'What they lacked was a way to say which accounts deserved a rep’s morning.',
-        'Onapsis sells to two buying centers, so the target is CISOs, CIOs, security VPs and SAP Basis leads at once.',
+        'Onapsis sells to both security and SAP teams, so the targets are CISOs, CIOs, security VPs and SAP Basis leads at once.',
       ] },
       { beats: [
         'A pipeline in Google Apps Script, where the team already worked, pulls and enriches contacts from ZoomInfo.',
         'The output is a ranked sheet a rep can act on that morning.',
         'A Gemini layer reads free-text job titles and scores each contact against the target profile.',
-        'The hard cases are titles that sound senior and are functionally irrelevant.',
+        'The hard cases are titles that sound senior but have nothing to do with security or SAP.',
       ] },
       { dark: true, beats: [
         'The model was confident and wrong on unusual titles often enough to matter.',
         'A score that never says when it is guessing teaches reps to distrust all of it.',
         'So every score carries a confidence rating. High goes straight to reps. Low goes to a person.',
-        'Agents do retrieval at scale, people keep the judgment, and the system says which is which.',
+        'The model does the bulk sorting, people make the close calls, and each score says which one it needs.',
       ] },
       { beats: [
         'The first batch produced 74 qualified contacts from 47 accounts. By August it was over 300 leads across more than 70.',
@@ -164,7 +164,7 @@ export const caseBeats: Record<string, StoryLayer> = {
       { beats: [
         'No labelled undercut dataset exists, so the first job was defining the event.',
         'An attempt is a pit stop followed by a rival’s stop within five laps. It succeeds if the attacker comes out ahead.',
-        'Pace averages are shifted so they never include the lap being predicted. That is the difference between a model and a leak.',
+        'Pace averages never include the lap being predicted. Otherwise the model would be peeking at the answer.',
         'Keeping only gaps under two seconds leaves 761 attempts, and 77 successes.',
       ] },
       { beats: [
@@ -181,7 +181,7 @@ export const caseBeats: Record<string, StoryLayer> = {
       ] },
       { beats: [
         'Some circuits have five to ten attempts, so the model was fitting noise per track.',
-        'The final model pools circuit effects, shrinking each toward the global mean when data is thin.',
+        'The final model treats tracks with little data as closer to average, instead of trusting a handful of races.',
         'It scores 0.683 AUC on fifteen features instead of 0.713 on forty-eight. Slightly worse, and far more trustworthy.',
       ] },
       { beats: [
@@ -208,9 +208,9 @@ export const caseBeats: Record<string, StoryLayer> = {
         'I derived the value functions by hand first, so the crossover was known before any code ran.',
       ] },
       { beats: [
-        'Policy iteration, written directly in NumPy. The Bellman update is one line of arithmetic.',
+        'The solver is written directly in NumPy, so every update step is visible arithmetic.',
         'At a 0.9 discount, the best policy is YouTube in good standing and work on probation.',
-        'When you are safe, the immediate payoff is worth taking. One step from an absorbing state, it is not.',
+        'When you are safe, the quick reward is worth it. One step from expulsion, which can never be undone, it is not.',
       ] },
       { dark: true, beats: [
         'Drop the discount to 0.5 and the policy flips to YouTube everywhere.',
