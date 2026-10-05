@@ -14,6 +14,10 @@ import {
 } from './story/Story'
 
 import isoIcon from '../assets/iso-icon.webp'
+import logoTinder from '../assets/logo-tinder.webp'
+import logoHinge from '../assets/logo-hinge.webp'
+import logoBumble from '../assets/logo-bumble.webp'
+import logoBeli from '../assets/logo-beli.webp'
 import queue from '../assets/iso-queue.webp'
 import searching from '../assets/iso-searching.webp'
 import match from '../assets/iso-match.webp'
@@ -24,6 +28,8 @@ import keepDeclined from '../assets/iso-keep-declined.webp'
 import closedView from '../assets/iso-closed-view.webp'
 import oneChat from '../assets/iso-onechat.webp'
 import noMatch from '../assets/iso-no-match.webp'
+import closeoutOutcome from '../assets/iso-closeout-outcome.webp'
+import closeoutReflection from '../assets/iso-closeout-reflection.webp'
 import maybeAgain from '../assets/iso-maybe-again.webp'
 import memories from '../assets/iso-memories.webp'
 import trend from '../assets/iso-trend.webp'
@@ -55,15 +61,13 @@ function useArrival() {
   return root
 }
 
-const favicon = (domain: string) => `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
-
 // Chart 1, the market. Real-time on x, exclusive on y.
 function MarketMap() {
   const apps = [
-    { x: 128, y: 347, name: 'Tinder', sub: 'payers down 7% a year', icon: favicon('tinder.com') },
-    { x: 190, y: 252, name: 'Hinge', sub: 'revenue up 25%', icon: favicon('hinge.co') },
-    { x: 286, y: 300, name: 'Bumble', sub: '24-hour match timer', icon: favicon('bumble.com') },
-    { x: 190, y: 126, name: 'Beli', sub: 'ranks restaurants, not people', icon: favicon('beliapp.com') },
+    { x: 128, y: 347, name: 'Tinder', sub: 'payers down 7% a year', icon: logoTinder },
+    { x: 190, y: 252, name: 'Hinge', sub: 'revenue up 25%', icon: logoHinge },
+    { x: 286, y: 300, name: 'Bumble', sub: '24-hour match timer', icon: logoBumble },
+    { x: 190, y: 126, name: 'Beli', sub: 'ranks restaurants, not people', icon: logoBeli },
   ]
   return (
     <svg viewBox="0 0 640 460" role="img" aria-label="Market map. Every major dating app is asynchronous with many chats. ISO is live and one at a time.">
@@ -323,7 +327,10 @@ export default function IsoMag() {
         { text: 'The explicit check-in is batched into one calm weekly recap.' },
         { text: 'The trend line has a floor, so a slow week reads as resting.', tone: 'acc' },
       ]} />
-      <div className="st-sp" />
+      <Shots items={[
+        { img: closeoutOutcome, alt: 'The outcome question after a chat closes', cap: 'The North Star comes from this one question.' },
+        { img: closeoutReflection, alt: 'The private reflection step', cap: 'Private, about how it felt, and easy to skip.' },
+      ]} />
       <Say size="l">Revival is the feature most likely to bring the roster back, so it shipped with four limits.</Say>
       <BigList items={[
         { head: 'One slot', line: 'Holding someone new releases whoever was there.' },
