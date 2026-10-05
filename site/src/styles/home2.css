@@ -142,7 +142,25 @@ body.sh-lock { overflow: hidden; }
   transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.af-anim .af-card { transition: transform 540ms cubic-bezier(0.3, 0.9, 0.35, 1); }
+/* ---------- the slide-out: opening a project ---------- */
+.af-anim .af-card { transition: transform 680ms var(--sp-snap, cubic-bezier(0.3, 0.9, 0.35, 1)), opacity 360ms ease; }
+.af-slide { display: block; transform-style: preserve-3d; }
+/* the card leans out toward you as it leaves the arc, then levels in the dock */
+@keyframes afSlideOut {
+  0% { transform: none; }
+  32% { transform: translateX(-30px) rotate(-3.5deg) rotateY(16deg) scale(1.05); }
+  100% { transform: none; }
+}
+@keyframes afSlideHome {
+  0% { transform: none; }
+  38% { transform: translateX(22px) rotate(2.5deg) rotateY(-12deg) scale(0.97); }
+  100% { transform: none; }
+}
+.af-opening .af-out .af-slide { animation: afSlideOut 700ms cubic-bezier(0.25, 0.8, 0.3, 1) both; }
+.af-closing .af-active .af-slide { animation: afSlideHome 640ms cubic-bezier(0.25, 0.8, 0.3, 1) both; }
+/* a small camera punch as it lands: the pane arrives a touch close and settles */
+@keyframes afPunch { from { transform: scale(1.022); } to { transform: none; } }
+.af-punch { animation: afPunch 620ms var(--sp-snap, ease-out); transform-origin: 30% 50%; }
 .af-card {
   position: absolute; top: 0; left: 0; width: 264px;
   margin-left: -132px; margin-top: -151px;
@@ -162,7 +180,11 @@ body.sh-lock { overflow: hidden; }
 .af-card.af-out .af-lift {
   box-shadow: 0 2px 5px rgba(20, 16, 10, 0.07), 0 34px 64px -24px rgba(20, 16, 10, 0.42);
 }
-.af-popped .af-card:not(.af-out) .af-lift { opacity: 0.18; }
+.af-popped .af-card:not(.af-out) .af-lift {
+  opacity: 0.16; filter: blur(1.4px);
+  transform: translateX(26px) scale(0.92);
+  transition: transform 800ms var(--sp-glide, ease), opacity 420ms ease, filter 420ms ease;
+}
 
 .af-photo {
   display: block; position: relative; overflow: hidden;
@@ -186,7 +208,7 @@ body.sh-lock { overflow: hidden; }
   position: absolute; top: 50%; transform: translateY(-50%) translateX(-14px);
   max-height: 86vh; overflow-y: auto;
   opacity: 0; pointer-events: none;
-  transition: opacity 300ms ease 60ms, transform 380ms cubic-bezier(0.22, 1, 0.36, 1) 60ms;
+  transition: opacity 260ms ease 80ms, transform 620ms var(--sp-snap, cubic-bezier(0.22, 1, 0.36, 1)) 80ms;
 }
 .af-popped .af-panel { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
 .af-panel-kicker {
@@ -234,10 +256,10 @@ body.sh-lock { overflow: hidden; }
 }
 .af-popped .af-tab {
   animation: afTabIn 620ms cubic-bezier(0.3, 0.9, 0.35, 1) both;
-  animation-delay: calc(120ms + var(--i, 0) * 75ms);
+  animation-delay: calc(180ms + var(--i, 0) * 60ms);
 }
-.af-popped .af-panel-kicker { animation: afTabIn 560ms cubic-bezier(0.3, 0.9, 0.35, 1) both; }
-.af-popped .af-panel-title { animation: afTabIn 560ms cubic-bezier(0.3, 0.9, 0.35, 1) both; animation-delay: 50ms; }
+.af-popped .af-panel-kicker { animation: afTabIn 560ms cubic-bezier(0.3, 0.9, 0.35, 1) both; animation-delay: 90ms; }
+.af-popped .af-panel-title { animation: afTabIn 560ms cubic-bezier(0.3, 0.9, 0.35, 1) both; animation-delay: 130ms; }
 
 .af-links { display: flex; flex-direction: column; gap: 9px; }
 .af-link { font-size: 13.5px; font-weight: 700; color: #121110; }
@@ -256,6 +278,7 @@ body.sh-lock { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .af-lift, .af-panel, .af-tab-body, .af-tab-label, .af-tab, .mf-win, .mf-folder-front { transition: none !important; }
   .af-popped .af-tab, .af-popped .af-panel-kicker, .af-popped .af-panel-title { animation: none !important; }
+  .af-slide, .af-punch { animation: none !important; }
 }
 
 /* ---------- small screens: stack ---------- */
@@ -363,19 +386,26 @@ body.sh-lock { overflow: hidden; }
   animation: shCarryIn 1000ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
   will-change: transform, opacity;
 }
-.sh-ready .sh-intro h1 { animation-delay: 340ms; }
+.sh-ready .sh-intro h1 { animation: none; }
+/* A: the headline builds itself, each letter rising out of a blur onto a spring */
+.sh-intro h1 .ch { display: inline-block; }
+@keyframes shLetter { from { opacity: 0; transform: translateY(0.45em) scale(0.9); filter: blur(7px); } }
+.sh-ready .sh-intro h1 .ch { animation: shLetter 760ms var(--sp-snap, cubic-bezier(0.16, 1, 0.3, 1)) backwards; animation-delay: calc(330ms + var(--li, 0) * 32ms); }
+.sh-ready .sh-intro h1 .sh-period { animation: shLetter 760ms var(--sp-pop, ease) backwards; animation-delay: 720ms; }
 .sh-ready .sh-intro p { animation-delay: 450ms; }
 
 .sh-ready .sh-nav { animation: shRiseIn 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 300ms; }
 
 .sh-ready .mf-folder {
-  animation: shFolderPop 780ms cubic-bezier(0.34, 1.32, 0.5, 1) backwards;
-  animation-delay: 800ms;
+  /* C: it pops in, then takes one breath once it has landed */
+  animation: shFolderPop 780ms cubic-bezier(0.34, 1.32, 0.5, 1) backwards, shBreathe 1400ms ease-in-out 2600ms;
+  animation-delay: 800ms, 2600ms;
   will-change: transform, opacity;
 }
 
 /* coming back from a case study nothing re-enters. The page is already
    there; only the hero is travelling. */
+.sh-return .sh-intro h1 .ch, .sh-return .sh-intro h1 .sh-period, .sh-trailer .sh-intro h1 .ch, .sh-trailer .sh-intro h1 .sh-period,
 .sh-return .af-lift, .sh-return .sh-intro h1, .sh-return .sh-intro p,
 .sh-return .mf-folder, .sh-return .sh-nav, .sh-return .sh-links { animation: none !important; }
 
@@ -391,9 +421,11 @@ body.sh-lock { overflow: hidden; }
 /* the dot is 8px on screen; the target is not */
 .guide-dot.live::after { content: ''; position: absolute; inset: -16px; border-radius: 50%; }
 
-/* the cards only fade; their travel is the arc's own deceleration */
+/* B: the cards deal in, each fanning from a slight angle as the arc arrives */
+@keyframes shDealIn { from { opacity: 0; transform: translateX(70px) rotate(7deg) scale(0.84); } }
+@keyframes shBreathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 45% { transform: translate(-50%, -50%) scale(1.045); } }
 .sh-ready .af-lift {
-  animation: shRiseIn 620ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: shDealIn 760ms var(--sp-snap, cubic-bezier(0.16, 1, 0.3, 1)) backwards;
   animation-delay: calc(var(--di, 0ms) + 320ms);
 }
 .sh-ready .sh-links { animation: shRiseIn 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: 1040ms; }
@@ -401,7 +433,7 @@ body.sh-lock { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .dl-overlay { display: none; }
   .sh-ready .af-lift, .sh-ready .sh-intro h1, .sh-ready .sh-intro p,
-  .sh-ready .mf-folder, .sh-ready .sh-nav, .sh-ready .sh-links { animation: none; }
+  .sh-ready .mf-folder, .sh-ready .sh-nav, .sh-ready .sh-links, .sh-ready .sh-intro h1 .ch, .sh-ready .sh-intro h1 .sh-period { animation: none; }
   .sh-page:not(.sh-ready) .af-lift, .sh-page:not(.sh-ready) .sh-intro h1,
   .sh-page:not(.sh-ready) .sh-intro p, .sh-page:not(.sh-ready) .mf-folder,
   .sh-page:not(.sh-ready) .sh-nav, .sh-page:not(.sh-ready) .sh-links { opacity: 1; }
@@ -453,3 +485,16 @@ body.sh-lock { overflow: hidden; }
 }
 
 
+
+/* G: the photo that peeks out of the closed folder */
+.mf-peek {
+  position: absolute; left: 20px; top: 8px; width: 40px; height: 46px; z-index: 0;
+  border: 2px solid #fff; border-radius: 4px; overflow: hidden;
+  box-shadow: 0 4px 10px -4px rgba(20, 30, 60, 0.4);
+  transform: translateY(16px) rotate(-3deg); opacity: 0;
+  transition: transform 640ms var(--sp-snap, ease), opacity 260ms ease;
+}
+.mf-peek img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mf-peeking .mf-peek { transform: translateY(-20px) rotate(-9deg); opacity: 1; }
+.mf-open .mf-peek { display: none; }
+.mf-folder-front { z-index: 1; }

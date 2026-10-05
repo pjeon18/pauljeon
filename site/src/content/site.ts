@@ -44,6 +44,7 @@ import f1Perf from '../assets/f1-performance-comparison.webp'
 import f1Outcomes from '../assets/f1-undercut-outcomes.webp'
 import rlPolicy from '../assets/rl-policy-iteration.webp'
 import ytLanding from '../assets/yt-landing.webp'
+import thumbTracker from '../assets/tracker-thumb.jpg'
 import thumbDot from '../assets/thumb-dot.webp'
 import thumbLila from '../assets/thumb-lila.webp'
 import thumbImpostor from '../assets/thumb-impostor.webp'
@@ -111,6 +112,16 @@ export interface Card {
 // The wheel is a timeline: newest at the focused slot, older cards further
 // round. Keep this array sorted by `t`, descending.
 export const cards: Card[] = [
+  {
+    id: 'tracker',
+    cats: ['product', 'engineering'],
+    title: 'Tracker',
+    meta: 'Interaction concept · Mac sound menu',
+    when: 'OCT ’26',
+    t: 2026.1,
+    blurb: 'The Mac sound menu as cables you can see. Each app plugs into the device it plays on, so moving Zoom to the speaker is one drag, an unplugged cable pauses its app, and connected and playing finally look different. Built on a real cable simulation, with a cyberdeck edition.',
+    image: thumbTracker,
+  },
   {
     id: 'lila',
     image: thumbLila,

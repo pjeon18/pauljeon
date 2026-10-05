@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import portraitFront from '../../assets/portrait-front.webp'
 import harvardShop from '../../assets/harvard-shop.webp'
@@ -116,8 +116,24 @@ export default function MediaFolder() {
     el.addEventListener('pointercancel', up)
   }
 
+  // Left alone for a while, the closed folder lets a photo peek out and tuck
+  // back in, once, then waits for another stretch of stillness.
+  const [peek, setPeek] = useState(false)
+  useEffect(() => {
+    if (open || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let idle = 0, hide = 0
+    const arm = () => {
+      window.clearTimeout(idle)
+      idle = window.setTimeout(() => { setPeek(true); hide = window.setTimeout(() => setPeek(false), 1700) }, 13000)
+    }
+    const evs = ['pointermove', 'pointerdown', 'wheel', 'keydown'] as const
+    evs.forEach(e => window.addEventListener(e, arm, { passive: true }))
+    arm()
+    return () => { evs.forEach(e => window.removeEventListener(e, arm)); window.clearTimeout(idle); window.clearTimeout(hide); setPeek(false) }
+  }, [open])
+
   return (
-    <div className={'mf-field' + (open ? ' mf-open' : '')} ref={fieldRef}>
+    <div className={'mf-field' + (open ? ' mf-open' : '') + (peek ? ' mf-peeking' : '')} ref={fieldRef}>
       {WINDOWS.map((w, i) => {
         const d = drag[w.id] ?? { dx: 0, dy: 0 }
         return (
@@ -169,6 +185,7 @@ export default function MediaFolder() {
       >
         <span className="mf-folder-icon">
           <span className="mf-folder-back" />
+          <span className="mf-peek" aria-hidden="true"><img src={portraitFront} alt="" draggable={false} /></span>
           <span className="mf-folder-front" />
         </span>
         <span className="mf-folder-label">About Paul</span>

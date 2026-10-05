@@ -2,10 +2,14 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
+import { installSprings } from './lib/spring'
 import './styles/fonts.css'
 import './styles/site.css'
 import './styles/box.css'
 import './styles/home2.css'
+import './styles/motion.css'
+
+installSprings()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

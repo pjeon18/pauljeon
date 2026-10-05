@@ -5,6 +5,10 @@ import { cards, caseStudies } from '../../content/site'
 import type { Card } from '../../content/site'
 import CardArt from '../CardArt'
 import { markArrival } from '../../lib/arrival'
+import { protos, films, filmFor } from '../../content/motion'
+import ProtoStage from './ProtoStage'
+import Reels from './Reels'
+import MotionPoster, { hasPoster } from './MotionPoster'
 
 // ============================================================================
 // ArcFocus — the right half of the home page. All projects hang on a vertical
@@ -23,19 +27,24 @@ const TILT = 0.55 // cards counter-rotate to 55% of their arc angle (flatter cor
 const DOCK_PAD = 28 // pane edge padding around the docked layout
 const DOCK_GAP = 44 // space between the tab panel and the docked card
 const ARC_SHIFT = 200 // .af-popped .af-arc translateX in home2.css — dock compensates
+// notch strength in cards/s²; ?detent=0 turns it off to compare
+const DETENT = new URLSearchParams(location.search).get('detent') === '0' ? 0 : 9
 
 interface TabDef {
   id: string
   label: string
   body?: string
+  stack?: string
   links?: { label: string; href: string; internal?: boolean; soon?: boolean }[]
 }
 
 function tabsFor(card: Card): TabDef[] {
   const cs = card.slug ? caseStudies[card.slug] : undefined
   const tabs: TabDef[] = [{ id: 'overview', label: 'Overview', body: card.blurb }]
-  if (cs?.role) tabs.push({ id: 'role', label: 'My role', body: cs.role })
-  if (cs?.stack) tabs.push({ id: 'stack', label: 'Stack', body: cs.stack })
+  // role and stack read as one story (what I did, with what), so they share a tab
+  if (cs?.role && cs?.stack) tabs.push({ id: 'role', label: 'Role & stack', body: cs.role, stack: cs.stack })
+  else if (cs?.role) tabs.push({ id: 'role', label: 'My role', body: cs.role })
+  else if (cs?.stack) tabs.push({ id: 'stack', label: 'Stack', body: cs.stack })
   const links: TabDef['links'] = []
   if (card.slug) links.push({ label: 'Read the case study', href: `/work/${card.slug}`, internal: true })
   if (card.page) links.push({ label: card.linkLabel || 'Open', href: card.page, internal: true })
@@ -68,13 +77,24 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   )
 
   // toggling the pop opens a brief window where card transforms animate
+  // Opening slides the card out of the arc (a lean toward you, then a spring
+  // into the dock) while the pane takes a small camera punch; closing slides it
+  // home with the opposite lean. The classes only live for the move itself.
+  const poppedRef = useRef(dockIndex !== null)
+  const animTimer = useRef(0)
   const setPopped = (v: boolean | ((p: boolean) => boolean)) => {
+    const next = typeof v === 'function' ? v(poppedRef.current) : v
     const pane = paneRef.current
-    if (pane) {
-      pane.classList.add('af-anim')
-      window.setTimeout(() => pane.classList.remove('af-anim'), 640)
+    if (pane && next !== poppedRef.current) {
+      window.clearTimeout(animTimer.current)
+      pane.classList.remove('af-opening', 'af-closing', 'af-punch')
+      void pane.offsetWidth // restart the keyframes if a move is interrupted
+      pane.classList.add('af-anim', next ? 'af-opening' : 'af-closing')
+      if (next) pane.classList.add('af-punch')
+      animTimer.current = window.setTimeout(() => pane.classList.remove('af-anim', 'af-opening', 'af-closing', 'af-punch'), 760)
     }
-    setPoppedRaw(v)
+    poppedRef.current = next
+    setPoppedRaw(next)
   }
 
   // the docked detail layout is computed from the pane's real width
@@ -94,7 +114,10 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   // On a phone the pane is the full width and stacked under the intro. The
   // pivot moves so the focused card sits centred, the neighbours curve off
   // to the right, and a docked card centres too with the panel as a sheet.
-  const narrow = pane.w > 0 && pane.w < 880
+  // phone layout is a viewport decision (it matches the CSS breakpoint). The
+  // pane alone is under 880px on most laptops, which docked the card on top
+  // of the panel.
+  const narrow = pane.w > 0 && window.innerWidth <= 880
   const over = narrow ? R - pane.w / 2 : OVERHANG
   const shift = narrow ? 0 : ARC_SHIFT
   const popW = narrow ? Math.min(300, pane.w * 0.62) : Math.min(400, Math.max(280, pane.w * 0.34))
@@ -121,7 +144,9 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   const aimRef = useRef<number | null>(null)
   const motionRaf = useRef(0)
   const lastT = useRef(0)
-  const FRICTION = 0.935, SNAP_V = 1.4, STIFF = 210, DAMP = 22
+  const FRICTION = 0.935, SNAP_V = 1.4, DAMP = 22
+  // the spring is normally brisk; the idle drift borrows a lazy one for its single notch
+  const softRef = useRef(false)
 
   const stopMotion = () => { cancelAnimationFrame(motionRaf.current); motionRaf.current = 0 }
   const startMotion = () => {
@@ -142,15 +167,20 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
       const a = aimRef.current
       if (a === null && Math.abs(v) > SNAP_V) {
         v *= Math.pow(FRICTION, dt * 60)
+        // detents: a gentle pull toward each card as it passes, so a slow spin
+        // clicks through card by card while a fast one sails over them
+        if (DETENT) v -= DETENT * Math.sin(2 * Math.PI * p) * dt
         p += v * dt
       } else {
         const target = a ?? Math.round(p)
-        v += ((target - p) * STIFF - v * DAMP) * dt
+        const stiff = softRef.current ? 26 : 210, damp = softRef.current ? 10 : DAMP
+        v += ((target - p) * stiff - v * damp) * dt
         p += v * dt
         if (Math.abs(target - p) < 0.0006 && Math.abs(v) < 0.02) {
           velRef.current = 0
           aimRef.current = null
           motionRaf.current = 0
+          softRef.current = false
           setPosBoth(target)
           return
         }
@@ -161,8 +191,8 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     }
     motionRaf.current = requestAnimationFrame(step)
   }
-  const aim = (target: number) => { aimRef.current = target; velRef.current = 0; startMotion() }
-  const fling = (dv: number) => { aimRef.current = null; velRef.current += dv; startMotion() }
+  const aim = (target: number) => { softRef.current = false; aimRef.current = target; velRef.current = 0; startMotion() }
+  const fling = (dv: number) => { softRef.current = false; aimRef.current = null; velRef.current += dv; startMotion() }
   // A wheel tick from rest always reaches the next card. Coasting from v0
   // covers (v0 - SNAP_V) / (60 (1 - FRICTION)) cards before the spring takes
   // over, so a light scroll is topped up to just clear the halfway point. A
@@ -308,6 +338,29 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Idle drift: ten quiet seconds and the arc turns one notch on its own,
+  // slowly, as a hint that it moves. Once per quiet stretch; any input cancels.
+  useEffect(() => {
+    if (reduced) return
+    let t = 0
+    const arm = () => {
+      window.clearTimeout(t)
+      if (softRef.current) { softRef.current = false; stopMotion(); startMotion() }
+      t = window.setTimeout(() => {
+        if (poppedRef.current || motionRaf.current || document.body.classList.contains('rl-open') || document.body.classList.contains('ps-open')) return arm()
+        softRef.current = true
+        aimRef.current = Math.round(posRef.current) + 1
+        velRef.current = 0
+        startMotion()
+      }, 10000)
+    }
+    const evs = ['pointermove', 'pointerdown', 'wheel', 'keydown'] as const
+    evs.forEach(e => window.addEventListener(e, arm, { passive: true }))
+    arm()
+    return () => { evs.forEach(e => window.removeEventListener(e, arm)); window.clearTimeout(t) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // keyboard + escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -336,6 +389,14 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   const activeCard = cards[active]
   const tabs = useMemo(() => tabsFor(activeCard), [activeCard])
   const [activeTab, setActiveTab] = useState('overview')
+  // the on-page prototype: the pill's rect is where the window grows from
+  const proto = protos[activeCard.id]
+  const [stage, setStage] = useState<DOMRect | null>(null)
+  const tryRef = useRef<HTMLButtonElement>(null)
+  // reels open by zooming out of whatever launched them
+  const [reels, setReels] = useState<{ start: number; from: DOMRect } | null>(null)
+  const film = filmFor(activeCard.id)
+  const openReels = (start: number, el: Element | null) => el && setReels({ start, from: el.getBoundingClientRect() })
   useEffect(() => setActiveTab('overview'), [active, popped])
 
   return (
@@ -383,12 +444,20 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
               aria-selected={isActive}
               aria-label={card.title}
             >
+              <span className="af-slide">
               <span className="af-lift" style={isPop ? { transform: `scale(${popLift.toFixed(3)})` } : undefined}>
-                <span className="af-photo" style={isPop ? ({ viewTransitionName: 'case-hero' } as React.CSSProperties) : undefined}><CardArt card={card} /></span>
+                <span className="af-photo" style={isPop ? ({ viewTransitionName: 'case-hero' } as React.CSSProperties) : undefined}>
+                  <CardArt card={card} />
+                  {isActive && filmFor(card.id) && (
+                    <video className="af-film" src={filmFor(card.id)!.loop} poster={filmFor(card.id)!.poster} muted loop autoPlay playsInline aria-hidden />
+                  )}
+                  {isActive && !filmFor(card.id) && hasPoster(card.id) && <MotionPoster id={card.id} />}
+                </span>
                 <span className="af-caption">
                   <span className="af-t" style={isPop ? ({ viewTransitionName: 'case-title' } as React.CSSProperties) : undefined}>{card.title}</span>
                   <span className="af-m">{card.meta}</span>
                 </span>
+              </span>
               </span>
             </button>
           )
@@ -416,6 +485,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
               </button>
               <div className="af-tab-body">
                 {t.body && <p>{t.body}</p>}
+                {t.stack && <p className="af-stack"><span>Stack</span>{t.stack}</p>}
                 {t.links && (
                   <div className="af-links">
                     {t.links.map((l) =>
@@ -441,11 +511,35 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
             </div>
           ))}
         </div>
+        {film && (
+          <button className="af-watch" onClick={() => openReels(films.indexOf(film), document.querySelector('.af-card.af-out .af-photo'))}>
+            <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden><path d="M3 1.6 L10.4 6 L3 10.4 Z" fill="currentColor" /></svg>
+            Watch the demo
+          </button>
+        )}
+        {proto && (
+          <button
+            ref={tryRef}
+            className={'af-try' + (stage ? ' ps-hidden' : '')}
+            onClick={() => tryRef.current && setStage(tryRef.current.getBoundingClientRect())}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden><path d="M3 1.6 L10.4 6 L3 10.4 Z" fill="currentColor" /></svg>
+            Try it live
+          </button>
+        )}
         <button className="af-close" onClick={() => setPopped(false)} aria-label="Close details">
           close
         </button>
       </div>
 
+      <button className="af-reels" onClick={e => openReels(0, e.currentTarget)} aria-label="Watch the product demos">
+        <i><svg width="8" height="8" viewBox="0 0 12 12" aria-hidden><path d="M3 1.6 L10.4 6 L3 10.4 Z" fill="currentColor" /></svg></i>
+        Product Demos
+      </button>
+      {reels && <Reels start={reels.start} from={reels.from} onClose={() => setReels(null)} />}
+      {stage && proto && (
+        <ProtoStage url={proto.url} host={proto.host} title={activeCard.title} from={stage} onClose={() => setStage(null)} />
+      )}
     </div>
   )
 }

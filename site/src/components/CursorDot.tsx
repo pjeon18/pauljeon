@@ -48,6 +48,7 @@ export default function CursorDot() {
   const sayRef = useRef<HTMLParagraphElement>(null)
   const subRef = useRef<HTMLElement>(null)
   const liveRef = useRef<HTMLDivElement>(null)
+  const glyphRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // a dot is meaningless without a real pointer, and on touch it would
@@ -55,9 +56,24 @@ export default function CursorDot() {
     if (!window.matchMedia('(pointer: fine)').matches) return
     const dot = dotRef.current, ring = ringRef.current, arc = arcRef.current
     const bubble = bubbleRef.current, say = sayRef.current, sub = subRef.current, live = liveRef.current
-    if (!dot || !ring || !arc || !bubble || !say || !sub || !live) return
+    const glyph = glyphRef.current
+    if (!dot || !ring || !arc || !bubble || !say || !sub || !live || !glyph) return
     document.body.classList.add('has-dot')
 
+    // context: the dot grows into a play glyph over a film, shows a grip over
+    // the open arc, and leans toward a button it is near. All eased, never cut.
+    const C = { size: 1, ox: 0, oy: 0, mode: '' as '' | 'play' | 'grip' | 'magnet' }
+    const context = (x: number, y: number) => {
+      const el = document.elementFromPoint(x, y) as HTMLElement | null
+      if (!el) return { mode: '' as const }
+      const btn = el.closest('.af-try, .af-watch, .af-reels, .rl-btn, .rl-round, .rl-close, .rl-pp, .af-close, .mf-folder') as HTMLElement | null
+      if (btn) { const r = btn.getBoundingClientRect(); return { mode: 'magnet' as const, cx: r.left + r.width / 2, cy: r.top + r.height / 2 } }
+      // the control bar is for precise work: plain dot there, no glyph on the knob
+      if (el.closest('.rl-controls')) return { mode: '' as const }
+      if (el.closest('.rl-frame') || el.closest('.af-card.af-active .af-photo')?.querySelector('.af-film')) return { mode: 'play' as const }
+      if (el.closest('.af-pane') && !el.closest('.af-panel, .af-card, button, a')) return { mode: 'grip' as const }
+      return { mode: '' as const }
+    }
     const S = { x: -100, y: -100, mx: -100, my: -100, vx: 0, vy: 0, seen: false, over: null as HTMLAnchorElement | null, since: 0, speaking: null as HTMLAnchorElement | null, offT: 0 }
 
     const under = (): HTMLAnchorElement | null => {
@@ -103,7 +119,18 @@ export default function CursorDot() {
         const sp = Math.hypot(S.vx, S.vy)
         const stretch = Math.min(sp / 2600, 0.3)
         const ang = sp > 20 ? Math.atan2(S.vy, S.vx) : 0
-        dot.style.transform = `translate(${S.x}px,${S.y}px) translate(-50%,-50%) rotate(${ang}rad) scale(${(1 + stretch).toFixed(3)},${(1 - stretch * 0.5).toFixed(3)})`
+        const ctx = context(S.mx, S.my)
+        if (ctx.mode !== C.mode) { C.mode = ctx.mode; glyph.dataset.mode = ctx.mode; dot.dataset.mode = ctx.mode }
+        const g = 1 - Math.exp(-13 * dt)
+        const want = ctx.mode === 'play' ? 2.6 : ctx.mode === 'grip' ? 2.1 : ctx.mode === 'magnet' ? 1.7 : 1
+        C.size += (want - C.size) * g
+        // the lean toward a button: a quarter of the way to its centre
+        const tox = ctx.mode === 'magnet' && 'cx' in ctx ? (ctx.cx! - S.x) * 0.24 : 0
+        const toy = ctx.mode === 'magnet' && 'cy' in ctx ? (ctx.cy! - S.y) * 0.24 : 0
+        C.ox += (tox - C.ox) * g; C.oy += (toy - C.oy) * g
+        const px = S.x + C.ox, py = S.y + C.oy
+        dot.style.transform = `translate(${px}px,${py}px) translate(-50%,-50%) rotate(${ang}rad) scale(${((1 + stretch) * C.size).toFixed(3)},${((1 - stretch * 0.5) * C.size).toFixed(3)})`
+        glyph.style.transform = `translate(${px}px,${py}px) translate(-50%,-50%)`
         dot.style.background = mix(INK, RED, Math.min(1, sp / 1400))
         ring.style.transform = `translate(${S.x - 18}px,${S.y - 18}px)`
 
@@ -154,6 +181,10 @@ export default function CursorDot() {
       </div>
       <div className="sr-only" role="status" aria-live="polite" ref={liveRef} />
       <div className="cursor-dot" ref={dotRef} aria-hidden="true" />
+      <div className="cursor-glyph" ref={glyphRef} aria-hidden="true">
+        <svg className="g-play" width="12" height="12" viewBox="0 0 12 12"><path d="M3.4 1.8 L10 6 L3.4 10.2 Z" fill="currentColor" /></svg>
+        <svg className="g-grip" width="10" height="14" viewBox="0 0 10 14"><path d="M2 5 L5 2 L8 5 M2 9 L5 12 L8 9" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </div>
     </>
   )
 }
