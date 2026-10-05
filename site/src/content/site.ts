@@ -214,7 +214,7 @@ export const cards: Card[] = [
     meta: 'Product · live office hours · 2026',
     when: 'JUL ’26',
     t: 2026.072,
-    blurb: 'Office hours, live — Twitch for breaking into a career. Verified pros go live, the crowd lurks free, and anyone can raise a hand for the hot seat. I took it from a PRD to a shipped prototype. The fair, the funnel, honest liveness.',
+    blurb: 'Recruiters and people who do the job go live, and anyone job hunting can walk in and ask a question. It took six versions to get from the PRD to the prototype that is live now.',
     slug: 'prep-io',
     demo: { label: 'Open the prototype', href: 'https://pjeon18.github.io/prep-io/' },
     image: prepioCard,
@@ -587,7 +587,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     slug: 'prep-io',
     kicker: 'Product Case Study · 2026',
     title: 'Prep.io. Office hours, made live.',
-    lead: 'A live-streaming platform shaped like a college club fair: verified professionals hold drop-in office hours, and you move from lurking in the crowd, to the hot seat, to a one-on-one. I took it from a one-page pitch to a deployed prototype — the product thinking, the design system, and the code.',
+    lead: 'A live video platform where recruiters and people who do the job host sessions, and anyone job hunting can watch, ask questions and upvote. I took it from a one-page pitch to a deployed prototype, through six versions.',
     role: 'Product · design · engineering — solo',
     stack: 'React · TypeScript · Vite · Zustand · Framer Motion · a simulated real-time crowd (scripted or LLM-driven)',
     links: [
@@ -596,9 +596,9 @@ export const caseStudies: Record<string, CaseStudy> = {
     ],
     image: prepioCard,
     stats: [
-      { value: '2', label: 'full layouts — a Twitch-style desktop and a native-feeling mobile app — on one design system' },
-      { value: '30+', label: 'screens: the fair, live rooms, search, explore, a premium tier, creator tools' },
-      { value: '1', label: 'rule enforced in code: a paid boost buys attention, never a spot on stage' },
+      { value: '6', label: 'versions, and the current one is live' },
+      { value: '0', label: 'live numbers typed in by hand. Viewers, chat and votes are all simulated' },
+      { value: '15px', label: 'is the smallest text anywhere in the app' },
     ],
     sections: [
       {

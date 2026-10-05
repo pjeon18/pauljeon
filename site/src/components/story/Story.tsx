@@ -495,7 +495,7 @@ export function PinnedPhone({ steps, frame = 'phone' }: { steps: PhoneStep[]; fr
       <div className="st-steps" ref={list}>
         {steps.map((s, i) => (
           <div key={i} className={cx('st-step', i === cur && 'on')}>
-            <Say size="l" fx={(['rise', 'slide', 'blur', 'drop'] as Fx[])[i % 4]} state={seen.includes(i) ? 'in' : 'hidden'}>{s.text}{s.quiet && <span className="st-quiet">{` ${s.quiet}`}</span>}</Say>
+            <Say size={frame === 'desktop' ? 'm' : 'l'} fx={(['rise', 'slide', 'blur', 'drop'] as Fx[])[i % 4]} state={seen.includes(i) ? 'in' : 'hidden'}>{s.text}{s.quiet && <span className="st-quiet">{` ${s.quiet}`}</span>}</Say>
             <img className="st-step-img" src={s.img} alt={s.alt ?? ''} loading="lazy" />
           </div>
         ))}
@@ -723,5 +723,41 @@ export function WideImg({ src, alt, className }: { src: string; alt: string; cla
     <Reveal className={cx('st-fade st-figure st-wide-img', className)}>
       <img src={src} alt={alt} loading="lazy" onLoad={(e) => { const im = e.currentTarget; im.style.maxWidth = `${Math.round(im.naturalWidth / 1.8)}px` }} />
     </Reveal>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// versions of a product, one at a time, the picture sliding with the choice
+
+export interface Version { name: string; img: string; alt: string; lines: string[] }
+
+export function VersionSwitch({ versions, start = 0 }: { versions: Version[]; start?: number }) {
+  const [ref, seen] = useInView<HTMLDivElement>(0.3)
+  const [pick, setPick] = useState(start)
+  const [cur, phase] = useSwap(pick, 300)
+  const prev = useRef(start)
+  const dir = pick >= prev.current ? 1 : -1
+  useEffect(() => { prev.current = pick }, [pick])
+  const st = !seen ? 'hidden' : phase
+  const v = versions[cur]
+  return (
+    <div ref={ref} className="st-versions">
+      <div className="st-vtabs">
+        {versions.map((x, i) => (
+          <button key={x.name} className={cx(i === pick && 'on')} onClick={() => setPick(i)}>
+            {x.name}
+            {i === pick && <span className="st-vbar" />}
+          </button>
+        ))}
+      </div>
+      <div className="st-vbody">
+        <div className="st-vshot">
+          <img key={v.img} src={v.img} alt={v.alt} className={cx('st-vimg', st === 'out' && (dir > 0 ? 'out-l' : 'out-r'), st === 'hidden' && 'hide')} style={{ '--from': `${dir * 6}%` } as V} />
+        </div>
+        <div className="st-vlines">
+          {v.lines.map((l, i) => <Say key={`${cur}-${i}`} size="m" tone={i === v.lines.length - 1 && i > 0 ? 'acc' : undefined} delay={180 + i * 200} state={st}>{l}</Say>)}
+        </div>
+      </div>
+    </div>
   )
 }

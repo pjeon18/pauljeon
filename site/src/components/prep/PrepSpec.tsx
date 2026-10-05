@@ -377,10 +377,10 @@ export function PilotChart() {
         <line x1={x(5)} y1={padT} x2={x(5)} y2={padT + ih} stroke="#EDEBE5" strokeDasharray="3 4" />
         <text x={x(5)} y={padT - 8} textAnchor="middle" fontSize="11" fill="#A19D94">week six check</text>
         {/* the series */}
-        <path d={path} fill="none" stroke="#B0402D" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={path} fill="none" stroke="#0f5c3b" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
         {WEEKS.map((v, i) => (
           <g key={i}>
-            <circle cx={x(i)} cy={y(v)} r={hi === i ? 6 : 4} fill="#B0402D" stroke="#FDFDFB" strokeWidth="2" />
+            <circle cx={x(i)} cy={y(v)} r={hi === i ? 6 : 4} fill="#0f5c3b" stroke="#FDFDFB" strokeWidth="2" />
             <rect x={x(i) - iw / (WEEKS.length - 1) / 2} y={padT} width={iw / (WEEKS.length - 1)} height={ih} fill="transparent"
               onMouseEnter={() => setHi(i)} onFocus={() => setHi(i)} tabIndex={0} aria-label={`Week ${i + 1}, ${v} questions answered`} />
           </g>
@@ -392,7 +392,7 @@ export function PilotChart() {
             <rect width="150" height="62" rx="8" fill="#121110" />
             <text x="12" y="20" fontSize="11" fill="#B9B4A8">week {hi + 1} · {HOSTS[hi]} hosts live</text>
             <text x="12" y="39" fontSize="13" fontWeight="800" fill="#FDFDFB">{WEEKS[hi]} answered</text>
-            <text x="12" y="54" fontSize="11" fill="#B9B4A8">{RAISED[hi]} hands raised</text>
+            <text x="12" y="54" fontSize="11" fill="#B9B4A8">{RAISED[hi]} questions asked</text>
           </g>
         )}
       </svg>

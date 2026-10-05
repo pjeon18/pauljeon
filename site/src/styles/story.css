@@ -151,7 +151,7 @@
 .st-light-track { height: 230vh; }
 .st-light-stick { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; }
 .st-light-text { margin: 0; max-width: 1100px; text-align: center; font-size: clamp(40px, 6.4vw, 96px); line-height: 1.02; letter-spacing: -0.04em; font-weight: 700; }
-.st-lw { display: inline-block; color: #2E2B27; transform: translateY(0.14em); transition: color 0.35s, transform 0.7s var(--st-expo), text-shadow 0.6s; }
+.st-lw { display: inline-block; color: rgba(255, 255, 255, 0.13); transform: translateY(0.14em); transition: color 0.35s, transform 0.7s var(--st-expo), text-shadow 0.6s; }
 .st-lw.lit { color: #fff; transform: none; }
 .st-lw.lit.a { color: var(--st-acc-dark, var(--acc)); text-shadow: 0 0 40px color-mix(in srgb, var(--st-acc-dark, var(--acc)) 40%, transparent); }
 
@@ -199,7 +199,7 @@
 
 /* ---------- pinned phone ---------- */
 .st-phone { display: grid; grid-template-columns: 1fr 340px; gap: 60px; }
-.st-phone.is-desktop { grid-template-columns: 1fr 560px; }
+.st-phone.is-desktop { grid-template-columns: minmax(0, 1fr) 600px; gap: 56px; }
 .st-step { min-height: 82vh; display: flex; flex-direction: column; justify-content: center; }
 .st-step:nth-child(even) { padding-left: 10%; }
 .st-step .st-say { color: var(--st-dim); max-width: 620px; }
@@ -215,7 +215,7 @@
 .st-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0; transform: translateY(9%) scale(0.96); transition: opacity 0.55s, transform 0.9s var(--st-expo); }
 .st-screen img.on { opacity: 1; transform: none; }
 .st-screen img.prev { opacity: 0; transform: translateY(-7%) scale(1.02); }
-.is-desktop .st-device { width: 560px; aspect-ratio: 16 / 10.4; border-radius: 16px; padding: 8px; background: #1A1917; }
+.is-desktop .st-device { width: 600px; aspect-ratio: 16 / 10.4; border-radius: 16px; padding: 8px; background: #1A1917; }
 .is-desktop .st-screen { border-radius: 10px; background: #fff; }
 .is-desktop .st-screen img { object-fit: contain; object-position: center; background: #fff; }
 
@@ -428,3 +428,27 @@
 .case-story { --w: min(1060px, calc(100vw - 48px)); width: var(--w); margin-left: calc((100% - var(--w)) / 2); }
 .case-story .st-cap { margin-top: 22px; }
 .case .case-lead-say { margin: 10px 0 34px; }
+
+/* ---------- versions ---------- */
+.st-versions { margin: 40px 0 20px; }
+.st-vtabs { display: flex; flex-wrap: wrap; gap: 36px; margin-bottom: 40px; }
+.st-vtabs button { position: relative; font: inherit; font-size: clamp(26px, 2.6vw, 38px); font-weight: 700; letter-spacing: -0.025em; background: none; border: 0; padding: 0 0 10px; color: var(--st-dim); cursor: pointer; transition: color 0.3s; }
+.st-vtabs button:hover, .st-vtabs button.on { color: var(--st-ink); }
+.st-vbar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; border-radius: 4px; background: var(--acc); animation: st-vbar 0.6s var(--st-spring); transform-origin: 0 50%; }
+@keyframes st-vbar { from { transform: scaleX(0.2); opacity: 0; } }
+.st-vbody { display: grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: center; }
+.st-vshot { border-radius: 18px; overflow: hidden; box-shadow: 0 30px 70px rgba(14, 28, 21, 0.18); background: #fff; aspect-ratio: 16 / 10; }
+.st-vimg { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; animation: st-vin 0.75s var(--st-expo); transition: opacity 0.3s, transform 0.3s; }
+@keyframes st-vin { from { opacity: 0; transform: translateX(var(--from)) scale(1.03); } }
+.st-vimg.out-l { opacity: 0; transform: translateX(-4%); }
+.st-vimg.out-r { opacity: 0; transform: translateX(4%); }
+.st-vimg.hide { opacity: 0; }
+.st-vlines { display: flex; flex-direction: column; gap: 24px; }
+@media (max-width: 860px) { .st-vbody { grid-template-columns: 1fr; gap: 30px; } }
+
+/* ---------- Prep.io's own palette ---------- */
+.prep-mag .mg-masthead h1 em { color: #0f5c3b; }
+.prep-mag .mg-kicker { color: #0f5c3b; }
+.prep-mag .prep-finale { background: #0c2219; }
+.prep-mag .prep-finale .mg-finale-cta { color: #9fd8b5; }
+.prep-mag .st-band-cream .st-vtabs button:not(.on) { color: rgba(14, 28, 21, 0.3); }
