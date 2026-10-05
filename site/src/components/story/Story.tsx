@@ -457,9 +457,9 @@ export function PersonaSwitch({ people, tone = 'band', art = 'phone' }: { people
           ))}
           <span className="st-pbar" style={{ width: bar.w, transform: `translateX(${bar.x}px)` }} />
         </div>
-        <Say key={`q${cur}`} size="xl" className="st-pq" fx={isQuote(p.quote) ? 'type' : 'drop'} state={st}>{p.quote}</Say>
         <div className={cx('st-pbody', !p.img && 'no-img')}>
           <div className="st-plines">
+            <Say key={`q${cur}`} size="xl" className="st-pq" fx={isQuote(p.quote) ? 'type' : 'drop'} state={st}>{p.quote}</Say>
             {p.lines.map((l, i) => (
               <Say key={`${cur}-${i}`} size="m" align={i === 1 ? 'indent' : 'left'} fx={(['slide', 'blur', 'rise'] as Fx[])[i % 3]} delay={250 + i * 220} state={st}>{l}</Say>
             ))}
@@ -714,4 +714,14 @@ export const countOf = (n: ReactNode) => Children.count(n)
 export function Reveal({ className, children, threshold = 0.25 }: { className?: string; children: ReactNode; threshold?: number }) {
   const [ref, seen] = useInView<HTMLDivElement>(threshold)
   return <div ref={ref} className={cx('st-reveal', className, seen && 'go')}>{children}</div>
+}
+
+/** a full-width image that never displays wider than its pixels allow,
+ *  so it stays sharp (at least 1.8 source pixels per displayed pixel) */
+export function WideImg({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  return (
+    <Reveal className={cx('st-fade st-figure st-wide-img', className)}>
+      <img src={src} alt={alt} loading="lazy" onLoad={(e) => { const im = e.currentTarget; im.style.maxWidth = `${Math.round(im.naturalWidth / 1.8)}px` }} />
+    </Reveal>
+  )
 }

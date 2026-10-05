@@ -7,7 +7,7 @@ import { OrgArt, RlArt } from './CardArt'
 import BackToSite from './BackToSite'
 import Footer from './Footer'
 import LiveEmbed from './LiveEmbed'
-import { Band, Beats, Chapter, Duo, LightUp, Reveal, Say, StatScreens, StoryChrome, type SeqLine, type Stat } from './story/Story'
+import { Band, Beats, Chapter, Duo, LightUp, Say, WideImg, StatScreens, StoryChrome, type SeqLine, type Stat } from './story/Story'
 
 // "190 kB" -> a count-up to 190 with " kB"; "High/Med/Low" stays text
 function toStat(value: string, post: string, i: number, accent: string, onDark: string): Stat {
@@ -136,7 +136,7 @@ export default function CaseStudy() {
                     {beats && <Beats lines={lines} />}
                     {sec.image && (
                       <>
-                        <Reveal className="st-fade st-figure st-wide-img"><img src={sec.image} alt={sec.imageCaption ?? sec.heading} loading="lazy" /></Reveal>
+                        <WideImg src={sec.image} alt={sec.imageCaption ?? sec.heading} />
                         {(layer.sections[i]?.cap ?? sec.imageCaption) && <Say size="m" tone="soft" className="st-cap">{layer.sections[i]?.cap ?? sec.imageCaption}</Say>}
                       </>
                     )}
