@@ -61,13 +61,16 @@ function wrapOffset(i: number, pos: number, n: number) {
   return off
 }
 
+// the card the wheel comes to rest on when the site first opens
+const HOME_CARD = Math.max(0, cards.findIndex((c) => c.id === 'lila'))
+
 export default function ArcFocus({ spinIn = false, awaitCollision = false, dockIndex = null }: { spinIn?: boolean; awaitCollision?: boolean; dockIndex?: number | null }) {
   const navigate = useNavigate()
   const paneRef = useRef<HTMLDivElement>(null)
-  const posRef = useRef(dockIndex ?? 0) // continuous card index along the arc
+  const posRef = useRef(dockIndex ?? HOME_CARD) // continuous card index along the arc
   // returning from a case study, the arc mounts with that card already docked
   // so the page's hero has a card to morph back into. It lets go a beat later.
-  const [pos, setPos] = useState(dockIndex ?? 0)
+  const [pos, setPos] = useState(dockIndex ?? HOME_CARD)
   const [popped, setPoppedRaw] = useState(dockIndex !== null)
   const [pane, setPane] = useState({ w: 0, h: 900 })
   const snapRaf = useRef(0)
@@ -147,6 +150,8 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   const FRICTION = 0.935, SNAP_V = 1.4, DAMP = 22
   // the spring is normally brisk; the idle drift borrows a lazy one for its single notch
   const softRef = useRef(false)
+  // a planned resting card for a coasting spin; any hand input clears it
+  const landRef = useRef<number | null>(null)
 
   const stopMotion = () => { cancelAnimationFrame(motionRaf.current); motionRaf.current = 0 }
   const startMotion = () => {
@@ -172,13 +177,14 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
         if (DETENT) v -= DETENT * Math.sin(2 * Math.PI * p) * dt
         p += v * dt
       } else {
-        const target = a ?? Math.round(p)
+        const target = a ?? landRef.current ?? Math.round(p)
         const stiff = softRef.current ? 26 : 210, damp = softRef.current ? 10 : DAMP
         v += ((target - p) * stiff - v * damp) * dt
         p += v * dt
         if (Math.abs(target - p) < 0.0006 && Math.abs(v) < 0.02) {
           velRef.current = 0
           aimRef.current = null
+          landRef.current = null
           motionRaf.current = 0
           softRef.current = false
           setPosBoth(target)
@@ -191,8 +197,17 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     }
     motionRaf.current = requestAnimationFrame(step)
   }
-  const aim = (target: number) => { softRef.current = false; aimRef.current = target; velRef.current = 0; startMotion() }
-  const fling = (dv: number) => { softRef.current = false; aimRef.current = null; velRef.current += dv; startMotion() }
+  const aim = (target: number) => { softRef.current = false; landRef.current = null; aimRef.current = target; velRef.current = 0; startMotion() }
+  const fling = (dv: number) => { softRef.current = false; landRef.current = null; aimRef.current = null; velRef.current += dv; startMotion() }
+  // a fling sized to coast onto a chosen card: coasting from v covers about
+  // (v - SNAP_V) / (60 (1 - FRICTION)) cards, then the spring settles it
+  const flingOnto = (card: number, atLeast: number) => {
+    const p = posRef.current, v = velRef.current, per = 60 * (1 - FRICTION)
+    let k = Math.ceil(p + atLeast)
+    while (((k % n) + n) % n !== card) k++
+    fling((k - p) * per + SNAP_V - v)
+    landRef.current = k
+  }
   // A wheel tick from rest always reaches the next card. Coasting from v0
   // covers (v0 - SNAP_V) / (60 (1 - FRICTION)) cards before the spring takes
   // over, so a light scroll is topped up to just clear the halfway point. A
@@ -202,7 +217,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     if (aimRef.current === null && Math.abs(v0) < SNAP_V && dir !== 0) {
       const need = SNAP_V + 60 * (1 - FRICTION) * (0.56 - dir * (p - Math.round(p)))
       const v = v0 + dv
-      if (Math.abs(v) < need) { aimRef.current = null; velRef.current = dir * need; startMotion(); return }
+      if (Math.abs(v) < need) { aimRef.current = null; landRef.current = null; velRef.current = dir * need; startMotion(); return }
     }
     fling(dv)
   }
@@ -222,11 +237,11 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     // collision comes, the spring parks it on the nearest card at the end.
     // Without a tour coming (phones, replays) the same curve runs short, so
     // the arc simply arrives and parks.
-    const FROM = -3.0
+    const FROM = HOME_CARD - 3.0
     const TAU = awaitCollision ? 1.55 : 0.42   // seconds, the decay of the arrival speed
     const MS = awaitCollision ? 6650 : 1700
     const DELAY = 320         // let the splash mask finish opening first
-    const dist = FROM * -1
+    const dist = HOME_CARD - FROM
     const v0 = dist / (TAU * (1 - Math.exp(-MS / 1000 / TAU)))
     const t0 = performance.now() + DELAY
     setPosBoth(FROM)
@@ -252,7 +267,8 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   // the guide dot colliding with the wheel: a hard fling that the same friction
   // and spring bring to rest, so it moves like every other input
   useEffect(() => {
-    const onSpin = () => { if (!popped) fling(44) }
+    // it travels at least as far as the old fixed shove did, then parks on the home card
+    const onSpin = () => { if (!popped) flingOnto(HOME_CARD, 10) }
     window.addEventListener('pj:spin', onSpin)
     return () => window.removeEventListener('pj:spin', onSpin)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -287,7 +303,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
         if (!moved && Math.abs(ev.clientY - e.clientY) > 6) {
           moved = true
           try { pane.setPointerCapture(pid) } catch { /* no-op */ }
-          stopMotion(); cancelAnimationFrame(snapRaf.current); aimRef.current = null; velRef.current = 0
+          stopMotion(); cancelAnimationFrame(snapRaf.current); aimRef.current = null; landRef.current = null; velRef.current = 0
         }
         if (!moved) return
         const now = performance.now()
@@ -340,24 +356,27 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
 
   // Idle drift: ten quiet seconds and the arc turns one notch on its own,
   // slowly, as a hint that it moves. Once per quiet stretch; any input cancels.
+  // It waits for the first real input, so the opening rests on the home card.
   useEffect(() => {
     if (reduced) return
     let t = 0
+    let touched = false
     const arm = () => {
       window.clearTimeout(t)
       if (softRef.current) { softRef.current = false; stopMotion(); startMotion() }
       t = window.setTimeout(() => {
-        if (poppedRef.current || motionRaf.current || document.body.classList.contains('rl-open') || document.body.classList.contains('ps-open')) return arm()
+        if (!touched || poppedRef.current || motionRaf.current || document.body.classList.contains('rl-open') || document.body.classList.contains('ps-open')) return arm()
         softRef.current = true
         aimRef.current = Math.round(posRef.current) + 1
         velRef.current = 0
         startMotion()
       }, 10000)
     }
+    const onInput = () => { touched = true; arm() }
     const evs = ['pointermove', 'pointerdown', 'wheel', 'keydown'] as const
-    evs.forEach(e => window.addEventListener(e, arm, { passive: true }))
+    evs.forEach(e => window.addEventListener(e, onInput, { passive: true }))
     arm()
-    return () => { evs.forEach(e => window.removeEventListener(e, arm)); window.clearTimeout(t) }
+    return () => { evs.forEach(e => window.removeEventListener(e, onInput)); window.clearTimeout(t) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

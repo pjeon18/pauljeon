@@ -10,7 +10,7 @@ import { consumeArrival } from '../lib/arrival'
 import '../styles/studdy-mag.css'
 import {
   Band, Beats, BigList, Chapter, ChartBeats, Duo, LightUp, Ledger, More, PersonaSwitch,
-  Reveal, Say, Sequence, Shots, StackCards, StatScreens, StoryChrome,
+  Reveal, Say, Sequence, Shots, StackCards, StatScreens, StoryChrome, WideImg,
 } from './story/Story'
 
 import heroImg from '../assets/studdy-hero.webp'
@@ -339,7 +339,7 @@ export default function StuddyMag() {
 
       {/* ---------------- 04 day one ---------------- */}
       <Chapter n="04" title="The first prototype" name="Day one" />
-      <Reveal className="st-fade st-figure st-wide-img"><img src={v0Img} alt="The first committed build of Studdy, a gray empty room" /></Reveal>
+      <WideImg src={v0Img} alt="The first committed build of Studdy, a gray empty room" />
       <Beats lines={[
         { text: 'The first version had to prove a fixed camera angle could still feel alive, and that a browser could draw a furnished room smoothly.' },
         { text: 'It got the walls, the lighting and the font wrong.', align: 'indent' },
@@ -368,7 +368,7 @@ export default function StuddyMag() {
         { text: 'The first users called the flat-shaded look muddy and plasticky.', size: 'xl' },
         { text: 'The fix happened in a lab, away from the live game. One scene, rendered four ways.', align: 'indent' },
       ]} />
-      <Reveal className="st-fade st-figure st-wide-img"><img src={texlabImg} alt="The texture lab, four treatments side by side" /></Reveal>
+      <WideImg src={texlabImg} alt="The texture lab, four treatments side by side" />
       <BigList items={[
         { head: 'Baseline', line: 'Flat shading, the plastic look users disliked. Rejected.' },
         { head: 'Grain', line: 'Wood and paper textures. They made the colors muddy.' },
@@ -380,7 +380,7 @@ export default function StuddyMag() {
         { text: 'The trick comes from pixel artists. Instead of darkening a shadow, change its color.', size: 'xl', align: 'right' },
         { text: 'The palette stopped being muddy the day the shadows stopped being gray.' },
       ]} />
-      <Reveal className="st-fade st-figure st-wide-img"><img src={roomlabImg} alt="The room lab, the chosen treatment on a full café" /></Reveal>
+      <WideImg src={roomlabImg} alt="The room lab, the chosen treatment on a full café" />
       <Duo frame="desktop" img={badRetroImg} alt="The removed retro mode, heavily pixelated" lines={[
         { text: 'I could not choose between crisp and pixelated, so I shipped both as a setting.', size: 'l' },
         { text: '“Honestly just get rid of it.”', tone: 'acc' },
