@@ -10,10 +10,10 @@ import LiveEmbed from './LiveEmbed'
 import { Band, Beats, Chapter, Duo, LightUp, Say, WideImg, StatScreens, StoryChrome, type SeqLine, type Stat } from './story/Story'
 
 // "190 kB" -> a count-up to 190 with " kB"; "High/Med/Low" stays text
-function toStat(value: string, post: string, i: number, accent: string, onDark: string): Stat {
+function toStat(value: string, post: string, i: number, accent: string, onDark: string, night: string): Stat {
   const looks = [
     { bg: accent, fg: '#FFFFFF', num: '#141210', align: 'left' as const },
-    { bg: '#111110', fg: '#F5F2EC', num: onDark, align: 'center' as const, big: true, dark: true },
+    { bg: night, fg: '#F5F2EC', num: onDark, align: 'center' as const, big: true, dark: true },
     { bg: '#F4F1EA', fg: '#141210', num: accent, align: 'right' as const },
   ][i % 3]
   const sentence = /[.!?]$/.test(post) ? post : `${post}.`
@@ -65,7 +65,7 @@ export default function CaseStudy() {
   const accent = layer?.accent ?? '#E05C1F'
 
   return (
-    <div className={'case' + (arrived ? ' case-arrive' : '')} style={{ ['--acc' as string]: accent, ['--st-acc-dark' as string]: layer?.accentDark ?? accent } as React.CSSProperties}>
+    <div className={'case' + (arrived ? ' case-arrive' : '')} style={{ ['--acc' as string]: accent, ['--st-acc-dark' as string]: layer?.accentDark ?? accent, ['--st-night' as string]: layer?.night ?? '#0E0D0B' } as React.CSSProperties}>
       {layer && <StoryChrome />}
 
       <nav className="case-nav">
@@ -108,7 +108,7 @@ export default function CaseStudy() {
 
       {layer ? (
         <div className="case-story">
-          <StatScreens stats={study.stats.map((s, i) => toStat(s.value, layer.stats?.[i] ?? s.label, i, accent, layer.accentDark ?? accent))} />
+          <StatScreens stats={study.stats.map((s, i) => toStat(s.value, layer.stats?.[i] ?? s.label, i, accent, layer.accentDark ?? accent, layer.night ?? '#111110'))} />
 
           {layer.embed && (
             <>
