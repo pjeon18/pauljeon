@@ -343,7 +343,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
       className={'af-pane' + (popped ? ' af-popped' : '')}
       ref={paneRef}
       role="listbox"
-      aria-label="Projects — scroll to browse, click to open"
+      aria-label="Projects"
     >
       <div
         className="af-arc"
@@ -446,7 +446,6 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
         </button>
       </div>
 
-      <div className="af-hint" aria-hidden="true">scroll to browse · click to open</div>
     </div>
   )
 }

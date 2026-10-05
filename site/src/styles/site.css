@@ -733,12 +733,19 @@ button { font-family: inherit; }
   background: conic-gradient(from 210deg at 50% 50%, #FF8A3D, #FF5BA8, #B86BFF, #5A9BFF, #3FDCD2, #FFD36B, #FF8A3D);
   will-change: opacity;
 }
-/* the ring: a hard 2px frame */
+/* the ring: no hard frame any more. The colour sits right at the rim and
+   dissolves inward over a few pixels, so it reads as light, not a border */
 .edge .edge-ring {
-  padding: 2px;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
-  animation: edgeBreathe 7s cubic-bezier(0.45, 0, 0.3, 1) infinite;
+  --w: 14px;
+  -webkit-mask:
+    linear-gradient(to right, #000, transparent var(--w), transparent calc(100% - var(--w)), #000),
+    linear-gradient(to bottom, #000, transparent var(--w), transparent calc(100% - var(--w)), #000);
+  -webkit-mask-composite: source-over;
+  mask:
+    linear-gradient(to right, #000, transparent var(--w), transparent calc(100% - var(--w)), #000),
+    linear-gradient(to bottom, #000, transparent var(--w), transparent calc(100% - var(--w)), #000);
+  mask-composite: add;
+  animation: edgeBreathe 9s cubic-bezier(0.45, 0, 0.3, 1) infinite;
 }
 /* the spill and the flare: the frame fading to nothing toward the middle,
    from the edges in, with --w setting how far the light reaches */
@@ -753,14 +760,15 @@ button { font-family: inherit; }
   mask-composite: add;
   opacity: 0;
 }
-.edge .edge-spill.near { --w: 26px; animation: edgeNear 7s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
-.edge .edge-spill.far { --w: 70px; animation: edgeFar 7s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
-.edge .edge-flare { --w: 48px; transition: opacity 900ms cubic-bezier(0.2, 0.6, 0.3, 1); }
-.edge .edge-flare.lit { opacity: 0.5; transition: opacity 70ms ease-out; }
-@keyframes edgeBreathe { 0%, 100% { opacity: 0.14; } 45% { opacity: 0.44; } }
-@keyframes edgeNear { 0%, 100% { opacity: 0; } 35% { opacity: 0.3; } 70% { opacity: 0; } }
-@keyframes edgeFar { 0%, 20% { opacity: 0; } 55% { opacity: 0.18; } 90%, 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .edge .edge-ring { animation: none; opacity: 0.3; } .edge .edge-spill, .edge .edge-flare { display: none; } }
+.edge .edge-spill.near { --w: 44px; animation: edgeNear 9s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
+.edge .edge-spill.far { --w: 120px; animation: edgeFar 9s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
+.edge .edge-flare { --w: 90px; transition: opacity 2200ms cubic-bezier(0.25, 0.1, 0.25, 1); }
+/* a click lifts it gently rather than flashing: half a second up, a long settle down */
+.edge .edge-flare.lit { opacity: 0.28; transition: opacity 520ms cubic-bezier(0.33, 0, 0.2, 1); }
+@keyframes edgeBreathe { 0%, 100% { opacity: 0.12; } 45% { opacity: 0.3; } }
+@keyframes edgeNear { 0%, 100% { opacity: 0; } 35% { opacity: 0.16; } 70% { opacity: 0; } }
+@keyframes edgeFar { 0%, 20% { opacity: 0; } 55% { opacity: 0.1; } 90%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .edge .edge-ring { animation: none; opacity: 0.2; } .edge .edge-spill, .edge .edge-flare { display: none; } }
 
 /* the docked card's art and title travel into the case study's hero and h1 */
 ::view-transition-group(case-hero),

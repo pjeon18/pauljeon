@@ -251,11 +251,6 @@ body.sh-lock { overflow: hidden; }
 }
 .af-close:hover { border-color: #121110; color: #121110; }
 
-.af-hint {
-  position: absolute; right: 44px; top: 26px; z-index: 300;
-  font-family: 'Sentient', Georgia, serif; font-style: italic;
-  font-size: 14px; color: #B5B0A7; pointer-events: none;
-}
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
@@ -286,7 +281,6 @@ body.sh-lock { overflow: hidden; }
   }
   .af-popped .af-panel { transform: none; }
   .mf-field { min-height: 300px; }
-  .af-hint { display: none; }   /* it names a scroll wheel and a click; on a phone it sits on the top card */
 }
 
 /* ---------- brand-card thumbnails ---------- */
