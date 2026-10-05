@@ -30,6 +30,8 @@ import dMaya from '../assets/prep-d-profile-maya.webp'
 import dCampus from '../assets/prep-d-campus.webp'
 import dCourse from '../assets/prep-d-course.webp'
 import dSparse from '../assets/prep-d-section-sparse.webp'
+import dHostLive from '../assets/prep-d-host-live.webp'
+import dRecap from '../assets/prep-d-host-recap.webp'
 import dLibrary from '../assets/prep-d-library.webp'
 
 // ---------------------------------------------------------------------------
@@ -299,7 +301,11 @@ export default function PrepMag() {
         { text: 'No number on screen is a constant.', size: 'xxl' },
         { text: 'Counts move because simulated people arrive and leave every two to four seconds.', align: 'indent' },
         { text: 'Twelve simulated viewers each behave differently. Quiet ones mostly watch, and others raise a hand every fourteen to twenty-six seconds.' },
-        { text: 'On the host side, boosted questions sort higher, and promoting one is still a deliberate click.', align: 'right', tone: 'soft' },
+      ]} />
+      <Duo frame="desktop" img={dHostLive} alt="The host's live room, answering a question from the queue" lines={[
+        { text: 'On the host side, the queue is the main control.', size: 'l' },
+        { text: 'Boosted questions sort higher, and bringing one up is still a deliberate click.' },
+        { text: 'Every answered question is counted and becomes a chapter.', tone: 'acc' },
       ]} />
 
       <Beats lines={[
@@ -334,7 +340,7 @@ export default function PrepMag() {
       ]} />
       <Shots frame="desktop" items={[
         { img: dMaya, alt: 'A verified host profile', cap: 'A verified host. Memberships buy time with the host, never more visibility.' },
-        { img: dExplore, alt: 'The explore page', cap: 'Explore, with shelves built from goals you state.' },
+        { img: dRecap, alt: 'The host recap after a session', cap: 'The recap lists what the room learned, question by question.' },
       ]} />
 
       {/* ---------------- 10 tradeoffs ---------------- */}
