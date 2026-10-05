@@ -326,24 +326,15 @@ body.sh-lock { overflow: hidden; }
 }
 
 /* ---------- boot loader: the drop ---------- */
-.dl-overlay {
-  position: fixed; inset: 0; z-index: 999; background: #131210;
-  will-change: mask-image, -webkit-mask-image;
-}
-.dl-drop {
-  position: absolute; left: 0; top: 0; width: 30px; height: 30px;
-  border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
-  background: #FDFDFB; will-change: transform;
-}
-.dl-ring {
-  position: absolute; left: 0; top: 0; width: 0; height: 0; opacity: 0;
-  border: 2px solid rgba(253, 253, 251, 0.9); border-radius: 50%;
-  will-change: transform, width, height, opacity;
-}
-.dl-p {
-  position: absolute; left: 0; top: 0; border-radius: 50%;
-  background: #FDFDFB; opacity: 0; will-change: transform, opacity;
-}
+.dl-overlay { position: fixed; inset: 0; z-index: 999; pointer-events: none; }
+.dl-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.dl-dark { fill: #131210; }
+.dl-rim { fill: none; stroke: #2a2723; stroke-width: 10; }
+/* the liquid sits on its own layer in difference mode, so a droplet reads white
+   over the dark and dark over the page it flies onto */
+.dl-fx { z-index: 1000; mix-blend-mode: difference; }
+.dl-ink { fill: #FDFDFB; }
+.dl-ring { fill: none; stroke: #FDFDFB; stroke-width: 2; opacity: 0; }
 
 /* ---------------------------------------------------------------------------
    Boot choreography — plays once, after the splash drop lifts the mask.
