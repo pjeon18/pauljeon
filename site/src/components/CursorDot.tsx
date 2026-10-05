@@ -153,8 +153,12 @@ export default function CursorDot() {
       if (!S.seen) { S.seen = true; S.x = e.clientX; S.y = e.clientY; dot.classList.add('on') }
     }
     const onOut = (e: PointerEvent) => {
-      // relatedTarget is null only when the pointer actually leaves the window
-      if (e.relatedTarget === null) { S.seen = false; dot.classList.remove('on'); ring.classList.remove('on'); hush() }
+      // relatedTarget is null when the pointer leaves the window. Entering an
+      // embedded prototype counts as leaving too: the iframe swallows every
+      // pointer event, so the dot would freeze at the frame's edge. It comes
+      // back on the next pointermove out here.
+      const to = e.relatedTarget as Element | null
+      if (to === null || to.tagName === 'IFRAME') { S.seen = false; dot.classList.remove('on'); ring.classList.remove('on'); hush() }
     }
     // a click is an answer, so the dot stops talking
     const onDown = () => { hush(); S.since = performance.now() + 400 }

@@ -7,11 +7,11 @@ import React, { useState } from 'react'
 // ---------------------------------------------------------------------------
 // User stories, one card each, with the check that decides acceptance.
 
-type Status = 'shipped' | 'stubbed' | 'deferred'
+export type Status = 'shipped' | 'stubbed' | 'deferred'
 
-interface Story { who: string; story: string; accepted: string[]; status: Status; note?: string }
+export interface Story { who: string; story: string; accepted: string[]; status: Status; note?: string }
 
-const STORIES: Story[] = [
+export const STORIES: Story[] = [
   {
     who: 'The explorer',
     story: 'As a sophomore who cannot name the jobs yet, I want to watch a room without an account, so I can leave the moment it is not for me.',

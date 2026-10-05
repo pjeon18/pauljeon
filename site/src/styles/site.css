@@ -379,6 +379,7 @@ button { font-family: inherit; }
 }
 .foot-links a:hover { color: #121110; }
 .foot-fine { font-size: 11.5px; color: #A19D94; margin-top: 46px; }
+.foot-compact .foot-links { margin-top: 0; }
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
