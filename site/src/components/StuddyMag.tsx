@@ -272,7 +272,7 @@ export default function StuddyMag() {
       <Duo frame="desktop" img={loopImg} alt="Seated in a Studdy café with the session panel open" lines={[
         { text: 'Sit anywhere and a verified focus clock starts. A minute of focus earns a bean.', size: 'l' },
         { text: 'Every café shares one 25/5 sprint clock. Chat opens at the breaks.' },
-        { text: 'Beans buy furniture, hats and a café cat. Never rank, never power.' },
+        { text: 'Beans buy furniture, hats and a café cat. They never buy a higher rank or any advantage.' },
         { text: 'Friends’ cafés are one door away, with real people inside.', tone: 'acc' },
       ]} />
       <div className="st-sp" />
@@ -288,7 +288,7 @@ export default function StuddyMag() {
         { text: 'The psychology has a name too. Body doubling is working beside someone who asks nothing of you.' },
         { text: 'None of this needed inventing. It needed a room.', size: 'xl', align: 'right', tone: 'acc' },
       ]} />
-      <Say size="l">Five products own this behavior today.</Say>
+      <Say size="l">Five products already serve people who study this way.</Say>
       <RefCarousel />
       <StatScreens stats={[
         { to: 15.8, decimals: 1, suffix: 'M', post: 'people subscribe to one illustrated girl studying forever.', bg: '#FF7A9E', fg: '#17150F', num: '#FFFFFF' },
@@ -297,10 +297,10 @@ export default function StuddyMag() {
       ]} />
       <div className="st-sp" />
       <ChartBeats beats={[
-        'Two questions place every study product. Does it see you back, and how much does it ask of you?',
-        'Everything crowds the edges. Streams are one-way glass, and coworking with a camera feels like a meeting.',
-        'The calm, mutual corner was empty.',
-        'Studdy is built for it. You can see each other, and sitting down is the only thing asked.',
+        'Two questions place every study product. Can the other people see you too, and how much does it ask of you?',
+        'Streamers never see their viewers, and coworking on camera feels like a meeting.',
+        'Nothing let people see each other without asking anything of them.',
+        'Studdy fills that gap. Everyone in a café can see each other, and sitting down is all it asks.',
       ]}>
         <MarketMap />
       </ChartBeats>
@@ -308,7 +308,7 @@ export default function StuddyMag() {
       <Duo frame="desktop" side="right" img={refRoblox} alt="An avatar platform's home page" lines={[
         { text: 'The generation that grew up inside avatar worlds is aging into exams and theses.', size: 'l' },
         { text: 'On the biggest platform, 44% of daily users are now past 17.' },
-        { text: 'They experience an avatar in a room as somewhere to be.', tone: 'acc' },
+        { text: 'To them, an avatar in a room feels like a place to spend time.', tone: 'acc' },
       ]} />
 
       {/* ---------------- 02 people ---------------- */}
@@ -316,9 +316,9 @@ export default function StuddyMag() {
       <Say size="l">Composites drawn from stream chats, study servers and the playtesters who later lived in the prototype. The portraits come from the game’s own character engine.</Say>
       <div className="st-sp-s" />
       <PersonaSwitch art="figure" people={[
-        { name: 'mina', quote: 'Mina, 19, studies alone in her dorm with Lofi Girl on a second monitor.', img: personaMina, alt: 'Mina’s character, long lavender hair and cat ears', lines: ['She wants company that asks nothing back, and somewhere warm to sit.', 'The stream never knows she is there, and a distraction is always one click away.', 'Every café runs its own lofi radio with rain outside the windows. Sitting down is her whole contribution.'] },
-        { name: 'daniel', quote: 'Daniel, 22, closes the library most nights and still distrusts his own hour count.', img: personaDaniel, alt: 'Daniel’s character, short dark hair and glasses', lines: ['He wants a body at the next desk and an honest record of his focus.', 'Camera-on coworking felt like a job interview, and every timer he tried could be gamed.', 'Focus is verified on the server, only while the app is awake. The shared clock gives the room its structure.'] },
-        { name: 'caroline', quote: 'Caroline, 21, finishes every checklist she meets and wants her hours to leave something behind.', img: personaCaroline, alt: 'Caroline’s character, caramel hair and a red beret', lines: ['She wants a space of her own that grows over time.', 'Streaks that punish one rest day read as guilt, and she leaves.', 'Every focused minute becomes a bean that buys expression, never advantage. She is the real playtester who maxed the economy.'] },
+        { name: 'mina', quote: 'Mina, 19, studies alone in her dorm with Lofi Girl on a second monitor.', img: personaMina, alt: 'Mina’s character, long lavender hair and cat ears', lines: ['She wants company that expects nothing from her, and a cozy place to sit.', 'The stream never knows she is there, and a distraction is always one click away.', 'Every café runs its own lofi radio with rain outside the windows. Sitting down is her whole contribution.'] },
+        { name: 'daniel', quote: 'Daniel, 22, closes the library most nights and still distrusts his own hour count.', img: personaDaniel, alt: 'Daniel’s character, short dark hair and glasses', lines: ['He wants someone studying at the next desk, and an honest record of his focus time.', 'Camera-on coworking felt like a job interview, and every timer he tried could be gamed.', 'Focus is verified on the server, only while the app is awake. The shared clock gives the room its structure.'] },
+        { name: 'caroline', quote: 'Caroline, 21, finishes every checklist she meets and wants her hours to leave something behind.', img: personaCaroline, alt: 'Caroline’s character, caramel hair and a red beret', lines: ['She wants a space of her own that grows over time.', 'Streaks that punish one rest day read as guilt, and she leaves.', 'Every focused minute becomes a bean she can spend on her café and outfits, never on an advantage. She is the real playtester who bought everything.'] },
       ]} />
 
       {/* ---------------- 03 the bet ---------------- */}
@@ -326,22 +326,22 @@ export default function StuddyMag() {
         <Chapter n="03" title="Defining the product" name="The bet" />
         <Duo frame="none" side="right" img={refCyworld} alt="The Cyworld logo" lines={[
           { text: 'Studdy comes from Cyworld’s minirooms. In 2000s Korea, about nine in ten twenty-somethings kept a tiny decorated room.', size: 'l' },
-          { text: 'Cross that with the library at 2am and you get the pitch, which never changed.' },
+          { text: 'Combine that with the feeling of a library at 2am and you get the idea, which never changed.' },
         ]} />
         <Say size="xl" align="center" tone="acc">A little café you own, where real people come to study, and the only thing anyone can do to each other is be there.</Say>
       </Band>
       <div className="st-sp" />
       <StackCards cards={[
-        { n: '1', title: 'Company without performance', body: 'Being visible is the entire contribution. No follower count, no camera, nothing to keep up.', bg: '#FFE9F0', fg: '#17150F', num: '#D9527E' },
+        { n: '1', title: 'Company without performance', body: 'Being there is all anyone has to do. No followers, no camera, nothing to keep up.', bg: '#FFE9F0', fg: '#17150F', num: '#D9527E' },
         { n: '2', title: 'A place, not an app', body: 'You walk in a door and take a seat. Someone’s radio is playing.', bg: '#E3F0FA', fg: '#17150F', num: '#3A6EA5', variant: 'big' },
-        { n: '3', title: 'Low stakes, on purpose', body: 'Soft voxels, one warm palette, and a cat. A tool that looks like a toy is allowed to be kind.', bg: '#17150F', fg: '#FBE7EE', num: '#FF7A9E', variant: 'flip' },
+        { n: '3', title: 'Low stakes, on purpose', body: 'Soft blocky art, warm colors and a cat. Looking like a toy lets it feel gentle.', bg: '#17150F', fg: '#FBE7EE', num: '#FF7A9E', variant: 'flip' },
       ]} />
 
       {/* ---------------- 04 day one ---------------- */}
       <Chapter n="04" title="The first prototype" name="Day one" />
       <Reveal className="st-fade st-figure st-wide-img"><img src={v0Img} alt="The first committed build of Studdy, a gray empty room" /></Reveal>
       <Beats lines={[
-        { text: 'Day one had to prove a fixed camera could feel alive, and a browser could draw a furnished room at 60fps.' },
+        { text: 'The first version had to prove a fixed camera angle could still feel alive, and that a browser could draw a furnished room smoothly.' },
         { text: 'It got the walls, the lighting and the font wrong.', align: 'indent' },
         { text: 'It did not look cheap. It looked like nobody lived there.', size: 'xl', align: 'right', tone: 'acc' },
       ]} />
@@ -356,9 +356,9 @@ export default function StuddyMag() {
         </Reveal>
         <div className="st-sp-s" />
         <Beats lines={[
-          { text: 'The chibi is two units tall and mostly head. At diorama distance, a head is the only thing big enough to carry identity.', size: 'l' },
+          { text: 'The character is small and mostly head. From the game’s zoomed-out view, the head is the only part big enough to recognize.', size: 'l' },
           { text: 'There is no walk cycle and no emote wheel.', align: 'indent' },
-          { text: 'Expression is what you wear, what your napkin says, whether your headphones are on, and the fact that you came.', align: 'right', tone: 'acc' },
+          { text: 'You express yourself through what you wear, the note on your napkin, whether your headphones are on, and the fact that you showed up.', align: 'right', tone: 'acc' },
         ]} />
       </Band>
 
@@ -370,30 +370,30 @@ export default function StuddyMag() {
       ]} />
       <Reveal className="st-fade st-figure st-wide-img"><img src={texlabImg} alt="The texture lab, four treatments side by side" /></Reveal>
       <BigList items={[
-        { head: 'Baseline', line: 'Flat shading, the plasticky control. Rejected.' },
-        { head: 'Grain', line: 'Procedural wood and paper texture. It muddied the color.' },
-        { head: 'Toon ramp', line: 'Hard three-step shading. Close, with gray bands.' },
-        { head: 'Hue shift', line: 'Violet shadows and warm highlights. Shipped.' },
+        { head: 'Baseline', line: 'Flat shading, the plastic look users disliked. Rejected.' },
+        { head: 'Grain', line: 'Wood and paper textures. They made the colors muddy.' },
+        { head: 'Toon ramp', line: 'Three hard shading steps. Close, but the shadows looked gray.' },
+        { head: 'Hue shift', line: 'Purple-tinted shadows and warm highlights. Shipped.' },
       ]} />
       <div className="st-sp" />
       <Beats lines={[
-        { text: 'The rule comes from pixel artists. Never simply darken a shadow. Shift its hue.', size: 'xl', align: 'right' },
+        { text: 'The trick comes from pixel artists. Instead of darkening a shadow, change its color.', size: 'xl', align: 'right' },
         { text: 'The palette stopped being muddy the day the shadows stopped being gray.' },
       ]} />
       <Reveal className="st-fade st-figure st-wide-img"><img src={roomlabImg} alt="The room lab, the chosen treatment on a full café" /></Reveal>
       <Duo frame="desktop" img={badRetroImg} alt="The removed retro mode, heavily pixelated" lines={[
         { text: 'I could not choose between crisp and pixelated, so I shipped both as a setting.', size: 'l' },
         { text: '“Honestly just get rid of it.”', tone: 'acc' },
-        { text: 'Deleted within the hour. A settings toggle is often a designer’s indecision, exported.' },
+        { text: 'Deleted within the hour. A setting like that just passed my own indecision on to users.' },
       ]} />
 
       {/* ---------------- 07 light ---------------- */}
       <Band tone="cream">
         <Chapter n="07" title="Tuning the lighting" name="Light" />
         <Duo frame="desktop" side="right" img={badLightImg} alt="The over-bright, evenly lit room after the first fix" lines={[
-          { text: '“The corners are darker than the middle.” The single light became a pendant grid.', size: 'l' },
+          { text: '“The corners are darker than the middle.” One ceiling light became a grid of hanging lamps.', size: 'l' },
           { text: '“Now it’s way too strong.” Every time of day got its own brightness curve.' },
-          { text: 'Then taste. Glow that pools, shades that never tint the light, and a warm or cool bulb per café.', tone: 'acc' },
+          { text: 'Then the details. Lamp light that pools softly, shades that never color the light, and a warm or cool bulb for each café.', tone: 'acc' },
         ]} />
         <Say size="xl" align="center">The first fix lit the room evenly and made it look flat. Even light was never the goal.</Say>
       </Band>
@@ -403,12 +403,12 @@ export default function StuddyMag() {
       <Beats lines={[
         { text: 'Focused minutes are the only currency, so the first question was what stops someone from lying.', size: 'xl' },
         { text: 'Anything private runs on honor. Your beans, your napkin, your streak.', align: 'indent' },
-        { text: 'Anything other people see is granted only by the server, from heartbeats that cannot outrun a wall clock.' },
+        { text: 'Anything other people can see is only counted by the server, which checks in every minute and never credits more time than has passed.' },
         { text: 'If you want to lie to a pixel cat, that is between you and the cat.', align: 'right', tone: 'acc' },
       ]} />
       <Sequence lines={[
         { text: 'In week one, a tester closed her laptop mid-session and woke up rich.', size: 'xl' },
-        { text: 'Should idle time be on honor, should the clock pause, or should the game stand you up?', align: 'indent' },
+        { text: 'Should the app trust idle time, pause the clock, or stand you up from your seat?', align: 'indent' },
         { text: 'All three, in their kindest forms. The clock only counts while the app is awake.' },
         { text: '“You drifted off. We tucked your chair in.”', size: 'xl', align: 'right', tone: 'acc' },
       ]} />
@@ -436,19 +436,19 @@ export default function StuddyMag() {
       <BigList items={[
         { head: 'Lab first', line: 'Risky visuals were prototyped on a separate page, never in the live game.' },
         { head: 'Ship small', line: 'Same-day deploys to production, with two real users on the other end.' },
-        { head: 'Field test', line: 'They studied in it daily and reported in feel words, never spec words.' },
+        { head: 'Daily use', line: 'They studied in it daily and described problems by how things felt, not in technical terms.' },
         { head: 'Fix same day', line: 'Every break they found had a fix before their next session.' },
       ]} />
       <div className="st-sp" />
       <Say size="l">The actual ledger. Their words, what shipped, and what it taught.</Say>
       <Ledger tone="band" items={[
-        { title: '“When you sit, you sink into the chair.”', fix: 'The sit pose now measures from the cushion top, and every seat was re-tuned against the character.', lesson: 'Nobody files a ticket about seat anchoring. Translate feel into geometry.' },
-        { title: '“It should have usernames over heads, like Minecraft.”', fix: 'Floating name tags with level badges. Custom tag colors went on sale and became an identity feature.', lesson: 'The need was to be seen, not to copy Minecraft.' },
-        { title: '“The room gets darker toward the corners.”', fix: 'One ceiling light became a pendant grid, normalized so five lamps are not five times brighter than one.', lesson: 'Evenness and brightness are different asks. It took three rounds.' },
-        { title: '“There are two of me on my screen.”', fix: 'Presence now deduplicates by identity instead of connection, and a reload says goodbye before it leaves.', lesson: 'Distributed-systems glitches read as horror-movie glitches.' },
-        { title: '“She redecorated but I still see her old room.”', fix: 'A security migration had silently broken publishing. Rooms now also refresh every 20 seconds while you stand in them.', lesson: 'Every migration needs a round-trip test from the client’s side.' },
-        { title: '“Our laptops get hot and the battery drains fast.”', fix: 'A low-power GPU preference and an idle mode at 30fps, back to full rate the moment you touch anything.', lesson: 'An idle game that renders like a shooter contradicts itself.' },
-        { title: '“I’m level 21 with 1,800 beans and there’s nothing left to do.”', fix: 'The atelier of animated showpieces, the wardrobe, and a written economy with real price bands.', lesson: 'Answer the most engaged user with things to want, not bigger numbers.' },
+        { title: '“When you sit, you sink into the chair.”', fix: 'Sitting now lines up with the top of the cushion, and every seat was adjusted to fit the character.', lesson: 'Users describe how something looks wrong. The fix is finding which number is off.' },
+        { title: '“It should have usernames over heads, like Minecraft.”', fix: 'Floating name tags with level badges. Custom tag colors went on sale, and people used them to stand out.', lesson: 'The need was to be seen, not to copy Minecraft.' },
+        { title: '“The room gets darker toward the corners.”', fix: 'One ceiling light became a grid of lamps, balanced so five lamps are not five times as bright as one.', lesson: 'Even light and bright light are different requests. It took three rounds to get right.' },
+        { title: '“There are two of me on my screen.”', fix: 'The app now tracks people by account instead of by connection, and a reload signs out the old copy first.', lesson: 'A syncing bug looks like a ghost to the person seeing it.' },
+        { title: '“She redecorated but I still see her old room.”', fix: 'A security update had quietly stopped room changes from saving. Rooms now also refresh every 20 seconds while you are in them.', lesson: 'Every database change needs testing from the player’s side.' },
+        { title: '“Our laptops get hot and the battery drains fast.”', fix: 'It now asks for the power-saving graphics chip and slows to 30 frames a second when you are idle, back to full speed the moment you touch anything.', lesson: 'A calm game should not use as much power as an action game.' },
+        { title: '“I’m level 21 with 1,800 beans and there’s nothing left to do.”', fix: 'Animated showpieces, a wardrobe, and a written plan for how every price is set.', lesson: 'When your most active player runs out of things to do, give them new things to want, not bigger numbers.' },
       ]} />
       <Shots frame="desktop" items={[
         { img: bugGhostImg, alt: 'Two identical characters standing in a café', cap: 'Reconstructed. A reload gave the same person a second body.' },
@@ -459,9 +459,9 @@ export default function StuddyMag() {
       <Chapter n="10" title="Grading the interface" name="Audit" />
       <ChartBeats wide beats={[
         'Two questions grade every feature. Does it support focus, and does it add company?',
-        'Most of the shipped interface lands top right, and held its ground in field testing.',
+        'Most of what shipped lands top right, and it held up in daily use.',
         'Two features sit near the edge. The leaderboard and the friend banner.',
-        'The leaderboard ranks a number, never a person. The banner is the only interruption, and it snoozes.',
+        'The leaderboard shows hours, not who is better. The banner is the only interruption, and it can be snoozed.',
       ]}>
         <DecisionMap />
       </ChartBeats>
@@ -470,7 +470,7 @@ export default function StuddyMag() {
 
       {/* ---------------- 11 economy ---------------- */}
       <Chapter n="11" title="Designing the economy" name="Economy" />
-      <Say size="xl">One focused minute earns one bean. Every price answers to that anchor.</Say>
+      <Say size="xl">One focused minute earns one bean, and every price is set in minutes of study.</Say>
       <BigList items={[
         { head: 'Impulse', line: '8 to 45 beans, minutes of study. Everyday furniture, plants, mugs.' },
         { head: 'Session', line: '45 to 150 beans, about an hour. Café themes and statement pieces.' },
@@ -480,8 +480,8 @@ export default function StuddyMag() {
       <Sequence lines={[
         { text: 'Mid-build I priced room edits with escalating costs.', size: 'xl' },
         { text: 'The game handed you a free room, then charged you to keep shaping it.', align: 'indent' },
-        { text: 'It was unshipped, and the rule went in writing so it stays that way.' },
-        { text: 'Structure is identity, and identity is never priced.', size: 'xl', align: 'right', tone: 'acc' },
+        { text: 'I removed it and wrote the rule down so it stays removed.' },
+        { text: 'The shape of your room is part of who you are, and that is never for sale.', size: 'xl', align: 'right', tone: 'acc' },
       ]} />
       <Duo frame="desktop" img={shopImg} alt="The atelier tab of the shop" lines={[
         { text: 'The first player to finish the economy hit level 21 with 1,800 beans and nothing left to want.', size: 'l' },
@@ -489,7 +489,7 @@ export default function StuddyMag() {
       ]} />
       <Duo frame="desktop" side="right" img={salonImg} alt="The salon mirror with the wardrobe" lines={[
         { text: 'Skin, hair and glasses are free forever.', size: 'l' },
-        { text: 'Purchases only ever buy expression. Nothing earns faster or ranks higher, anywhere in the game.', tone: 'acc' },
+        { text: 'Purchases only change how things look. Nothing you buy earns faster or ranks higher.', tone: 'acc' },
       ]} />
 
       {/* ---------------- takeaways ---------------- */}

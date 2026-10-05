@@ -175,7 +175,7 @@ export default function PrepMag() {
       <Sequence lines={[
         { text: 'Recorded advice is passive, and anyone can claim to be a Goldman analyst.', size: 'xl' },
         { text: 'Booked mentorship is good, and one hour helps exactly one person.', align: 'indent' },
-        { text: 'A sophomore who cannot name the jobs yet cannot form the question either one requires.' },
+        { text: 'A sophomore who cannot name the jobs yet does not know what to ask, and both of these start with a question.' },
         { text: 'They need to wander and overhear.', size: 'xl', align: 'right', tone: 'acc' },
       ]} />
       <StatScreens stats={[
@@ -205,19 +205,19 @@ export default function PrepMag() {
       <Say size="l">And the people on the other side of the room.</Say>
       <BigList items={[
         { head: 'Young professionals', line: 'An hour of talking and nothing else. No editing, no thumbnails, no posting schedule.' },
-        { head: 'Domain personalities', line: 'The hot seat is an honest funnel. Public answers build the case for a private session.' },
+        { head: 'Domain personalities', line: 'Answering questions in public shows what they know, and that brings people to their paid sessions.' },
         { head: 'Institutions', line: 'A career center brings both sides of the market on the same afternoon.' },
       ]} />
 
       {/* ---------------- 03 stories ---------------- */}
       <Chapter n="03" title="Nine stories, and the check that decides each one" name="Stories" />
-      <Say size="l">Each persona asks the product for something specific. Every story carries the condition that counts as done.</Say>
+      <Say size="l">Nine user stories. Each one lists what has to be true before it counts as done.</Say>
       <Ledger tone="cream" items={STORY_ITEMS} />
 
       {/* ---------------- 04 funnel ---------------- */}
       <Chapter n="04" title="One shape, four steps, consent at every gate" name="Funnel" />
       <StackCards cards={[
-        { n: '1', title: 'Lurk in the crowd', body: 'Free and anonymous forever, because the explorer leaves at a signup wall.', bg: '#F4EEE6', fg: '#141210', num: '#B0402D' },
+        { n: '1', title: 'Lurk in the crowd', body: 'Free and anonymous forever, because a curious student leaves at a signup screen.', bg: '#F4EEE6', fg: '#141210', num: '#B0402D' },
         { n: '2', title: 'Raise a hand', body: 'A written question in a public queue. The first time your name appears anywhere.', bg: '#E5EFE9', fg: '#141210', num: '#1C5C41', variant: 'big' },
         { n: '3', title: 'The hot seat', body: 'Answered in front of the room, so one minute of the host’s time teaches everyone.', bg: '#B0402D', fg: '#FFFFFF', num: '#141210', variant: 'flip' },
         { n: '4', title: 'Breakout', body: 'Private and paid, and only if both of you accept. Payment is a separate third step.', bg: '#111110', fg: '#FFFFFF', num: '#E9806A' },
@@ -228,7 +228,7 @@ export default function PrepMag() {
       <Say size="l">The prototype went from the written spec straight to code. The spec’s screens sit above what shipped, so the two can be read against each other.</Say>
       <Reveal className="st-fade"><Wireframes shots={{ fair: mFair, room: mRoom, sheet: mRoomHand, hotseat: mHotseat }} /></Reveal>
       <div className="st-sp" />
-      <Say size="l" align="indent">Every exit is labeled. The dashed paths return you to the crowd with nothing lost, which keeps raising a hand cheap.</Say>
+      <Say size="l" align="indent">The diagram shows every state a raised hand can be in. Every way out returns you to the crowd with nothing lost, so raising a hand costs nothing.</Say>
       <Reveal className="st-fade mg-scrollfig st-figure"><HotSeatStates /></Reveal>
       <More summary="The nine rules, and where each one lives">
         <ul>
@@ -255,24 +255,24 @@ export default function PrepMag() {
       {/* ---------------- 06 money ---------------- */}
       <Chapter n="06" title="Where money is allowed to touch the product" name="Money" />
       <Beats lines={[
-        { text: 'Monetize the host’s time and tools. Never viewer visibility, and never placement.', size: 'xl' },
+        { text: 'Money can pay for a host’s time and tools. It can never buy a viewer more visibility or a better spot.', size: 'xl' },
         { text: 'It sells breakouts at the host’s own rate, boosts inside the host’s view, a study subscription, and ticketed events.', align: 'indent' },
         { text: 'It refuses promoted placement, paid discovery, paywalls on public rooms, and any route to the stage that skips the host.', tone: 'soft' },
       ]} />
       <Sequence lines={[
         { text: 'The obvious paid question is a super chat. Pay more, get answered.', size: 'xl' },
-        { text: 'It funds the host, and it breaks the one thing being sold, a fair queue.', align: 'indent' },
-        { text: 'What shipped pins a boosted question higher in the host’s view and pays the points to the host.' },
+        { text: 'It pays the host, but it makes the queue unfair, and a fair queue is the whole point.', align: 'indent' },
+        { text: 'Instead, a boost moves your question higher in the list only the host sees, and the points go to the host.' },
         { text: 'Paying never gets you on stage. The host still chooses.', size: 'xl', align: 'right', tone: 'acc' },
       ]} />
       <More summary="The invariants the store actually holds">
         <ul>
           <li><b>One room at a time.</b> Joining a second room returns early.</li>
-          <li><b>Archives can never fake liveness.</b> A recording refuses to open as a live session.</li>
-          <li><b>The consent gate.</b> No code path puts a person on stage without a hand they raised.</li>
+          <li><b>A recording can never pass as live.</b> It refuses to open as a live session.</li>
+          <li><b>Nobody goes on stage without raising a hand.</b> No code path allows it.</li>
           <li><b>Breakouts need two consents,</b> and payment is a third separate step.</li>
-          <li><b>Live state is never persisted,</b> so a reload cannot bring back a fake room.</li>
-          <li><b>There is no direct-message shape in the store at all.</b> The absence is the feature.</li>
+          <li><b>Live rooms are never saved,</b> so reloading cannot bring back a fake one.</li>
+          <li><b>The app has no way to send direct messages,</b> on purpose.</li>
         </ul>
       </More>
 
@@ -280,12 +280,12 @@ export default function PrepMag() {
       <Band tone="night">
         <Chapter n="07" title="The badge, and the absence of one" name="Trust" />
         <Duo img={mGrace} alt="An unverified host profile" lines={[
-          { text: 'If recorded advice is unverifiable, verification is the product.', size: 'l' },
-          { text: 'The badge has three states and one rule. The marking never lies in either direction.' },
+          { text: 'Anyone can claim a job title in a video, so checking credentials is what Prep.io actually offers.', size: 'l' },
+          { text: 'A host is verified, pending or unverified, and the badge always says which.' },
           { text: 'Unverified hosts are never hidden. They carry a gray shield everywhere they appear.' },
           { text: '“Verification pending, treat my takes accordingly.”', tone: 'warm' },
         ]} />
-        <Say size="l" align="right">A trust system you only ever see passing teaches nobody what the badge means.</Say>
+        <Say size="l" align="right">Seeing unverified hosts is what teaches people that the badge means something.</Say>
       </Band>
       <Shots items={[
         { img: mVerify, alt: 'The verification screen', cap: 'Choose how your identity gets confirmed.' },
@@ -298,19 +298,19 @@ export default function PrepMag() {
       <Beats lines={[
         { text: 'No number on screen is a constant.', size: 'xxl' },
         { text: 'Counts move because simulated people arrive and leave every two to four seconds.', align: 'indent' },
-        { text: 'Twelve personas carry a style. Lurkers stay quiet, and askers raise a hand every fourteen to twenty-six seconds.' },
+        { text: 'Twelve simulated viewers each behave differently. Quiet ones mostly watch, and others raise a hand every fourteen to twenty-six seconds.' },
         { text: 'On the host side, boosted questions sort higher, and promoting one is still a deliberate click.', align: 'right', tone: 'soft' },
       ]} />
 
       <Beats lines={[
-        { text: 'Real video was out of scope, so the stage is a breathing portrait over a waveform.', size: 'l' },
-        { text: 'The label says camera mocked, because a screenshot should never claim something untrue.', align: 'right', tone: 'acc' },
+        { text: 'There is no real video, so the speaker appears as an animated portrait with a moving sound wave.', size: 'l' },
+        { text: 'The stage is labeled “camera mocked,” so no screenshot pretends to be real video.', align: 'right', tone: 'acc' },
       ]} />
       <More summary="What the simulation still approximates">
         <ul>
-          <li>The room clock ticks on chained timeouts, so under heavy animation it can drift a few percent.</li>
+          <li>The room clock can drift a few percent from real time when the page is busy animating.</li>
           <li>Scheduled sessions are display labels rather than a real calendar.</li>
-          <li>The hot-seat overlay is not announced to screen readers, though the persistent banner carries the state.</li>
+          <li>Screen readers do not announce the hot-seat overlay, only the banner that stays on screen.</li>
           <li>The optional language model that drives chat falls back to scripted lines with no key.</li>
         </ul>
       </More>
@@ -322,18 +322,18 @@ export default function PrepMag() {
         { color: '#141210', name: 'Action', tempo: 'Every primary button' },
         { color: '#B0402D', name: 'Live', tempo: 'On air, and nothing else' },
         { color: '#1C5C41', name: 'Verified', tempo: 'A credential was checked' },
-        { color: '#3A3733', name: 'Theater', tempo: 'Rooms play with the lights down' },
+        { color: '#3A3733', name: 'Theater', tempo: 'Live rooms switch to a dark theme' },
       ]} />
       <Beats lines={[
-        { text: 'The reskin that fixed a generic-looking first build took an afternoon, because color, type and spacing were tokens from the start.', align: 'indent' },
-        { text: 'Dark mode is neutral graphite, so it never fights the thumbnails.', size: 'xl', align: 'right' },
+        { text: 'Restyling the whole product took an afternoon, because colors, type and spacing were defined once and reused everywhere.', align: 'indent' },
+        { text: 'Dark mode is plain gray with no color tint, so it never clashes with video thumbnails.', size: 'xl', align: 'right' },
       ]} />
       <Shots frame="desktop" items={[
         { img: dVod, alt: 'A recording with chapters', cap: 'Each chapter is a question someone asked.' },
         { img: dLibrary, alt: 'The library', cap: 'History, tickets and playlists. No feed anywhere.' },
       ]} />
       <Shots frame="desktop" items={[
-        { img: dMaya, alt: 'A verified host profile', cap: 'A verified host. Memberships buy time and tools, never reach.' },
+        { img: dMaya, alt: 'A verified host profile', cap: 'A verified host. Memberships buy time with the host, never more visibility.' },
         { img: dExplore, alt: 'The explore page', cap: 'Explore, with shelves built from goals you state.' },
       ]} />
 
@@ -345,18 +345,18 @@ export default function PrepMag() {
         { text: 'Writing the rule down early is what made the conflict visible.', tone: 'acc' },
       ]} />
       <Ledger tone="cream" items={[
-        { label: 'Launch shape', title: 'Scheduled events first, instead of rooms that are always on.', fix: 'Spontaneity has to wait, so the calendar sits beside live.', lesson: 'Clubhouse died of empty rooms.' },
+        { label: 'Launch shape', title: 'Scheduled events first, instead of rooms that are always on.', fix: 'Drop-in rooms come later, so scheduled events get equal space with live ones.', lesson: 'Clubhouse died of empty rooms.' },
         { label: 'Paid questions', title: 'Boosts pin a question higher in the host’s view, instead of a super chat.', fix: 'Less revenue up front.', lesson: 'The queue stays fair, which is the thing being sold.' },
         { label: 'Discovery', title: 'Shelves matched to goals you state, instead of a behavioral feed.', fix: 'Less time on site, by design.', lesson: 'Nothing about you is inferred.' },
-        { label: 'The stage', title: 'A breathing portrait and a waveform, instead of real video.', fix: 'Nothing streams, and the stage label says so.', lesson: 'The prototype argues product, not plumbing.' },
+        { label: 'The stage', title: 'A breathing portrait and a waveform, instead of real video.', fix: 'Nothing streams, and the stage label says so.', lesson: 'The prototype is about the product, not streaming infrastructure.' },
         { label: 'Recordings', title: 'Premium by default with live always free, instead of every recording free.', fix: 'It reversed an earlier call, and the free archive grows slower.', lesson: 'The reversal is written down.' },
-        { label: 'Demo content', title: 'One booth stocked and seven thin, instead of eight busy ones.', fix: 'The demo looks thinner.', lesson: 'It also looks like a real cold start.' },
-        { label: 'Follow-ups', title: 'Scheduled sessions and breakouts, instead of direct messages.', fix: 'A familiar retention lever is gone.', lesson: 'Harassment has no private channel to happen in.' },
+        { label: 'Demo content', title: 'One booth stocked and seven thin, instead of eight busy ones.', fix: 'The demo looks thinner.', lesson: 'It also looks like a real product on launch day.' },
+        { label: 'Follow-ups', title: 'Scheduled sessions and breakouts, instead of direct messages.', fix: 'A common way to bring people back is gone.', lesson: 'Harassment has no private channel to happen in.' },
       ]} />
       <div className="st-sp" />
       <Duo img={mCommit} alt="The one dollar commitment" lines={[
         { text: 'Free events charge a one dollar commitment, refunded when you attend.', size: 'l' },
-        { text: 'It is a bot filter and an attendance stake, so the forty people in the room meant to be there.' },
+        { text: 'It keeps out bots and no-shows, so the forty people in the room meant to be there.' },
         { text: 'Watching live stays free for everyone.', tone: 'acc' },
       ]} />
       <Say size="l">The same surfaces, sorted the way they were planned. The bottom right lists what the product said no to.</Say>
@@ -387,28 +387,28 @@ export default function PrepMag() {
       <Chapter n="11" title="The same machinery, pointed at a lecture hall" name="Campus" />
       <Duo frame="desktop" img={dCourse} alt="A course channel" lines={[
         { text: 'A course today is four tools that do not know about each other. Here it is one channel.', size: 'l' },
-        { text: 'The consent gate needed no changes. Raise your hand and get called on is what office hours already are.' },
+        { text: 'The raise-your-hand system needed no changes, because that is already how office hours work.' },
       ]} />
       <Duo frame="desktop" side="right" img={dCampus} alt="Campus home" lines={[
-        { text: 'The largest seeded course has 903 students, the case that makes office hours a scaling problem.' },
-        { text: 'Campus is a separate data island, so course content never leaks into careers discovery.', tone: 'acc' },
+        { text: 'The largest demo course has 903 students, which is where normal office hours break down.' },
+        { text: 'Campus data is kept separate, so course content never shows up in career search.', tone: 'acc' },
       ]} />
 
       {/* ---------------- 12 what broke ---------------- */}
       <Chapter n="12" title="The critique log, including the one that cost a rebuild" name="What broke" />
       <Say size="l">Each entry came from looking at the running product and writing down what was wrong. The first is the most expensive note I have written to myself.</Say>
       <Ledger items={[
-        { title: 'The whole thing reads as generated and generic.', fix: 'The first build was navy and amber and dark everywhere. It was rebuilt around paper and ink, with one dark scope for live rooms and three color roles.', lesson: 'A palette that could belong to any product belongs to none.' },
+        { title: 'The whole thing reads as generated and generic.', fix: 'The first build was dark navy and amber everywhere. It was rebuilt in black and white, with dark styling only in live rooms and three colors that each mean one thing.', lesson: 'A palette that could belong to any product belongs to none.' },
         { title: 'Color behind the thumbnails looks like smudges.', fix: 'The ambient gradient sat at 0.16 alpha in dark mode. It now sits at 0.05.', lesson: 'On a video platform the thumbnails are the content.' },
-        { title: 'Course chips read CS5, STA and EC1.', fix: 'Truncation cut mid-token. Chips now show letters only.', lesson: 'Truncating an identifier produces a different identifier.' },
-        { title: 'A campus link opens inside careers navigation.', fix: 'Mode was saved instead of read from the route. It now follows the URL.', lesson: 'Anything a link can contradict belongs in the URL.' },
-        { title: 'A campus room is full of recruiting chatter.', fix: 'The crowd drew from one line pool everywhere. Campus now has its own pool and its own search index.', lesson: 'Two audiences on one platform need separate data.' },
-        { title: 'A wrapped line can start with a floating dot.', fix: 'Separators are now placed between items instead of appended to them.', lesson: 'This is the detail that decides whether a page reads as crafted.' },
+        { title: 'Course chips read CS5, STA and EC1.', fix: 'Shortening the labels cut them mid-word. They now show letters only.', lesson: 'A shortened label can turn into a different label.' },
+        { title: 'A campus link opens inside careers navigation.', fix: 'The app remembered the last mode instead of reading the link. It now follows the link.', lesson: 'A shared link should always open the same thing.' },
+        { title: 'A campus room is full of recruiting chatter.', fix: 'Every room drew chat lines from the same list. Campus now has its own lines and its own search.', lesson: 'Two audiences on one platform need separate data.' },
+        { title: 'A wrapped line can start with a floating dot.', fix: 'Separators are now placed between items instead of appended to them.', lesson: 'Small, but details like this decide whether a page looks finished.' },
       ]} />
       <div className="st-sp" />
       <Duo frame="desktop" img={dSparse} alt="An honestly empty booth" lines={[
         { text: 'One booth is stocked and seven are thin, on purpose.', size: 'l' },
-        { text: 'A demo where every category is equally busy has never met a cold start.' },
+        { text: 'A new product never has every category equally busy, so the demo does not pretend to.' },
         { text: 'So it launches with scheduled events, and uses campuses to put both sides in one place at one time.', tone: 'acc' },
       ]} />
 
@@ -416,16 +416,16 @@ export default function PrepMag() {
       <Chapter n="13" title="One number that catches both sides" name="Metrics" />
       <Beats lines={[
         { text: <>The North Star is questions <em>answered live</em>, per week.</>, size: 'xl' },
-        { text: 'It cannot rise unless viewers raise hands and hosts call on them. It is also the event that mints a recording chapter.', align: 'right', tone: 'soft' },
+        { text: 'It only rises when viewers raise hands and hosts call on them. Each answered question also becomes a chapter in the recording.', align: 'right', tone: 'soft' },
       ]} />
       <div className="st-sp" />
       <Say size="l" tone="acc">Nothing below has been measured. These are the lines a twelve-week campus pilot would have to clear.</Say>
       <TargetTicks rows={[
         { name: 'Questions answered live, weekly, by week six', value: 60, label: '60', why: 'At twelve sessions that is five a session, the pace of a real office hour. Under 25 ends the pilot.' },
-        { name: 'Hosts still hosting after four weeks', value: 75, why: 'Supply is the side that dies first, and it dies quietly. Under half ends the pilot.' },
+        { name: 'Hosts still hosting after four weeks', value: 75, why: 'Hosts are the side that quits first, and they quit quietly. Under half ends the pilot.' },
         { name: 'Raised hands that reach the hot seat', value: 60, why: 'A long queue nobody reaches teaches people not to raise a hand.' },
         { name: 'Sessions with at least one hot seat', value: 90, why: 'A session with no question answered is a webinar.' },
-        { name: 'Answered questions that lead to a breakout', value: 5, why: 'The revenue check, set low on purpose. Discovery is not allowed to help it.' },
+        { name: 'Answered questions that lead to a breakout', value: 5, why: 'This checks revenue. It is set low on purpose, and paid placement is not allowed to raise it.' },
       ]} />
       <Reveal className="st-fade st-figure"><PilotChart /></Reveal>
       <Say size="m" tone="soft">A model of the North Star across one recruiting season. It peaks in week eight with superday season and falls toward Thanksgiving.</Say>
