@@ -76,7 +76,12 @@ export default function SplitHome() {
         <div className="sh-intro">
           {/* the period is its own element so the guide dot can stand in for
               it, and .sh-bl is a zero-size box whose top edge is the baseline */}
-          <h1>Hi, I'm Paul<span className="sh-period">.</span><span className="sh-bl" /></h1>
+          <h1 aria-label="Hi, I'm Paul.">
+            <span aria-hidden="true">{"Hi, I'm Paul".split('').map((c, i) => (
+              <span key={i} className="ch" style={{ '--li': i } as React.CSSProperties}>{c === ' ' ? '\u00A0' : c}</span>
+            ))}</span>
+            <span className="sh-period" aria-hidden="true">.</span><span className="sh-bl" />
+          </h1>
           <p>I build products centered around user productivity and clarity.</p>
         </div>
 
