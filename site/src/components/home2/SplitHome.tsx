@@ -4,6 +4,7 @@ import ArcFocus from './ArcFocus'
 import GuideDot from './GuideDot'
 import MediaFolder from './MediaFolder'
 import SplashDrop from './SplashDrop'
+import Underground, { UndergroundArrow } from '../underground/Underground'
 import { about, cards } from '../../content/site'
 
 // ============================================================================
@@ -19,6 +20,8 @@ const cardIndexFor = (path: string | undefined): number | null => {
   return i >= 0 ? i : null
 }
 
+let bootThisLoad: boolean | null = null
+
 export default function SplitHome() {
   // arriving back from a case study: mount with its card docked, skip the
   // choreography, and let the tour wait for a fresh visit
@@ -33,9 +36,12 @@ export default function SplitHome() {
   const [sessionBoot] = useState(() => {
     if (typeof window === 'undefined') return false
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
-    if (sessionStorage.getItem('pj-booted')) return false
-    try { sessionStorage.setItem('pj-booted', '1') } catch { /* no-op */ }
-    return true
+    // decided once per page load, so StrictMode's double call can't eat it
+    if (bootThisLoad === null) {
+      bootThisLoad = !sessionStorage.getItem('pj-booted')
+      try { sessionStorage.setItem('pj-booted', '1') } catch { /* no-op */ }
+    }
+    return bootThisLoad
   })
   const [boot, setBoot] = useState(sessionBoot)
   const [gone, setGone] = useState(!boot)
@@ -54,6 +60,25 @@ export default function SplitHome() {
     return () => window.clearTimeout(t)
   }, [boot])
 
+  // the underground: the arrow (or a firm scroll down over the left pane) drops you into it
+  const [under, setUnder] = useState(false)
+  const [diveId, setDiveId] = useState(0)
+  const goUnder = () => { if (!under) { setUnder(true); setDiveId((n) => n + 1) } }
+  useEffect(() => {
+    if (location.hash === '#underground') goUnder()
+    const left = document.querySelector<HTMLElement>('.sh-left')
+    if (!left) return
+    let acc = 0, t = 0
+    const wheel = (e: WheelEvent) => {
+      if (e.deltaY <= 0) { acc = 0; return }
+      acc += e.deltaY; clearTimeout(t); t = window.setTimeout(() => (acc = 0), 260)
+      if (acc > 420) { acc = 0; goUnder() }
+    }
+    left.addEventListener('wheel', wheel, { passive: true })
+    return () => left.removeEventListener('wheel', wheel)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [under])
+
   useEffect(() => {
     document.title = 'Paul Jeon — Product & Engineering'
     document.body.classList.add('sh-lock')
@@ -61,6 +86,7 @@ export default function SplitHome() {
   }, [])
 
   return (
+    <>
     <div className={'sh-page' + (boot ? '' : ' sh-ready') + (returning ? ' sh-return' : '') + (sessionBoot ? ' sh-trailer' : '')}>
       {!gone && sessionBoot && (
         <SplashDrop onReveal={() => setBoot(false)} onDone={() => setGone(true)} />
@@ -99,6 +125,9 @@ export default function SplitHome() {
       <ArcFocus spinIn={!boot && !returning} awaitCollision={tourComing} dockIndex={dockIndex} />
       <GuideDot run={guide} mode={mode} />
       </div>
+      <UndergroundArrow onDive={goUnder} />
     </div>
+    {under && <Underground key={diveId} onClosed={() => setUnder(false)} />}
+    </>
   )
 }
