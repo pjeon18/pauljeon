@@ -106,6 +106,25 @@ function MarketMap() {
   )
 }
 
+/** The launch film. Plays muted while it is on screen, pauses when it is not. */
+function Film() {
+  const v = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    const el = v.current
+    if (!el) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) el.play().catch(() => {}); else el.pause() }, { threshold: 0.5 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  const base = import.meta.env.BASE_URL
+  return (
+    <Reveal className="st-fade st-figure">
+      <video ref={v} className="prep-film" src={`${base}case/prep-launch.mp4`} poster={`${base}case/prep-launch.jpg`} muted loop playsInline controls preload="none" />
+    </Reveal>
+  )
+}
+
 // ---------------------------------------------------------------------------
 
 export default function PrepMag() {
@@ -164,6 +183,9 @@ export default function PrepMag() {
         { text: 'Everything coming up, with a reminder one tap away.', quiet: 'You hear when the room opens.', img: mSchedule, alt: 'The schedule on a phone' },
         { text: 'Anyone with a verified job can go live.', quiet: 'The title is the first thing you write.', img: mGoLive, alt: 'Setting up a session on a phone' },
       ]} />
+      <div className="st-sp" />
+      <Say size="xl">The launch film, thirty-two seconds.</Say>
+      <Film />
       <div className="st-sp" />
       <Say size="xl">Try it yourself. Join a room and ask something.</Say>
       <div className="st-sp-s" />
