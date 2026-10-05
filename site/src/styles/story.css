@@ -452,3 +452,6 @@
 .prep-mag .prep-finale { background: #0c2219; }
 .prep-mag .prep-finale .mg-finale-cta { color: #9fd8b5; }
 .prep-mag .st-band-cream .st-vtabs button:not(.on) { color: rgba(14, 28, 21, 0.3); }
+
+/* dark finales take each study's own night instead of one shared black */
+.mag .mg-finale, .smag .sm-finale { background: var(--st-night); }

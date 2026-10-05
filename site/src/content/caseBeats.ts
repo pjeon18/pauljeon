@@ -8,6 +8,7 @@
 export interface StoryLayer {
   accent: string
   accentDark?: string // a lighter accent for text on dark bands
+  night?: string // the dark band color, so dark breaks are not the same black on every study
   thesis?: { text: string; accent?: string; after: number }
   embed?: { src: string; title: string }
   stats?: string[] // replacement stat sentences, by index, when the site.ts label reads badly
@@ -66,6 +67,7 @@ export const caseBeats: Record<string, StoryLayer> = {
 
   'org-chart-explorer': {
     accent: '#2B4C8C',
+    night: '#0d1830',
     accentDark: '#86A6EA',
     thesis: { text: 'There is no server to send personnel data to, so there is nothing for security to review.', accent: 'nothing for security to review', after: 1 },
     stats: [
@@ -118,6 +120,7 @@ export const caseBeats: Record<string, StoryLayer> = {
 
   'onapsis-gtm': {
     accent: '#0E7C86',
+    night: '#062628',
     accentDark: '#5CC8D0',
     thesis: { text: 'The output tells you which of its own answers to trust.', accent: 'which of its own answers to trust', after: 2 },
     stats: [
@@ -154,6 +157,8 @@ export const caseBeats: Record<string, StoryLayer> = {
 
   'f1-undercut': {
     accent: '#E10600',
+    accentDark: '#ff6b5e',
+    night: '#17100f',
     thesis: { text: 'The variable everyone names first carries almost no signal. The circuit carries most of it.', accent: 'The circuit carries most of it.', after: 2 },
     stats: [
       'undercut attempts, extracted from eleven seasons of race data.',
@@ -194,6 +199,7 @@ export const caseBeats: Record<string, StoryLayer> = {
 
   'rl-agents': {
     accent: '#2E7A4C',
+    night: '#141a10',
     accentDark: '#74CC97',
     thesis: { text: 'A lot of behavior that looks like a preference is actually a discount rate.', accent: 'a discount rate', after: 2 },
     stats: [
@@ -227,6 +233,8 @@ export const caseBeats: Record<string, StoryLayer> = {
 
   'media-analytics': {
     accent: '#D7263D',
+    accentDark: '#ff7086',
+    night: '#1f0b10',
     embed: { src: 'https://xiaoman21.github.io/CS171/', title: 'Are videos getting shorter?' },
     thesis: { text: 'Shorts were half the uploads and three quarters of the views.', accent: 'three quarters of the views.', after: 2 },
     stats: [

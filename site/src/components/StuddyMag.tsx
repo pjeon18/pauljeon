@@ -235,7 +235,7 @@ export default function StuddyMag() {
       style={{
         ['--st-acc-text' as string]: '#D9527E',
         ['--st-band' as string]: '#2B1622', ['--st-band-ink' as string]: '#FBE7EE', ['--st-band-hi' as string]: '#FF9DBA',
-        ['--st-tint' as string]: '#FFE9F0', ['--st-cream' as string]: '#FFF3D9', ['--st-night' as string]: '#17150F',
+        ['--st-tint' as string]: '#FFE9F0', ['--st-cream' as string]: '#FFF3D9', ['--st-night' as string]: '#1d0f18',
       }}
     >
       <StoryChrome />
@@ -292,7 +292,7 @@ export default function StuddyMag() {
       <RefCarousel />
       <StatScreens stats={[
         { to: 15.8, decimals: 1, suffix: 'M', post: 'people subscribe to one illustrated girl studying forever.', bg: '#FF7A9E', fg: '#17150F', num: '#FFFFFF' },
-        { to: 79, suffix: '%', post: 'of Gen Z adults report loneliness, the most of any generation.', bg: '#17150F', fg: '#F5F2EC', num: '#FF7A9E', align: 'center', big: true, dark: true },
+        { to: 79, suffix: '%', post: 'of Gen Z adults report loneliness, the most of any generation.', bg: '#1d0f18', fg: '#F5F2EC', num: '#FF7A9E', align: 'center', big: true, dark: true },
         { to: 60, suffix: 'M', post: 'people use Forest to stay off their phones, completely alone.', bg: '#FFF3D9', fg: '#17150F', num: '#D9527E', align: 'right' },
       ]} />
       <div className="st-sp" />

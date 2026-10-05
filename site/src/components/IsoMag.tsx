@@ -164,7 +164,7 @@ export default function IsoMag() {
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (
-    <div className="mag" ref={root} style={{ ['--acc' as string]: '#FF8000', ['--acc-deep' as string]: '#C24E14', ['--acc-tint' as string]: '#FFF3EC' }}>
+    <div className="mag" ref={root} style={{ ['--acc' as string]: '#FF8000', ['--acc-deep' as string]: '#C24E14', ['--acc-tint' as string]: '#FFF3EC', ['--st-night' as string]: '#1c1209', ['--st-acc-dark' as string]: '#FFA640' }}>
       <StoryChrome />
 
       <nav className="case-nav mg-nav">
@@ -218,7 +218,7 @@ export default function IsoMag() {
 
       <StatScreens stats={[
         { to: 79, suffix: '%', post: 'of US college students are on no dating app at all.', bg: '#FF8000', fg: '#141210', num: '#FFFFFF' },
-        { pre: 'More than', to: 50, suffix: '%', post: 'of Gen Z say dating apps have burned them out.', bg: '#0E0D0B', fg: '#F5F2EC', num: '#FF8000', align: 'center', big: true, dark: true },
+        { pre: 'More than', to: 50, suffix: '%', post: 'of Gen Z say dating apps have burned them out.', bg: '#1c1209', fg: '#F5F2EC', num: '#FF8000', align: 'center', big: true, dark: true },
         { pre: 'About', to: 90, suffix: '%', post: 'of Gen Z would rather meet someone offline.', bg: '#F6E7CF', fg: '#2A190B', num: '#FF8000', align: 'right' },
       ]} />
 
@@ -255,7 +255,7 @@ export default function IsoMag() {
         { n: '1', title: 'One at a time, enforced', body: 'A second conversation is unreachable from any state the app can be in.', bg: '#FFE7CF', fg: '#141210', num: '#FF8000' },
         { n: '2', title: 'Mutual or finished', body: 'Every conversation becomes your one chat, or closes and returns you to the queue.', bg: '#FF8000', fg: '#141210', num: '#FFFFFF', variant: 'big' },
         { n: '3', title: 'Rank experiences, never people', body: 'Reflection is a private note about how something felt. No score and no list of humans.', bg: '#2A190B', fg: '#F6E7CF', num: '#FF8000', variant: 'flip' },
-        { n: '4', title: 'Permanently out', list: ['Rankings of people', 'Paid visibility', 'A discovery feed', 'Time in app as a goal'], bg: '#0E0D0B', fg: '#FFFFFF', num: '#3F3B35' },
+        { n: '4', title: 'Permanently out', list: ['Rankings of people', 'Paid visibility', 'A discovery feed', 'Time in app as a goal'], bg: '#1c1209', fg: '#FFFFFF', num: '#5a3e25' },
       ]} />
 
       {/* ---------------- 04 the timer ---------------- */}
