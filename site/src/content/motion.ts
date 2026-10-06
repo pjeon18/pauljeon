@@ -27,6 +27,7 @@ const F = `${import.meta.env.BASE_URL}films/`
 export const films: Film[] = [
   { card: 'tracker', src: `${F}tracker.mp4`, loop: `${F}tracker-loop.mp4`, poster: `${F}tracker.jpg`, title: 'Tracker', sub: 'See where your sound goes.' },
   { card: 'tracker', src: `${F}tracker-desktop.mp4`, loop: `${F}tracker-desktop-loop.mp4`, poster: `${F}tracker-desktop.jpg`, title: 'Tracker, on the desktop', sub: 'The same menu, in context on a MacBook.' },
+  { card: 'iso', src: `${F}iso.mp4`, loop: `${F}iso-loop.mp4`, poster: `${F}iso.jpg`, title: 'ISO', sub: 'The chromatic redesign. One conversation at a time.' },
   { card: 'media', src: `${F}media.mp4`, loop: `${F}media-loop.mp4`, poster: `${F}media.jpg`, title: 'Are videos getting shorter?', sub: 'Our CS171 data story, cut on the beat.' },
   { card: 'prepio', src: `${F}prepio.mp4`, loop: `${F}prepio-loop.mp4`, poster: `${F}prepio.jpg`, title: 'Prep.io', sub: 'Career office hours, live.' },
 ]
