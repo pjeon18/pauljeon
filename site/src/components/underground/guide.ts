@@ -76,7 +76,7 @@ export function wave(el: WaveEl, x: number, y: number, local: boolean, force?: b
 }
 
 /* ---------------- the guide ---------------- */
-type Mode = 'off' | 'pin' | 'rest' | 'start' | 'free' | 'hop' | 'morph' | 'hidden' | 'drag' | 'spring' | 'type' | 'zoom'
+type Mode = 'off' | 'pin' | 'rest' | 'start' | 'free' | 'hop' | 'morph' | 'hidden' | 'drag' | 'spring' | 'type' | 'zoom' | 'charge'
 export type Style = 'bounce' | 'one'
 const NEON = ['#39FF14', '#FF2BD6', '#00E5FF', '#FFE600', '#FF5F1F']
 const CHEERS = ['Hooray!', 'Nice!', 'Okay!', 'Yes!', 'Wow!']
@@ -101,6 +101,10 @@ export class Guide {
   typing: { letters: HTMLElement[]; f: number; hold: number; slot: HTMLElement; after: () => void } | null = null
   zoom: { t: number; phase: 0 | 1; far: number; get: () => Pt; jump: () => void; after: () => void } | null = null
   zk = 1
+  charging: { t: number; dur: number } | null = null
+  boost = 0                                   // seconds of extra bounce left after a launch
+  inward: { t: number }[] = []
+  private get e() { return this.boost > 0 ? 0.95 : E }
   userScrolled = 0
   t = 0
   onClick: ((next: string) => void) | null = null
@@ -254,14 +258,22 @@ export class Guide {
   /** start mode: the period of the landing headline, pulsing until it is pressed */
   start(el: HTMLElement, next: string) { this.at = el; this.anchor = () => this.slot(el); this.next = next; this.mode = 'start' }
   /** the play box: walls, a floor and three shapes to bounce off */
-  enterBox(el: HTMLElement, inv: WaveEl, onIdle: () => void) {
+  enterBox(el: HTMLElement, inv: WaveEl, onIdle: () => void, then?: () => void) {
     const b = el.getBoundingClientRect()
     // bring the whole box on screen first; the hop tracks it while the camera glides
     this.glideTo(this.top + b.top - Math.max(40, (innerHeight - b.height) / 2), 850)
     this.hopTo(() => ({ x: b.left + b.width * 0.3, y: el.getBoundingClientRect().bottom + this.top - R - 2 }), 140, () => {
       this.box = { el, inv }; this.onBoxIdle = onIdle; this.boxStill = 0
       this.mode = 'free'; this.target = null; this.onRest = null; this.vx = 300; this.vy = -900
+      if (then) then()
     })
+  }
+
+  /** Launch: the dot gathers itself, then fires with extra bounce for a few seconds */
+  launch(el: HTMLElement, inv: WaveEl, onIdle: () => void) {
+    const charge = () => { this.mode = 'charge'; this.vx = this.vy = 0; this.charging = { t: 0, dur: 1.15 }; this.boxStill = 0; this.inward = [] }
+    if (this.box && (this.mode === 'free' || this.mode === 'drag')) { this.drag = null; charge(); return }
+    this.enterBox(el, inv, onIdle, charge)
   }
 
   /* ---- dragging, inside the play box ---- */
@@ -347,6 +359,21 @@ export class Guide {
         this.zk = 1 + (big - 1) * (1 - ease(clamp(Z.t / 0.7)))
         if (Z.t >= 0.7) { this.zk = 1; this.zoom = null; this.mode = 'rest'; Z.after() }
       }
+    } else if (this.mode === 'charge' && this.charging) {
+      const C = this.charging
+      C.t += dt
+      if (Math.floor((C.t - dt) / 0.11) !== Math.floor(C.t / 0.11)) this.inward.push({ t: 0 })
+      if (C.t >= C.dur) {
+        // release: up and across, hard enough to find every shape and wall
+        this.charging = null; this.mode = 'free'; this.grounded = false; this.boost = 3.4
+        const b = this.box?.el.getBoundingClientRect(), right = b ? this.x < b.left + b.width / 2 : true
+        const a = -Math.PI / 2 + (right ? 0.62 : -0.62)
+        this.vx = Math.cos(a) * 4300; this.vy = Math.sin(a) * 4300
+        this.q = -0.4; this.qv = 0
+        this.rings.push({ x: this.x, y: this.y, t: 0, s: 2.2 })
+        for (let i = 0; i < 16; i++) { const t = (i / 16) * Math.PI * 2; this.parts.push({ x: this.x, y: this.y, vx: Math.cos(t) * 900, vy: Math.sin(t) * 900 - 200, t: 0, r: 3 + Math.random() * 2 }) }
+        if (this.box) wave(this.box.inv, this.x, this.y - this.top, true)
+      }
     } else if (this.mode === 'free') {
       // a target that moves (a sticky heading while you scroll) carries a dot that is sitting on it
       if (this.target) { const p = this.target(); if (this.grounded) this.y += p.y - this.floorY; this.floorY = p.y; this.steerX = p.x } else this.steerX = null
@@ -359,23 +386,26 @@ export class Guide {
         this.hits++
         // 'bounce' keeps bouncing and inverts the light; 'one' gives a single soft bounce and stops
         if (sp > 70 && !(this.style === 'one' && !this.box && this.hits > 1)) {
-          this.vy = -Math.min(sp * (this.style === 'one' && !this.box ? 0.3 : E), 1700); this.impact(sp, this.x, this.y + R, !!this.box || this.style === 'one'); this.vx *= 0.9
+          this.vy = -Math.min(sp * (this.style === 'one' && !this.box ? 0.3 : this.e), this.boost > 0 ? 4200 : 1700); this.impact(sp, this.x, this.y + R, (!!this.box && this.boost <= 0) || this.style === 'one'); this.vx *= 0.9
         } else { if (sp > 70) this.impact(sp * 0.5, this.x, this.y + R, true); this.vy = 0; this.grounded = true }
       } else this.grounded = false
       if (this.steerX !== null && this.vy >= 0 && this.y > this.floorY - 30) this.vx += ((this.steerX - this.x) * 60 - this.vx * 11) * dt
       if (this.grounded && this.steerX === null) this.vx *= Math.pow(0.02, dt)
       if (walls) {
-        if (this.x < walls.l) { this.x = walls.l; if (this.vx < 0) { this.impact(-this.vx, this.x - R, this.y, true); this.vx = -this.vx * E } }
-        if (this.x > walls.r) { this.x = walls.r; if (this.vx > 0) { this.impact(this.vx, this.x + R, this.y, true); this.vx = -this.vx * E } }
-        if (this.y < walls.t) { this.y = walls.t; if (this.vy < 0) { this.impact(-this.vy, this.x, this.y - R, true); this.vy = -this.vy * E } }
+        if (this.x < walls.l) { this.x = walls.l; if (this.vx < 0) { this.impact(-this.vx, this.x - R, this.y, this.boost <= 0); this.vx = -this.vx * this.e } }
+        if (this.x > walls.r) { this.x = walls.r; if (this.vx > 0) { this.impact(this.vx, this.x + R, this.y, this.boost <= 0); this.vx = -this.vx * this.e } }
+        if (this.y < walls.t) { this.y = walls.t; if (this.vy < 0) { this.impact(-this.vy, this.x, this.y - R, this.boost <= 0); this.vy = -this.vy * this.e } }
         this.box?.el.querySelectorAll<HTMLElement>('.ug-ob').forEach((o) => this.collide(o))
-        if (this.grounded && Math.abs(this.vx) < 8) { this.boxStill += dt; if (this.boxStill > 2.2) { this.boxStill = 0; const f = this.onBoxIdle; this.clearBoxInv(); this.box = null; this.onBoxIdle = null; f?.() } }
+        if (this.grounded && Math.abs(this.vx) < 8 && this.boost <= 0) { this.boxStill += dt; if (this.boxStill > 2.2) { this.boxStill = 0; const f = this.onBoxIdle; this.clearBoxInv(); this.box = null; this.onBoxIdle = null; f?.() } }
         else this.boxStill = 0
       } else if (this.grounded && Math.abs(this.vx) < 6 && (this.steerX === null || Math.abs(this.x - this.steerX) < 1.5)) {
         this.still += dt
         if (this.still > 0.22) { this.mode = 'rest'; this.vx = 0; this.follow = false; this.target = null; this.clearInv(); const f = this.onRest; this.onRest = null; f?.() }
       } else this.still = 0
     }
+    if (this.boost > 0) this.boost = Math.max(0, this.boost - dt)
+    for (const r of this.inward) r.t += dt
+    this.inward = this.inward.filter((r) => r.t < 0.45)
     for (const p of this.parts) { p.t += dt; p.vy += G * dt; p.x += p.vx * dt; p.y += p.vy * dt }
     this.parts = this.parts.filter((p) => p.t < 0.7)
     for (const r of this.rings) r.t += dt
@@ -392,7 +422,7 @@ export class Guide {
     this.x -= ux * d; this.y -= uy * d
     const vn = this.vx * ux + this.vy * uy
     if (vn < 0) {
-      this.vx -= (1 + E) * vn * ux; this.vy -= (1 + E) * vn * uy
+      this.vx -= (1 + this.e) * vn * ux; this.vy -= (1 + this.e) * vn * uy
       this.impact(-vn, this.x - ux * R, this.y - uy * R, -vn < 380)
       if (-vn >= 380) {
         // the shape it hit lights up and cheers
@@ -451,9 +481,16 @@ export class Guide {
       q = 0
     }
     if (zooming) pulse = this.zk
+    let jy = 0
+    if (this.mode === 'charge' && this.charging) {
+      const k = clamp(this.charging.t / this.charging.dur)
+      jx = (Math.random() - 0.5) * 9 * k * k; jy = (Math.random() - 0.5) * 9 * k * k
+      pulse = 1 - 0.3 * k + 0.05 * Math.sin(this.t * 60) * k
+      q = -0.25 * k
+    }
     if (this.mode === 'type' && this.typing && this.typing.hold > 0 && this.typing.f >= this.typing.letters.length) pulse = 1
     const sq = pinned || zooming ? 0 : q
-    g.setAttribute('transform', `translate(${sx + jx} ${sy + hh}) scale(${(1 + sq) * pulse} ${(1 - sq) * pulse}) translate(0 ${-hh}) rotate(${ang}) scale(${1 + st} ${1 / Math.sqrt(1 + st)}) rotate(${-ang})`)
+    g.setAttribute('transform', `translate(${sx + jx} ${sy + hh + jy}) scale(${(1 + sq) * pulse} ${(1 - sq) * pulse}) translate(0 ${-hh}) rotate(${ang}) scale(${1 + st} ${1 / Math.sqrt(1 + st)}) rotate(${-ang})`)
 
     // colour: it contrasts with whatever is under it, red while it moves, green when you can go
     const inv = this.box ? this.box.inv.dataset.on === '1' : this.els.inv.dataset.on === '1'
@@ -464,7 +501,7 @@ export class Guide {
     if (this.mode !== 'morph' && this.mode !== 'start') this.hover = false
     const moving = flying && !pinned && speed > 260
     const fill = this.hover ? GREEN : moving ? (tone === 'red' ? INK : RED) : restFill
-    path.setAttribute('fill', zooming ? RED : fill)
+    path.setAttribute('fill', zooming || this.mode === 'charge' || this.boost > 0 ? RED : fill)
     if (pinned) path.setAttribute('fill', this.pinColor)
 
     const lab = this.to.label
@@ -479,6 +516,8 @@ export class Guide {
     let f = ''
     this.ghosts.forEach((p, i) => { if (i) f += `<circle cx="${p.x}" cy="${p.y - this.top}" r="${R * (1 - i * 0.11)}" fill="${RED}" opacity="${0.22 * (1 - i / 6)}"/>` })
     this.rings.forEach((r) => { const e = 1 - Math.pow(1 - r.t / 0.55, 3); f += `<ellipse cx="${r.x}" cy="${r.y - this.top}" rx="${(14 + 70 * e) * r.s}" ry="${(this.mode === 'start' ? 14 + 70 * e : 4 + 16 * e) * r.s}" fill="none" stroke="${restFill}" stroke-width="2" opacity="${0.5 * (1 - r.t / 0.55)}"/>` })
+    // potential energy: rings drawn in toward the dot while it charges
+    this.inward.forEach((r) => { const e = r.t / 0.45; f += `<circle cx="${this.x}" cy="${this.y - this.top}" r="${R + (1 - e) * 90}" fill="none" stroke="${RED}" stroke-width="${1 + e * 2.5}" opacity="${e * 0.8}"/>` })
     this.parts.forEach((p) => { f += `<circle cx="${p.x}" cy="${p.y - this.top}" r="${p.r * (1 - p.t / 0.7)}" fill="${RED}"/>` })
     fx.innerHTML = f
   }

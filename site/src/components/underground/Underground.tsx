@@ -329,15 +329,16 @@ function Design({ root }: { root: React.RefObject<HTMLDivElement> }) {
 }
 
 /** The dot itself, in a box you can throw it around in. */
-function Play({ root, box, boxInv }: { root: React.RefObject<HTMLDivElement>; box: React.RefObject<HTMLDivElement>; boxInv: React.RefObject<HTMLDivElement> }) {
+function Play({ root, box, boxInv, onLaunch }: { root: React.RefObject<HTMLDivElement>; box: React.RefObject<HTMLDivElement>; boxInv: React.RefObject<HTMLDivElement>; onLaunch: () => void }) {
   const [ref, seen] = useSeen<HTMLDivElement>(root, 0.3)
   return (
     <section ref={ref} className="ug-play" data-sec="play" data-tone="dark">
       <h2 className="ug-h"><Slam text="Using a dot to navigate" on={seen} slot="play" /></h2>
-      <p className="ug-p">On my site, the period in my name is the navigation. It falls, bounces, and turns into whichever button you need next.</p>
+      <p className="ug-p">On my site, the period, the dot, becomes the navigation. It guides with precision and an intuitive physical feel, and turns into whichever button you need next.</p>
       <p className="ug-p ug-soft">Grab it and throw it at the buttons.</p>
       <div ref={box} className="ug-box">
         <div ref={boxInv} className="ug-box-inv" />
+        <button className="ug-launch" onClick={onLaunch}>Launch?</button>
         <div className="ug-ob" style={{ left: '12%', top: '50%', width: 190, height: 66, borderRadius: 33 }}><span /></div>
         <div className="ug-ob" style={{ left: '46%', top: '20%', width: 116, height: 116, borderRadius: 58 }}><span /></div>
         <div className="ug-ob" style={{ left: '73%', top: '56%', width: 108, height: 108, borderRadius: 22 }}><span /></div>
@@ -571,6 +572,13 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
   }
   /** typed headings appear on their own if the dot isn't the one typing them */
   const revealTyped = (id: string) => ug.current?.querySelector(`[data-sec="${id}"] .ug-slam.typed`)?.classList.add('done')
+  /** the Launch? button: the dot charges up in the box and fires */
+  const launch = () => {
+    const g = guide.current
+    if (!g || busy.current || REDUCED()) return
+    if (!g.box) { seq.current++; where.current = 'play'; pending.current = null }
+    g.launch(box.current!, boxInv.current!, () => live.current.toPad('play'))
+  }
   const live = useRef({ go, arrive, padOnto, toPad }); live.current = { go, arrive, padOnto, toPad }
 
   const els = (): DiveEls => ({ shaft: shaft.current!, streaks: streaks.current.filter(Boolean) as HTMLDivElement[], ug: ug.current!, inner: inner.current! })
@@ -678,7 +686,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
         } }
       }
       if (!cur || cur === where.current) return
-      if (['free', 'hop', 'drag', 'pin', 'off', 'spring', 'type', 'zoom'].includes(g.mode)) return
+      if (['free', 'hop', 'drag', 'pin', 'off', 'spring', 'type', 'zoom', 'charge'].includes(g.mode)) return
       // only move once the dot is out of sight, so a quick peek doesn't steal it
       const anchor = g.mode === 'hidden' ? r.querySelector('[data-agent-win]') : g.box ? g.box.el : g.at
       if (inView(anchor)) return
@@ -718,7 +726,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
           </section>
           <Work root={ug} scrollV={scrollV} />
           <Design root={ug} />
-          <Play root={ug} box={box} boxInv={boxInv} />
+          <Play root={ug} box={box} boxInv={boxInv} onLaunch={launch} />
           <Agent root={ug} run={agentRun} onDone={handBack} />
           <Resume root={ug} />
           <Contact root={ug} />
