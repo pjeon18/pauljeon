@@ -169,22 +169,45 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
   return () => { cancelAnimationFrame(raf); clearTimeout(safety) }
 }
 
-/** the climb's last beat: the home page renders back in around the dot */
+/**
+ * The climb's camera: e=0 is close on the period (zoom Z, period in the middle
+ * of the screen), e=1 is the page as it is. The zoom is interpolated in log
+ * space, so every stretch of the pull-back feels like the same speed.
+ */
+const ZOOM = 6
+function zoomAt(f: Focus, e: number) {
+  const s = Math.pow(ZOOM, 1 - e)
+  const cx = innerWidth / 2, cy = innerHeight / 2
+  const px = f.O.x + f.P.x, py = f.O.y + f.P.y
+  const qx = cx + (px - cx) * e, qy = cy + (py - cy) * e
+  return { t: `translate(${qx - f.O.x - s * f.P.x}px, ${qy - f.O.y - s * f.P.y}px) scale(${s})`, x: qx, y: qy, s }
+}
+
+/** the climb's last beat: the page renders in around the dot while close on it, holds, then pulls back */
 function reveal(f: Focus, guide: Guide, done: () => void) {
-  const D = 1.3, t0 = performance.now()
-  const far = Math.hypot(innerWidth, innerHeight) * 1.1
+  const OPEN = 0.6, HOLD = 0.25, PULL = 1.6, t0 = performance.now()
+  const far = Math.hypot(innerWidth, innerHeight) / ZOOM + 20
   const home = f.home
   home.style.transformOrigin = '0 0'
   guide.pinColor = 'rgb(11,11,10)'
+  const big = f.r0 * ZOOM
   const frame = (now: number) => {
-    const t = clamp((now - t0) / 1000 / D)
-    const k = 1 - ease(t), r = (1 - Math.pow(1 - t, 3)) * far
-    const fo = focusAt(f, k)
-    home.style.transform = fo.t
-    home.style.clipPath = `circle(${r.toFixed(1)}px at ${f.P.x}px ${f.P.y}px)`
-    guide.pin(fo.x, fo.y, 0, R + (f.r0 - R) * ease(t))
-    if (t < 1) raf = requestAnimationFrame(frame)
-    else { home.style.transform = ''; home.style.clipPath = ''; done() }
+    const t = (now - t0) / 1000
+    if (t < OPEN + HOLD) {
+      // still close: the page opens around the dot, which grows into the period at this zoom
+      const a = clamp(t / OPEN), z = zoomAt(f, 0)
+      home.style.transform = z.t
+      home.style.clipPath = `circle(${(f.r0 * 1.2 + (1 - Math.pow(1 - a, 3)) * far).toFixed(1)}px at ${f.P.x}px ${f.P.y}px)`
+      guide.pin(z.x, z.y, 0, R + (big - R) * ease(a))
+    } else {
+      // the pull-back: slow out of the close-up, a smooth glide, and a soft landing
+      home.style.clipPath = ''
+      const e = ease(clamp((t - OPEN - HOLD) / PULL)), z = zoomAt(f, e)
+      home.style.transform = z.t
+      guide.pin(z.x, z.y, 0, f.r0 * z.s)
+      if (e >= 1) { home.style.transform = ''; done(); return }
+    }
+    raf = requestAnimationFrame(frame)
   }
   let raf = requestAnimationFrame(frame)
   return () => cancelAnimationFrame(raf)
@@ -642,7 +665,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
       // home waits, focused on its period and not drawn yet
       f.home.style.visibility = ''
       f.home.style.transformOrigin = '0 0'
-      f.home.style.transform = focusAt(f, 1).t
+      f.home.style.transform = zoomAt(f, 0).t
       f.home.style.clipPath = `circle(0px at ${f.P.x}px ${f.P.y}px)`
       dive(-1, els(), g, null, () => reveal(f, g, () => { shaft.current!.style.display = 'none'; g.hide(); finish() }))
     }
