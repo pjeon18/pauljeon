@@ -9,7 +9,7 @@
 // re-measured every frame, so sticky headings and resizes are tracked.
 // ============================================================================
 
-export type Kind = 'dot' | 'pill' | 'circle' | 'square' | 'tag' | 'triangle'
+export type Kind = 'dot' | 'pill' | 'circle' | 'square' | 'tag' | 'triangle' | 'caret'
 type Tone = 'dark' | 'light' | 'red'
 interface Shape { pts: Float32Array; w: number; h: number; dx: number; label: string }
 interface Pt { x: number; y: number }
@@ -42,6 +42,7 @@ export function shape(kind: Kind, label = '', r = R): Shape {
   if (hit) return hit
   const tw = textW(label)
   let sdf: (x: number, y: number) => number = (x, y) => Math.hypot(x, y) - r, w = 2 * r, h = 2 * r, dx = 0
+  if (kind === 'caret') { w = 4; h = r; sdf = (x, y) => sdfRR(x, y, 4, r, 2) }
   if (kind === 'pill') { w = tw + 66; h = 62; sdf = (x, y) => sdfRR(x, y, w, h, 31) }
   if (kind === 'circle') { const c = Math.max(50, tw / 2 + 24); w = h = 2 * c; sdf = (x, y) => Math.hypot(x, y) - c }
   if (kind === 'square') { const s = Math.max(100, tw + 42); w = h = s; sdf = (x, y) => sdfRR(x, y, s, s, 24) }
@@ -75,7 +76,10 @@ export function wave(el: WaveEl, x: number, y: number, local: boolean, force?: b
 }
 
 /* ---------------- the guide ---------------- */
-type Mode = 'off' | 'pin' | 'rest' | 'start' | 'free' | 'hop' | 'morph' | 'hidden' | 'drag'
+type Mode = 'off' | 'pin' | 'rest' | 'start' | 'free' | 'hop' | 'morph' | 'hidden' | 'drag' | 'spring' | 'type' | 'zoom'
+export type Style = 'bounce' | 'one'
+const NEON = ['#39FF14', '#FF2BD6', '#00E5FF', '#FFE600', '#FF5F1F']
+const CHEERS = ['Hooray!', 'Nice!', 'Okay!', 'Yes!', 'Wow!']
 interface Hop { x0: number; y0: number; vx: number; vy: number; T: number; t: number; to: () => Pt; tx: number; ty: number; after?: () => void }
 interface Box { el: HTMLElement; inv: WaveEl }
 export interface Els { root: HTMLDivElement; g: SVGGElement; path: SVGPathElement; fx: SVGGElement; label: HTMLDivElement; inv: WaveEl }
@@ -93,6 +97,10 @@ export class Guide {
   ghosts: Pt[] = []; parts: { x: number; y: number; vx: number; vy: number; t: number; r: number }[] = []; rings: { x: number; y: number; t: number; s: number }[] = []
   box: Box | null = null; boxStill = 0; onBoxIdle: (() => void) | null = null
   pinSpeed = 0
+  style: Style = 'bounce'; hits = 0; pops = 0
+  typing: { letters: HTMLElement[]; f: number; hold: number; slot: HTMLElement; after: () => void } | null = null
+  zoom: { t: number; phase: 0 | 1; far: number; get: () => Pt; jump: () => void; after: () => void } | null = null
+  zk = 1
   userScrolled = 0
   t = 0
   onClick: ((next: string) => void) | null = null
@@ -184,14 +192,14 @@ export class Guide {
     if (Math.abs(this.to.w / 2 - p.r) > 0.5) this.setShape(shape('dot', '', p.r))
   }
   /** throw the dot at a heading: it flies, falls in, bounces, and lands as the period */
-  throwTo(el: HTMLElement, follow: boolean, after?: () => void) {
+  throwTo(el: HTMLElement, follow: boolean, after?: () => void, style: Style = 'bounce') {
     this.loose()
     const t = this.slot(el)
     const h = Math.max(0, this.y - t.y) + 160
     this.vy = -Math.sqrt(2 * G * h)
     const T = (-this.vy + Math.sqrt(this.vy * this.vy + 2 * G * (t.y - this.y))) / G
     this.vx = (t.x - this.x) / T
-    this.free(() => this.slot(el), follow, () => { this.settle(el); after?.() })
+    this.free(() => this.slot(el), follow, () => { this.settle(el); after?.() }, style)
   }
   /** no motion: put the dot straight onto a pad as its button */
   ontoNow(el: HTMLElement, kind: Kind, label: string, next: string) {
@@ -207,11 +215,40 @@ export class Guide {
     const p = get()
     this.x = p.x; this.y = this.top - 40; this.vx = 0; this.vy = 200
     this.setShape(shape('dot'), true)
-    this.free(get, false, after)
+    this.free(get, false, after, 'one')
+  }
+  /** momentum: a spring that leans back, then carries the dot over with a little overshoot */
+  springTo(get: () => Pt, after: () => void, follow = true) {
+    this.loose()
+    const p = get(), d = Math.hypot(p.x - this.x, p.y - this.y) || 1
+    this.vx = -(p.x - this.x) / d * 260; this.vy = -(p.y - this.y) / d * 260
+    this.target = get; this.onRest = after; this.mode = 'spring'; this.follow = follow
+  }
+  /** the dot becomes a text cursor and the heading appears as it moves along the line */
+  typeOn(letters: HTMLElement[], slot: HTMLElement, after: () => void) {
+    if (!letters.length) { this.throwTo(slot, true, after, 'one'); return }
+    const fs = parseFloat(getComputedStyle(letters[0]).fontSize) || 80
+    this.springTo(() => this.edge(letters, -1), () => {
+      this.setShape(shape('caret', '', fs * 0.78))
+      this.typing = { letters, f: 0, hold: 0.32, slot, after }
+      this.mode = 'type'; this.follow = true
+    })
+  }
+  private edge(letters: HTMLElement[], k: number): Pt {
+    const r = letters[Math.max(0, k)].getBoundingClientRect()
+    return { x: k < 0 ? r.left - 5 : r.right + 4, y: r.top + r.height * 0.5 + this.top }
+  }
+  /** zoom: the dot swells until it is the whole screen, the camera cuts, and it shrinks onto the next heading */
+  zoomTo(get: () => Pt, jump: () => void, after: () => void) {
+    this.loose()
+    const vx = this.x, vy = this.y - this.top
+    const far = Math.max(Math.hypot(vx, vy), Math.hypot(innerWidth - vx, vy), Math.hypot(vx, innerHeight - vy), Math.hypot(innerWidth - vx, innerHeight - vy)) + 40
+    this.setShape(shape('dot'), true)
+    this.zoom = { t: 0, phase: 0, far, get, jump, after }; this.mode = 'zoom'; this.vx = this.vy = 0; this.follow = false
   }
   private target: (() => Pt) | null = null
-  private free(get: () => Pt, follow: boolean, after: () => void) {
-    this.target = get
+  private free(get: () => Pt, follow: boolean, after: () => void, style: Style = 'one') {
+    this.target = get; this.style = style; this.hits = 0
     this.mode = 'free'; this.grounded = false; this.still = 0; this.follow = follow; this.onRest = after
   }
   /** start mode: the period of the landing headline, pulsing until it is pressed */
@@ -276,6 +313,40 @@ export class Guide {
       this.x = H.x0 + H.vx * t + (p.x - H.tx) * k; this.y = H.y0 + H.vy * t + 0.5 * G * t * t + (p.y - H.ty) * k
       this.vx = H.vx; this.vy = H.vy + G * t
       if (H.t >= H.T) { const sp = this.vy; this.vx = this.vy = 0; this.mode = 'rest'; this.hop = null; this.impact(sp * 0.6, this.x, this.y + R, true); H.after?.() }
+    } else if (this.mode === 'spring' && this.target) {
+      const p = this.target()
+      this.vx += ((p.x - this.x) * 30 - this.vx * 8.4) * dt; this.vy += ((p.y - this.y) * 30 - this.vy * 8.4) * dt
+      this.x += this.vx * dt; this.y += this.vy * dt
+      if (Math.hypot(p.x - this.x, p.y - this.y) < 0.8 && Math.hypot(this.vx, this.vy) < 12) {
+        this.x = p.x; this.y = p.y; this.vx = this.vy = 0; this.mode = 'rest'; this.follow = false; this.target = null
+        const f = this.onRest; this.onRest = null; f?.()
+      }
+    } else if (this.mode === 'type' && this.typing) {
+      const T = this.typing, n = T.letters.length
+      if (T.hold > 0) T.hold -= dt
+      else T.f = Math.min(n, T.f + dt * 15)
+      const k = Math.floor(T.f)
+      for (let i = 0; i < k; i++) T.letters[i].classList.add('t')
+      const a = this.edge(T.letters, k - 1), b = this.edge(T.letters, Math.min(n - 1, k)), u = k >= n ? 0 : T.f - k
+      // on a new line the cursor jumps back to the left, like a real one
+      const sameLine = Math.abs(a.y - b.y) < 4
+      this.x = sameLine ? a.x + (b.x - a.x) * u : a.x; this.y = sameLine ? a.y + (b.y - a.y) * u : a.y
+      if (T.f >= n) {
+        T.hold -= dt
+        if (T.hold < -0.18) { this.typing = null; this.follow = false; this.mode = 'rest'; this.settle(T.slot); T.after() }
+      }
+    } else if (this.mode === 'zoom' && this.zoom) {
+      const Z = this.zoom, ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+      Z.t += dt
+      const big = Z.far / R
+      if (Z.phase === 0) {
+        this.zk = 1 + (big - 1) * Math.pow(clamp(Z.t / 0.55), 3)
+        if (Z.t >= 0.55) { Z.jump(); Z.phase = 1; Z.t = 0; const p = Z.get(); this.x = p.x; this.y = p.y }
+      } else {
+        const p = Z.get(); this.x = p.x; this.y = p.y
+        this.zk = 1 + (big - 1) * (1 - ease(clamp(Z.t / 0.7)))
+        if (Z.t >= 0.7) { this.zk = 1; this.zoom = null; this.mode = 'rest'; Z.after() }
+      }
     } else if (this.mode === 'free') {
       // a target that moves (a sticky heading while you scroll) carries a dot that is sitting on it
       if (this.target) { const p = this.target(); if (this.grounded) this.y += p.y - this.floorY; this.floorY = p.y; this.steerX = p.x } else this.steerX = null
@@ -285,14 +356,18 @@ export class Guide {
       if (this.y >= this.floorY) {
         this.y = this.floorY
         const sp = this.vy
-        if (sp > 70) { this.vy = -Math.min(sp * E, 1700); this.impact(sp, this.x, this.y + R); this.vx *= 0.9 } else { this.vy = 0; this.grounded = true }
+        this.hits++
+        // 'bounce' keeps bouncing and inverts the light; 'one' gives a single soft bounce and stops
+        if (sp > 70 && !(this.style === 'one' && !this.box && this.hits > 1)) {
+          this.vy = -Math.min(sp * (this.style === 'one' && !this.box ? 0.3 : E), 1700); this.impact(sp, this.x, this.y + R, !!this.box || this.style === 'one'); this.vx *= 0.9
+        } else { if (sp > 70) this.impact(sp * 0.5, this.x, this.y + R, true); this.vy = 0; this.grounded = true }
       } else this.grounded = false
       if (this.steerX !== null && this.vy >= 0 && this.y > this.floorY - 30) this.vx += ((this.steerX - this.x) * 60 - this.vx * 11) * dt
       if (this.grounded && this.steerX === null) this.vx *= Math.pow(0.02, dt)
       if (walls) {
-        if (this.x < walls.l) { this.x = walls.l; if (this.vx < 0) { this.impact(-this.vx, this.x - R, this.y); this.vx = -this.vx * E } }
-        if (this.x > walls.r) { this.x = walls.r; if (this.vx > 0) { this.impact(this.vx, this.x + R, this.y); this.vx = -this.vx * E } }
-        if (this.y < walls.t) { this.y = walls.t; if (this.vy < 0) { this.impact(-this.vy, this.x, this.y - R); this.vy = -this.vy * E } }
+        if (this.x < walls.l) { this.x = walls.l; if (this.vx < 0) { this.impact(-this.vx, this.x - R, this.y, true); this.vx = -this.vx * E } }
+        if (this.x > walls.r) { this.x = walls.r; if (this.vx > 0) { this.impact(this.vx, this.x + R, this.y, true); this.vx = -this.vx * E } }
+        if (this.y < walls.t) { this.y = walls.t; if (this.vy < 0) { this.impact(-this.vy, this.x, this.y - R, true); this.vy = -this.vy * E } }
         this.box?.el.querySelectorAll<HTMLElement>('.ug-ob').forEach((o) => this.collide(o))
         if (this.grounded && Math.abs(this.vx) < 8) { this.boxStill += dt; if (this.boxStill > 2.2) { this.boxStill = 0; const f = this.onBoxIdle; this.clearBoxInv(); this.box = null; this.onBoxIdle = null; f?.() } }
         else this.boxStill = 0
@@ -318,8 +393,15 @@ export class Guide {
     const vn = this.vx * ux + this.vy * uy
     if (vn < 0) {
       this.vx -= (1 + E) * vn * ux; this.vy -= (1 + E) * vn * uy
-      this.impact(-vn, this.x - ux * R, this.y - uy * R)
-      o.classList.add('hit'); window.setTimeout(() => o.classList.remove('hit'), 90)
+      this.impact(-vn, this.x - ux * R, this.y - uy * R, -vn < 380)
+      if (-vn >= 380) {
+        // the shape it hit lights up and cheers
+        const n = this.pops++, lab = o.querySelector('span')
+        o.style.setProperty('--neon', NEON[n % NEON.length])
+        if (lab) lab.textContent = CHEERS[n % CHEERS.length]
+        o.classList.remove('pop'); void o.offsetWidth; o.classList.add('pop')
+        window.clearTimeout(Number(o.dataset.t)); o.dataset.t = String(window.setTimeout(() => o.classList.remove('pop'), 1100))
+      } else { o.classList.add('hit'); window.setTimeout(() => o.classList.remove('hit'), 90) }
     }
   }
 
@@ -352,10 +434,11 @@ export class Guide {
     let d = ''
     for (let i = 0; i < N; i++) { const x = this.from.pts[i * 2] + (this.to.pts[i * 2] - this.from.pts[i * 2]) * k, y = this.from.pts[i * 2 + 1] + (this.to.pts[i * 2 + 1] - this.from.pts[i * 2 + 1]) * k; d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) }
     path.setAttribute('d', d + 'Z')
-    const hh = (this.from.h + (this.to.h - this.from.h) * k) / 2
+    const zooming = this.mode === 'zoom'
+    const hh = zooming ? 0 : (this.from.h + (this.to.h - this.from.h) * k) / 2
     const pinned = this.mode === 'pin'
     const speed = pinned ? this.pinSpeed : Math.hypot(this.vx, this.vy)
-    const flying = pinned || this.mode === 'hop' || this.mode === 'drag' || (this.mode === 'free' && !this.grounded)
+    const flying = pinned || this.mode === 'hop' || this.mode === 'drag' || this.mode === 'spring' || (this.mode === 'free' && !this.grounded)
     const st = flying ? Math.min(pinned ? 2.4 : 0.32, speed / (pinned ? 2200 : 4200)) : 0
     const ang = pinned ? 90 : Math.atan2(this.vy, this.vx) * 180 / Math.PI
     let q = clamp(this.q, -0.35, 0.45), jx = 0, pulse = 1
@@ -367,7 +450,9 @@ export class Guide {
       if (c < 0.016) this.rings.push({ x: this.x, y: this.y, t: 0, s: 0.9 })
       q = 0
     }
-    const sq = pinned ? 0 : q
+    if (zooming) pulse = this.zk
+    if (this.mode === 'type' && this.typing && this.typing.hold > 0 && this.typing.f >= this.typing.letters.length) pulse = 1
+    const sq = pinned || zooming ? 0 : q
     g.setAttribute('transform', `translate(${sx + jx} ${sy + hh}) scale(${(1 + sq) * pulse} ${(1 - sq) * pulse}) translate(0 ${-hh}) rotate(${ang}) scale(${1 + st} ${1 / Math.sqrt(1 + st)}) rotate(${-ang})`)
 
     // colour: it contrasts with whatever is under it, red while it moves, green when you can go
@@ -379,7 +464,7 @@ export class Guide {
     if (this.mode !== 'morph' && this.mode !== 'start') this.hover = false
     const moving = flying && !pinned && speed > 260
     const fill = this.hover ? GREEN : moving ? (tone === 'red' ? INK : RED) : restFill
-    path.setAttribute('fill', fill)
+    path.setAttribute('fill', zooming ? RED : fill)
     if (pinned) path.setAttribute('fill', this.pinColor)
 
     const lab = this.to.label

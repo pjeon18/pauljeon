@@ -26,12 +26,21 @@ const REDUCED = () => window.matchMedia('(prefers-reduced-motion: reduce)').matc
 /** the order of the walk, and the button the dot becomes at the end of each part */
 const FLOW: Record<string, { name: string; pad?: { kind: Kind; label: string; next: string } }> = {
   land: { name: 'About Me' },
-  work: { name: 'Work', pad: { kind: 'pill', label: 'Things I like', next: 'likes' } },
-  likes: { name: 'Things I like', pad: { kind: 'triangle', label: 'Play', next: 'play' } },
+  work: { name: 'Work', pad: { kind: 'pill', label: 'Design philosophy', next: 'design' } },
+  design: { name: 'Design philosophy', pad: { kind: 'triangle', label: 'Play', next: 'play' } },
   play: { name: 'The dot', pad: { kind: 'circle', label: 'An idea', next: 'agent' } },
   agent: { name: 'An idea', pad: { kind: 'square', label: 'Résumé', next: 'resume' } },
   resume: { name: 'Résumé', pad: { kind: 'tag', label: 'Contact', next: 'contact' } },
   contact: { name: 'Contact', pad: { kind: 'pill', label: 'Back to the top', next: 'up' } },
+}
+
+/**
+ * How the dot travels into each part. The full bounce that inverts the light
+ * happens once, on the way into Work; the play box is the only other place
+ * it inverts. Everything else moves its own way.
+ */
+const TRANS: Record<string, 'bounce' | 'one' | 'glide' | 'type' | 'zoom'> = {
+  work: 'bounce', design: 'type', play: 'zoom', agent: 'glide', resume: 'one', contact: 'type',
 }
 
 /* ------------------------------------------------------------------------- */
@@ -198,10 +207,10 @@ function useSeen<T extends Element>(root: React.RefObject<HTMLElement>, threshol
 }
 
 /** letters that slam in, one after another; the last word carries the dot's slot */
-function Slam({ text, on, slot, delay = 0 }: { text: string; on: boolean; slot?: string; delay?: number }) {
+function Slam({ text, on, slot, delay = 0, typed = false }: { text: string; on: boolean; slot?: string; delay?: number; typed?: boolean }) {
   const ws = text.split(' ')
   return (
-    <span className={`ug-slam ${on ? 'on' : ''}`} aria-label={text}>
+    <span className={`ug-slam ${typed ? 'typed' : on ? 'on' : ''}`} aria-label={text}>
       {ws.map((w, wi) => {
         const start = ws.slice(0, wi).reduce((n, x) => n + x.length + 1, 0)
         return (
@@ -271,17 +280,17 @@ function Work({ root, scrollV }: { root: React.RefObject<HTMLDivElement>; scroll
   )
 }
 
-/** The things Paul likes, as cards that stack up as you scroll. */
-const LIKES = [
-  { t: 'Designs that feel special', bg: '#0B0B0A', fg: '#F5F2EC' },
-  { t: 'Painting', bg: '#E02B1D', fg: '#fff' },
-  { t: 'Music, loud', bg: '#fff', fg: '#0B0B0A' },
-  { t: 'Old Pokémon games on a Game Boy', bg: '#12A150', fg: '#fff' },
-  { t: '2018 James Harden highlights', bg: '#0B0B0A', fg: '#F5F2EC' },
-  { t: 'Snacks, while designing', bg: '#E02B1D', fg: '#fff' },
+/** Paul's design philosophy, as cards that stack up as you scroll. */
+const IDEAS = [
+  { t: 'Design for someone specific', p: 'When you design for everyone, you end up designing for no one. I look for one group’s specific pain point and design for that.', bg: '#0B0B0A', fg: '#F5F2EC' },
+  { t: 'Let the values show', p: 'What a product refuses to do, how it paces itself, and how it treats people should all be visible in the interface.', bg: '#E02B1D', fg: '#fff' },
+  { t: 'One idea at a time', p: 'I show ideas in order, each at the same size, instead of stacking labels, captions and chips on top of each other.', bg: '#fff', fg: '#0B0B0A' },
+  { t: 'Big type, lots of room', p: 'Large, readable text and generous space. Never a giant header over tiny grey text.', bg: '#12A150', fg: '#fff' },
+  { t: 'Color with a job', p: 'A few colors, and each one means something. Here red is moving, green is go.', bg: '#0B0B0A', fg: '#F5F2EC' },
+  { t: 'Motion with weight', p: 'Things should move like they have mass, with momentum and a little overshoot. Feedback is instant and ambient light stays calm.', bg: '#E02B1D', fg: '#fff' },
+  { t: 'Plain words', p: 'Say what the thing is. No slogans and no filler.', bg: '#fff', fg: '#0B0B0A' },
 ]
-function Likes({ root }: { root: React.RefObject<HTMLDivElement> }) {
-  const [ref, seen] = useSeen<HTMLDivElement>(root, 0.2)
+function Design({ root }: { root: React.RefObject<HTMLDivElement> }) {
   const els = useRef<(HTMLDivElement | null)[]>([])
   useEffect(() => {
     let raf = 0
@@ -298,19 +307,22 @@ function Likes({ root }: { root: React.RefObject<HTMLDivElement> }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [])
+  }, [root])
   return (
-    <section ref={ref} className="ug-likes" data-sec="likes" data-tone="light">
-      <h2 className="ug-h"><Slam text="Things I like" on={seen} slot="likes" /></h2>
+    <section className="ug-likes" data-sec="design" data-tone="light">
+      <h2 className="ug-h"><Slam text="My design philosophy" on={false} typed slot="design" /></h2>
       <div className="ug-stack">
-        {LIKES.map((l, i) => (
-          <div key={l.t} ref={(e) => { els.current[i] = e }} className="ug-like" style={{ background: l.bg, color: l.fg, top: `calc(16vh + ${i * 22}px)`, zIndex: i + 1, boxShadow: l.bg === '#fff' ? 'inset 0 0 0 2px #0B0B0A' : undefined }}>
+        {IDEAS.map((l, i) => (
+          <div key={l.t} ref={(e) => { els.current[i] = e }} className="ug-like" style={{ background: l.bg, color: l.fg, top: `calc(14vh + ${i * 22}px)`, zIndex: i + 1, boxShadow: l.bg === '#fff' ? 'inset 0 0 0 2px #0B0B0A' : undefined }}>
             <span className="ug-like-n">{i + 1}</span>
-            <h3>{l.t}</h3>
+            <div>
+              <h3>{l.t}</h3>
+              <p>{l.p}</p>
+            </div>
           </div>
         ))}
       </div>
-      <Pad id="likes" />
+      <Pad id="design" />
     </section>
   )
 }
@@ -322,12 +334,12 @@ function Play({ root, box, boxInv }: { root: React.RefObject<HTMLDivElement>; bo
     <section ref={ref} className="ug-play" data-sec="play" data-tone="dark">
       <h2 className="ug-h"><Slam text="Using a dot to navigate" on={seen} slot="play" /></h2>
       <p className="ug-p">On my site, the period in my name is the navigation. It falls, bounces, and turns into whichever button you need next.</p>
-      <p className="ug-p ug-soft">Grab it and throw it. Every hard bounce inverts the box.</p>
+      <p className="ug-p ug-soft">Grab it and throw it at the buttons.</p>
       <div ref={box} className="ug-box">
-        <div className="ug-ob" style={{ left: '12%', top: '50%', width: 190, height: 66, borderRadius: 33 }} />
-        <div className="ug-ob" style={{ left: '46%', top: '20%', width: 116, height: 116, borderRadius: 58 }} />
-        <div className="ug-ob" style={{ left: '73%', top: '56%', width: 108, height: 108, borderRadius: 22 }} />
         <div ref={boxInv} className="ug-box-inv" />
+        <div className="ug-ob" style={{ left: '12%', top: '50%', width: 190, height: 66, borderRadius: 33 }}><span /></div>
+        <div className="ug-ob" style={{ left: '46%', top: '20%', width: 116, height: 116, borderRadius: 58 }}><span /></div>
+        <div className="ug-ob" style={{ left: '73%', top: '56%', width: 108, height: 108, borderRadius: 22 }}><span /></div>
       </div>
       <Pad id="play" />
     </section>
@@ -462,11 +474,10 @@ function Resume({ root }: { root: React.RefObject<HTMLDivElement> }) {
   )
 }
 
-function Contact({ root }: { root: React.RefObject<HTMLDivElement> }) {
-  const [ref, seen] = useSeen<HTMLDivElement>(root, 0.4)
+function Contact(_: { root: React.RefObject<HTMLDivElement> }) {
   return (
-    <section ref={ref} className="ug-contact" data-sec="contact" data-tone="dark">
-      <h2 className="ug-h"><Slam text="Get in touch" on={seen} slot="contact" /></h2>
+    <section className="ug-contact" data-sec="contact" data-tone="dark">
+      <h2 className="ug-h"><Slam text="Get in touch" on={false} typed slot="contact" /></h2>
       <a className="ug-mail" href={`mailto:${about.email}`}>{about.email}</a>
       <div className="ug-links">
         <a href="https://github.com/pjeon18" target="_blank" rel="noreferrer">GitHub</a>
@@ -547,9 +558,18 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
     if (next === 'up') { upRef.current(); return }
     seq.current++; where.current = next
     const slot = q<HTMLElement>(`[data-slot="${next}"]`)
-    if (REDUCED()) { slot.scrollIntoView({ block: 'center' }); g.placeOn(slot); arrive(next); return }
-    g.throwTo(slot, true, () => arrive(next))
+    if (REDUCED()) { slot.scrollIntoView({ block: 'center' }); revealTyped(next); g.placeOn(slot); arrive(next); return }
+    const how = TRANS[next] ?? 'one'
+    const done = () => arrive(next)
+    if (how === 'bounce' || how === 'one') g.throwTo(slot, true, done, how)
+    else if (how === 'glide') g.springTo(() => g.slot(slot), () => { g.settle(slot); done() })
+    else if (how === 'type') {
+      const letters = [...q<HTMLElement>(`[data-sec="${next}"]`).querySelectorAll<HTMLElement>('.ug-slam.typed .ug-word > span')]
+      g.typeOn(letters, slot, () => { revealTyped(next); done() })
+    } else g.zoomTo(() => g.slot(slot), () => { const r = ug.current!; r.scrollTop += slot.getBoundingClientRect().top - innerHeight * 0.36 }, () => { g.settle(slot); done() })
   }
+  /** typed headings appear on their own if the dot isn't the one typing them */
+  const revealTyped = (id: string) => ug.current?.querySelector(`[data-sec="${id}"] .ug-slam.typed`)?.classList.add('done')
   const live = useRef({ go, arrive, padOnto, toPad }); live.current = { go, arrive, padOnto, toPad }
 
   const els = (): DiveEls => ({ shaft: shaft.current!, streaks: streaks.current.filter(Boolean) as HTMLDivElement[], ug: ug.current!, inner: inner.current! })
@@ -640,6 +660,10 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
       let cur: string | null = null
       r.querySelectorAll<HTMLElement>('[data-sec]').forEach((s) => { const b = s.getBoundingClientRect(); if (b.top <= innerHeight * 0.5 && b.bottom > innerHeight * 0.5) cur = s.dataset.sec ?? null })
       if (cur) setChapter(FLOW[cur]?.name ?? '')
+      r.querySelectorAll<HTMLElement>('.ug-slam.typed:not(.done)').forEach((h) => {
+        const id = h.closest<HTMLElement>('[data-sec]')?.dataset.sec
+        if (inView(h) && (id !== where.current || (g && g.mode !== 'type' && g.mode !== 'spring'))) h.classList.add('done')
+      })
       if (!g || busy.current) return
       const pend = pending.current
       if (pend && pend === where.current && (g.mode === 'rest' || g.mode === 'morph')) {
@@ -653,7 +677,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
         } }
       }
       if (!cur || cur === where.current) return
-      if (['free', 'hop', 'drag', 'pin', 'off'].includes(g.mode)) return
+      if (['free', 'hop', 'drag', 'pin', 'off', 'spring', 'type', 'zoom'].includes(g.mode)) return
       // only move once the dot is out of sight, so a quick peek doesn't steal it
       const anchor = g.mode === 'hidden' ? r.querySelector('[data-agent-win]') : g.box ? g.box.el : g.at
       if (inView(anchor)) return
@@ -692,7 +716,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
             <p className="ug-lede">Press the dot. It will walk you through my work, the things I like, an idea I keep coming back to, my résumé, and how to reach me.</p>
           </section>
           <Work root={ug} scrollV={scrollV} />
-          <Likes root={ug} />
+          <Design root={ug} />
           <Play root={ug} box={box} boxInv={boxInv} />
           <Agent root={ug} run={agentRun} onDone={handBack} />
           <Resume root={ug} />
