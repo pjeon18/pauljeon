@@ -223,7 +223,28 @@ function Slam({ text, on, slot, delay = 0, typed = false }: { text: string; on: 
     </span>
   )
 }
-const Pad = ({ id }: { id: string }) => <div className="ug-next"><div className="ug-pad" data-pad={id} /></div>
+/** where the dot becomes the next button. It is a real button underneath, so Tab and Enter walk the same path */
+const Pad = ({ id }: { id: string }) => {
+  const label = FLOW[id]?.pad?.label ?? 'Next'
+  return <div className="ug-next"><button type="button" className="ug-pad" data-pad={id} aria-label={id === 'contact' ? label : `Next: ${label}`} /></div>
+}
+
+/** runs a rAF loop only while the element is on screen inside the underground */
+function useVisibleLoop(el: React.RefObject<HTMLElement>, root: React.RefObject<HTMLElement>, tick: () => void) {
+  const fn = useRef(tick); fn.current = tick
+  useEffect(() => {
+    const e = el.current
+    if (!e) return
+    let raf = 0, on = false
+    const loop = () => { fn.current(); raf = requestAnimationFrame(loop) }
+    const io = new IntersectionObserver(([x]) => {
+      if (x.isIntersecting && !on) { on = true; raf = requestAnimationFrame(loop) }
+      else if (!x.isIntersecting && on) { on = false; cancelAnimationFrame(raf) }
+    }, { root: root.current })
+    io.observe(e)
+    return () => { io.disconnect(); cancelAnimationFrame(raf) }
+  }, [el, root])
+}
 
 const hrefOf = (c: Card) => (c.slug ? `/work/${c.slug}` : c.page ? c.page : c.href ?? c.demo?.href ?? '#')
 const internal = (c: Card) => !!(c.slug || c.page)
@@ -238,31 +259,25 @@ function Work({ root, scrollV }: { root: React.RefObject<HTMLDivElement>; scroll
   const track = useRef<HTMLDivElement>(null)
   const words = useRef<HTMLDivElement>(null)
   const list = cards.filter((c) => c.image || c.icon)
-  useEffect(() => {
-    let raf = 0, skew = 0
-    const tick = () => {
-      const r = root.current, s = sec.current, tr = track.current
-      if (r && s && tr && innerWidth > 880) {
-        const top = s.getBoundingClientRect().top
-        const span = s.offsetHeight - r.clientHeight
-        const p = clamp(-top / Math.max(1, span))
-        const max = tr.scrollWidth - innerWidth + 80
-        skew += (clamp(scrollV.current * 0.012, -14, 14) - skew) * 0.12
-        tr.style.transform = `translate3d(${-p * max}px,0,0) skewX(${-skew}deg)`
-        if (words.current) words.current.style.transform = `translate3d(${p * 900 - 450}px,0,0)`
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [root, scrollV])
+  const skew = useRef(0)
+  useVisibleLoop(sec, root, () => {
+    const r = root.current, s = sec.current, tr = track.current
+    if (!r || !s || !tr || innerWidth <= 880) return
+    const top = s.getBoundingClientRect().top
+    const span = s.offsetHeight - r.clientHeight
+    const p = clamp(-top / Math.max(1, span))
+    const max = tr.scrollWidth - innerWidth + 80
+    skew.current += (clamp(scrollV.current * 0.012, -14, 14) - skew.current) * 0.12
+    tr.style.transform = `translate3d(${-p * max}px,0,0) skewX(${-skew.current}deg)`
+    if (words.current) words.current.style.transform = `translate3d(${p * 900 - 450}px,0,0)`
+  })
   return (
     <section ref={sec} className="ug-work" style={{ height: `${list.length * 30 + 110}vh` }} data-sec="work" data-tone="dark">
       <div className="ug-pin">
         <div ref={words} className="ug-bigword" aria-hidden="true">WORK WORK WORK WORK</div>
         <h2 className="ug-h" aria-label="Work"><span className="ug-word">Work<i className="ug-slot" data-slot="work" /></span></h2>
         <div ref={track} className="ug-track">
-          {list.map((c) => {
+          {list.map((c, i) => {
             const body = (
               <>
                 <div className="ug-card-pic"><img src={c.image ?? c.icon} alt="" loading="lazy" /></div>
@@ -270,8 +285,8 @@ function Work({ root, scrollV }: { root: React.RefObject<HTMLDivElement>; scroll
               </>
             )
             return internal(c)
-              ? <Link key={c.id} to={hrefOf(c)} className="ug-card">{body}</Link>
-              : <a key={c.id} href={hrefOf(c)} target="_blank" rel="noreferrer" className="ug-card">{body}</a>
+              ? <Link key={c.id} to={hrefOf(c)} className="ug-card" data-card={i}>{body}</Link>
+              : <a key={c.id} href={hrefOf(c)} target="_blank" rel="noreferrer" className="ug-card" data-card={i}>{body}</a>
           })}
         </div>
         <Pad id="work" />
@@ -293,24 +308,19 @@ const IDEAS = [
 ]
 function Design({ root }: { root: React.RefObject<HTMLDivElement> }) {
   const els = useRef<(HTMLDivElement | null)[]>([])
-  useEffect(() => {
-    let raf = 0
-    const tick = () => {
-      const cs = els.current
-      cs.forEach((c, i) => {
-        const nx = cs[i + 1]
-        if (!c || !nx) return
-        const q = clamp(1 - (nx.getBoundingClientRect().top - c.getBoundingClientRect().top) / 420)
-        c.style.transform = `scale(${1 - q * 0.05})`
-        c.style.filter = `brightness(${1 - q * 0.14})`
-      })
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [root])
+  const sec = useRef<HTMLElement>(null)
+  useVisibleLoop(sec, root, () => {
+    const cs = els.current
+    cs.forEach((c, i) => {
+      const nx = cs[i + 1]
+      if (!c || !nx) return
+      const q = clamp(1 - (nx.getBoundingClientRect().top - c.getBoundingClientRect().top) / 420)
+      c.style.transform = `scale(${1 - q * 0.05})`
+      c.style.filter = `brightness(${1 - q * 0.14})`
+    })
+  })
   return (
-    <section className="ug-likes" data-sec="design" data-tone="light">
+    <section ref={sec} className="ug-likes" data-sec="design" data-tone="light">
       <h2 className="ug-h"><Slam text="My design philosophy" on={false} typed slot="design" /></h2>
       <div className="ug-stack">
         {IDEAS.map((l, i) => (
@@ -558,6 +568,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
     const g = guide.current
     if (!g || busy.current) return
     if (next === 'up') { upRef.current(); return }
+    if (next.startsWith('open:')) { q<HTMLElement>(`[data-card="${next.slice(5)}"]`).click(); return }
     seq.current++; where.current = next
     const slot = q<HTMLElement>(`[data-slot="${next}"]`)
     if (REDUCED()) { slot.scrollIntoView({ block: 'center' }); revealTyped(next); g.placeOn(slot); arrive(next); return }
@@ -705,6 +716,47 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
     return () => { cancelAnimationFrame(raf); clearInterval(iv) }
   }, [])
 
+  // the real buttons under the dot: a click or Enter goes where the dot would
+  useEffect(() => {
+    const r = ug.current
+    if (!r) return
+    const click = (e: MouseEvent) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('.ug-pad, .ug-start')
+      if (!b) return
+      e.preventDefault()
+      if (b.classList.contains('ug-start')) { live.current.go('work'); return }
+      const id = b.dataset.pad ?? ''
+      const nx = FLOW[id]?.pad?.next
+      if (nx) live.current.go(nx)
+    }
+    r.addEventListener('click', click)
+    return () => r.removeEventListener('click', click)
+  }, [])
+
+  // in Work, the dot hops onto the card you point at and becomes its Open button
+  useEffect(() => {
+    const r = ug.current
+    if (!r) return
+    let hovered: HTMLElement | null = null, t = 0
+    const sync = () => {
+      const g = guide.current
+      if (!g || busy.current || where.current !== 'work' || pending.current) return
+      if (g.mode !== 'rest' && g.mode !== 'morph') { window.clearTimeout(t); t = window.setTimeout(sync, 140); return }
+      const pic = hovered?.querySelector<HTMLElement>('.ug-card-pic') ?? null
+      if (pic) { if (g.at !== pic) g.onto(pic, 'pill', 'Open', `open:${hovered!.dataset.card}`) }
+      else { const pad = r.querySelector<HTMLElement>('[data-pad="work"]'); if (pad && g.at !== pad && g.at?.closest('.ug-card')) live.current.padOnto('work') }
+    }
+    const over = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      const c = (e.target as HTMLElement).closest<HTMLElement>('.ug-card')
+      if (c === hovered) return
+      if (c) { hovered = c; window.clearTimeout(t); sync() }
+      else { hovered = null; window.clearTimeout(t); t = window.setTimeout(sync, 260) }
+    }
+    r.addEventListener('pointerover', over)
+    return () => { r.removeEventListener('pointerover', over); window.clearTimeout(t) }
+  }, [])
+
   const handBack = useCallback((x: number, y: number) => {
     const g = guide.current
     if (!g || where.current !== 'agent' || g.mode !== 'hidden') return
@@ -721,8 +773,8 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
       <div ref={ug} className={`ug ${landed ? 'landed' : ''}`} role="dialog" aria-label="About Me">
         <div ref={inner}>
           <section className="ug-land" data-sec="land" data-tone="dark">
-            <h1 aria-label="About Me">About Me<i className="ug-slot" data-slot="land" /></h1>
-            <p className="ug-lede">Press the dot. It will walk you through my work, the things I like, an idea I keep coming back to, my résumé, and how to reach me.</p>
+            <h1 aria-label="About Me">About Me<i className="ug-slot" data-slot="land"><button type="button" className="ug-start" aria-label="Start the walkthrough" /></i></h1>
+            <p className="ug-lede">Press the dot. It will walk you through my work, my design philosophy, an idea I keep coming back to, my résumé, and how to reach me.</p>
           </section>
           <Work root={ug} scrollV={scrollV} />
           <Design root={ug} />
