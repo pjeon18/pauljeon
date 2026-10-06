@@ -18,7 +18,10 @@ body.ug-hovering, body.ug-hovering * { cursor: pointer !important; }
 .ug-inv { position: fixed; inset: 0; z-index: 892; pointer-events: none; background: #fff; mix-blend-mode: difference; opacity: 0; }
 .ug-slot { display: inline-block; width: 0; height: 0; vertical-align: baseline; }
 .ug-next { margin-top: 9vh; height: 130px; display: flex; align-items: center; }
-.ug-pad { width: 240px; height: 120px; }
+.ug-pad { display: block; width: 240px; height: 120px; padding: 0; border: 0; background: none; border-radius: 99px; cursor: pointer; }
+.ug-pad:focus-visible, .ug-start:focus-visible { outline: 3px solid #12A150; outline-offset: 6px; }
+.ug-slot:has(.ug-start) { position: relative; }
+.ug-start { position: absolute; left: calc(0.115em - 30px); top: calc(-0.085em - 30px); width: 60px; height: 60px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; font-size: inherit; }
 
 /* the arrow on the surface */
 .ug-arrow {

@@ -111,6 +111,10 @@ export class Guide {
   onClick: ((next: string) => void) | null = null
   private raf = 0; private last = 0; private acc = 0; private drag: { hist: { x: number; y: number; t: number }[] } | null = null
   private off: (() => void)[] = []
+  focused: HTMLElement | null = null          // a pad or the start button, focused from the keyboard
+  private sections: HTMLElement[] = []
+  private toneCache: { n: number; tone: Tone } = { n: 0, tone: 'dark' }
+  private drawn: { s: number; from: Shape | null; to: Shape | null; fx: boolean } = { s: -1, from: null, to: null, fx: true }
 
   constructor(els: Els) {
     this.els = els
@@ -123,6 +127,10 @@ export class Guide {
       if (this.drag) this.dragMove(e)
     }
     const click = (e: MouseEvent) => { if (this.over(e.clientX, e.clientY) && this.next) { e.preventDefault(); e.stopPropagation(); this.onClick?.(this.next) } }
+    const fin = (e: FocusEvent) => { this.focused = (e.target as HTMLElement).closest<HTMLElement>('.ug-pad, .ug-start') }
+    const fout = () => { this.focused = null }
+    root.addEventListener('focusin', fin); root.addEventListener('focusout', fout)
+    this.off.push(() => { root.removeEventListener('focusin', fin); root.removeEventListener('focusout', fout) })
     const down = (e: PointerEvent) => this.dragStart(e)
     const up = () => this.dragEnd()
     window.addEventListener('pointermove', move); window.addEventListener('click', click, true)
@@ -454,21 +462,28 @@ export class Guide {
   }
 
   /* ---- drawing ---- */
+  /** which band the dot is over; measured every fourth frame, which is plenty */
   private tone(yv: number): Tone {
-    for (const s of this.els.root.querySelectorAll<HTMLElement>('[data-tone]')) {
-      const r = s.getBoundingClientRect()
-      if (yv >= r.top && yv < r.bottom) return s.dataset.tone as Tone
-    }
-    return 'dark'
+    if (this.toneCache.n-- > 0) return this.toneCache.tone
+    if (!this.sections.length) this.sections = [...this.els.root.querySelectorAll<HTMLElement>('[data-tone]')]
+    let tone: Tone = 'dark'
+    for (const s of this.sections) { const r = s.getBoundingClientRect(); if (yv >= r.top && yv < r.bottom) { tone = s.dataset.tone as Tone; break } }
+    this.toneCache = { n: 3, tone }
+    return tone
   }
   private draw() {
     const { g, path, fx, label } = this.els
     if (this.mode === 'off' || this.mode === 'hidden') { g.style.opacity = '0'; label.style.opacity = '0'; fx.innerHTML = ''; return }
     g.style.opacity = '1'
     const sx = this.x, sy = this.y - this.top, k = this.s
-    let d = ''
-    for (let i = 0; i < N; i++) { const x = this.from.pts[i * 2] + (this.to.pts[i * 2] - this.from.pts[i * 2]) * k, y = this.from.pts[i * 2 + 1] + (this.to.pts[i * 2 + 1] - this.from.pts[i * 2 + 1]) * k; d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) }
-    path.setAttribute('d', d + 'Z')
+    // the outline only changes while it morphs; a dot at rest skips the rebuild
+    const D = this.drawn
+    if (D.from !== this.from || D.to !== this.to || Math.abs(D.s - k) > 0.0005) {
+      let d = ''
+      for (let i = 0; i < N; i++) { const x = this.from.pts[i * 2] + (this.to.pts[i * 2] - this.from.pts[i * 2]) * k, y = this.from.pts[i * 2 + 1] + (this.to.pts[i * 2 + 1] - this.from.pts[i * 2 + 1]) * k; d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) }
+      path.setAttribute('d', d + 'Z')
+      D.from = this.from; D.to = this.to; D.s = k
+    }
     const zooming = this.mode === 'zoom'
     const hh = zooming ? 0 : (this.from.h + (this.to.h - this.from.h) * k) / 2
     const pinned = this.mode === 'pin'
@@ -505,7 +520,10 @@ export class Guide {
     const restFill = light ? INK : PAPER
     if (this.mode !== 'morph' && this.mode !== 'start') this.hover = false
     const moving = flying && !pinned && speed > 260
-    const fill = this.hover ? GREEN : moving ? (tone === 'red' ? INK : RED) : restFill
+    // keyboard focus on the button the dot has become reads the same as a hover
+    const focusHit = !!this.focused && ((this.mode === 'morph' && this.focused === this.at) || (this.mode === 'start' && this.focused.classList.contains('ug-start')))
+    const hot = this.hover || focusHit
+    const fill = hot ? GREEN : moving ? (tone === 'red' ? INK : RED) : restFill
     path.setAttribute('fill', zooming || this.mode === 'charge' || this.boost > 0 ? RED : fill)
     if (pinned) path.setAttribute('fill', this.pinColor)
 
@@ -513,7 +531,7 @@ export class Guide {
     if (label.textContent !== lab) label.textContent = lab
     const la = this.mode === 'morph' ? clamp((k - 0.55) / 0.45) : 0
     label.style.opacity = String(la)
-    label.style.color = this.hover ? '#fff' : fill === INK ? PAPER : INK
+    label.style.color = hot ? '#fff' : fill === INK ? PAPER : INK
     label.style.transform = `translate(${sx + (this.to.dx || 0) - label.offsetWidth / 2}px, ${sy - 13}px) scale(${0.85 + 0.15 * la})`
 
     if (speed > 1100 && flying && !pinned) this.ghosts.unshift({ x: this.x, y: this.y }); else this.ghosts.pop()
@@ -524,7 +542,8 @@ export class Guide {
     // potential energy: rings drawn in toward the dot while it charges
     this.inward.forEach((r) => { const e = r.t / 0.45; f += `<circle cx="${this.x}" cy="${this.y - this.top}" r="${R + (1 - e) * 90}" fill="none" stroke="${RED}" stroke-width="${1 + e * 2.5}" opacity="${e * 0.8}"/>` })
     this.parts.forEach((p) => { f += `<circle cx="${p.x}" cy="${p.y - this.top}" r="${p.r * (1 - p.t / 0.7)}" fill="${RED}"/>` })
-    fx.innerHTML = f
+    if (f || D.fx) fx.innerHTML = f
+    D.fx = !!f
   }
   /** the dive sets this as the light changes, so the dot always reads */
   pinColor = INK

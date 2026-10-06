@@ -223,8 +223,8 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       cam.vx += ((tx - cam.x) * cam.k - cam.vx * cam.d) * dt; cam.x += cam.vx * dt
       cam.vy += ((ty - cam.y) * cam.k - cam.vy * cam.d) * dt; cam.y += cam.vy * dt
       cam.vz += ((cam.tz - cam.z) * cam.kz - cam.vz * cam.dz) * dt; cam.z += cam.vz * dt
-      camApply()
-      paintBg()
+      // the home is hidden while the underground is open: keep the clock, skip the paint
+      if (!document.body.classList.contains('ug-open')) { camApply(); paintBg() }
       camRaf = requestAnimationFrame(camLoop)
     }
     if (!reduced) camRaf = requestAnimationFrame(camLoop)
