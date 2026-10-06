@@ -27,6 +27,8 @@ const mix = (a: string, b: string, t: number) => {
 // the dot describes only what is not obvious from the label: leaving the
 // site, opening Mail, or a promise that is not kept yet.
 function describe(a: HTMLAnchorElement): { say: string; sub: string } | null {
+  // links that something else already explains (the underground's guide dot) stay quiet
+  if (a.closest('[data-quiet]')) return null
   if (a.dataset.say) return { say: a.dataset.say, sub: a.dataset.sub || '' }
   if (a.hasAttribute('data-soon')) return { say: 'Not ready yet', sub: '' }
   const href = a.getAttribute('href') || ''

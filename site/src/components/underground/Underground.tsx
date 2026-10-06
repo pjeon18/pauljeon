@@ -285,8 +285,8 @@ function Work({ root, scrollV }: { root: React.RefObject<HTMLDivElement>; scroll
               </>
             )
             return internal(c)
-              ? <Link key={c.id} to={hrefOf(c)} className="ug-card" data-card={i}>{body}</Link>
-              : <a key={c.id} href={hrefOf(c)} target="_blank" rel="noreferrer" className="ug-card" data-card={i}>{body}</a>
+              ? <Link key={c.id} to={hrefOf(c)} className="ug-card" data-card={i} data-quiet>{body}</Link>
+              : <a key={c.id} href={hrefOf(c)} target="_blank" rel="noreferrer" className="ug-card" data-card={i} data-quiet data-ext>{body}</a>
           })}
         </div>
         <Pad id="work" />
@@ -743,7 +743,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
       if (!g || busy.current || where.current !== 'work' || pending.current) return
       if (g.mode !== 'rest' && g.mode !== 'morph') { window.clearTimeout(t); t = window.setTimeout(sync, 140); return }
       const pic = hovered?.querySelector<HTMLElement>('.ug-card-pic') ?? null
-      if (pic) { if (g.at !== pic) g.onto(pic, 'pill', 'Open', `open:${hovered!.dataset.card}`) }
+      if (pic) { if (g.at !== pic) g.onto(pic, 'pill', hovered!.hasAttribute('data-ext') ? 'Visit site' : 'Open', `open:${hovered!.dataset.card}`) }
       else { const pad = r.querySelector<HTMLElement>('[data-pad="work"]'); if (pad && g.at !== pad && g.at?.closest('.ug-card')) live.current.padOnto('work') }
     }
     const over = (e: PointerEvent) => {
