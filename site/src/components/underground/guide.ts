@@ -104,7 +104,8 @@ export class Guide {
   charging: { t: number; dur: number } | null = null
   boost = 0                                   // seconds of extra bounce left after a launch
   inward: { t: number }[] = []
-  private get e() { return this.boost > 0 ? 0.95 : E }
+  private get e() { return this.boost > 0 ? 0.85 : E }
+  private lastWave = 0
   userScrolled = 0
   t = 0
   onClick: ((next: string) => void) | null = null
@@ -304,6 +305,10 @@ export class Guide {
     if (speed > 520) this.rings.push({ x, y, t: 0, s: Math.min(1.6, speed / 1600) })
     if (speed > 1500) for (let i = 0; i < 7; i++) this.parts.push({ x, y: y - 2, vx: (Math.random() - 0.5) * 900, vy: -300 - Math.random() * 700, t: 0, r: 2.5 + Math.random() * 2 })
     if (quiet || speed < 380) return
+    // never invert more than once every 0.4s, however fast it is hitting things
+    const now = performance.now()
+    if (now - this.lastWave < 400) return
+    this.lastWave = now
     if (this.box) wave(this.box.inv, x, y - this.top, true)
     else wave(this.els.inv, x, y - this.top, false)
   }
@@ -365,10 +370,10 @@ export class Guide {
       if (Math.floor((C.t - dt) / 0.11) !== Math.floor(C.t / 0.11)) this.inward.push({ t: 0 })
       if (C.t >= C.dur) {
         // release: up and across, hard enough to find every shape and wall
-        this.charging = null; this.mode = 'free'; this.grounded = false; this.boost = 3.4
+        this.charging = null; this.mode = 'free'; this.grounded = false; this.boost = 2.4
         const b = this.box?.el.getBoundingClientRect(), right = b ? this.x < b.left + b.width / 2 : true
         const a = -Math.PI / 2 + (right ? 0.62 : -0.62)
-        this.vx = Math.cos(a) * 4300; this.vy = Math.sin(a) * 4300
+        this.vx = Math.cos(a) * 3000; this.vy = Math.sin(a) * 3000
         this.q = -0.4; this.qv = 0
         this.rings.push({ x: this.x, y: this.y, t: 0, s: 2.2 })
         for (let i = 0; i < 16; i++) { const t = (i / 16) * Math.PI * 2; this.parts.push({ x: this.x, y: this.y, vx: Math.cos(t) * 900, vy: Math.sin(t) * 900 - 200, t: 0, r: 3 + Math.random() * 2 }) }
@@ -386,15 +391,15 @@ export class Guide {
         this.hits++
         // 'bounce' keeps bouncing and inverts the light; 'one' gives a single soft bounce and stops
         if (sp > 70 && !(this.style === 'one' && !this.box && this.hits > 1)) {
-          this.vy = -Math.min(sp * (this.style === 'one' && !this.box ? 0.3 : this.e), this.boost > 0 ? 4200 : 1700); this.impact(sp, this.x, this.y + R, (!!this.box && this.boost <= 0) || this.style === 'one'); this.vx *= 0.9
+          this.vy = -Math.min(sp * (this.style === 'one' && !this.box ? 0.3 : this.e), this.boost > 0 ? 4200 : 1700); this.impact(sp, this.x, this.y + R, !!this.box || this.style === 'one'); this.vx *= 0.9
         } else { if (sp > 70) this.impact(sp * 0.5, this.x, this.y + R, true); this.vy = 0; this.grounded = true }
       } else this.grounded = false
       if (this.steerX !== null && this.vy >= 0 && this.y > this.floorY - 30) this.vx += ((this.steerX - this.x) * 60 - this.vx * 11) * dt
       if (this.grounded && this.steerX === null) this.vx *= Math.pow(0.02, dt)
       if (walls) {
-        if (this.x < walls.l) { this.x = walls.l; if (this.vx < 0) { this.impact(-this.vx, this.x - R, this.y, this.boost <= 0); this.vx = -this.vx * this.e } }
-        if (this.x > walls.r) { this.x = walls.r; if (this.vx > 0) { this.impact(this.vx, this.x + R, this.y, this.boost <= 0); this.vx = -this.vx * this.e } }
-        if (this.y < walls.t) { this.y = walls.t; if (this.vy < 0) { this.impact(-this.vy, this.x, this.y - R, this.boost <= 0); this.vy = -this.vy * this.e } }
+        if (this.x < walls.l) { this.x = walls.l; if (this.vx < 0) { this.impact(-this.vx, this.x - R, this.y, true); this.vx = -this.vx * this.e } }
+        if (this.x > walls.r) { this.x = walls.r; if (this.vx > 0) { this.impact(this.vx, this.x + R, this.y, true); this.vx = -this.vx * this.e } }
+        if (this.y < walls.t) { this.y = walls.t; if (this.vy < 0) { this.impact(-this.vy, this.x, this.y - R, true); this.vy = -this.vy * this.e } }
         this.box?.el.querySelectorAll<HTMLElement>('.ug-ob').forEach((o) => this.collide(o))
         if (this.grounded && Math.abs(this.vx) < 8 && this.boost <= 0) { this.boxStill += dt; if (this.boxStill > 2.2) { this.boxStill = 0; const f = this.onBoxIdle; this.clearBoxInv(); this.box = null; this.onBoxIdle = null; f?.() } }
         else this.boxStill = 0
