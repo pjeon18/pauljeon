@@ -283,12 +283,15 @@ function Work({ root, scrollV }: { root: React.RefObject<HTMLDivElement>; scroll
 /** Paul's design philosophy, as cards that stack up as you scroll. */
 const IDEAS = [
   { t: 'Design for someone specific', p: 'When you design for everyone, you end up designing for no one. I look for one group’s specific pain point and design for that.', bg: '#0B0B0A', fg: '#F5F2EC' },
-  { t: 'Let the values show', p: 'What a product refuses to do, how it paces itself, and how it treats people should all be visible in the interface.', bg: '#E02B1D', fg: '#fff' },
-  { t: 'One idea at a time', p: 'I show ideas in order, each at the same size, instead of stacking labels, captions and chips on top of each other.', bg: '#fff', fg: '#0B0B0A' },
-  { t: 'Big type, lots of room', p: 'Large, readable text and generous space. Never a giant header over tiny grey text.', bg: '#12A150', fg: '#fff' },
-  { t: 'Color with a job', p: 'A few colors, and each one means something. Here red is moving, green is go.', bg: '#0B0B0A', fg: '#F5F2EC' },
-  { t: 'Motion with weight', p: 'Things should move like they have mass, with momentum and a little overshoot. Feedback is instant and ambient light stays calm.', bg: '#E02B1D', fg: '#fff' },
-  { t: 'Plain words', p: 'Say what the thing is. No slogans and no filler.', bg: '#fff', fg: '#0B0B0A' },
+  { t: 'Hick’s Law', p: 'Every extra choice makes a decision slower. I cut options until the next step is obvious.', bg: '#E02B1D', fg: '#fff' },
+  { t: 'Occam’s Razor', p: 'If two designs solve the problem, I ship the one with fewer parts.', bg: '#fff', fg: '#0B0B0A' },
+  { t: 'Goodhart’s Law', p: 'When a measure becomes a target, it stops being a good measure. I track whether people are actually helped, not the number that is easiest to push up.', bg: '#12A150', fg: '#fff' },
+  { t: 'Let the values show', p: 'What a product refuses to do, how it paces itself, and how it treats people should all be visible in the interface.', bg: '#0B0B0A', fg: '#F5F2EC' },
+  { t: 'One idea at a time', p: 'I show ideas in order, each at the same size, instead of stacking labels, captions and chips on top of each other.', bg: '#E02B1D', fg: '#fff' },
+  { t: 'Big type, lots of room', p: 'Large, readable text and generous space. Never a giant header over tiny grey text.', bg: '#fff', fg: '#0B0B0A' },
+  { t: 'Color with a job', p: 'A few colors, and each one means something. Here red is moving, green is go.', bg: '#12A150', fg: '#fff' },
+  { t: 'Motion with weight', p: 'Things should move like they have mass, with momentum and a little overshoot. Feedback is instant and ambient light stays calm.', bg: '#0B0B0A', fg: '#F5F2EC' },
+  { t: 'Plain words', p: 'Say what the thing is. No slogans and no filler.', bg: '#E02B1D', fg: '#fff' },
 ]
 function Design({ root }: { root: React.RefObject<HTMLDivElement> }) {
   const els = useRef<(HTMLDivElement | null)[]>([])
