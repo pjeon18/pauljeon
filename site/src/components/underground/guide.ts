@@ -1,0 +1,402 @@
+// ============================================================================
+// The guide dot. One physics loop drives the dot through the underground:
+// free fall, bounces that invert the light, ballistic hops between targets,
+// a spring morph into whatever button comes next, and a camera that follows
+// it down. Ported from the dot sandbox and adapted to a scrolling layer.
+//
+// Coordinates: x is in viewport pixels (the layer never scrolls sideways),
+// y is in content pixels (viewport y + the layer's scrollTop). Targets are
+// re-measured every frame, so sticky headings and resizes are tracked.
+// ============================================================================
+
+export type Kind = 'dot' | 'pill' | 'circle' | 'square' | 'tag' | 'triangle'
+type Tone = 'dark' | 'light' | 'red'
+interface Shape { pts: Float32Array; w: number; h: number; dx: number; label: string }
+interface Pt { x: number; y: number }
+
+export const R = 12
+const N = 120
+const G = 2800, E = 0.62
+const PAPER = '#F5F2EC', INK = '#0B0B0A', RED = '#E02B1D', GREEN = '#12A150'
+const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v))
+
+/* ---------------- shapes, sampled as rays from the center ---------------- */
+const meas = typeof document !== 'undefined' ? document.createElement('canvas').getContext('2d') : null
+const textW = (t: string) => { if (!meas) return t.length * 10; meas.font = "700 19px Satoshi, system-ui, sans-serif"; return meas.measureText(t).width }
+const sdfRR = (x: number, y: number, w: number, h: number, r: number) => { const qx = Math.abs(x) - w / 2 + r, qy = Math.abs(y) - h / 2 + r; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r }
+const sdfPoly = (p: number[][], round: number) => (x: number, y: number) => { let d = -1e9; for (let i = 0; i < p.length; i++) { const [ax, ay] = p[i], [bx, by] = p[(i + 1) % p.length], l = Math.hypot(bx - ax, by - ay); d = Math.max(d, ((x - ax) * (by - ay) - (y - ay) * (bx - ax)) / l) } return d - round }
+function sample(sdf: (x: number, y: number) => number) {
+  const out = new Float32Array(N * 2)
+  for (let i = 0; i < N; i++) {
+    const a = -Math.PI / 2 + (i / N) * Math.PI * 2, c = Math.cos(a), s = Math.sin(a)
+    let lo = 0, hi = 600
+    for (let k = 0; k < 28; k++) { const m = (lo + hi) / 2; if (sdf(c * m, s * m) > 0) hi = m; else lo = m }
+    out[i * 2] = c * lo; out[i * 2 + 1] = s * lo
+  }
+  return out
+}
+const cache = new Map<string, Shape>()
+export function shape(kind: Kind, label = '', r = R): Shape {
+  const key = `${kind}|${label}|${r.toFixed(1)}`
+  const hit = cache.get(key)
+  if (hit) return hit
+  const tw = textW(label)
+  let sdf: (x: number, y: number) => number = (x, y) => Math.hypot(x, y) - r, w = 2 * r, h = 2 * r, dx = 0
+  if (kind === 'pill') { w = tw + 66; h = 62; sdf = (x, y) => sdfRR(x, y, w, h, 31) }
+  if (kind === 'circle') { const c = Math.max(50, tw / 2 + 24); w = h = 2 * c; sdf = (x, y) => Math.hypot(x, y) - c }
+  if (kind === 'square') { const s = Math.max(100, tw + 42); w = h = s; sdf = (x, y) => sdfRR(x, y, s, s, 24) }
+  if (kind === 'tag') { w = tw + 96; h = 62; const hw = w / 2; sdf = sdfPoly([[-hw + 10, -21], [hw - 36, -21], [hw - 12, 0], [hw - 36, 21], [-hw + 10, 21]], 10); dx = -12 }
+  if (kind === 'triangle') { const c = 70; const p = [0, 1, 2].map((i) => [Math.cos(i * 2 * Math.PI / 3) * c * 0.82, Math.sin(i * 2 * Math.PI / 3) * c * 0.82]); sdf = sdfPoly(p, 13); w = c * 1.5; h = c * 1.73; dx = -9 }
+  const s = { pts: sample(sdf), w, h, dx, label }
+  cache.set(key, s)
+  return s
+}
+export const clearShapes = () => cache.clear()
+
+/* ---------------- color inversion waves ---------------- */
+interface WaveEl extends HTMLElement { _raf?: number }
+export function wave(el: WaveEl, x: number, y: number, local: boolean, force?: boolean) {
+  const on = force ?? el.dataset.on !== '1'
+  el.dataset.on = on ? '1' : '0'
+  const rect = local ? el.getBoundingClientRect() : { left: 0, top: 0, width: innerWidth, height: innerHeight }
+  const cx = x - rect.left, cy = y - rect.top
+  const far = Math.hypot(Math.max(cx, rect.width - cx), Math.max(cy, rect.height - cy)) + 20
+  const t0 = performance.now(), D = 640
+  el.style.opacity = '1'
+  cancelAnimationFrame(el._raf ?? 0)
+  const step = (now: number) => {
+    const k = Math.min(1, (now - t0) / D), r = (1 - Math.pow(1 - k, 4)) * far
+    const m = on ? `radial-gradient(circle at ${cx}px ${cy}px, #000 ${r}px, transparent ${r + 1}px)` : `radial-gradient(circle at ${cx}px ${cy}px, transparent ${r}px, #000 ${r + 1}px)`
+    el.style.webkitMaskImage = el.style.maskImage = m
+    if (k < 1) el._raf = requestAnimationFrame(step)
+    else { el.style.webkitMaskImage = el.style.maskImage = 'none'; el.style.opacity = on ? '1' : '0' }
+  }
+  el._raf = requestAnimationFrame(step)
+}
+
+/* ---------------- the guide ---------------- */
+type Mode = 'off' | 'pin' | 'rest' | 'start' | 'free' | 'hop' | 'morph' | 'hidden' | 'drag'
+interface Hop { x0: number; y0: number; vx: number; vy: number; T: number; t: number; to: () => Pt; tx: number; ty: number; after?: () => void }
+interface Box { el: HTMLElement; inv: WaveEl }
+export interface Els { root: HTMLDivElement; g: SVGGElement; path: SVGPathElement; fx: SVGGElement; label: HTMLDivElement; inv: WaveEl }
+
+export class Guide {
+  els: Els
+  x = 0; y = 0; vx = 0; vy = 0; mode: Mode = 'off'
+  floorY = 0; steerX: number | null = null; grounded = false; still = 0; onRest: (() => void) | null = null; follow = false
+  hop: Hop | null = null
+  at: HTMLElement | null = null           // the element the dot is resting on or morphed onto
+  anchor: (() => Pt) | null = null        // where it is held while it rests
+  next: string | null = null              // where clicking the morphed button goes
+  from: Shape = shape('dot'); to: Shape = shape('dot'); s = 1; sv = 0; sT = 1
+  q = 0; qv = 0; hover = false
+  ghosts: Pt[] = []; parts: { x: number; y: number; vx: number; vy: number; t: number; r: number }[] = []; rings: { x: number; y: number; t: number; s: number }[] = []
+  box: Box | null = null; boxStill = 0; onBoxIdle: (() => void) | null = null
+  pinSpeed = 0
+  userScrolled = 0
+  t = 0
+  onClick: ((next: string) => void) | null = null
+  private raf = 0; private last = 0; private acc = 0; private drag: { hist: { x: number; y: number; t: number }[] } | null = null
+  private off: (() => void)[] = []
+
+  constructor(els: Els) {
+    this.els = els
+    const root = els.root
+    const scrolled = () => { this.userScrolled = performance.now() }
+    root.addEventListener('wheel', scrolled, { passive: true }); root.addEventListener('touchmove', scrolled, { passive: true })
+    const move = (e: PointerEvent) => {
+      this.hover = this.over(e.clientX, e.clientY)
+      document.body.classList.toggle('ug-hovering', this.hover)
+      if (this.drag) this.dragMove(e)
+    }
+    const click = (e: MouseEvent) => { if (this.over(e.clientX, e.clientY) && this.next) { e.preventDefault(); e.stopPropagation(); this.onClick?.(this.next) } }
+    const down = (e: PointerEvent) => this.dragStart(e)
+    const up = () => this.dragEnd()
+    window.addEventListener('pointermove', move); window.addEventListener('click', click, true)
+    root.addEventListener('pointerdown', down); window.addEventListener('pointerup', up)
+    this.off.push(() => { root.removeEventListener('wheel', scrolled); root.removeEventListener('touchmove', scrolled); window.removeEventListener('pointermove', move); window.removeEventListener('click', click, true); root.removeEventListener('pointerdown', down); window.removeEventListener('pointerup', up); document.body.classList.remove('ug-hovering') })
+    this.last = performance.now()
+    const loop = (now: number) => {
+      const dt = Math.min(0.05, (now - this.last) / 1000); this.last = now; this.acc += dt
+      while (this.acc >= 1 / 240) { this.step(1 / 240); this.acc -= 1 / 240 }
+      this.camera(); this.draw()
+      this.raf = requestAnimationFrame(loop)
+    }
+    this.raf = requestAnimationFrame(loop)
+  }
+  destroy() { cancelAnimationFrame(this.raf); this.off.forEach((f) => f()) }
+
+  /* ---- measuring ---- */
+  get top() { return this.els.root.scrollTop }
+  center(el: Element): Pt { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 + this.top } }
+  /** the period position after a heading: a zero-size box whose top is the baseline */
+  slot(el: Element): Pt & { r: number } {
+    const b = el.getBoundingClientRect(), fs = parseFloat(getComputedStyle(el.parentElement ?? el).fontSize) || 80
+    const r = clamp(fs * 0.085, 10, 26)
+    return { x: b.left + r + fs * 0.03, y: b.top - r + this.top, r }
+  }
+  private over(cx: number, cy: number) {
+    if (this.mode === 'start') return Math.hypot(cx - this.x, cy - (this.y - this.top)) < Math.max(34, this.to.w)
+    if (this.mode !== 'morph' || this.s < 0.6 || !this.next) return false
+    const x = cx - this.x, y = cy - (this.y - this.top)
+    return Math.abs(x) < this.to.w / 2 + 6 && Math.abs(y) < this.to.h / 2 + 6
+  }
+
+  /* ---- moves ---- */
+  setShape(to: Shape, instant = false) { this.from = this.current(); this.to = to; this.s = instant ? 1 : 0; this.sv = 0; this.sT = 1; if (instant) this.from = to }
+  current(): Shape {
+    const pts = new Float32Array(N * 2), k = this.s
+    for (let i = 0; i < N * 2; i++) pts[i] = this.from.pts[i] + (this.to.pts[i] - this.from.pts[i]) * k
+    return { pts, w: this.from.w + (this.to.w - this.from.w) * k, h: this.from.h + (this.to.h - this.from.h) * k, dx: 0, label: '' }
+  }
+  private loose() { this.clearBoxInv(); this.at?.classList.remove('under'); this.at = null; this.anchor = null; this.next = null; this.box = null; if (this.to.label || this.to.w > 2 * R + 1) this.setShape(shape('dot')) }
+
+  /** hold the dot somewhere in the viewport (used by the dive) */
+  pin(x: number, y: number, speed = 0, r = R) {
+    if (this.mode !== 'pin') { this.loose(); this.mode = 'pin' }
+    this.x = x; this.y = y + this.top; this.pinSpeed = speed
+    if (Math.abs(this.to.w / 2 - r) > 0.2) this.setShape(shape('dot', '', r), true)
+  }
+  hide() { this.loose(); this.mode = 'hidden' }
+  showAt(xv: number, yv: number) { this.mode = 'rest'; this.x = xv; this.y = yv + this.top; this.vx = this.vy = 0; this.setShape(shape('dot'), true) }
+
+  /** a ballistic hop that lands on a (possibly moving) point */
+  hopTo(to: () => Pt, arc: number, after?: () => void) {
+    this.loose()
+    const p = to()
+    const h = Math.max(0, this.y - p.y) + arc
+    const vy = -Math.sqrt(2 * G * h)
+    const T = (-vy + Math.sqrt(vy * vy + 2 * G * (p.y - this.y))) / G
+    this.hop = { x0: this.x, y0: this.y, vx: (p.x - this.x) / T, vy, T, t: 0, to, tx: p.x, ty: p.y, after }
+    this.mode = 'hop'; this.follow = false
+  }
+  /** hop onto a pad and become its button */
+  onto(el: HTMLElement, kind: Kind, label: string, next: string) {
+    this.hopTo(() => this.center(el), 90, () => {
+      this.at = el; el.classList.add('under'); this.anchor = () => this.center(el); this.next = next
+      this.setShape(shape(kind, label)); this.mode = 'morph'
+    })
+  }
+  /** become the period after a heading */
+  settle(el: HTMLElement) {
+    const p = this.slot(el)
+    this.at = el; this.anchor = () => this.slot(el)
+    if (Math.abs(this.to.w / 2 - p.r) > 0.5) this.setShape(shape('dot', '', p.r))
+  }
+  /** throw the dot at a heading: it flies, falls in, bounces, and lands as the period */
+  throwTo(el: HTMLElement, follow: boolean, after?: () => void) {
+    this.loose()
+    const t = this.slot(el)
+    const h = Math.max(0, this.y - t.y) + 160
+    this.vy = -Math.sqrt(2 * G * h)
+    const T = (-this.vy + Math.sqrt(this.vy * this.vy + 2 * G * (t.y - this.y))) / G
+    this.vx = (t.x - this.x) / T
+    this.free(() => this.slot(el), follow, () => { this.settle(el); after?.() })
+  }
+  /** no motion: put the dot straight onto a pad as its button */
+  ontoNow(el: HTMLElement, kind: Kind, label: string, next: string) {
+    this.loose(); const p = this.center(el); this.x = p.x; this.y = p.y; this.vx = this.vy = 0
+    this.at = el; el.classList.add('under'); this.anchor = () => this.center(el); this.next = next
+    this.setShape(shape(kind, label), true); this.mode = 'morph'
+  }
+  /** no motion: put the dot straight onto a heading */
+  placeOn(el: HTMLElement) { this.loose(); const p = this.slot(el); this.x = p.x; this.y = p.y; this.vx = this.vy = 0; this.mode = 'rest'; this.setShape(shape('dot', '', p.r), true); this.settle(el) }
+  /** fall in from just above the viewport onto a heading or a pad */
+  dropOnto(get: () => Pt, after: () => void) {
+    this.loose()
+    const p = get()
+    this.x = p.x; this.y = this.top - 40; this.vx = 0; this.vy = 200
+    this.setShape(shape('dot'), true)
+    this.free(get, false, after)
+  }
+  private target: (() => Pt) | null = null
+  private free(get: () => Pt, follow: boolean, after: () => void) {
+    this.target = get
+    this.mode = 'free'; this.grounded = false; this.still = 0; this.follow = follow; this.onRest = after
+  }
+  /** start mode: the period of the landing headline, pulsing until it is pressed */
+  start(el: HTMLElement, next: string) { this.at = el; this.anchor = () => this.slot(el); this.next = next; this.mode = 'start' }
+  /** the play box: walls, a floor and three shapes to bounce off */
+  enterBox(el: HTMLElement, inv: WaveEl, onIdle: () => void) {
+    const b = el.getBoundingClientRect()
+    // bring the whole box on screen first; the hop tracks it while the camera glides
+    this.glideTo(this.top + b.top - Math.max(40, (innerHeight - b.height) / 2), 850)
+    this.hopTo(() => ({ x: b.left + b.width * 0.3, y: el.getBoundingClientRect().bottom + this.top - R - 2 }), 140, () => {
+      this.box = { el, inv }; this.onBoxIdle = onIdle; this.boxStill = 0
+      this.mode = 'free'; this.target = null; this.onRest = null; this.vx = 300; this.vy = -900
+    })
+  }
+
+  /* ---- dragging, inside the play box ---- */
+  private dragStart(e: PointerEvent) {
+    if (!this.box) return
+    if (Math.hypot(e.clientX - this.x, e.clientY - (this.y - this.top)) > 50) return
+    e.preventDefault()
+    this.drag = { hist: [{ x: e.clientX, y: e.clientY + this.top, t: performance.now() }] }
+    this.mode = 'drag'; this.boxStill = 0
+    try { this.els.root.setPointerCapture(e.pointerId) } catch { /* no-op */ }
+  }
+  private dragMove(e: PointerEvent) {
+    if (!this.box || !this.drag) return
+    const b = this.box.el.getBoundingClientRect()
+    this.x = clamp(e.clientX, b.left + R, b.right - R); this.y = clamp(e.clientY, b.top + R, b.bottom - R) + this.top
+    this.drag.hist.push({ x: this.x, y: this.y, t: performance.now() }); if (this.drag.hist.length > 6) this.drag.hist.shift()
+  }
+  private dragEnd() {
+    if (!this.drag) return
+    const h = this.drag.hist, a = h[0], z = h[h.length - 1], dt = Math.max(0.016, (z.t - a.t) / 1000)
+    this.vx = clamp((z.x - a.x) / dt, -4000, 4000); this.vy = clamp((z.y - a.y) / dt, -4000, 4000)
+    this.drag = null; this.mode = 'free'; this.grounded = false; this.still = 0; this.boxStill = 0
+  }
+
+  /* ---- impacts ---- */
+  private impact(speed: number, x: number, y: number, quiet = false) {
+    this.qv += Math.min(speed, 2600) * 0.0009
+    if (speed > 520) this.rings.push({ x, y, t: 0, s: Math.min(1.6, speed / 1600) })
+    if (speed > 1500) for (let i = 0; i < 7; i++) this.parts.push({ x, y: y - 2, vx: (Math.random() - 0.5) * 900, vy: -300 - Math.random() * 700, t: 0, r: 2.5 + Math.random() * 2 })
+    if (quiet || speed < 380) return
+    if (this.box) wave(this.box.inv, x, y - this.top, true)
+    else wave(this.els.inv, x, y - this.top, false)
+  }
+  /** once it comes to rest, the light goes back to normal */
+  private clearInv() { const inv = this.els.inv; if (inv.dataset.on === '1') wave(inv, this.x, this.y - this.top, false, false) }
+
+  /* ---- the loop ---- */
+  private step(dt: number) {
+    this.t += dt
+    this.sv += ((this.sT - this.s) * 340 - this.sv * 17) * dt; this.s += this.sv * dt
+    this.qv += (-this.q * 700 - this.qv * 16) * dt; this.q += this.qv * dt
+
+    if ((this.mode === 'rest' || this.mode === 'morph' || this.mode === 'start') && this.anchor) {
+      const p = this.anchor(); this.x = p.x; this.y = p.y
+    } else if (this.mode === 'hop' && this.hop) {
+      const H = this.hop; H.t += dt
+      const t = Math.min(H.t, H.T), k = t / H.T, p = H.to()
+      // correct for a target that moved while the dot was in the air
+      this.x = H.x0 + H.vx * t + (p.x - H.tx) * k; this.y = H.y0 + H.vy * t + 0.5 * G * t * t + (p.y - H.ty) * k
+      this.vx = H.vx; this.vy = H.vy + G * t
+      if (H.t >= H.T) { const sp = this.vy; this.vx = this.vy = 0; this.mode = 'rest'; this.hop = null; this.impact(sp * 0.6, this.x, this.y + R, true); H.after?.() }
+    } else if (this.mode === 'free') {
+      // a target that moves (a sticky heading while you scroll) carries a dot that is sitting on it
+      if (this.target) { const p = this.target(); if (this.grounded) this.y += p.y - this.floorY; this.floorY = p.y; this.steerX = p.x } else this.steerX = null
+      let walls: { l: number; r: number; t: number } | null = null
+      if (this.box) { const b = this.box.el.getBoundingClientRect(); walls = { l: b.left + R, r: b.right - R, t: b.top + this.top + R }; this.floorY = b.bottom + this.top - R }
+      this.vy += G * dt; this.x += this.vx * dt; this.y += this.vy * dt
+      if (this.y >= this.floorY) {
+        this.y = this.floorY
+        const sp = this.vy
+        if (sp > 70) { this.vy = -Math.min(sp * E, 1700); this.impact(sp, this.x, this.y + R); this.vx *= 0.9 } else { this.vy = 0; this.grounded = true }
+      } else this.grounded = false
+      if (this.steerX !== null && this.vy >= 0 && this.y > this.floorY - 30) this.vx += ((this.steerX - this.x) * 60 - this.vx * 11) * dt
+      if (this.grounded && this.steerX === null) this.vx *= Math.pow(0.02, dt)
+      if (walls) {
+        if (this.x < walls.l) { this.x = walls.l; if (this.vx < 0) { this.impact(-this.vx, this.x - R, this.y); this.vx = -this.vx * E } }
+        if (this.x > walls.r) { this.x = walls.r; if (this.vx > 0) { this.impact(this.vx, this.x + R, this.y); this.vx = -this.vx * E } }
+        if (this.y < walls.t) { this.y = walls.t; if (this.vy < 0) { this.impact(-this.vy, this.x, this.y - R); this.vy = -this.vy * E } }
+        this.box?.el.querySelectorAll<HTMLElement>('.ug-ob').forEach((o) => this.collide(o))
+        if (this.grounded && Math.abs(this.vx) < 8) { this.boxStill += dt; if (this.boxStill > 2.2) { this.boxStill = 0; const f = this.onBoxIdle; this.clearBoxInv(); this.box = null; this.onBoxIdle = null; f?.() } }
+        else this.boxStill = 0
+      } else if (this.grounded && Math.abs(this.vx) < 6 && (this.steerX === null || Math.abs(this.x - this.steerX) < 1.5)) {
+        this.still += dt
+        if (this.still > 0.22) { this.mode = 'rest'; this.vx = 0; this.follow = false; this.target = null; this.clearInv(); const f = this.onRest; this.onRest = null; f?.() }
+      } else this.still = 0
+    }
+    for (const p of this.parts) { p.t += dt; p.vy += G * dt; p.x += p.vx * dt; p.y += p.vy * dt }
+    this.parts = this.parts.filter((p) => p.t < 0.7)
+    for (const r of this.rings) r.t += dt
+    this.rings = this.rings.filter((r) => r.t < 0.55)
+  }
+  private clearBoxInv() { const b = this.box; if (b && b.inv.dataset.on === '1') wave(b.inv, this.x, this.y - this.top, true, false) }
+  private collide(o: HTMLElement) {
+    const r = o.getBoundingClientRect(), round = Math.min(parseFloat(getComputedStyle(o).borderTopLeftRadius) || 0, r.width / 2, r.height / 2)
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2 + this.top, px = this.x - cx, py = this.y - cy
+    const d = sdfRR(px, py, r.width, r.height, round) - R
+    if (d >= 0) return
+    const e = 0.5, nx = sdfRR(px + e, py, r.width, r.height, round) - sdfRR(px - e, py, r.width, r.height, round), ny = sdfRR(px, py + e, r.width, r.height, round) - sdfRR(px, py - e, r.width, r.height, round)
+    const l = Math.hypot(nx, ny) || 1, ux = nx / l, uy = ny / l
+    this.x -= ux * d; this.y -= uy * d
+    const vn = this.vx * ux + this.vy * uy
+    if (vn < 0) {
+      this.vx -= (1 + E) * vn * ux; this.vy -= (1 + E) * vn * uy
+      this.impact(-vn, this.x - ux * R, this.y - uy * R)
+      o.classList.add('hit'); window.setTimeout(() => o.classList.remove('hit'), 90)
+    }
+  }
+
+  /* ---- camera ---- */
+  private camera() {
+    if (!this.follow || performance.now() - this.userScrolled < 900) return
+    const root = this.els.root, want = clamp(this.y - innerHeight * 0.45, 0, root.scrollHeight - root.clientHeight)
+    if (Math.abs(want - root.scrollTop) > 0.5) root.scrollTop += (want - root.scrollTop) * 0.14
+  }
+  /** a glide with inertia: fast out, long settle */
+  glideTo(y: number, D = 900) {
+    const root = this.els.root, y0 = root.scrollTop, d = y - y0, t0 = performance.now()
+    const f = (now: number) => { const k = Math.min(1, (now - t0) / D); root.scrollTop = y0 + d * (1 - Math.pow(1 - k, 4)); if (k < 1) requestAnimationFrame(f) }
+    requestAnimationFrame(f)
+  }
+
+  /* ---- drawing ---- */
+  private tone(yv: number): Tone {
+    for (const s of this.els.root.querySelectorAll<HTMLElement>('[data-tone]')) {
+      const r = s.getBoundingClientRect()
+      if (yv >= r.top && yv < r.bottom) return s.dataset.tone as Tone
+    }
+    return 'dark'
+  }
+  private draw() {
+    const { g, path, fx, label } = this.els
+    if (this.mode === 'off' || this.mode === 'hidden') { g.style.opacity = '0'; label.style.opacity = '0'; fx.innerHTML = ''; return }
+    g.style.opacity = '1'
+    const sx = this.x, sy = this.y - this.top, k = this.s
+    let d = ''
+    for (let i = 0; i < N; i++) { const x = this.from.pts[i * 2] + (this.to.pts[i * 2] - this.from.pts[i * 2]) * k, y = this.from.pts[i * 2 + 1] + (this.to.pts[i * 2 + 1] - this.from.pts[i * 2 + 1]) * k; d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) }
+    path.setAttribute('d', d + 'Z')
+    const hh = (this.from.h + (this.to.h - this.from.h) * k) / 2
+    const pinned = this.mode === 'pin'
+    const speed = pinned ? this.pinSpeed : Math.hypot(this.vx, this.vy)
+    const flying = pinned || this.mode === 'hop' || this.mode === 'drag' || (this.mode === 'free' && !this.grounded)
+    const st = flying ? Math.min(pinned ? 2.4 : 0.32, speed / (pinned ? 2200 : 4200)) : 0
+    const ang = pinned ? 90 : Math.atan2(this.vy, this.vx) * 180 / Math.PI
+    let q = clamp(this.q, -0.35, 0.45), jx = 0, pulse = 1
+    if (this.mode === 'start') {
+      // the start button: it breathes, and every few seconds it shakes to be pressed
+      const c = this.t % 3.2
+      pulse = this.hover ? 1.3 : 1 + 0.1 * Math.sin(this.t * 5.2)
+      if (c > 2.6 && !this.hover) jx = Math.sin(c * 70) * 5 * (3.2 - c) / 0.6
+      if (c < 0.016) this.rings.push({ x: this.x, y: this.y, t: 0, s: 0.9 })
+      q = 0
+    }
+    const sq = pinned ? 0 : q
+    g.setAttribute('transform', `translate(${sx + jx} ${sy + hh}) scale(${(1 + sq) * pulse} ${(1 - sq) * pulse}) translate(0 ${-hh}) rotate(${ang}) scale(${1 + st} ${1 / Math.sqrt(1 + st)}) rotate(${-ang})`)
+
+    // colour: it contrasts with whatever is under it, red while it moves, green when you can go
+    const inv = this.box ? this.box.inv.dataset.on === '1' : this.els.inv.dataset.on === '1'
+    let tone: Tone = pinned ? 'light' : this.tone(sy)
+    if (this.box) tone = 'dark'
+    const light = (tone === 'light') !== inv
+    const restFill = light ? INK : PAPER
+    if (this.mode !== 'morph' && this.mode !== 'start') this.hover = false
+    const moving = flying && !pinned && speed > 260
+    const fill = this.hover ? GREEN : moving ? (tone === 'red' ? INK : RED) : restFill
+    path.setAttribute('fill', fill)
+    if (pinned) path.setAttribute('fill', this.pinColor)
+
+    const lab = this.to.label
+    if (label.textContent !== lab) label.textContent = lab
+    const la = this.mode === 'morph' ? clamp((k - 0.55) / 0.45) : 0
+    label.style.opacity = String(la)
+    label.style.color = this.hover ? '#fff' : fill === INK ? PAPER : INK
+    label.style.transform = `translate(${sx + (this.to.dx || 0) - label.offsetWidth / 2}px, ${sy - 13}px) scale(${0.85 + 0.15 * la})`
+
+    if (speed > 1100 && flying && !pinned) this.ghosts.unshift({ x: this.x, y: this.y }); else this.ghosts.pop()
+    this.ghosts.length = Math.min(this.ghosts.length, 6)
+    let f = ''
+    this.ghosts.forEach((p, i) => { if (i) f += `<circle cx="${p.x}" cy="${p.y - this.top}" r="${R * (1 - i * 0.11)}" fill="${RED}" opacity="${0.22 * (1 - i / 6)}"/>` })
+    this.rings.forEach((r) => { const e = 1 - Math.pow(1 - r.t / 0.55, 3); f += `<ellipse cx="${r.x}" cy="${r.y - this.top}" rx="${(14 + 70 * e) * r.s}" ry="${(this.mode === 'start' ? 14 + 70 * e : 4 + 16 * e) * r.s}" fill="none" stroke="${restFill}" stroke-width="2" opacity="${0.5 * (1 - r.t / 0.55)}"/>` })
+    this.parts.forEach((p) => { f += `<circle cx="${p.x}" cy="${p.y - this.top}" r="${p.r * (1 - p.t / 0.7)}" fill="${RED}"/>` })
+    fx.innerHTML = f
+  }
+  /** the dive sets this as the light changes, so the dot always reads */
+  pinColor = INK
+}
