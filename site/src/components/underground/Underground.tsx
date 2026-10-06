@@ -289,9 +289,7 @@ const IDEAS = [
   { t: 'Let the values show', p: 'What a product refuses to do, how it paces itself, and how it treats people should all be visible in the interface.', bg: '#0B0B0A', fg: '#F5F2EC' },
   { t: 'One idea at a time', p: 'I show ideas in order, each at the same size, instead of stacking labels, captions and chips on top of each other.', bg: '#E02B1D', fg: '#fff' },
   { t: 'Big type, lots of room', p: 'Large, readable text and generous space. Never a giant header over tiny grey text.', bg: '#fff', fg: '#0B0B0A' },
-  { t: 'Color with a job', p: 'A few colors, and each one means something. Here red is moving, green is go.', bg: '#12A150', fg: '#fff' },
-  { t: 'Motion with weight', p: 'Things should move like they have mass, with momentum and a little overshoot. Feedback is instant and ambient light stays calm.', bg: '#0B0B0A', fg: '#F5F2EC' },
-  { t: 'Plain words', p: 'Say what the thing is. No slogans and no filler.', bg: '#E02B1D', fg: '#fff' },
+  { t: 'Motion with weight', p: 'Things should move like they have mass, with momentum and a little overshoot. Feedback is instant and ambient light stays calm.', bg: '#12A150', fg: '#fff' },
 ]
 function Design({ root }: { root: React.RefObject<HTMLDivElement> }) {
   const els = useRef<(HTMLDivElement | null)[]>([])
