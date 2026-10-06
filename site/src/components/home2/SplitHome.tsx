@@ -47,7 +47,9 @@ export default function SplitHome() {
   const [gone, setGone] = useState(!boot)
   // the first visit of a session opens with the trailer, after the drop.
   // Later mounts get the light tour, and the period replays it on click.
-  const mode: 'trailer' | 'tour' = sessionBoot ? 'trailer' : 'tour'
+  // the trailer only plays on the two-pane layout; arming it on a phone would
+  // leave the page framed on the period at 7x with nothing to pull it back
+  const mode: 'trailer' | 'tour' = sessionBoot && tourComing ? 'trailer' : 'tour'
   // the guide waits for the boot choreography to settle. Starting it earlier
   // would have it circling a headline that is still sliding into place.
   const [guide, setGuide] = useState(false)
@@ -87,7 +89,7 @@ export default function SplitHome() {
 
   return (
     <>
-    <div className={'sh-page' + (boot ? '' : ' sh-ready') + (returning ? ' sh-return' : '') + (sessionBoot ? ' sh-trailer' : '')}>
+    <div className={'sh-page' + (boot ? '' : ' sh-ready') + (returning ? ' sh-return' : '') + (mode === 'trailer' ? ' sh-trailer' : '')}>
       {!gone && sessionBoot && (
         <SplashDrop onReveal={() => setBoot(false)} onDone={() => setGone(true)} />
       )}

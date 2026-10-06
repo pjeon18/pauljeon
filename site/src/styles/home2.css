@@ -329,10 +329,6 @@ body.sh-lock { overflow: hidden; }
 .dl-overlay { position: fixed; inset: 0; z-index: 999; pointer-events: none; }
 .dl-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .dl-dark { fill: #131210; }
-.dl-rim { fill: none; stroke: #2a2723; stroke-width: 10; }
-/* the liquid sits on its own layer in difference mode, so a droplet reads white
-   over the dark and dark over the page it flies onto */
-.dl-fx { z-index: 1000; mix-blend-mode: difference; }
 .dl-ink { fill: #FDFDFB; }
 .dl-ring { fill: none; stroke: #FDFDFB; stroke-width: 2; opacity: 0; }
 
