@@ -99,6 +99,9 @@ body.ug-hovering, body.ug-hovering * { cursor: pointer !important; }
 .ug-ob span { font: 900 21px/1 'Satoshi', system-ui, sans-serif; letter-spacing: -0.02em; color: #0B0B0A; opacity: 0; transform: scale(0.4); transition: opacity 0.4s, transform 0.4s; white-space: nowrap; }
 .ug-ob.pop { background: var(--neon); border-color: var(--neon); box-shadow: 0 0 34px color-mix(in srgb, var(--neon) 70%, transparent); transition: background 0.08s, border-color 0.08s, box-shadow 0.2s; }
 .ug-ob.pop span { opacity: 1; transform: scale(1); transition: opacity 0.12s, transform 0.45s cubic-bezier(0.34, 1.8, 0.64, 1); }
+.ug-launch { position: absolute; right: 18px; top: 18px; z-index: 3; height: 44px; padding: 0 20px; border-radius: 99px; border: 1.5px solid rgba(245, 242, 236, 0.5); background: rgba(11, 11, 10, 0.6); color: #F5F2EC; font: 700 18px 'Satoshi', system-ui, sans-serif; cursor: pointer; transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.ug-launch:hover { background: #E02B1D; border-color: #E02B1D; color: #fff; transform: scale(1.06); }
+.ug-launch:active { transform: scale(0.94); }
 .ug-box-inv { position: absolute; inset: 0; background: #fff; mix-blend-mode: difference; opacity: 0; pointer-events: none; }
 
 /* the agent */
