@@ -741,20 +741,23 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
     const sync = () => {
       const g = guide.current
       if (!g || busy.current || where.current !== 'work' || pending.current) return
-      if (g.mode !== 'rest' && g.mode !== 'morph') { window.clearTimeout(t); t = window.setTimeout(sync, 140); return }
+      // only once the dot has settled as Work's button (or is already on a card), never mid-arrival
+      const settled = g.mode === 'morph' && !!g.at && (g.at.dataset.pad === 'work' || !!g.at.closest('.ug-card'))
+      if (!settled) { if (hovered) { window.clearTimeout(t); t = window.setTimeout(sync, 160) } return }
       const pic = hovered?.querySelector<HTMLElement>('.ug-card-pic') ?? null
       if (pic) { if (g.at !== pic) g.onto(pic, 'pill', hovered!.hasAttribute('data-ext') ? 'Visit site' : 'Open', `open:${hovered!.dataset.card}`) }
       else { const pad = r.querySelector<HTMLElement>('[data-pad="work"]'); if (pad && g.at !== pad && g.at?.closest('.ug-card')) live.current.padOnto('work') }
     }
     const over = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse') return
+      // a real hand on the mouse: cards sliding under a still cursor don't count
+      if (e.pointerType !== 'mouse' || (e.movementX === 0 && e.movementY === 0)) return
       const c = (e.target as HTMLElement).closest<HTMLElement>('.ug-card')
       if (c === hovered) return
       if (c) { hovered = c; window.clearTimeout(t); sync() }
       else { hovered = null; window.clearTimeout(t); t = window.setTimeout(sync, 260) }
     }
-    r.addEventListener('pointerover', over)
-    return () => { r.removeEventListener('pointerover', over); window.clearTimeout(t) }
+    r.addEventListener('pointermove', over)
+    return () => { r.removeEventListener('pointermove', over); window.clearTimeout(t) }
   }, [])
 
   const handBack = useCallback((x: number, y: number) => {
