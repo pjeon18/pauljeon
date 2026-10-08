@@ -682,7 +682,7 @@ button { font-family: inherit; }
 .cursor-dot[data-mode='magnet'] { background: rgba(18, 17, 16, 0.18) !important; box-shadow: 0 0 0 1px rgba(18, 17, 16, 0.12); }
 .cursor-glyph { position: fixed; top: 0; left: 0; z-index: 2147483001; pointer-events: none; width: 20px; height: 20px; display: grid; place-items: center; color: #fff; }
 .cursor-glyph svg { grid-area: 1 / 1; opacity: 0; transform: scale(0.4); transition: opacity 160ms ease, transform 360ms var(--sp-pop, ease); }
-.cursor-glyph[data-mode='play'] .g-play, .cursor-glyph[data-mode='grip'] .g-grip { opacity: 1; transform: none; }
+.cursor-glyph[data-mode='play'] .g-play, .cursor-glyph[data-mode='grip'] .g-grip, .cursor-glyph[data-mode='close'] .g-close { opacity: 1; transform: none; }
 .cursor-glyph .g-play { margin-left: 1px; }
 /* the dwell ring: the dot visibly deciding to speak */
 .cursor-ring { position: fixed; left: 0; top: 0; width: 36px; height: 36px; pointer-events: none; z-index: 2147482999; opacity: 0; transition: opacity 120ms ease; }
