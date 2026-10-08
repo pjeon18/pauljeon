@@ -509,3 +509,29 @@ html.sh-wave .sh-trailer .sh-intro h1 .ch {
   animation-delay: calc(var(--li, 0) * 46ms), calc(160ms + var(--li, 0) * 46ms) !important;
 }
 @media (prefers-reduced-motion: reduce) { html.sh-wave .guide-dot { animation: none; } }
+
+/* ---------------------------------------------------------------------------
+   An open card takes the whole page. The pane stops clipping so the panel can
+   reach back over the intro, and the left side falls back the same way the
+   arc does on the right: faded, softly blurred, eased back a touch.
+   --------------------------------------------------------------------------- */
+@media (min-width: 881px) {
+  .af-pane { transition: none; }
+  .af-pane.af-popped { overflow: visible; z-index: 3; }
+  .sh-left { transition: opacity 520ms ease, filter 520ms ease, transform 800ms var(--sp-glide, cubic-bezier(0.22, 1, 0.36, 1)); }
+  .sh-cam:has(.af-popped) .sh-left { opacity: 0.07; filter: blur(3px); transform: translateX(-24px) scale(0.97); pointer-events: none; }
+  .guide-dot, .ug-arrow { transition: opacity 420ms ease; }
+  .sh-cam:has(.af-popped) .guide-dot, .sh-page:has(.af-popped) .ug-arrow { opacity: 0 !important; pointer-events: none; }
+  /* bigger type to match the bigger layout */
+  .af-popped .af-panel-kicker { font-size: 16px; }
+  .af-popped .af-panel-title { font-size: clamp(30px, 2.6vw, 42px); margin: 10px 0 24px; }
+  .af-popped .af-tab-label { font-size: 19px; padding: 15px 20px; }
+  .af-popped .af-tab-body p { font-size: 15px; line-height: 1.6; }
+  .af-popped .af-tab.on .af-tab-body { max-height: 320px; padding: 0 20px 18px; }
+  .af-popped .af-link { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) { .sh-left { transition: none; } }
+
+/* opening a case study: the card lifts toward you, the panel steps aside */
+.af-launch .af-out .af-slide { transform: translateY(-8px) scale(1.035); transition: transform 220ms cubic-bezier(0.3, 0.9, 0.35, 1); }
+.af-launch .af-panel { opacity: 0; transform: translateY(-50%) translateX(-30px); transition: opacity 200ms ease, transform 260ms ease; }

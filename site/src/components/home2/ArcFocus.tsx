@@ -72,7 +72,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   // so the page's hero has a card to morph back into. It lets go a beat later.
   const [pos, setPos] = useState(dockIndex ?? HOME_CARD)
   const [popped, setPoppedRaw] = useState(dockIndex !== null)
-  const [pane, setPane] = useState({ w: 0, h: 900 })
+  const [pane, setPane] = useState({ w: 0, h: 900, l: 0 })
   const snapRaf = useRef(0)
   const reduced = useMemo(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -104,9 +104,11 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   useEffect(() => {
     const el = paneRef.current
     if (!el) return
-    const ro = new ResizeObserver(() => setPane({ w: el.clientWidth, h: el.clientHeight }))
+    // l: how far the pane sits from the page's left edge, so an open card can use the whole page
+    const read = () => setPane({ w: el.clientWidth, h: el.clientHeight, l: el.offsetLeft })
+    const ro = new ResizeObserver(read)
     ro.observe(el)
-    setPane({ w: el.clientWidth, h: el.clientHeight })
+    read()
     return () => ro.disconnect()
   }, [])
 
@@ -123,10 +125,16 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   const narrow = pane.w > 0 && window.innerWidth <= 880
   const over = narrow ? R - pane.w / 2 : OVERHANG
   const shift = narrow ? 0 : ARC_SHIFT
-  const popW = narrow ? Math.min(300, pane.w * 0.62) : Math.min(400, Math.max(280, pane.w * 0.34))
-  const panelW = narrow ? pane.w - DOCK_PAD * 2 : Math.round(Math.max(180, pane.w - DOCK_PAD * 2 - DOCK_GAP - popW))
+  // Open, the card and its panel use the whole page, not just the right pane:
+  // the pair is laid out across the full width and centred, the panel
+  // reaching back over the faded intro on the left.
+  const fullW = pane.w + (pane.l || 0)
+  const gap = narrow ? DOCK_GAP : Math.round(Math.min(96, Math.max(DOCK_GAP, fullW * 0.05)))
+  const popW = narrow ? Math.min(300, pane.w * 0.62) : Math.round(Math.min(520, Math.max(300, fullW * 0.3), (pane.h * 0.74) / (302 / 264)))
+  const panelW = narrow ? pane.w - DOCK_PAD * 2 : Math.round(Math.min(600, Math.max(260, fullW - 160 - gap - popW)))
+  const groupLeft = narrow ? DOCK_PAD : Math.round((fullW - (panelW + gap + popW)) / 2) - (pane.l || 0)
   const popLift = popW / (CARD_W * S)
-  const dockCenterX = narrow ? pane.w / 2 : DOCK_PAD + panelW + DOCK_GAP + popW / 2
+  const dockCenterX = narrow ? pane.w / 2 : groupLeft + panelW + gap + popW / 2
   // dock translate lives inside the scaled arc: invert shift + scale
   const dockT = (dockCenterX - shift - (pane.w + over) + R) / S - R
 
@@ -526,7 +534,7 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
       </div>
 
       {/* switch-on-hover tabs for the pulled card */}
-      <div className="af-panel" style={{ width: panelW, left: DOCK_PAD }} aria-hidden={!popped}>
+      <div className="af-panel" style={{ width: panelW, left: narrow ? DOCK_PAD : groupLeft }} aria-hidden={!popped}>
         <div className="af-panel-kicker">{activeCard.when} · {activeCard.meta}</div>
         <h2 className="af-panel-title">{activeCard.title}</h2>
         <div className="af-tabs">
@@ -556,7 +564,16 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
                           if (!d.startViewTransition) return
                           e.preventDefault()
                           markArrival()
-                          d.startViewTransition(() => { flushSync(() => navigate(l.href)) })
+                          // a beat of anticipation: the card lifts toward you and the panel
+                          // steps aside, then the page recedes as the case study arrives
+                          const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                          paneRef.current?.classList.add('af-launch')
+                          window.setTimeout(() => {
+                            document.documentElement.classList.add('vt-case')
+                            const vt = d.startViewTransition!(() => { flushSync(() => navigate(l.href)) }) as unknown as { finished?: Promise<void> } | undefined
+                            const clear = () => document.documentElement.classList.remove('vt-case')
+                            if (vt?.finished) vt.finished.then(clear, clear); else window.setTimeout(clear, 1200)
+                          }, reduce ? 0 : 200)
                         }}>
                           {l.label} <span className="arr">→</span>
                         </Link>
