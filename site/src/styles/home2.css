@@ -485,3 +485,20 @@ body.sh-lock { overflow: hidden; }
 .mf-peeking .mf-peek { transform: translateY(-20px) rotate(-9deg); opacity: 1; }
 .mf-open .mf-peek { display: none; }
 .mf-folder-front { z-index: 1; }
+
+/* ---------------------------------------------------------------------------
+   The trailer's last shot holds on the whole headline. A wave runs through it
+   letter by letter (each one lifts a little and settles, offset from the one
+   before), the period answers last, and a soft sheen crosses the words.
+   --------------------------------------------------------------------------- */
+@keyframes shWave { 0%, 100% { translate: 0 0; } 38% { translate: 0 -0.075em; } 70% { translate: 0 0.012em; } }
+@keyframes shWaveDot { 0%, 100% { translate: 0 0; } 38% { translate: 0 -3px; } 70% { translate: 0 0.5px; } }
+@keyframes shSheen { from { background-position: 135% 0; } to { background-position: -35% 0; } }
+html.sh-wave .guide-dot { animation: shWaveDot 900ms cubic-bezier(0.37, 0, 0.25, 1) 560ms both; }
+/* the sheen rides the same wave: each letter catches the light in turn, a beat behind its lift */
+@keyframes shGlint { 0%, 100% { color: #121110; } 45% { color: #6b665d; } }
+html.sh-wave .sh-trailer .sh-intro h1 .ch {
+  animation: shWave 900ms cubic-bezier(0.37, 0, 0.25, 1) both, shGlint 760ms ease-in-out both !important;
+  animation-delay: calc(var(--li, 0) * 46ms), calc(160ms + var(--li, 0) * 46ms) !important;
+}
+@media (prefers-reduced-motion: reduce) { html.sh-wave .guide-dot { animation: none; } }

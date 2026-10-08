@@ -162,7 +162,8 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     const cam = { x: innerWidth / 2, y: innerHeight / 2, z: 1, vx: 0, vy: 0, vz: 0,
                   tx: innerWidth / 2, ty: innerHeight / 2, tz: 1,
                   k: CAM.follow.k, d: CAM.follow.d, kz: CAM_KZ, dz: CAM_DZ,
-                  sx: innerWidth / 2, sy: innerHeight / 2 }   // where the look point lands on screen
+                  sx: innerWidth / 2, sy: innerHeight / 2,     // where the look point lands on screen
+                  free: false }                                // true lets one shot frame past the page edge
     const camSpring = (sp: Spring) => { cam.k = sp.k; cam.d = sp.d }
     // The room's light: a pool of the lighter tone where the camera looks,
     // falling off to the deeper one, tightening as the camera goes in. It is
@@ -207,7 +208,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     const camApply = () => {
       const W = innerWidth, H = innerHeight
       const hx = W / (2 * cam.z), hy = H / (2 * cam.z)
-      const x = Math.max(hx, Math.min(W - hx, cam.x)), y = Math.max(hy, Math.min(H - hy, cam.y))
+      const x = cam.free ? cam.x : Math.max(hx, Math.min(W - hx, cam.x)), y = cam.free ? cam.y : Math.max(hy, Math.min(H - hy, cam.y))
       const idle = Math.abs(cam.z - 1) < 0.0005 && Math.abs(x - W / 2) < 0.05 && Math.abs(y - H / 2) < 0.05
       camEl.style.transform = idle ? '' : `translate(${W / 2 - x * cam.z}px,${H / 2 - y * cam.z}px) scale(${cam.z})`
       cam.sx = W / 2 + (cam.x - x) * cam.z; cam.sy = H / 2 + (cam.y - y) * cam.z
@@ -219,7 +220,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       const dt = Math.min(0.05, (now - camLast) / 1000); camLast = now
       const W = innerWidth, H = innerHeight
       const hx = W / (2 * cam.tz), hy = H / (2 * cam.tz)
-      const tx = Math.max(hx, Math.min(W - hx, cam.tx)), ty = Math.max(hy, Math.min(H - hy, cam.ty))
+      const tx = cam.free ? cam.tx : Math.max(hx, Math.min(W - hx, cam.tx)), ty = cam.free ? cam.ty : Math.max(hy, Math.min(H - hy, cam.ty))
       cam.vx += ((tx - cam.x) * cam.k - cam.vx * cam.d) * dt; cam.x += cam.vx * dt
       cam.vy += ((ty - cam.y) * cam.k - cam.vy * cam.d) * dt; cam.y += cam.vy * dt
       cam.vz += ((cam.tz - cam.z) * cam.kz - cam.vz * cam.dz) * dt; cam.z += cam.vz * dt
@@ -487,14 +488,42 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       const finish = () => {
         S.touring = false
         if (kind !== 'trailer') { camReset(); setBg(CREAM_PAIR); return }
-        // the dot is home. Stay with it a beat, so the ending feels settled,
-        // then drift back to the whole page on a slow zoom.
+        // the dot is home. The camera lifts off it onto the whole headline,
+        // centred, while a wave runs through the letters and a sheen crosses
+        // them; then it drifts back to the whole page on a slow zoom.
+        const h1 = document.querySelector<HTMLElement>('.sh-intro h1')
+        let hc: P | null = null
+        if (h1) {
+          const r = textRect(h1), a = toPage(r.left, r.top), b = toPage(r.right, r.bottom)
+          hc = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+          cam.free = true
+          camSpring(CAM.glide); cam.kz = 7; cam.dz = 5.2
+          cam.tx = hc.x; cam.ty = hc.y
+          cam.tz = Math.min(4.2, (innerWidth * 0.66) / Math.max(1, b.x - a.x))
+          window.setTimeout(() => document.documentElement.classList.add('sh-wave'), 420)
+        }
         settleT = window.setTimeout(() => {
           settleT = 0
-          camSpring(CAM.glide); cam.kz = 6; cam.dz = 4.6
-          camReset(); setBg(CREAM_PAIR)
+          setBg(CREAM_PAIR)
           document.body.classList.remove('guide-trailer')
-        }, 1100)
+          const done = () => { cam.free = false; camSnap(); document.documentElement.classList.remove('sh-wave') }
+          if (!hc) { camSpring(CAM.glide); cam.kz = 6; cam.dz = 4.6; camReset(); window.setTimeout(done, 1600); return }
+          // one continuous pull-back: the headline stays the anchor while the
+          // zoom eases out in log space and it slides home to its corner
+          const H = hc, z0 = cam.z, W2 = innerWidth / 2, H2 = innerHeight / 2
+          const q0 = { x: W2 + (H.x - cam.x) * z0, y: H2 + (H.y - cam.y) * z0 }
+          const t0 = performance.now(), D = 1700
+          const io = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+          const step = (now: number) => {
+            if (S.cancelled) return
+            const e = io(Math.min(1, (now - t0) / D)), z = Math.pow(z0, 1 - e)
+            const qx = q0.x + (H.x - q0.x) * e, qy = q0.y + (H.y - q0.y) * e
+            cam.z = cam.tz = z; cam.vx = cam.vy = cam.vz = 0
+            cam.x = cam.tx = H.x - (qx - W2) / z; cam.y = cam.ty = H.y - (qy - H2) / z
+            if (e < 1) requestAnimationFrame(step); else done()
+          }
+          requestAnimationFrame(step)
+        }, 2600)
       }
       const frame = (now: number) => {
         if (!S.touring) return
@@ -548,6 +577,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     // any real intent from the visitor wins, and the dot eases home
     const abort = () => {
       S.cancelled = true
+      cam.free = false; document.documentElement.classList.remove('sh-wave')
       disarm()
       if (settleT) {
         window.clearTimeout(settleT); settleT = 0
