@@ -213,10 +213,14 @@ body.sh-lock { overflow: hidden; }
 /* switch-on-hover tabs panel */
 .af-panel {
   position: absolute; top: 50%; transform: translateY(-50%) translateX(-14px);
-  max-height: 86vh; overflow-y: auto;
+  max-height: 86vh; overflow-y: auto; overflow-x: hidden;
+  /* room for the selected tab's pointer, which sits just past the edge */
+  padding-right: 12px; box-sizing: content-box;
+  scrollbar-width: none;
   opacity: 0; pointer-events: none;
   transition: opacity 260ms ease 80ms, transform 620ms var(--sp-snap, cubic-bezier(0.22, 1, 0.36, 1)) 80ms;
 }
+.af-panel::-webkit-scrollbar { display: none; }
 .af-popped .af-panel { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
 .af-panel-kicker {
   font-family: 'Sentient', Georgia, serif; font-style: italic;
