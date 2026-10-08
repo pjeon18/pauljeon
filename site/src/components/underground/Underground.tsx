@@ -130,6 +130,11 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
       if (f) {
         const fo = focusAt(f, focusK), yb = H - f.O.y
         f.home.style.transform = `translateY(${-D + crouchY}px) translateY(${yb * (1 - k)}px) scaleY(${k}) ${fo.t}`
+        // the page has no edges: its paper runs out past the screen in every
+        // direction, so the fall reads as open space rather than a sheet of
+        // paper sliding away, and the whole world fades into the dark together
+        if (!f.home.style.boxShadow) f.home.style.boxShadow = '0 0 0 220vmax #FDFDFB'
+        f.home.style.opacity = String(1 - smooth(0.25, 0.7, depth))
         if (phase === 'focus') guide.pin(fo.x, fo.y, 0, f.r0 + (R - f.r0) * focusK)
         else guide.pin(cx, cy + crouchY, speed)
       } else guide.pin(cx, cy + crouchY, speed)
@@ -139,6 +144,7 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
     } else {
       el.ug.style.transformOrigin = '50% 0'
       el.ug.style.transform = `translateY(${D + crouchY}px) scaleY(${k})`
+      el.ug.style.opacity = String(1 - smooth(0.05, 0.5, depth))     // no dark slab sliding off a white shaft
       guide.pin(cx, cy + crouchY, speed)
     }
     streaks.forEach((s) => {
@@ -642,7 +648,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
       stop(); g.destroy(); guide.current = null
       document.body.classList.remove('ug-open')
       const h = document.querySelector<HTMLElement>('.sh-page')
-      if (h) { h.style.transform = ''; h.style.visibility = ''; h.style.clipPath = '' }
+      if (h) { h.style.transform = ''; h.style.visibility = ''; h.style.clipPath = ''; h.style.boxShadow = ''; h.style.opacity = '' }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -664,6 +670,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
     const climb = () => {
       // home waits, focused on its period and not drawn yet
       f.home.style.visibility = ''
+      f.home.style.boxShadow = ''; f.home.style.opacity = ''
       f.home.style.transformOrigin = '0 0'
       f.home.style.transform = zoomAt(f, 0).t
       f.home.style.clipPath = `circle(0px at ${f.P.x}px ${f.P.y}px)`
@@ -720,21 +727,38 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
         } }
       }
       if (!cur || cur === where.current) return
-      if (['free', 'hop', 'drag', 'pin', 'off', 'spring', 'type', 'zoom', 'charge'].includes(g.mode)) return
-      // only move once the dot is out of sight, so a quick peek doesn't steal it
-      const anchor = g.mode === 'hidden' ? r.querySelector('[data-agent-win]') : g.box ? g.box.el : g.at
-      if (inView(anchor)) return
+      if (['drag', 'pin', 'off', 'charge'].includes(g.mode)) return
+      const vy = g.y - g.top
+      if (['free', 'hop', 'spring', 'type', 'zoom'].includes(g.mode)) {
+        // mid-flight: let it finish unless you scrolled it out of sight yourself.
+        // A guided move (the camera following the dot) is never interrupted.
+        if (g.follow || performance.now() - g.userScrolled > 1200) return
+        if (vy > -60 && vy < innerHeight + 60) return
+      } else {
+        // at rest: only move once the dot is out of sight, so a quick peek doesn't steal it
+        const anchor = g.mode === 'hidden' ? r.querySelector('[data-agent-win]') : g.box ? g.box.el : g.at
+        if (inView(anchor) && !(g.mode === 'rest' && !g.at && g.anchor)) return
+      }
       const id: string = cur
       const pad = r.querySelector<HTMLElement>(`[data-pad="${id}"]`), slot = r.querySelector<HTMLElement>(`[data-slot="${id}"]`)
       const p = FLOW[id]?.pad
       seq.current++; where.current = id; pending.current = null
+      // a dot left far behind comes in from the edge you scrolled away from, not across the whole page
+      if (g.mode === 'hidden') g.showAt(innerWidth * 0.1, vy < 0 ? -40 : innerHeight + 40)
+      else if (vy < -innerHeight * 0.6) g.y = g.top - 60
+      else if (vy > innerHeight * 1.6) g.y = g.top + innerHeight + 60
       if (pad && p && inView(pad) && !(slot && inView(slot))) {
         if (REDUCED()) { g.ontoNow(pad, p.kind, p.label, p.next); return }
-        g.dropOnto(() => g.center(pad), () => live.current.padOnto(id))
+        g.springTo(() => g.center(pad), () => live.current.padOnto(id), false)
       } else if (slot && inView(slot)) {
         if (REDUCED()) { g.placeOn(slot); live.current.arrive(id); return }
-        g.dropOnto(() => g.slot(slot), () => { g.settle(slot); live.current.arrive(id) })
-      } else where.current = '?'
+        g.springTo(() => g.slot(slot), () => { g.settle(slot); live.current.arrive(id) }, false)
+      } else {
+        // the middle of a long part: ride along in the corner until its button comes up
+        const corner = () => ({ x: Math.max(36, innerWidth * 0.04), y: g.top + innerHeight * 0.86 })
+        pending.current = FLOW[id]?.pad ? id : null
+        g.springTo(corner, () => g.hold(corner), false)
+      }
     }, 250)
     return () => { cancelAnimationFrame(raf); clearInterval(iv) }
   }, [])
@@ -776,7 +800,8 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
       if (e.pointerType !== 'mouse' || (e.movementX === 0 && e.movementY === 0)) return
       const c = (e.target as HTMLElement).closest<HTMLElement>('.ug-card')
       if (c === hovered) return
-      if (c) { hovered = c; window.clearTimeout(t); sync() }
+      // a deliberate hover only: the dot waits until the pointer has settled on a card
+      if (c) { hovered = c; window.clearTimeout(t); t = window.setTimeout(sync, 380) }
       else { hovered = null; window.clearTimeout(t); t = window.setTimeout(sync, 260) }
     }
     r.addEventListener('pointermove', over)

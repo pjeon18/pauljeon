@@ -170,7 +170,7 @@ export class Guide {
     for (let i = 0; i < N * 2; i++) pts[i] = this.from.pts[i] + (this.to.pts[i] - this.from.pts[i]) * k
     return { pts, w: this.from.w + (this.to.w - this.from.w) * k, h: this.from.h + (this.to.h - this.from.h) * k, dx: 0, label: '' }
   }
-  private loose() { this.clearBoxInv(); this.at?.classList.remove('under'); this.at = null; this.anchor = null; this.next = null; this.box = null; if (this.to.label || this.to.w > 2 * R + 1) this.setShape(shape('dot')) }
+  private loose() { this.typing = null; this.zoom = null; this.zk = 1; this.clearBoxInv(); this.at?.classList.remove('under'); this.at = null; this.anchor = null; this.next = null; this.box = null; if (this.to.label || this.to.w > 2 * R + 1) this.setShape(shape('dot')) }
 
   /** hold the dot somewhere in the viewport (used by the dive) */
   pin(x: number, y: number, speed = 0, r = R) {
@@ -214,6 +214,8 @@ export class Guide {
     this.vx = (t.x - this.x) / T
     this.free(() => this.slot(el), follow, () => { this.settle(el); after?.() }, style)
   }
+  /** keep the dot at a fixed spot on screen while you scroll (riding along through a long section) */
+  hold(get: () => Pt) { this.loose(); this.anchor = get; this.mode = 'rest' }
   /** no motion: put the dot straight onto a pad as its button */
   ontoNow(el: HTMLElement, kind: Kind, label: string, next: string) {
     this.loose(); const p = this.center(el); this.x = p.x; this.y = p.y; this.vx = this.vy = 0
