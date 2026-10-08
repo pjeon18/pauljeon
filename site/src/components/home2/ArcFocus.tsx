@@ -278,9 +278,19 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   useEffect(() => {
     const pane = paneRef.current
     if (!pane) return
+    let acc = 0, quiet = 0, lock = 0
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      if (popped) { setPopped(false); return }
+      if (popped) {
+        // one notch, one card: a trackpad's long swipe still moves only once
+        const now = performance.now()
+        if (now - quiet > 220) acc = 0
+        quiet = now
+        if (now < lock) return
+        acc += e.deltaY
+        if (Math.abs(acc) > 28) { stepOpen(Math.sign(acc)); acc = 0; lock = now + 420 }
+        return
+      }
       nudge(e.deltaY * 0.055)
     }
     pane.addEventListener('wheel', onWheel, { passive: false })
@@ -380,20 +390,52 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // an open card closes on a click anywhere outside it and its panel (the cursor shows an X there)
+  useEffect(() => {
+    if (!popped) return
+    const onClick = (e: MouseEvent) => {
+      if (document.body.classList.contains('rl-open') || document.body.classList.contains('ps-open')) return
+      const t = e.target as HTMLElement
+      if (!t.closest('.sh-page') || t.closest('.af-out, .af-panel, .af-reels, .ug-arrow, a, button:not(.af-card)')) return
+      e.preventDefault(); e.stopPropagation()
+      setPopped(false)
+    }
+    // after this click finishes, so the click that opened the card doesn't close it
+    const t = window.setTimeout(() => document.addEventListener('click', onClick, true), 0)
+    return () => { window.clearTimeout(t); document.removeEventListener('click', onClick, true) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popped])
+
   // keyboard + escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setPopped(false)
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault()
-        setPopped(false)
-        aim(Math.round(posRef.current) + (e.key === 'ArrowDown' ? 1 : -1))
+        const dir = e.key === 'ArrowDown' ? 1 : -1
+        if (poppedRef.current) { stepOpen(dir); return }
+        aim(Math.round(posRef.current) + dir)
       }
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // With a card open, up and down swap it for its neighbour without closing:
+  // the next card slides up out of the arc into the dock as this one goes home.
+  const swapT = useRef(0)
+  const stepOpen = (dir: number) => {
+    const pane = paneRef.current
+    stopMotion(); cancelAnimationFrame(snapRaf.current); aimRef.current = null; landRef.current = null; velRef.current = 0
+    if (pane) {
+      window.clearTimeout(swapT.current)
+      pane.classList.remove('af-swap-up', 'af-swap-down'); void pane.offsetWidth
+      pane.classList.add('af-anim', dir > 0 ? 'af-swap-down' : 'af-swap-up')
+      swapT.current = window.setTimeout(() => pane.classList.remove('af-anim', 'af-swap-up', 'af-swap-down'), 720)
+    }
+    setPosBoth(Math.round(posRef.current) + dir)
+  }
 
   const onCardClick = (i: number) => {
     const off = wrapOffset(i, Math.round(posRef.current), n)
