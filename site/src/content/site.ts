@@ -5,6 +5,7 @@
 
 import isoIcon from '../assets/iso-icon.webp'
 import isoSplash from '../assets/iso-splash.webp'
+import isoFilmThumb from '../assets/iso-film-thumb.webp'
 import f1 from '../assets/f1.webp'
 import onapsis from '../assets/onapsis.webp'
 import harvardShop from '../assets/harvard-shop.webp'
@@ -229,7 +230,7 @@ export const cards: Card[] = [
     blurb: 'A dating app that refuses inboxes. One live conversation at a time, or nothing. I wrote the PRD, built the design system, and shipped the working prototype.',
     slug: 'iso',
     demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
-    image: isoSplash,
+    image: isoFilmThumb,
   },
   {
     id: 'impostor',
