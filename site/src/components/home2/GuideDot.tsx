@@ -109,7 +109,6 @@ interface Seg {
   col?: [string, string]
   squash?: boolean
   cam?: { z: number; at?: (u: number) => P; spring?: Spring }
-  bg?: [string, string]             // the room for this shot: light at the dot, deeper at the edges
   exit?: () => void
 }
 type Spring = { k: number; d: number }
@@ -124,7 +123,6 @@ type Program = 'tour' | 'trailer'
 // that arrives after the dot; glide is for the long pull-backs.
 const CAM = { follow: { k: 34, d: 10.5 }, lag: { k: 13, d: 5.2 }, glide: { k: 20, d: 8.4 } }
 const CAM_KZ = 26, CAM_DZ = 9.4    // zoom spring, slower still
-const CREAM = '#FDFDFB'
 
 // ============================================================================
 
@@ -165,45 +163,6 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
                   sx: innerWidth / 2, sy: innerHeight / 2,     // where the look point lands on screen
                   free: false }                                // true lets one shot frame past the page edge
     const camSpring = (sp: Spring) => { cam.k = sp.k; cam.d = sp.d }
-    // The room's light: a pool of the lighter tone where the camera looks,
-    // falling off to the deeper one, tightening as the camera goes in. It is
-    // two layers behind the page that cross-fade on opacity and move only by
-    // transform, so nothing repaints per frame. A background gradient
-    // rewritten every frame flickered under the zoom layer.
-    const CREAM_PAIR: [string, string] = [CREAM, CREAM]
-    const lights = [0, 1].map(() => {
-      const el = document.createElement('div')
-      el.className = 'sh-light'
-      pageEl.insertBefore(el, camEl)
-      return el
-    })
-    let lit = 0
-    const litAt = [0, 0]              // when each layer was last lit, for its bloom
-    let lightOn = false
-    const setBg = (pair: [string, string]) => {
-      if (pair[0] === CREAM && pair[1] === CREAM) {
-        lights.forEach((l) => { l.style.opacity = '0' }); lightOn = false; return
-      }
-      lit = 1 - lit
-      // the deep tone dissolves to nothing at the edge, so there is never a
-      // rim, and the layer starts small and grows as it fades in
-      lights[lit].style.background = `radial-gradient(circle 150vmax at 50% 50%, ${pair[0]} 0%, ${pair[1]} 42%, ${pair[1]}00 100%)`
-      litAt[lit] = performance.now()
-      lights[lit].style.opacity = '1'
-      lights[1 - lit].style.opacity = '0'
-      lightOn = true
-    }
-    const paintBg = () => {
-      if (!lightOn) return
-      // the pool sits where the look point lands on screen, at 1/z
-      const k = 1 / Math.max(1, cam.z) + 0.12
-      const now = performance.now()
-      lights.forEach((l, i) => {
-        const g = easeOutCubic(Math.min(1, (now - litAt[i]) / 1600))
-        const kk = k * (0.55 + 0.45 * g)
-        l.style.transform = `translate(${(cam.sx - innerWidth / 2).toFixed(1)}px, ${(cam.sy - innerHeight / 2).toFixed(1)}px) scale(${kk.toFixed(4)})`
-      })
-    }
     const camReset = () => { cam.tx = innerWidth / 2; cam.ty = innerHeight / 2; cam.tz = 1 }
     const camApply = () => {
       const W = innerWidth, H = innerHeight
@@ -225,7 +184,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       cam.vy += ((ty - cam.y) * cam.k - cam.vy * cam.d) * dt; cam.y += cam.vy * dt
       cam.vz += ((cam.tz - cam.z) * cam.kz - cam.vz * cam.dz) * dt; cam.z += cam.vz * dt
       // the home is hidden while the underground is open: keep the clock, skip the paint
-      if (!document.body.classList.contains('ug-open')) { camApply(); paintBg() }
+      if (!document.body.classList.contains('ug-open')) camApply()
       camRaf = requestAnimationFrame(camLoop)
     }
     if (!reduced) camRaf = requestAnimationFrame(camLoop)
@@ -363,21 +322,21 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
           // wakes up in place, filling the frame. The camera starts to pull
           // back only once it moves, so the first thing seen is the period.
           { dur: 900, ease: easeInOutSine, at: (u) => ({ x: home.x - 8 * u, y: home.y - 14 * u }),
-            sc: [S.restScale, 1], col: [INK, RED], cam: { z: 4.2, spring: CAM.glide }, bg: ['#FEF8F0', '#F2E2CC'] },
+            sc: [S.restScale, 1], col: [INK, RED], cam: { z: 4.2, spring: CAM.glide } },
           { dur: 560, ease: transit, at: (u) => qbez(anticip, { x: anticip.x + 30, y: anticip.y - 40 }, orbitStart, u),
             cam: { z: 2.6, spring: CAM.follow } },
           { dur: 1700, ease: LIN, at: introOrbit,
-            cam: { z: 1.85, at: (u) => lerp(introOrbit(u), introFit.c, 0.6), spring: CAM.follow }, bg: ['#FDEBD9', '#EFC9A8'] },
+            cam: { z: 1.85, at: (u) => lerp(introOrbit(u), introFit.c, 0.6), spring: CAM.follow } },
           { dur: 900, ease: transit,
             at: (u) => qbez(orbitEnd, { x: orbitEnd.x - 80, y: (orbitEnd.y + folderStart.y) / 2 + 40 }, folderStart, u),
-            cam: { z: 1.9, spring: CAM.glide }, bg: ['#EBF1FB', '#C4D5EE'] },
+            cam: { z: 1.9, spring: CAM.glide } },
           { dur: 860, ease: LIN, at: folderOrbit,
             cam: { z: 2.7, at: (u) => lerp(folderOrbit(u), fo, 0.55), spring: CAM.follow } },
           // the launch pulls the camera back and it falls behind, so the hit
           // lands while the frame is still catching up
           { dur: 820, ease: launch,
             at: (u) => qbez(folderStart, { x: (folderStart.x + hit.x) / 2, y: folderStart.y - 210 }, hit, u),
-            cam: { z: 1.45, at: (u) => lerp(folderStart, wheelLook, u), spring: CAM.lag }, bg: ['#FFEDD3', '#F3C892'] },
+            cam: { z: 1.45, at: (u) => lerp(folderStart, wheelLook, u), spring: CAM.lag } },
           { dur: 190, ease: LIN, at: () => hit, squash: true,
             cam: { z: 1.6, at: () => wheelLook, spring: CAM.lag },
             exit: () => window.dispatchEvent(new CustomEvent('pj:spin')) },
@@ -391,7 +350,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
           // crossing, so it is arriving as the dot does rather than after
           { dur: 1350, ease: transit,
             at: (u) => qbez(recoil, { x: (recoil.x + linksStart.x) / 2, y: recoil.y - 140 }, linksStart, u),
-            cam: { z: 1.5, at: (u) => lerp(wheelLook, linksLook, easeOutCubic(u)), spring: CAM.lag }, bg: ['#F4F1EA', '#D9D2C2'] },
+            cam: { z: 1.5, at: (u) => lerp(wheelLook, linksLook, easeOutCubic(u)), spring: CAM.lag } },
           // hovers over the first link while the camera settles on the row
           { dur: 700, ease: LIN,
             at: (u) => ({ x: linksStart.x + 6 * Math.sin(u * Math.PI), y: linksStart.y - 5 * Math.sin(u * Math.PI) }),
@@ -400,7 +359,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
             cam: { z: 1.9, at: (u) => lerp(linksLook, linksSweep(u), 0.35), spring: CAM.follow } },
           { dur: 980, ease: transit,
             at: (u) => qbez(linksEnd, { x: home.x + 40, y: (linksEnd.y + home.y) / 2 }, homeOver, u),
-            cam: { z: 2.4, spring: CAM.glide }, bg: ['#FCF5EB', '#EBDBC4'] },
+            cam: { z: 2.4, spring: CAM.glide } },
           { dur: 560, ease: easeOutCubic,
             at: (u) => ({ x: homeOver.x + (home.x - homeOver.x) * u, y: homeOver.y + (home.y - homeOver.y) * u }),
             sc: [1, S.restScale], col: [RED, INK], cam: { z: 3.2, spring: CAM.follow }, exit: rest },
@@ -458,7 +417,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     const disarm = () => {
       if (!armed) return
       armed = null
-      camSpring(CAM.glide); camReset(); setBg(CREAM_PAIR)
+      camSpring(CAM.glide); camReset()
       document.body.classList.remove('guide-trailer')
     }
 
@@ -486,11 +445,10 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       const enter = (k: number) => {
         entered = k
         if (segs[k].cam?.spring) camSpring(segs[k].cam!.spring!)
-        if (segs[k].bg) setBg(segs[k].bg!)
       }
       const finish = () => {
         S.touring = false
-        if (kind !== 'trailer') { camReset(); setBg(CREAM_PAIR); introDone(); return }
+        if (kind !== 'trailer') { camReset(); introDone(); return }
         // the dot is home. The camera lifts off it onto the whole headline,
         // centred, while a wave runs through the letters and a sheen crosses
         // them; then it drifts back to the whole page on a slow zoom.
@@ -507,9 +465,8 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
         }
         settleT = window.setTimeout(() => {
           settleT = 0
-          setBg(CREAM_PAIR)
           document.body.classList.remove('guide-trailer')
-          const done = () => { cam.free = false; camSnap(); document.documentElement.classList.remove('sh-wave'); introDone() }
+          const done = () => { cam.free = false; camSnap(); document.documentElement.classList.remove('sh-wave'); window.dispatchEvent(new Event('pj:edge-flare')); introDone() }
           if (!hc) { camSpring(CAM.glide); cam.kz = 6; cam.dz = 4.6; camReset(); window.setTimeout(done, 1600); return }
           // one continuous pull-back: the headline stays the anchor while the
           // zoom eases out in log space and it slides home to its corner
@@ -586,13 +543,13 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       if (settleT) {
         window.clearTimeout(settleT); settleT = 0
         camSpring(CAM.glide); cam.kz = CAM_KZ; cam.dz = CAM_DZ
-        camReset(); setBg(CREAM_PAIR); document.body.classList.remove('guide-trailer')
+        camReset(); document.body.classList.remove('guide-trailer')
       }
       if (!S.touring) return
       S.touring = false
       S.aborting = true
       camSpring(CAM.follow); cam.kz = CAM_KZ; cam.dz = CAM_DZ
-      camReset(); setBg(CREAM_PAIR)
+      camReset()
       document.body.classList.remove('guide-trailer')
       cancelAnimationFrame(S.raf)
       measureHome()
@@ -657,7 +614,6 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       window.removeEventListener('resize', onResize)
       dot.removeEventListener('click', onDotClick)
       document.body.classList.remove('guide-trailer')
-      lights.forEach((l) => l.remove())
       document.documentElement.classList.remove('guide-live')
     }
   }, [])

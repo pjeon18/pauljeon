@@ -17,14 +17,6 @@ body.sh-lock { overflow: hidden; }
 }
 /* the trailer's light, behind the page: a pool that moves by transform and
    cross-fades between shots, so the compositor does all of it */
-.sh-light {
-  position: absolute; left: 50%; top: 50%; width: 300vmax; height: 300vmax;
-  margin: -150vmax 0 0 -150vmax; border-radius: 50%;
-  pointer-events: none; opacity: 0; z-index: 0;
-  transition: opacity 1500ms cubic-bezier(0.4, 0, 0.3, 1);
-  will-change: transform, opacity;
-}
-
 /* ---------- left pane ---------- */
 .sh-left {
   width: min(44%, 620px); min-width: 400px;
