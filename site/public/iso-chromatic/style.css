@@ -388,3 +388,14 @@ img { display: block; }
 .m-film, .m-film .phone, .m-film #view, .m-film .screen, .m-film .conv { background: var(--appbg, #fff); }
 .m-film.imm .statusbar { opacity: 0; transition: opacity .5s var(--ease); }
 .m-film.imm .conv-hd { box-shadow: none; }
+/* in the film the thread sits on the dock, so each new message lands right above "Maya's turn", inside the shot */
+.m-film .conv .thread { display: flex; flex-direction: column; }
+.m-film .conv .thread .msgs { margin-top: auto; }
+/* hold it: the chromatic sheen that confirms a held moment */
+.sheening { position: relative; overflow: hidden; }
+.sheen { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; transform: translateX(-110%);
+  background: linear-gradient(100deg, transparent 18%, rgba(255,150,90,.55) 36%, rgba(150,130,255,.6) 50%, rgba(90,210,230,.55) 64%, transparent 82%); }
+/* the turn line sits on the thread's left edge, under the bubbles it describes */
+.turn { justify-content: flex-start; padding-left: 2px; }
+/* the film explains holding with its own caption; the floating hint would sit on the thread */
+.m-film #hint { display: none; }
