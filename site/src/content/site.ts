@@ -46,6 +46,7 @@ import f1Outcomes from '../assets/f1-undercut-outcomes.webp'
 import rlPolicy from '../assets/rl-policy-iteration.webp'
 import ytLanding from '../assets/yt-landing.webp'
 import thumbTracker from '../assets/tracker-thumb.jpg'
+import thumbIsoRedesign from '../assets/iso-light/thumb.webp'
 import thumbDot from '../assets/thumb-dot.webp'
 import thumbLila from '../assets/thumb-lila.webp'
 import thumbImpostor from '../assets/thumb-impostor.webp'
@@ -78,9 +79,16 @@ export const ARC = {
   autoMs: 3000,  // auto-rotate cadence (0 = off)
 }
 
-// ---------- carousel cards (up to 10) ----------
+// ---------- carousel cards ----------
+export type Section = 'work' | 'projects' | 'coursework'
+export const sections: { id: Section; label: string }[] = [
+  { id: 'work', label: 'Work experience' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'coursework', label: 'Coursework' },
+]
 export interface Card {
   id: string
+  section: Section
   cats: Category[]
   title: string
   meta: string
@@ -110,11 +118,24 @@ export interface Card {
   usePortrait?: boolean  // reuse the About portrait
 }
 
-// The wheel is a timeline: newest at the focused slot, older cards further
-// round. Keep this array sorted by `t`, descending.
-export const cards: Card[] = [
+// Keep this array sorted by `t`, descending; `cards` below groups it by section.
+const allCards: Card[] = [
+  {
+    id: 'iso-redesign',
+    section: 'projects',
+    cats: ['product'],
+    title: 'ISO, redesigned',
+    meta: 'Product design · built with Claude · 2026',
+    when: 'OCT ’26',
+    t: 2026.101,
+    blurb: 'The second version of ISO. White and ink, with color only where someone is live. It adds holding a moment from a chat, Memories in place of saved chats, and set hours when ISO is open. Designed in Figma and built as a coded prototype, both with Claude.',
+    slug: 'iso-redesign',
+    demo: { label: 'Open the prototype', href: `${import.meta.env.BASE_URL}iso-chromatic/index.html?mode=watch` },
+    image: thumbIsoRedesign,
+  },
   {
     id: 'tracker',
+    section: 'projects',
     cats: ['product', 'engineering'],
     title: 'Tracker',
     meta: 'Interaction concept · Mac sound menu',
@@ -125,6 +146,7 @@ export const cards: Card[] = [
   },
   {
     id: 'lila',
+    section: 'work',
     image: thumbLila,
     cats: ['product'],
     title: 'Currently: Lila Sciences',
@@ -136,6 +158,7 @@ export const cards: Card[] = [
   },
   {
     id: 'the-dot',
+    section: 'projects',
     cats: ['product'],
     title: 'The Dot',
     meta: 'Interaction concept · 2026',
@@ -148,6 +171,7 @@ export const cards: Card[] = [
   },
   {
     id: 'studdy',
+    section: 'projects',
     cats: ['product', 'engineering'],
     title: 'Studdy',
     meta: 'Product · live multiplayer · 2026',
@@ -160,6 +184,7 @@ export const cards: Card[] = [
   },
   {
     id: 'pokemaps',
+    section: 'projects',
     cats: ['product', 'engineering'],
     title: 'PokéMAPs',
     meta: 'Product · 373 locations · Live daily',
@@ -173,6 +198,7 @@ export const cards: Card[] = [
   },
   {
     id: 'onapsis',
+    section: 'work',
     cats: ['product', 'engineering'],
     title: 'Onapsis',
     meta: 'AI GTM Intern · Boston · May to Aug 2026',
@@ -185,6 +211,7 @@ export const cards: Card[] = [
   },
   {
     id: 'org',
+    section: 'work',
     cats: ['engineering'],
     title: 'Org Chart Explorer',
     meta: 'Engineering · AWS · 699 employees',
@@ -197,6 +224,7 @@ export const cards: Card[] = [
   },
   {
     id: 'pocket-tactics',
+    section: 'projects',
     cats: ['product', 'engineering'],
     title: 'Pocket Tactics',
     meta: 'Game · 60 units · Online rooms',
@@ -210,6 +238,7 @@ export const cards: Card[] = [
   },
   {
     id: 'prepio',
+    section: 'projects',
     cats: ['product', 'engineering'],
     title: 'Prep.io',
     meta: 'Product · live office hours · 2026',
@@ -222,6 +251,7 @@ export const cards: Card[] = [
   },
   {
     id: 'iso',
+    section: 'projects',
     cats: ['product'],
     title: 'ISO',
     meta: 'Product · 31 screens · 2026',
@@ -234,6 +264,7 @@ export const cards: Card[] = [
   },
   {
     id: 'impostor',
+    section: 'projects',
     cats: ['all'],
     title: 'Play Impostor',
     meta: 'Party game · 3–12 players · pass-and-play',
@@ -246,6 +277,7 @@ export const cards: Card[] = [
   },
   {
     id: 'f1',
+    section: 'coursework',
     cats: ['ml'],
     title: 'Undercut, or stay out?',
     meta: 'AI / ML · 761 attempts · 0.71 AUC-ROC',
@@ -258,6 +290,7 @@ export const cards: Card[] = [
   },
   {
     id: 'media',
+    section: 'coursework',
     cats: ['engineering', 'ml'],
     title: 'Are videos getting shorter?',
     meta: 'Data viz · 62k videos · d3',
@@ -270,6 +303,7 @@ export const cards: Card[] = [
   },
   {
     id: 'rl',
+    section: 'coursework',
     cats: ['ml'],
     title: 'Reinforcement learning by hand',
     meta: 'AI / ML · CS182',
@@ -280,6 +314,12 @@ export const cards: Card[] = [
     image: thumbRl,
   },
 ]
+
+// The wheel runs section by section (work, then projects, then coursework),
+// newest first inside each, so the section rail can point at a stretch of arc.
+export const cards: Card[] = sections.flatMap((s) => allCards.filter((c) => c.section === s.id))
+export const sectionOf = (i: number) => cards[i]?.section ?? 'projects'
+export const firstOfSection = (id: Section) => cards.findIndex((c) => c.section === id)
 
 // ---------- about ----------
 export const about = {
@@ -429,6 +469,16 @@ export interface CaseStudy {
 export const caseOrder = ['iso', 'the-dot', 'studdy', 'prep-io', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
 
 export const caseStudies: Record<string, CaseStudy> = {
+  'iso-redesign': {
+    slug: 'iso-redesign',
+    kicker: 'Product Case Study · 2026',
+    title: 'ISO, redesigned',
+    lead: 'The chromatic redesign of ISO, a dating app where you talk to one person at a time.',
+    role: 'I set the direction and reviewed every screen. Claude built the Figma file, the coded prototype and the film with me over eight days in October 2026.',
+    stack: 'Figma through its MCP server · Claude Code · an HTML, CSS and JavaScript prototype · Playwright for the frame-by-frame film',
+    stats: [],
+    sections: [],
+  },
   iso: {
     slug: 'iso',
     kicker: 'Product Case Study · 2026',

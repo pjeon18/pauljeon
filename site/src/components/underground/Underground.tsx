@@ -90,9 +90,11 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
   const FOCUS = dir === 1 && f ? 0.85 : 0, crouch = 0.22
   const cx = innerWidth / 2, cy = H / 2
   const t0 = performance.now()
-  let D = 0, v = 0, last = t0, phase: 'focus' | 'crouch' | 'fall' | 'land' = FOCUS ? 'focus' : 'crouch', done = false, tc = 0
+  let D = 0, v = 0, last = t0, phase: 'focus' | 'crouch' | 'fall' | 'land' = FOCUS ? 'focus' : 'crouch', done = false, tc = 0, tl = 0
   const streaks = el.streaks.map((s, i) => ({ s, x: Math.random() * 100, y: Math.random() * (H + 400), par: 0.4 + (i % 5) * 0.22 }))
   el.shaft.style.display = 'block'
+  const lines = el.streaks[0]?.parentElement
+  if (lines) lines.style.display = 'block'
   if (f) f.home.style.transformOrigin = '0 0'
 
   const frame = (now: number) => {
@@ -111,7 +113,7 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
       u = clamp((t - tc) / TB)
       const nD = DB * u * u * u
       v = (nD - D) / Math.max(dt, 0.001); D = nD
-      if (u >= 1) { phase = 'land'; v = (3 * DB) / TB }
+      if (u >= 1) { phase = 'land'; v = (3 * DB) / TB; tl = t }
     } else if (phase === 'land') {
       v += ((LAND - D) * 110 - v * 17) * dt
       D += v * dt
@@ -119,7 +121,12 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
     }
     const speed = Math.abs(v)
     const depth = phase === 'land' ? 1 : phase === 'fall' ? u : 0
-    const dark = dir === 1 ? smooth(0.3, 0.9, depth) : 1 - smooth(0.12, 0.7, depth)
+    // order of events: the lines start streaming first, the light turns only in the fast middle of
+    // the fall (lines flipping from ink to white with it), and the lines stay until the dot has landed
+    // going down you travel through white (the page's paper runs past every edge) and only turn
+    // black at the very end, after the content has streamed by. Climbing up, the black lifts first.
+    const dark = dir === 1 ? smooth(0.74, 0.98, depth) : 1 - smooth(0.04, 0.3, depth)
+    const lines = phase === 'fall' ? smooth(0.04, 0.32, u) : phase === 'land' ? 1 - smooth(0.12, 0.55, t - tl) : 0
     const bg = mixRGB(PAPER, INK, dark), fg = mixRGB(INK, PAPER, dark)
     el.shaft.style.background = bg
     guide.pinColor = fg
@@ -134,7 +141,8 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
         // direction, so the fall reads as open space rather than a sheet of
         // paper sliding away, and the whole world fades into the dark together
         if (!f.home.style.boxShadow) f.home.style.boxShadow = '0 0 0 220vmax #FDFDFB'
-        f.home.style.opacity = String(1 - smooth(0.25, 0.7, depth))
+        // the page stays solid while it travels; only its paper, by now past the screen, gives way to the dark
+        f.home.style.opacity = String(1 - smooth(0.74, 0.98, depth))
         if (phase === 'focus') guide.pin(fo.x, fo.y, 0, f.r0 + (R - f.r0) * focusK)
         else guide.pin(cx, cy + crouchY, speed)
       } else guide.pin(cx, cy + crouchY, speed)
@@ -144,7 +152,7 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
     } else {
       el.ug.style.transformOrigin = '50% 0'
       el.ug.style.transform = `translateY(${D + crouchY}px) scaleY(${k})`
-      el.ug.style.opacity = String(1 - smooth(0.05, 0.5, depth))     // no dark slab sliding off a white shaft
+      el.ug.style.opacity = String(1 - smooth(0.04, 0.3, depth))     // no dark slab sliding off a white shaft
       guide.pin(cx, cy + crouchY, speed)
     }
     streaks.forEach((s) => {
@@ -152,16 +160,17 @@ function dive(dir: 1 | -1, el: DiveEls, guide: Guide, f: Focus | null, onLand: (
       const y = ((((s.y - dir * D * s.par) % (H + 400)) + (H + 400)) % (H + 400)) - 200
       s.s.style.transform = `translate(${s.x}vw, ${y}px) scaleY(${len})`
       s.s.style.background = fg
-      s.s.style.opacity = String(clamp(speed / 2500) * 0.55)
+      s.s.style.opacity = String(lines * 0.55)
     })
     raf = requestAnimationFrame(frame)
   }
   const finish = () => {
     if (done) return
     done = true
-    streaks.forEach((s) => (s.s.style.opacity = '0'))
+    streaks.forEach((s) => { s.s.style.transition = 'opacity 300ms ease'; s.s.style.opacity = '0'; window.setTimeout(() => (s.s.style.transition = ''), 320) })
     if (dir === 1) {
       el.shaft.style.display = 'none'
+      if (lines) window.setTimeout(() => (lines.style.display = 'none'), 320)
       if (f) f.home.style.transform = `translateY(${-LAND}px)`
       el.ug.style.transform = ''
       el.inner.style.transform = ''
@@ -674,7 +683,7 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
       f.home.style.transformOrigin = '0 0'
       f.home.style.transform = zoomAt(f, 0).t
       f.home.style.clipPath = `circle(0px at ${f.P.x}px ${f.P.y}px)`
-      dive(-1, els(), g, null, () => reveal(f, g, () => { shaft.current!.style.display = 'none'; g.hide(); finish() }))
+      dive(-1, els(), g, null, () => reveal(f, g, () => { shaft.current!.style.display = 'none'; const l = streaks.current[0]?.parentElement; if (l) l.style.display = 'none'; g.hide(); finish() }))
     }
     const cx = innerWidth / 2, cy = innerHeight / 2
     const vy = g.y - g.top
@@ -818,7 +827,10 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
 
   return (
     <>
-      <div ref={shaft} className="ug-shaft" aria-hidden="true">
+      <div ref={shaft} className="ug-shaft" aria-hidden="true" />
+      {/* the streaks get their own layer above the page you're leaving, so they stream across the
+          white stretch of the fall instead of hiding behind the page's paper */}
+      <div className="ug-lines" aria-hidden="true">
         {Array.from({ length: 34 }, (_, i) => <div key={i} ref={(e) => { streaks.current[i] = e }} className="ug-streak" />)}
       </div>
       <div ref={ug} className={`ug ${landed ? 'landed' : ''}`} role="dialog" aria-label="About Me">
@@ -848,10 +860,10 @@ export default function Underground({ onClosed }: { onClosed: () => void }) {
   )
 }
 
-export function UndergroundArrow({ onDive }: { onDive: () => void }): ReactNode {
+export function UndergroundArrow({ onDive, show = true }: { onDive: () => void; show?: boolean }): ReactNode {
   return (
-    <button className="ug-arrow" onClick={onDive} aria-label="About me" data-say="About me">
-      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 4v15M5.5 12.5 12 19l6.5-6.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    <button className={'ug-arrow' + (show ? ' ug-show' : '')} onClick={onDive} aria-label="About me" data-say="About me" tabIndex={show ? 0 : -1}>
+      <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M12 3.5v16M5 12.5l7 7 7-7" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
     </button>
   )
 }

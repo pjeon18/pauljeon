@@ -62,6 +62,17 @@ export default function SplitHome() {
     return () => window.clearTimeout(t)
   }, [boot])
 
+  // the arrow waits for the opening to finish. With no tour coming (a return, a phone, reduced
+  // motion) there is nothing to wait for. A long fallback covers a tour that never reports back.
+  const [introOver, setIntroOver] = useState(() => !tourComing || window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  useEffect(() => {
+    if (introOver) return
+    const on = () => setIntroOver(true)
+    window.addEventListener('pj-intro-done', on)
+    const t = window.setTimeout(on, 40000)
+    return () => { window.removeEventListener('pj-intro-done', on); window.clearTimeout(t) }
+  }, [introOver])
+
   // the underground: the arrow (or a firm scroll down over the left pane) drops you into it
   const [under, setUnder] = useState(false)
   const [diveId, setDiveId] = useState(0)
@@ -127,7 +138,7 @@ export default function SplitHome() {
       <ArcFocus spinIn={!boot && !returning} awaitCollision={tourComing} dockIndex={dockIndex} />
       <GuideDot run={guide} mode={mode} />
       </div>
-      <UndergroundArrow onDive={goUnder} />
+      <UndergroundArrow onDive={goUnder} show={introOver} />
     </div>
     {under && <Underground key={diveId} onClosed={() => setUnder(false)} />}
     </>

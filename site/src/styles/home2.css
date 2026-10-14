@@ -524,7 +524,7 @@ html.sh-wave .sh-trailer .sh-intro h1 .ch {
   .af-pane.af-popped { overflow: visible; z-index: 3; }
   .sh-left { transition: opacity 520ms ease, filter 520ms ease, transform 800ms var(--sp-glide, cubic-bezier(0.22, 1, 0.36, 1)); }
   .sh-cam:has(.af-popped) .sh-left { opacity: 0.07; filter: blur(3px); transform: translateX(-24px) scale(0.97); pointer-events: none; }
-  .guide-dot, .ug-arrow { transition: opacity 420ms ease; }
+  .guide-dot { transition: opacity 420ms ease; }
   .sh-cam:has(.af-popped) .guide-dot, .sh-page:has(.af-popped) .ug-arrow { opacity: 0 !important; pointer-events: none; }
   /* bigger type to match the bigger layout */
   .af-popped .af-panel-kicker { font-size: 16px; }
@@ -539,3 +539,57 @@ html.sh-wave .sh-trailer .sh-intro h1 .ch {
 /* opening a case study: the card lifts toward you, the panel steps aside */
 .af-launch .af-out .af-slide { transform: translateY(-8px) scale(1.035); transition: transform 220ms cubic-bezier(0.3, 0.9, 0.35, 1); }
 .af-launch .af-panel { opacity: 0; transform: translateY(-50%) translateX(-30px); transition: opacity 200ms ease, transform 260ms ease; }
+
+/* ---------- section rail: an index for the wheel ----------
+   Work, projects, coursework. The ink tick glides to the section the focused
+   card belongs to; labels step aside to make room for it. Click jumps the wheel. */
+.af-sections {
+  position: absolute; z-index: 5; left: clamp(28px, 3.4vw, 56px); top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  transition: opacity 420ms ease, transform 620ms var(--sp-glide, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.af-popped .af-sections, .sh-trailer .af-sections { opacity: 0; transform: translate(-14px, -50%); pointer-events: none; }
+.af-sec {
+  position: relative; display: flex; align-items: baseline; gap: 8px;
+  padding: 7px 0 7px 0; background: none; border: 0; cursor: pointer;
+  font-family: 'Inter', -apple-system, sans-serif; font-size: 13.5px; font-weight: 500; letter-spacing: -0.005em;
+  color: #A39E95;
+  transition: color 360ms ease, transform 620ms var(--sp-glide, cubic-bezier(0.22, 1, 0.36, 1));
+  animation: afSecIn 900ms var(--sp-glide, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  animation-delay: calc(900ms + var(--si) * 90ms);
+}
+.af-sec::before {
+  content: ''; position: absolute; left: 0; top: 50%; width: 16px; height: 1.5px; margin-top: -1px;
+  background: #121110; border-radius: 2px;
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 620ms var(--sp-glide, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.af-sec.on { color: #121110; transform: translateX(26px); }
+.af-sec.on::before { transform: translateX(-26px) scaleX(1); }
+.af-sec:hover:not(.on) { color: #5E5A53; }
+.af-sec-n { font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; opacity: 0.55; }
+@keyframes afSecIn { from { opacity: 0; transform: translateY(8px); filter: blur(4px); } }
+.af-sec.on { animation-name: afSecInOn; }
+@keyframes afSecInOn { from { opacity: 0; transform: translate(26px, 8px); filter: blur(4px); } }
+@media (max-width: 880px) { .af-sections { display: none; } }
+@media (prefers-reduced-motion: reduce) { .af-sec { animation: none; } }
+
+/* the section of the focused card, big, bottom right, over the blurred lower cards.
+   All three names are stacked in place; the current one rises in, the others lift out. */
+.af-bigsec {
+  position: absolute; z-index: 4; right: clamp(28px, 3.4vw, 56px); bottom: clamp(26px, 5vh, 52px);
+  height: 1.1em; min-width: 6em; font-size: clamp(40px, 4.4vw, 64px); font-weight: 900; letter-spacing: -0.035em; line-height: 1;
+  color: #121110; pointer-events: none; text-align: right;
+}
+.af-bigsec span {
+  position: absolute; right: 0; bottom: 0; white-space: nowrap;
+  opacity: 0; transform: translateY(0.45em); filter: blur(8px);
+  transition: opacity 420ms ease, transform 760ms var(--sp-glide, cubic-bezier(0.22, 1, 0.36, 1)), filter 520ms ease;
+}
+.af-bigsec span.on { opacity: 1; transform: none; filter: none; animation: afBigIn 900ms var(--sp-glide, cubic-bezier(0.22, 1, 0.36, 1)) 120ms both; }
+@keyframes afBigIn { from { opacity: 0; transform: translateY(0.5em); filter: blur(8px); } }
+.af-bigsec span:not(.on) { transform: translateY(-0.35em); }
+.af-popped .af-bigsec { opacity: 0; transition: opacity 360ms ease; }
+.sh-page:not(.sh-ready) .af-bigsec { opacity: 0; }
+@media (max-width: 880px) { .af-bigsec { font-size: 30px; bottom: 14px; } }

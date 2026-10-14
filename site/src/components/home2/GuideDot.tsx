@@ -452,6 +452,9 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       camApply()
       document.body.classList.add('guide-trailer')
     }
+    // the page waits on this before showing the way down (the arrow); it fires when the opening
+    // finishes, or as soon as the visitor cuts it short
+    const introDone = () => window.dispatchEvent(new Event('pj-intro-done'))
     const disarm = () => {
       if (!armed) return
       armed = null
@@ -461,7 +464,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
 
     const runTour = (kind: Program = 'tour') => {
       if (S.touring) return
-      if (reduced) return
+      if (reduced) { introDone(); return }
       S.touring = true
       S.aborting = false
       let segs: Seg[]
@@ -487,7 +490,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
       }
       const finish = () => {
         S.touring = false
-        if (kind !== 'trailer') { camReset(); setBg(CREAM_PAIR); return }
+        if (kind !== 'trailer') { camReset(); setBg(CREAM_PAIR); introDone(); return }
         // the dot is home. The camera lifts off it onto the whole headline,
         // centred, while a wave runs through the letters and a sheen crosses
         // them; then it drifts back to the whole page on a slow zoom.
@@ -506,7 +509,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
           settleT = 0
           setBg(CREAM_PAIR)
           document.body.classList.remove('guide-trailer')
-          const done = () => { cam.free = false; camSnap(); document.documentElement.classList.remove('sh-wave') }
+          const done = () => { cam.free = false; camSnap(); document.documentElement.classList.remove('sh-wave'); introDone() }
           if (!hc) { camSpring(CAM.glide); cam.kz = 6; cam.dz = 4.6; camReset(); window.setTimeout(done, 1600); return }
           // one continuous pull-back: the headline stays the anchor while the
           // zoom eases out in log space and it slides home to its corner
@@ -577,6 +580,7 @@ export default function GuideDot({ run, mode = 'tour' }: { run: boolean; mode?: 
     // any real intent from the visitor wins, and the dot eases home
     const abort = () => {
       S.cancelled = true
+      introDone()
       cam.free = false; document.documentElement.classList.remove('sh-wave')
       disarm()
       if (settleT) {
