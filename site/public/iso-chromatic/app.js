@@ -356,7 +356,22 @@ R.searching = () => `<div class="pad" style="padding-top:96px;text-align:center"
   <h2 class="title" data-in data-w style="margin-top:52px">Looking for someone who’s here.</h2>
   <p class="body c2" data-in style="margin-top:10px">Usually under a minute.</p></div>
   <div class="cta">${btn('Stop looking', 'ghost', 'data-go="home"')}</div>`;
-M.searching = () => later(4200 * SP, () => go('match'));
+M.searching = el => later(4200 * SP, () => found(el));
+/* the moment someone is found: the arc closes into a full ring, the light blooms once, the line changes */
+function found(el) {
+  const C = 2 * Math.PI * 116, arc = $('.seek circle:last-child', el), h = $('h2', el), p = $('p.body', el);
+  arc.animate([{ strokeDasharray: `${C * .62} 999` }, { strokeDasharray: `${C + 1} 999` }], { duration: 760, easing: EASE, fill: 'forwards' });
+  $('.coreglow', el).animate([{ opacity: .55, transform: 'scale(1)' }, { opacity: .9, transform: 'scale(1.9)', offset: .45 }, { opacity: .6, transform: 'scale(1.5)' }], { duration: 1500, easing: EASE, fill: 'forwards' });
+  $$('.ripple', el).forEach(r => r.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, easing: EASE, fill: 'forwards' }));
+  h.animate([{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(6px)' }], { duration: 280, easing: EASE, fill: 'forwards' }).onfinish = () => {
+    h.textContent = 'Found someone.';
+    h.animate([{ opacity: 0, transform: 'translateY(10px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 620, easing: OUT, fill: 'forwards' });
+  };
+  p.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: EASE, fill: 'forwards' });
+  later(FILM ? 1700 : 1600, () => go('match'));
+}
+/* her portrait arrives softly rather than cutting in */
+M.match = el => { const i = $('.portrait img', el); i.animate([{ opacity: 0, transform: 'scale(1.05)', filter: 'blur(14px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 1200, easing: OUT, fill: 'backwards' }); };
 
 /* match */
 R.match = () => `<div class="pad"><div class="portrait" data-in><div class="glow pglow"></div><img src="${img('maya', 345, 404)}" alt="Maya">
@@ -558,8 +573,19 @@ A.holdIt = () => {
   const m = { id: 'm' + Date.now(), convo: S.cur.name === 'room' ? 'tonight' : 'tonight', feelings: feelings.length ? feelings : ['Laughed'], note: $('#why', sh).value || 'I laughed so hard I forgot to be nervous.',
     time: 'Tonight, ' + S.msgs[start].t, range: `${S.msgs[start].t.replace(' PM', '')} – ${S.msgs[end].t}`, msgs: S.msgs.slice(start, end + 1).filter(x => x.from).map(x => ({ from: x.from, text: x.text })), fresh: true };
   S.held.forEach(h => h.fresh = false); S.held.unshift(m);
-  closeSheet(); A.selCancel();
-  setTimeout(() => heldToast(m), 380);
+  // the confirmation: a chromatic sheen crosses the button, then the held lines glow once and settle
+  const hb = $('[data-act="holdIt"]', sh); hb.classList.add('sheening');
+  hb.insertAdjacentHTML('beforeend', '<span class="sheen"></span>');
+  hb.lastChild.animate([{ transform: 'translateX(-110%)' }, { transform: 'translateX(110%)' }], { duration: 640, easing: EASE, fill: 'forwards' });
+  const rows = $$('.row', S.cur.el).filter(r => +r.dataset.i >= start && +r.dataset.i <= end);
+  setTimeout(() => {
+    closeSheet(); A.selCancel();
+    rows.forEach((r, i) => r.firstChild.animate([
+      { boxShadow: '0 0 0 0 rgba(150,130,255,0), 0 0 0 0 rgba(255,150,90,0)' },
+      { boxShadow: '0 0 26px 3px rgba(150,130,255,.42), 0 0 12px 1px rgba(255,150,90,.32)', offset: .25 },
+      { boxShadow: '0 0 0 0 rgba(150,130,255,0), 0 0 0 0 rgba(255,150,90,0)' }], { duration: 2200, delay: 260 + i * 70, easing: EASE }));
+    setTimeout(() => heldToast(m), 380);
+  }, 520);
 };
 function heldToast(m) {
   const q = m.msgs.find(x => x.from === 'them') || m.msgs[0];
