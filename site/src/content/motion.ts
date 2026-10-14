@@ -31,6 +31,8 @@ export const films: Film[] = [
   { card: 'iso', src: `${F}iso-v1.mp4`, loop: `${F}iso-v1-loop.mp4`, poster: `${F}iso-v1.jpg`, title: 'ISO', sub: 'One conversation at a time.' },
   { card: 'iso', src: `${F}iso.mp4`, loop: `${F}iso-loop.mp4`, poster: `${F}iso.jpg`, title: 'ISO, redesigned', sub: 'The chromatic redesign, in progress.' },
   { card: 'iso-redesign', src: `${F}iso-features.mp4`, loop: `${F}iso-features-loop.mp4`, poster: `${F}iso-features.jpg`, title: 'ISO, every feature', sub: 'The redesign, filmed from inside the app.' },
+  { card: 'iso-redesign', src: `${F}iso-hype.mp4`, loop: `${F}iso-hype-loop.mp4`, poster: `${F}iso-hype.jpg`, title: 'ISO in eighteen seconds', sub: 'The pitch, cut on the beat.' },
+  { card: 'iso-redesign', src: `${F}iso-brand.mp4`, loop: `${F}iso-brand-loop.mp4`, poster: `${F}iso-brand.jpg`, title: 'ISO, the brand', sub: 'The mark builds itself.' },
   { card: 'media', src: `${F}media.mp4`, loop: `${F}media-loop.mp4`, poster: `${F}media.jpg`, title: 'Are videos getting shorter?', sub: 'Our CS171 data story, cut on the beat.' },
   { card: 'prepio', src: `${F}prepio.mp4`, loop: `${F}prepio-loop.mp4`, poster: `${F}prepio.jpg`, title: 'Prep.io', sub: 'Career office hours, live.' },
 ]
