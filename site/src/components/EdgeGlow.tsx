@@ -19,8 +19,14 @@ export default function EdgeGlow() {
     // rise gently, hold until it has fully arrived, then let the long transition
     // carry it back down. A second click while lit holds it longer; nothing restarts.
     const onDown = () => { flare.classList.add('lit'); window.clearTimeout(t); t = window.setTimeout(() => flare.classList.remove('lit'), 650) }
+    // the opening's full stop: one stronger, longer flare as it lands on the page
+    const onEnd = () => {
+      flare.classList.add('lit', 'big'); window.clearTimeout(t)
+      t = window.setTimeout(() => flare.classList.remove('lit', 'big'), 1100)
+    }
     window.addEventListener('pointerdown', onDown, { passive: true })
-    return () => { window.removeEventListener('pointerdown', onDown); window.clearTimeout(t) }
+    window.addEventListener('pj:edge-flare', onEnd)
+    return () => { window.removeEventListener('pointerdown', onDown); window.removeEventListener('pj:edge-flare', onEnd); window.clearTimeout(t) }
   }, [])
   return (
     <div className="edge" ref={ref} aria-hidden="true">
