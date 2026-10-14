@@ -9,6 +9,7 @@ export const protos: Record<string, { url: string; host: string }> = {
   'pocket-tactics': { url: 'https://pjeon18.github.io/pocket-tactics/', host: 'pjeon18.github.io/pocket-tactics' },
   prepio: { url: 'https://pjeon18.github.io/prep-io/', host: 'pjeon18.github.io/prep-io' },
   iso: { url: 'https://pjeon18.github.io/iso-prototype/', host: 'pjeon18.github.io/iso-prototype' },
+  'iso-redesign': { url: `${import.meta.env.BASE_URL}iso-chromatic/index.html?mode=try`, host: 'pjeon18.github.io/pauljeon/iso-chromatic' },
   impostor: { url: `${import.meta.env.BASE_URL}impostor`, host: 'pjeon18.github.io/pauljeon/impostor' },
   media: { url: 'https://xiaoman21.github.io/CS171/', host: 'xiaoman21.github.io/CS171' },
   tracker: { url: 'https://pjeon18.github.io/tracker/', host: 'pjeon18.github.io/tracker' },
@@ -29,6 +30,7 @@ export const films: Film[] = [
   { card: 'tracker', src: `${F}tracker-desktop.mp4`, loop: `${F}tracker-desktop-loop.mp4`, poster: `${F}tracker-desktop.jpg`, title: 'Tracker, on the desktop', sub: 'The same menu, in context on a MacBook.' },
   { card: 'iso', src: `${F}iso-v1.mp4`, loop: `${F}iso-v1-loop.mp4`, poster: `${F}iso-v1.jpg`, title: 'ISO', sub: 'One conversation at a time.' },
   { card: 'iso', src: `${F}iso.mp4`, loop: `${F}iso-loop.mp4`, poster: `${F}iso.jpg`, title: 'ISO, redesigned', sub: 'The chromatic redesign, in progress.' },
+  { card: 'iso-redesign', src: `${F}iso-features.mp4`, loop: `${F}iso-features-loop.mp4`, poster: `${F}iso-features.jpg`, title: 'ISO, every feature', sub: 'The redesign, filmed from inside the app.' },
   { card: 'media', src: `${F}media.mp4`, loop: `${F}media-loop.mp4`, poster: `${F}media.jpg`, title: 'Are videos getting shorter?', sub: 'Our CS171 data story, cut on the beat.' },
   { card: 'prepio', src: `${F}prepio.mp4`, loop: `${F}prepio-loop.mp4`, poster: `${F}prepio.jpg`, title: 'Prep.io', sub: 'Career office hours, live.' },
 ]

@@ -7,6 +7,7 @@ import CaseStudy from './components/CaseStudy'
 import StuddyMag from './components/StuddyMag'
 import IsoMag from './components/IsoMag'
 import PrepMag from './components/PrepMag'
+import IsoLight from './components/IsoLight'
 import Pamphlet from './components/Pamphlet'
 import Impostor from './games/Impostor'
 import { installSoon } from './lib/soon'
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/work/studdy" element={<StuddyMag />} />
         <Route path="/work/iso" element={<IsoMag />} />
         <Route path="/work/prep-io" element={<PrepMag />} />
+        <Route path="/work/iso-redesign" element={<IsoLight />} />
         <Route path="/work/:slug" element={<CaseStudy />} />
         <Route path="/human-inventory" element={<Pamphlet />} />
         <Route path="/impostor" element={<Impostor />} />

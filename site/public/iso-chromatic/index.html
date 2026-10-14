@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7">
+</head>
+<body>
+
+<aside class="panel" id="panel">
+  <div class="p-brand">ISO</div>
+  <p class="p-sub">Chromatic prototype.</p>
+  <div class="p-modes"><a href="?mode=watch" id="m-watch">Watch it</a><a href="?mode=try" id="m-try">Try it</a></div>
+
+  <div class="p-group">
+    <div class="p-label">Start from</div>
+    <button data-jump="onboarding">Onboarding</button>
+    <button data-jump="home">Home</button>
+    <button data-jump="room">Live room</button>
+    <button data-jump="hold">Hold a moment</button>
+    <button data-jump="decide">Keep talking?</button>
+    <button data-jump="chat">The one chat</button>
+    <button data-jump="reflect">After a conversation</button>
+    <button data-jump="memories">Memories</button>
+  </div>
+
+  <div class="p-group">
+    <div class="p-label">ISO Live, time of night</div>
+    <button data-night="before">5:46 pm · Before it opens</button>
+    <button data-night="opening">7:59 pm · Opening</button>
+    <button data-night="live">9:04 pm · Live</button>
+    <button data-night="lastcall">12:45 am · Last call</button>
+    <button data-night="closed">1:00 am · Closed</button>
+  </div>
+
+  <div class="p-group p-keep">
+    <button data-jump="reset">Restart</button>
+  </div>
+
+  <p class="p-credit">Portraits from Unsplash, under the Unsplash License:
+    <a href="https://unsplash.com/photos/a-man-smiling-in-front-of-a-window-7fXswhCS9Fk" target="_blank" rel="noopener">you</a>,
+    <a href="https://unsplash.com/photos/smiling-woman-at-wooden-table-Ll9YOG20UFI" target="_blank" rel="noopener">Maya</a>,
+    <a href="https://unsplash.com/photos/man-in-red-crew-neck-shirt-ARBQCe2GrjQ" target="_blank" rel="noopener">Jordan</a>.</p>
+</aside>
+
+<main class="stage">
+  <div class="scaler" id="scaler">
+    <div class="phone" id="phone">
+      <svg class="defs" width="0" height="0" aria-hidden="true">
+        <defs>
+          <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#FF8A3D"/><stop offset=".3" stop-color="#FF5BA8"/>
+            <stop offset=".55" stop-color="#B86BFF"/><stop offset=".78" stop-color="#5A9BFF"/><stop offset="1" stop-color="#3FDCD2"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="island"></div>
+      <div class="statusbar">
+        <span id="clock">9:04</span>
+        <span class="sb-icons">
+          <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C5 .6 11 .6 15 4.2M3.5 7c2.6-2.2 6.4-2.2 9 0M6.3 9.8c1-.9 2.4-.9 3.4 0"/></svg>
+          <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2.5" y="2.5" width="19" height="8" rx="2"/><rect x="25" y="4.5" width="1.6" height="4" rx=".8" opacity=".4"/></svg>
+        </span>
+      </div>
+      <div id="view"></div>
+      <div id="layer"></div>
+      <div class="homebar"></div>
+    </div>
+  </div>
+</main>
+
+<div class="tourcap" id="tourcap" hidden></div>
+<script src="app.js?v=7"></script>
+<script src="tour.js?v=7"></script>
+</body>
+</html>
