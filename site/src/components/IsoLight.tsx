@@ -264,7 +264,7 @@ export default function IsoLight() {
             {'ISO, redesigned'.split(' ').map((w, i) => <span key={i} className="il-boot" style={{ '--bi': i } as React.CSSProperties}>{w + ' '}</span>)}
           </h1>
           <p className="il-boot" style={{ '--bi': 3 } as React.CSSProperties}>
-            A dating app where you talk to one person at a time. I redesigned it over eight days in October 2026, working with Claude in Figma and in code.
+            A dating app where you talk to one person at a time. I redesigned it over eight days in October 2026, with Claude in my workflow for faster prototyping and iteration.
           </p>
         </div>
         <Phone src={shHome} className="il-cover-phone" style={{ viewTransitionName: 'case-hero' } as React.CSSProperties} />
@@ -383,7 +383,7 @@ export default function IsoLight() {
       <S id="figma" len={2.6} fx="figma">
         <div className="il-figma-text">
           <div className="il-beatb"><Line a={0.02} b={0.1} c={0.42} d={0.47}>Every screen started in a Figma file.</Line></div>
-          <div className="il-beatb"><Line a={0.5} b={0.62}>Claude laid out 64 screens through Figma’s MCP server, all built on shared colors, type and components. I reviewed each round and sent it back.</Line></div>
+          <div className="il-beatb"><Line a={0.5} b={0.62}>Built all 64 screens using Figma MCP, on shared colors, type and components.</Line></div>
         </div>
         <div className="il-pan"><img src={figmaRow} alt="The core flow in Figma" /></div>
         <W a={0.52} b={0.62} cls="il-comps"><div className="il-comps-frame"><img src={figmaComps} alt="The component library in Figma" /></div></W>
@@ -509,13 +509,13 @@ export default function IsoLight() {
       {/* 12 how it was built */}
       <S id="made" len={1.8} dark className="il-made">
         <div className="il-made-list">
-          <Line a={0.02} b={0.12}>I worked with Claude through the whole redesign.</Line>
+          <Line a={0.02} b={0.12}>Claude assisted my workflow, so I could prototype and iterate faster.</Line>
           <div style={{ height: 34 }} />
           {[
-            ['Figma', 'Claude built 64 screens, the color and type variables and the components, through Figma’s MCP server.'],
-            ['Prototype', 'Claude wrote the coded prototype, with a tour that drives the real screens instead of a recording.'],
-            ['Film', 'Claude rendered the film frame by frame from that prototype, with a camera that follows the finger.'],
-            ['My part', 'I set the direction, cut anything that read as template work, and approved every screen.'],
+            ['Figma', 'Built all 64 screens, the color and type variables and the components using Figma MCP.'],
+            ['Prototype', 'A coded prototype, with a tour that drives the real screens instead of a recording.'],
+            ['Film', 'Rendered frame by frame from that prototype, with a camera that follows the finger.'],
+            ['Direction', 'I set the direction, made the calls, and cut anything that read as template work.'],
           ].map(([k, v], i) => (
             <W key={k} a={0.16 + i * 0.09} b={0.26 + i * 0.09} cls="il-made-row il-in soft"><b>{k}</b><span>{v}</span></W>
           ))}
