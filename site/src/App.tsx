@@ -8,6 +8,7 @@ import StuddyMag from './components/StuddyMag'
 import IsoMag from './components/IsoMag'
 import PrepMag from './components/PrepMag'
 import IsoLight from './components/IsoLight'
+import PathwaysCase from './components/PathwaysCase'
 import { IsoBrand, IsoProcess } from './components/IsoPages'
 import Pamphlet from './components/Pamphlet'
 import Impostor from './games/Impostor'
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/work/iso" element={<IsoMag />} />
         <Route path="/work/prep-io" element={<PrepMag />} />
         <Route path="/work/iso-redesign" element={<IsoLight />} />
+        <Route path="/work/harvard-pathways" element={<PathwaysCase />} />
         <Route path="/work/iso-redesign/brand" element={<IsoBrand />} />
         <Route path="/work/iso-redesign/process" element={<IsoProcess />} />
         <Route path="/work/:slug" element={<CaseStudy />} />
