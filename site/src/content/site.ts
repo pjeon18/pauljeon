@@ -98,6 +98,7 @@ export interface Card {
   slug?: string          // links "Read the case study →" to /work/:slug
   page?: string          // internal page route (e.g. /impostor)
   demo?: { label: string; href: string; soon?: boolean }  // external site/demo/repo; soon = not public yet
+  pages?: { label: string; href: string }[]                // extra internal pages, listed after the case study
   href?: string          // external or #anchor target; used when there's no slug
   linkLabel?: string
   image?: string         // photographic card
@@ -130,6 +131,7 @@ const allCards: Card[] = [
     t: 2026.101,
     blurb: 'The second version of ISO. White and ink, with color only where someone is live. It adds holding a moment from a chat, Memories in place of saved chats, and set hours when ISO is open. Designed in Figma and built as a coded prototype, both with Claude.',
     slug: 'iso-redesign',
+    pages: [{ label: 'The brand', href: '/work/iso-redesign/brand' }, { label: 'How it was made', href: '/work/iso-redesign/process' }],
     demo: { label: 'Open the prototype', href: `${import.meta.env.BASE_URL}iso-chromatic/index.html?mode=watch` },
     image: thumbIsoRedesign,
   },

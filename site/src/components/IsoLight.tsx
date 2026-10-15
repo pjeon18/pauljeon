@@ -223,7 +223,7 @@ const LOOP = [
   { shot: shSealed, line: 'Either of you can ask to keep talking. Your answer stays sealed.' },
   { shot: shMutual, line: 'Both answers flip at the same time. Green means you both said yes.' },
 ]
-const SLIDE_COUNT = 14
+const SLIDE_COUNT = 18
 
 export default function IsoLight() {
   const root = useRef<HTMLDivElement>(null)
@@ -246,6 +246,7 @@ export default function IsoLight() {
       <div className="il-progress" />
       <header className="il-top">
         <BackToSite />
+        <nav className="il-sub"><Link to="/work/iso-redesign/brand">Brand</Link><Link to="/work/iso-redesign/process">Process</Link></nav>
         <span className="il-count">{String(slide + 1).padStart(2, '0')} / {SLIDE_COUNT}</span>
       </header>
       <nav className="il-dots" aria-label="Slides">
@@ -270,7 +271,59 @@ export default function IsoLight() {
         <div className="il-cover-hint">Scroll<i /></div>
       </S>
 
-      {/* 02 the inbox, collapsing into one */}
+      {/* 02 why now: the market */}
+      <S id="why" len={4.2} fx="why">
+        <div className="il-why-text">
+          <div className="il-beatb"><Line a={0.01} b={0.06} c={0.14} d={0.17}>Why now</Line></div>
+          <div className="il-beatb"><Line a={0.18} b={0.23} c={0.32} d={0.35}>Bumble went private this week for $1.3B. Five years ago it IPO’d at $14B.</Line></div>
+          <div className="il-beatb"><Line a={0.36} b={0.41} c={0.5} d={0.53}>Paying users fell from about 3.8M to 3.2M in a year, and revenue has declined for nearly two.</Line></div>
+          <div className="il-beatb"><Line a={0.54} b={0.59} c={0.67} d={0.7}>Match Group is holding up better but still shrinking: 13.3M payers, down 6%, with Tinder’s monthly actives down 7%.</Line></div>
+          <div className="il-beatb"><Line a={0.71} b={0.77}>Both now charge more per subscriber to cover the people leaving.</Line></div>
+        </div>
+        <div className="il-why-fig">
+          <W a={0.18} b={0.23} c={0.32} d={0.35} cls="il-in scale"><div className="il-fig"><span className="dim">$14B</span><span>$1.3B</span></div></W>
+          <W a={0.36} b={0.41} c={0.5} d={0.53} cls="il-in scale"><div className="il-fig"><span className="dim">3.8M</span><span>3.2M</span></div></W>
+          <W a={0.54} b={0.59} c={0.67} d={0.7} cls="il-in scale"><div className="il-fig"><span>−6%</span><small>Match Group payers</small><span>−7%</span><small>Tinder monthly actives</small></div></W>
+          <W a={0.71} b={0.77} cls="il-in scale"><div className="il-fig"><span>More</span><small>per subscriber</small></div></W>
+        </div>
+      </S>
+
+      {/* 03 why now: the admission */}
+      <S id="quote" len={1.4} dark className="il-quote">
+        <div className="il-glow" />
+        <div className="il-quote-text">
+          <Line a={0.04} b={0.4}>“We failed to recognize and respond to changes in the younger demographic, especially Gen Z and what they want.”</Line>
+          <W a={0.42} b={0.6} cls="il-in soft"><p className="il-quote-by">Spencer Rascoff, CEO, Match Group</p></W>
+        </div>
+      </S>
+
+      {/* 04 why now: the exception, and where everyone is heading */}
+      <S id="shift" len={4.6} fx="shift">
+        <div className="il-why-text">
+          <div className="il-beatb"><Line a={0.01} b={0.06} c={0.16} d={0.19}>Hinge is the exception. Revenue grew 22% last quarter to $203M.</Line></div>
+          <div className="il-beatb"><Line a={0.2} b={0.25} c={0.34} d={0.37}>It was the one major app built around intent instead of volume, and it’s the one still growing.</Line></div>
+          <div className="il-beatb"><Line a={0.38} b={0.43} c={0.52} d={0.55}>The rest of the industry is moving the same direction. Tinder added an Events tab for meeting in person. Bumble is betting on group meetups and a replacement for the swipe.</Line></div>
+          <div className="il-beatb"><Line a={0.56} b={0.61} c={0.68} d={0.71}>Hinge’s founder, Justin McLeod, recently left to build Overtone: no swiping.</Line></div>
+          <div className="il-beatb"><Line a={0.72} b={0.78}>The person who built the app that works still decided the format was the problem.</Line></div>
+        </div>
+        <div className="il-why-fig">
+          <W a={0.01} b={0.06} c={0.34} d={0.37} cls="il-in scale"><div className="il-fig"><span className="up">+22%</span><small>Hinge revenue, $203M</small></div></W>
+          <W a={0.38} b={0.43} c={0.52} d={0.55} cls="il-in scale"><div className="il-fig il-fig-list"><span>Events</span><span>Meetups</span><span className="dim">The swipe</span></div></W>
+          <W a={0.56} b={0.61} cls="il-in scale"><div className="il-fig"><span>No swiping.</span><small>Overtone</small></div></W>
+        </div>
+      </S>
+
+      {/* 05 why now: ISO's answer */}
+      <S id="answer" len={2.6} dark className="il-answer">
+        <div className="il-glow" />
+        <div className="il-answer-text">
+          <div className="il-beatb"><Line a={0.02} b={0.08} c={0.24} d={0.28}>ISO started from the same conclusion. One conversation at a time, live, with someone on your campus who you’ll actually run into.</Line></div>
+          <div className="il-beatb"><Line a={0.3} b={0.36} c={0.5} d={0.54}>Tinder and Bumble are adding commitment to feeds designed for abundance. Overtone makes the choice for you.</Line></div>
+          <div className="il-beatb"><Line a={0.56} b={0.64}>ISO leaves the choice with you and removes the backup plan: there’s nobody else to talk to until this ends, so the obvious next step is to meet.</Line></div>
+        </div>
+      </S>
+
+      {/* 06 the inbox, collapsing into one */}
       <S id="inbox" len={2.6} fx="inbox">
         {BUBBLES.map((b, i) => <div key={i} className={'il-bub' + (i % 3 === 1 ? ' me' : '')}>{b}</div>)}
         <div className="il-one" />
@@ -502,6 +555,8 @@ export default function IsoLight() {
         <div className="il-out-line">
           <p className="il-line" style={{ margin: '0 auto' }}>One conversation at a time.</p>
           <div className="il-links">
+            <Link to="/work/iso-redesign/brand">The brand</Link>
+            <Link to="/work/iso-redesign/process">How it was made</Link>
             <a href={`${PROTO}?mode=watch`} target="_blank" rel="noreferrer">Watch the prototype ↗</a>
             <Link to="/" state={{ from: '/work/iso-redesign' }}>Back to all work</Link>
           </div>

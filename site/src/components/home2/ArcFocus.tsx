@@ -47,6 +47,7 @@ function tabsFor(card: Card): TabDef[] {
   else if (cs?.stack) tabs.push({ id: 'stack', label: 'Stack', body: cs.stack })
   const links: TabDef['links'] = []
   if (card.slug) links.push({ label: 'Read the case study', href: `/work/${card.slug}`, internal: true })
+  for (const pg of card.pages || []) links.push({ label: pg.label, href: pg.href, internal: true })
   if (card.page) links.push({ label: card.linkLabel || 'Open', href: card.page, internal: true })
   if (card.href && !card.href.startsWith('#')) links.push({ label: card.linkLabel || 'Open', href: card.href })
   if (card.demo) links.push({ label: card.demo.label, href: card.demo.href, soon: card.demo.soon })
