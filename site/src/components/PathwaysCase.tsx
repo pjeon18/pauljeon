@@ -118,7 +118,9 @@ const FX: Record<string, Fx> = {
       const fam = n.classList.contains('fam')
       n.style.opacity = (t * (fam ? 1 : 1 - lit * 0.75)).toFixed(3)
       n.style.setProperty('--lit', fam ? lit.toFixed(3) : '0')
-      n.style.transform = `translate(-50%, calc(-50% + ${((1 - t) * 18 + Math.sin(p * 7 + i) * 3).toFixed(2)}px))`
+      const tm = performance.now() / 1000
+      const dx = Math.sin(tm * 0.5 + i * 1.7) * 6, dy = Math.cos(tm * 0.6 + i * 2.3) * 5
+      n.style.transform = `translate(calc(-50% + ${dx.toFixed(2)}px), calc(-50% + ${((1 - t) * 18 + dy).toFixed(2)}px))`
     })
   },
   ideas(p, el) {
@@ -131,7 +133,8 @@ const FX: Record<string, Fx> = {
       const col = (i - 1.5) * 1
       // on phones the four cards fan like a hand of cards instead of a row
       const x = col * (narrow ? 13 : 12) * (1 - merge)
-      const y = (1 - spread) * 8 + (keep ? 0 : pick * 30)
+      const bob = Math.sin(performance.now() / 1000 * 0.9 + i * 1.4) * 0.5 * (1 - merge)
+      const y = (1 - spread) * 8 + (keep ? 0 : pick * 30) + bob
       const rot = (narrow ? col * 7 * (1 - merge) : 0) + merge * (i - 1.5) * 4 * (1 - (keep ? pick : 0))
       const s = 1 - merge * 0.04 + (keep ? pick * 0.12 : 0)
       c.style.transform = `translate(calc(-50% + ${x.toFixed(2)}vw), calc(-50% + ${y.toFixed(2)}vh)) rotate(${rot.toFixed(2)}deg) scale(${s.toFixed(4)})`
@@ -182,6 +185,10 @@ const FX: Record<string, Fx> = {
   loop(p, el) {
     const n = LOOP.length, k = Math.min(n - 1, Math.floor(p * n))
     el.querySelectorAll('.pw-steps i').forEach((d, i) => d.classList.toggle('on', i === k))
+    // the phone turns a little toward each new screen, then settles
+    const local = p * n - k, settle = easeOut(clamp(local / 0.3))
+    const from = k % 2 ? -7 : 7, to = k % 2 ? 7 : -7
+    el.style.setProperty('--ry', `${(from + (to - from) * settle).toFixed(2)}deg`)
   },
   stamp(p, el) {
     let cur = 1, count = 1
@@ -306,11 +313,13 @@ export default function PathwaysCase() {
       <S id="cover" len={1.6} fx="cover">
         <div className="pw-blush" />
         <div className="pw-cover-text">
-          <h1 style={{ viewTransitionName: 'case-title' } as React.CSSProperties}>Harvard Pathways</h1>
+          <h1 style={{ viewTransitionName: 'case-title' } as React.CSSProperties}>
+            {['Harvard', 'Pathways'].map((w, i) => <span key={w} className="pw-boot" style={{ '--bi': i } as React.CSSProperties}>{w}</span>)}
+          </h1>
           <p>A five-question quiz turns a kid into a specific Harvard student. Then the family walks that student’s day on campus.</p>
-          <p className="pw-meta">{COURSE} · Fall 2026 · Team of three. I worked on every milestone, from the interviews to the final prototype, and Pathways was my idea.</p>
+          <p className="pw-meta">{COURSE}. Fall 2026, team of three.</p>
         </div>
-        <Phone src={shLanding} className="pw-cover-phone" style={{ viewTransitionName: 'case-hero' } as React.CSSProperties} />
+        <div className="pw-cover-phone"><Phone src={shLanding} className="pw-float" style={{ viewTransitionName: 'case-hero' } as React.CSSProperties} /></div>
       </S>
 
       {/* 02 research */}
@@ -327,7 +336,6 @@ export default function PathwaysCase() {
       {/* 03 the problem */}
       <S id="problem" len={2} dark>
         <div className="pw-problem">
-          <W a={0.02} b={0.12} cls="pw-in soft"><p className="pw-kick">Our problem statement</p></W>
           <p className="pw-line pw-words pw-light-words" data-a={0.06} data-b={0.6}>
             {'How can we empower parents of young children who have no connection to Harvard to become personalized tour guides for their children on campus?'.split(' ').map((w, i) => <span key={i} className="w">{w + ' '}</span>)}
           </p>
@@ -339,7 +347,7 @@ export default function PathwaysCase() {
         <div className="pw-ideas-text">
           <div className="pw-beatb"><Line a={0.02} b={0.1} c={0.28} d={0.32}>We prototyped four ideas.</Line></div>
           <div className="pw-beatb"><Line a={0.36} b={0.45} c={0.6} d={0.64}>Then we combined them into one app, with stamps and points, and tested it with families.</Line></div>
-          <div className="pw-beatb"><Line a={0.68} b={0.78}>It tried to do everything. We kept Harvard Pathways, my idea, because it gave older kids a reason to care about each building.</Line></div>
+          <div className="pw-beatb"><Line a={0.68} b={0.78}>It tried to do everything. We kept Harvard Pathways, because it gave older kids a reason to care about each building.</Line></div>
         </div>
         <div className="pw-ideas">
           <div className="pw-oneapp">One app · stamps · points</div>
@@ -386,7 +394,7 @@ export default function PathwaysCase() {
         <div className="pw-passes">
           {PASSES.map((s, i) => (
             <W key={s.k} a={0.32 + i * 0.04} b={0.4 + i * 0.04} cls="pw-in pw-pass">
-              <Phone src={s.src} />
+              <Phone src={s.src} className="pw-float" style={{ animationDelay: `${-i * 1.3}s` } as React.CSSProperties} />
               <span>{s.k}</span>
             </W>
           ))}
@@ -409,7 +417,7 @@ export default function PathwaysCase() {
             return (
               <W key={i} a={a - 0.01} b={a + 0.05} c={a + 0.18} d={a + 0.21} cls="pw-in pw-pair">
                 <div className="pw-pair-col before"><Phone src={c.before} /><span>Tested</span></div>
-                <W a={a + 0.07} b={a + 0.12} cls="pw-in right pw-pair-col"><Phone src={c.after} /><span>Changed</span></W>
+                <W a={a + 0.07} b={a + 0.12} cls="pw-in swing pw-pair-col"><Phone src={c.after} /><span>Changed</span></W>
               </W>
             )
           })}
