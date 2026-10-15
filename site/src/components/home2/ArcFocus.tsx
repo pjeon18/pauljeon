@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
-import { cards, caseStudies, sections, sectionOf, firstOfSection } from '../../content/site'
+import { cards, caseStudies, sections, sectionOf } from '../../content/site'
 import type { Card } from '../../content/site'
 import CardArt from '../CardArt'
 import { markArrival } from '../../lib/arrival'
@@ -457,13 +457,8 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
   }
 
   const activeCard = cards[active]
-  // the section rail: which stretch of the wheel you're in, and a way to jump to the others
+  // which stretch of the wheel you're in, shown big in the bottom right
   const activeSection = sectionOf(active)
-  const goSection = (id: (typeof sections)[number]['id']) => {
-    const first = firstOfSection(id); if (first < 0) return
-    setPopped(false)
-    aim(Math.round(posRef.current) + wrapOffset(first, Math.round(posRef.current), n))
-  }
   const tabs = useMemo(() => tabsFor(activeCard), [activeCard])
   const [activeTab, setActiveTab] = useState('overview')
   // the on-page prototype: the pill's rect is where the window grows from
@@ -490,24 +485,6 @@ export default function ArcFocus({ spinIn = false, awaitCollision = false, dockI
           <span key={s.id} className={activeSection === s.id ? 'on' : ''}>{s.label}</span>
         ))}
       </div>
-
-      <nav className="af-sections" aria-label="Sections">
-        {sections.map((s, si) => {
-          const count = cards.filter((c) => c.section === s.id).length
-          return (
-            <button
-              key={s.id}
-              className={'af-sec' + (activeSection === s.id ? ' on' : '')}
-              style={{ '--si': si } as React.CSSProperties}
-              onClick={() => goSection(s.id)}
-              aria-current={activeSection === s.id || undefined}
-            >
-              <span className="af-sec-l">{s.label}</span>
-              <span className="af-sec-n">{String(count).padStart(2, '0')}</span>
-            </button>
-          )
-        })}
-      </nav>
 
       <div
         className="af-arc"
