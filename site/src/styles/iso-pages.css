@@ -50,7 +50,7 @@
 .ip-grid-s { grid-template-columns: repeat(4, 1fr); margin-bottom: 26px; }
 
 /* process */
-.ip-pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--hair); border-radius: 28px; overflow: hidden; }
+.ip-pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hair); border-radius: 28px; overflow: hidden; }
 .ip-pipe li { background: #fff; }
 .ip-pipe a { display: flex; flex-direction: column; gap: 6px; padding: clamp(22px, 2.4vw, 36px); text-decoration: none; min-height: 210px; transition: background .4s; }
 .ip-pipe a:hover { background: #F7F7F9; }
@@ -64,7 +64,8 @@
 .ip-head h2 { margin: 0; }
 .ip-head p { grid-column: 2; margin-top: 18px; font-size: clamp(18px, 1.5vw, 24px); font-weight: 500; letter-spacing: -.02em; color: var(--ink2); max-width: 34em; }
 .ip-pan { overflow-x: auto; border-radius: 28px; margin-bottom: clamp(14px, 1.6vw, 26px); scrollbar-width: thin; }
-.ip-pan img { width: auto; height: clamp(320px, 52vh, 620px); max-width: none; border-radius: 0; }
+.ip-pan img { width: auto; height: clamp(420px, 70vh, 820px); max-width: none; border-radius: 0; }
+.ip-fig-tall .ip-pan img { height: clamp(640px, 110vh, 1400px); }
 .ip-split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(18px, 2.4vw, 40px); align-items: start; margin-top: clamp(14px, 1.6vw, 26px); }
 .ip-split > img { max-height: 760px; object-fit: contain; }
 .ip-code { position: relative; margin: 0; padding: 30px 30px 28px; border-radius: 22px; background: #111112; color: #E8E8EC; overflow-x: auto;
@@ -104,3 +105,5 @@
 .ip-lead { margin: 0 0 clamp(36px, 6vh, 64px); font-size: clamp(19px, 1.7vw, 26px); font-weight: 500; letter-spacing: -.02em; color: var(--ink2); }
 
 .ip-figflow { margin-bottom: clamp(14px, 1.6vw, 26px); }
+.ip figcaption.above { margin: 0 0 14px; font-size: clamp(17px, 1.3vw, 21px); color: var(--ink); }
+.ip-figflow + .ip-figflow { margin-top: clamp(36px, 5vh, 56px); }

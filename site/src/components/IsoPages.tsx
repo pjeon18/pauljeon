@@ -158,8 +158,6 @@ const STAGES = [
   ['04', 'Light', 'The chromatic signature', 'GLSL'],
   ['05', 'Shaders', 'Glass and lit objects', 'WebGPU'],
   ['06', 'Kit', 'Every asset from one page', 'renderAt(t)'],
-  ['07', 'Mockups', 'Real scenes, exact art', 'Figma AI · numpy'],
-  ['08', 'Portfolio', 'This site', 'React · Vite'],
 ]
 
 export function IsoProcess() {
@@ -171,7 +169,7 @@ export function IsoProcess() {
       <Top here="process" />
 
       <section className="ip-hero ip-hero-text">
-        <div className="ip-hero-copy ip-r"><h1>How it was made.</h1><p>One designer and Claude, from a Figma file to films, a brand system and this site.</p></div>
+        <div className="ip-hero-copy ip-r"><h1>How it was made.</h1><p>From a Figma file to a working prototype, films and a brand system.</p></div>
       </section>
 
       {/* the whole pipeline at a glance */}
@@ -181,17 +179,18 @@ export function IsoProcess() {
             <li key={n} className="ip-r" style={{ transitionDelay: `${i * 60}ms` }}><a href={`#s${n}`}><span className="n">{n}</span><b>{k}</b><span className="v">{v}</span><span className="tool">{tool}</span></a></li>
           ))}
         </ol>
-        <p className="ip-cap ip-r">I set the direction and reviewed every round. Claude did the building, in Figma and in code.</p>
+        <p className="ip-cap ip-r">Claude was integrated into my workflow for rapid prototyping, experimentation and design.</p>
       </section>
 
       {/* 01 */}
       <section className="ip-sec ip-stage" id="s01">
-        <div className="ip-head ip-r"><span className="n">01</span><h2>Figma</h2><p>Claude laid out the screens through Figma’s MCP server, on shared color, type and component variables.</p></div>
-        <figure className="ip-r ip-figflow"><img src={`${R}figma/flow.webp`} alt="The core flow and its variations in Figma" /><figcaption>The core flow, with two variations each of the live room and Keep talking</figcaption></figure>
-        {[['home', 'Home and profile, by the hour of the night'], ['memories', 'Memories, and holding a moment'], ['after', 'After a conversation'], ['live', 'ISO Live']].map(([k, t]) => (
-          <figure key={k} className="ip-r ip-figflow"><img src={`${R}figma/${k}.webp`} alt={t} loading="lazy" /><figcaption>{t}</figcaption></figure>
+        <div className="ip-head ip-r"><span className="n">01</span><h2>Figma</h2><p>Built all 64 screens using Figma MCP, on shared color, type and component variables.</p></div>
+        {[['row', 'The core flow'], ['L-home', 'Home, by the hour of the night'], ['L-profile', 'Profile'], ['L-memories', 'Memories'], ['L-hold', 'Holding a moment'],
+          ['L-after', 'After a conversation'], ['L-live', 'ISO Live'], ['L-onboarding', 'Onboarding']].map(([k, t]) => (
+          <figure key={k} className={'ip-r ip-figflow' + (k === 'L-home' ? ' ip-fig-tall' : '')}>
+            <figcaption className="above">{t}</figcaption><div className="ip-pan"><img src={`${R}figma/${k}.webp`} alt={t} loading="lazy" /></div>
+          </figure>
         ))}
-        <figure className="ip-r ip-figflow"><div className="ip-pan"><img src={`${R}figma/onboarding.webp`} alt="Onboarding in Figma" loading="lazy" /></div><figcaption>Onboarding, eleven steps</figcaption></figure>
         <div className="ip-split">
           <img className="ip-r" src={`${R}figma/components.webp`} alt="The component page in Figma" />
           <div>
@@ -274,30 +273,6 @@ shader.update('orb', { lights: orbit(t) })        // 12 s seamless loop`}</Code>
   gl({ level: lerp(.35, .9, seg(t, 1.15, 1.6)) })                  // the light comes on
 } })
 // node render-kit.cjs clock-loop  →  2x PNG still + 60 fps MP4`}</Code>
-      </section>
-
-      {/* 07 */}
-      <section className="ip-sec ip-stage" id="s07">
-        <div className="ip-head ip-r"><span className="n">07</span><h2>Mockups</h2><p>Figma’s image model makes an empty scene. The real artwork is placed in by perspective, then lit by the scene, so the mark is never redrawn by AI.</p></div>
-        <div className="ip-ba">
-          {['02-shelter', '06-cards'].map(k => (
-            <div key={k} className="ip-r"><figure><img src={`${R}mock/${k}-blank.webp`} alt="The empty scene" /><figcaption>Generated, empty</figcaption></figure><figure><img src={`${R}mock/${k}.webp`} alt="With the ISO artwork" /><figcaption>Composited and lit</figcaption></figure></div>
-          ))}
-        </div>
-        <Code lang="composite.py">{`H = homography(art_corners, surface_quad)      # perspective
-low  = blur(lum, 14) / paper                    # how the light falls → multiply
-high = lum - blur(lum, 2.5)                     # paper tooth, wrinkles → add back
-out  = art * low + high
-out  = blur(out, 1.1) + grain                   # match the photo, or it looks pasted`}</Code>
-      </section>
-
-      {/* 08 */}
-      <section className="ip-sec ip-stage" id="s08">
-        <div className="ip-head ip-r"><span className="n">08</span><h2>Portfolio</h2><p>The case study is a scroll-driven deck. Every line has a window of scroll in which it rises in and falls away.</p></div>
-        <Code lang="IsoLight.tsx">{`<Line a={0.19} b={0.25} c={0.36} d={0.39}>
-  Bumble went private this week for $1.3B.
-</Line>
-// a→b: rise in, b→c: hold, c→d: fall away — as fractions of the slide's scroll`}</Code>
       </section>
 
       <Foot next="brand" />
