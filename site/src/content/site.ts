@@ -48,6 +48,7 @@ import ytLanding from '../assets/yt-landing.webp'
 import thumbTracker from '../assets/tracker-thumb.jpg'
 import thumbIsoRedesign from '../assets/iso-light/thumb.webp'
 import thumbDot from '../assets/thumb-dot.webp'
+import thumbPathways from '../assets/pathways/thumb.webp'
 import thumbLila from '../assets/thumb-lila.webp'
 import thumbImpostor from '../assets/thumb-impostor.webp'
 import thumbOrg from '../assets/thumb-org.webp'
@@ -135,6 +136,19 @@ const allCards: Card[] = [
     pages: [{ label: 'The brand', href: '/work/iso-redesign/brand' }, { label: 'How it was made', href: '/work/iso-redesign/process' }],
     demo: { label: 'Open the prototype', href: `${import.meta.env.BASE_URL}iso-chromatic/index.html?mode=watch` },
     image: thumbIsoRedesign,
+  },
+  {
+    id: 'pathways',
+    section: 'projects',
+    cats: ['product'],
+    title: 'Harvard Pathways',
+    meta: 'Product design · CS79 at Harvard · 2026',
+    when: 'OCT ’26',
+    t: 2026.1005,
+    blurb: 'A five-question quiz turns a kid into a specific Harvard student, then the family walks that student’s day on campus. Four ideas narrowed to one, tested with families in Harvard Yard, and finished with a stamp card for every stop.',
+    slug: 'harvard-pathways',
+    demo: { label: 'Open the Figma prototype', href: 'https://www.figma.com/proto/I4cEOdyCjuai9axtngVx8G/Harvard-Pathways?node-id=213-112&starting-point-node-id=213-112' },
+    image: thumbPathways,
   },
   {
     id: 'tracker',
@@ -475,6 +489,16 @@ export interface CaseStudy {
 export const caseOrder = ['iso', 'the-dot', 'studdy', 'prep-io', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
 
 export const caseStudies: Record<string, CaseStudy> = {
+  'harvard-pathways': {
+    slug: 'harvard-pathways',
+    kicker: 'Product Case Study · 2026',
+    title: 'Harvard Pathways',
+    lead: 'A five-question quiz turns a kid into a specific Harvard student, then the family walks that student’s day on campus.',
+    role: 'CS79 at Harvard, Design of Useful and Usable Interactive Systems. Team of three, with Carolyn Dorantes and Kim Cortes-Martinez. I worked on every milestone, and Pathways was my idea.',
+    stack: 'Figma, built with the Figma MCP and Claude · usability tests in Harvard Yard',
+    stats: [],
+    sections: [],
+  },
   'iso-redesign': {
     slug: 'iso-redesign',
     kicker: 'Product Case Study · 2026',
