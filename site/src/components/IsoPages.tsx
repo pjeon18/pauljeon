@@ -187,8 +187,11 @@ export function IsoProcess() {
       {/* 01 */}
       <section className="ip-sec ip-stage" id="s01">
         <div className="ip-head ip-r"><span className="n">01</span><h2>Figma</h2><p>Claude laid out the screens through Figma’s MCP server, on shared color, type and component variables.</p></div>
-        <img className="ip-r ip-figflow" src={`${R}figma/flow.webp`} alt="The core flow and its variations in Figma" />
-        <div className="ip-pan ip-r"><img src={`${R}figma/onboarding.webp`} alt="Onboarding in Figma" /></div>
+        <figure className="ip-r ip-figflow"><img src={`${R}figma/flow.webp`} alt="The core flow and its variations in Figma" /><figcaption>The core flow, with two variations each of the live room and Keep talking</figcaption></figure>
+        {[['home', 'Home and profile, by the hour of the night'], ['memories', 'Memories, and holding a moment'], ['after', 'After a conversation'], ['live', 'ISO Live']].map(([k, t]) => (
+          <figure key={k} className="ip-r ip-figflow"><img src={`${R}figma/${k}.webp`} alt={t} loading="lazy" /><figcaption>{t}</figcaption></figure>
+        ))}
+        <figure className="ip-r ip-figflow"><div className="ip-pan"><img src={`${R}figma/onboarding.webp`} alt="Onboarding in Figma" loading="lazy" /></div><figcaption>Onboarding, eleven steps</figcaption></figure>
         <div className="ip-split">
           <img className="ip-r" src={`${R}figma/components.webp`} alt="The component page in Figma" />
           <div>
