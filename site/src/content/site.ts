@@ -97,6 +97,7 @@ export interface Card {
   blurb: string          // shown in the hover reveal
   slug?: string          // links "Read the case study →" to /work/:slug
   page?: string          // internal page route (e.g. /impostor)
+  boxOnly?: boolean      // kept in The Box, left off the main site
   demo?: { label: string; href: string; soon?: boolean }  // external site/demo/repo; soon = not public yet
   pages?: { label: string; href: string }[]                // extra internal pages, listed after the case study
   href?: string          // external or #anchor target; used when there's no slug
@@ -275,6 +276,7 @@ const allCards: Card[] = [
     blurb: "Everyone gets the secret word. One of you doesn't. Good luck.",
     page: '/impostor',
     linkLabel: 'Play',
+    boxOnly: true,
     image: thumbImpostor,
   },
   {
@@ -319,7 +321,9 @@ const allCards: Card[] = [
 
 // The wheel runs section by section (work, then projects, then coursework),
 // newest first inside each, so the section rail can point at a stretch of arc.
-export const cards: Card[] = sections.flatMap((s) => allCards.filter((c) => c.section === s.id))
+// The Box shows everything; the main site leaves out box-only cards
+export const boxCards: Card[] = sections.flatMap((s) => allCards.filter((c) => c.section === s.id))
+export const cards: Card[] = boxCards.filter((c) => !c.boxOnly)
 export const sectionOf = (i: number) => cards[i]?.section ?? 'projects'
 export const firstOfSection = (id: Section) => cards.findIndex((c) => c.section === id)
 
@@ -436,7 +440,7 @@ const TAB_LABELS: Record<string, string> = {
 
 export const folders: Folder[] = [
   { id: 'about', tab: TAB_LABELS.about, kind: 'about' },
-  ...cards.map((c) => ({
+  ...boxCards.map((c) => ({
     id: c.id,
     tab: TAB_LABELS[c.id] ?? c.title,
     kind: 'project' as const,
