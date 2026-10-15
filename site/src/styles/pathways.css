@@ -46,6 +46,7 @@
 .pw-in { opacity: calc(var(--t, 0) * (1 - var(--u, 0))); transform: translateY(calc((1 - var(--t, 0)) * 34px + var(--u, 0) * -26px)); filter: blur(calc((1 - var(--t, 0)) * 8px + var(--u, 0) * 6px)); will-change: transform, opacity, filter; }
 .pw-in.soft { transform: translateY(calc((1 - var(--t, 0)) * 14px)); }
 .pw-in.right { transform: translateX(calc((1 - var(--t, 0)) * 60px)); }
+.pw-in.swing { transform: translateX(calc((1 - var(--t, 0)) * 70px)) rotate(calc((1 - var(--t, 0)) * 7deg)) scale(calc(.92 + var(--t, 0) * .08)); transform-origin: 50% 100%; }
 .pw-words .w { display: inline-block; white-space: pre; opacity: calc(var(--t, 0) * (1 - var(--u, 0))); transform: translateY(calc((1 - var(--t, 0)) * .42em)); filter: blur(calc((1 - var(--t, 0)) * 5px + var(--u, 0) * 4px)); }
 .pw-line { margin: 0; font-size: var(--line-size); line-height: 1.12; letter-spacing: -.035em; font-weight: 700; max-width: 17em; text-wrap: balance; }
 .pw-beat { position: absolute; left: 50%; top: 50%; width: min(1060px, 74vw); transform: translate(-50%, -50%); text-align: center; }
@@ -63,21 +64,26 @@
 /* 01 cover */
 .pw-s-cover .pw-blush { left: 62%; top: 30%; width: 90vmin; height: 90vmin; margin: -45vmin; opacity: .9; }
 .pw-cover-text { position: absolute; left: clamp(24px, 7vw, 130px); top: 50%; width: min(640px, 46vw); transform: translateY(calc(-50% - var(--k, 0) * 10vh)); opacity: calc(1 - var(--k, 0) * .9); }
-.pw-s-cover h1 { margin: 0; font-size: clamp(52px, 7vw, 116px); line-height: .96; letter-spacing: -.055em; font-weight: 800; animation: pwBoot 1s var(--ease) both; }
+.pw-s-cover h1 { margin: 0; font-size: clamp(52px, 7vw, 116px); line-height: .96; letter-spacing: -.055em; font-weight: 800; }
 .pw-cover-text p { margin: 26px 0 0; font-size: clamp(20px, 1.7vw, 27px); line-height: 1.35; letter-spacing: -.01em; font-weight: 500; max-width: 26em; animation: pwBoot 1s .15s var(--ease) both; }
-.pw-cover-text p.pw-meta { margin-top: 30px; font-size: clamp(16px, 1.15vw, 18px); line-height: 1.5; color: var(--ink2); font-weight: 450; max-width: 34em; animation-delay: .3s; }
+.pw-cover-text p.pw-meta { margin-top: 18px; animation-delay: .3s; }
+.pw-boot { display: inline-block; margin-right: .22em; animation: pwBoot 1s calc(var(--bi) * .12s) var(--ease) both; }
 .pw-cover-phone { position: absolute; right: clamp(24px, 12vw, 230px); top: 50%; --pw: clamp(250px, 21vw, 330px); transform: translateY(calc(-50% + var(--k, 0) * -6vh)) rotate(calc(4deg - var(--k, 0) * 4deg)); animation: pwRise 1.2s .2s cubic-bezier(.2,.8,.2,1) both; }
+/* a slow idle float on phones that have landed */
+.pw-float { animation: pwFloat 6s ease-in-out infinite; }
+@keyframes pwFloat { 0%, 100% { translate: 0 0; rotate: 0deg; } 50% { translate: 0 -10px; rotate: -.6deg; } }
+.pw-blush { animation: pwBreathe 9s ease-in-out infinite; }
+@keyframes pwBreathe { 0%, 100% { scale: 1; } 50% { scale: 1.08; } }
 @keyframes pwBoot { from { opacity: 0; transform: translateY(24px); filter: blur(8px); } }
 @keyframes pwRise { from { opacity: 0; translate: 0 60vh; } }
 
 /* 02 research notes */
-.pw-note { position: absolute; padding: 11px 16px; border-radius: 16px; background: var(--fill); color: var(--ink2); font-size: clamp(13px, 1vw, 16px); font-weight: 500; white-space: nowrap; will-change: transform, opacity;
-  background: color-mix(in srgb, var(--pink) calc(var(--lit, 0) * 100%), var(--fill)); color: color-mix(in srgb, #fff calc(var(--lit, 0) * 100%), var(--ink2)); box-shadow: 0 12px 30px -16px rgba(255,45,85, calc(var(--lit, 0) * .8)); }
+.pw-note { position: absolute; padding: 12px 18px; border-radius: 18px; background: var(--fill); color: var(--ink); font-size: clamp(15px, 1.15vw, 18px); font-weight: 500; white-space: nowrap; will-change: transform, opacity;
+  background: color-mix(in srgb, var(--pink) calc(var(--lit, 0) * 100%), var(--fill)); color: color-mix(in srgb, #fff calc(var(--lit, 0) * 100%), var(--ink)); box-shadow: 0 12px 30px -16px rgba(255,45,85, calc(var(--lit, 0) * .8)); }
 .pw-s-notes .pw-beat { width: min(820px, 56vw); }
 
 /* 03 problem */
 .pw-problem { position: absolute; left: 50%; top: 50%; width: min(1100px, 80vw); transform: translate(-50%, -50%); }
-.pw-kick { margin: 0 0 26px; color: var(--pink); font-weight: 700; font-size: clamp(16px, 1.3vw, 20px); }
 .pw-problem .pw-line { max-width: 20em; }
 .pw-light-words .w { color: rgba(255,255,255, calc(.16 + var(--t, 0) * .84)); opacity: 1; transform: none; filter: none; }
 
@@ -108,7 +114,7 @@
 /* 06 passes */
 .pw-passes { position: absolute; right: clamp(24px, 5vw, 90px); top: 50%; transform: translateY(-50%); display: flex; gap: clamp(12px, 1.4vw, 24px); --pw: clamp(120px, 10.5vw, 190px); }
 .pw-pass { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-.pw-pass span { font-size: clamp(14px, 1.05vw, 17px); font-weight: 600; color: var(--ink2); }
+.pw-pass span { font-size: clamp(17px, 1.3vw, 21px); font-weight: 650; color: var(--ink); letter-spacing: -.01em; }
 .pw-pass:nth-child(2) { margin-top: 6vh; } .pw-pass:nth-child(4) { margin-top: 6vh; }
 
 /* the Figma wireframe pan (slide 06) */
@@ -123,7 +129,7 @@
 .pw-pairs { position: absolute; right: clamp(24px, 7vw, 130px); top: 50%; width: min(44vw, 640px); height: 80vh; transform: translateY(-50%); }
 .pw-pair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: clamp(16px, 2vw, 34px); --pw: clamp(190px, 16vw, 270px); }
 .pw-pair-col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-.pw-pair-col span { font-size: clamp(14px, 1.05vw, 17px); font-weight: 600; color: var(--ink2); }
+.pw-pair-col span { font-size: clamp(17px, 1.3vw, 21px); font-weight: 650; color: var(--ink); letter-spacing: -.01em; }
 .pw-pair-col.before .pw-phone { --pw: clamp(160px, 13vw, 220px); opacity: .55; filter: saturate(.6); }
 .pw-pair-col:not(.before) span { color: var(--pink); }
 .pw-steps { position: absolute; left: clamp(24px, 7vw, 130px); bottom: 9vh; display: flex; gap: 8px; }
@@ -132,7 +138,9 @@
 .pw-steps-pairs { display: none; }
 
 /* 08 the loop */
-.pw-loop-phone { position: absolute; right: clamp(24px, 12vw, 220px); top: 50%; --pw: clamp(250px, 21vw, 330px); transform: translateY(-50%); }
+.pw-loop-phone { position: absolute; right: clamp(24px, 12vw, 220px); top: 50%; --pw: clamp(250px, 21vw, 330px); transform: translateY(-50%) perspective(1600px) rotateY(var(--ry, -7deg)) rotateX(2deg); }
+/* each screen settles in with a small zoom */
+.pw-loop-phone .scr img { transform: scale(calc(1.05 - var(--t, 0) * .05)); }
 .pw-loop-phone .pw-blush { left: -60%; top: -20%; width: 220%; height: 140%; }
 
 /* 09 stamp card */
@@ -160,7 +168,7 @@
 .pw-film video { width: 100%; aspect-ratio: 16 / 9; border-radius: 18px; background: #000; box-shadow: 0 40px 100px -40px rgba(255,45,85,.45); }
 .pw-links { margin-top: 26px; display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
 .pw-links a { color: #fff; font-weight: 600; font-size: 17px; text-decoration: underline; text-decoration-color: var(--pink); text-underline-offset: 6px; text-decoration-thickness: 2px; }
-.pw-credit { margin: 22px 0 0; color: rgba(255,255,255,.5); font-size: 14px; }
+.pw-credit { margin: 22px 0 0; color: #fff; font-size: 17px; font-weight: 500; }
 
 /* phones and narrow windows: words on top, the visual below */
 @media (max-width: 860px) {
@@ -186,3 +194,5 @@
   .pw-note:nth-child(2n) { display: none; }
   .pw-film { width: 92vw; }
 }
+
+@media (prefers-reduced-motion: reduce) { .pw-float, .pw-blush { animation: none; } }

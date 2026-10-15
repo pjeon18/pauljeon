@@ -494,7 +494,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     kicker: 'Product Case Study · 2026',
     title: 'Harvard Pathways',
     lead: 'A five-question quiz turns a kid into a specific Harvard student, then the family walks that student’s day on campus.',
-    role: 'CS79 at Harvard, Design of Useful and Usable Interactive Systems. Team of three, with Carolyn Dorantes and Kim Cortes-Martinez. I worked on every milestone, and Pathways was my idea.',
+    role: 'CS79 at Harvard, Design of Useful and Usable Interactive Systems. Team of three, with Carolyn Dorantes and Kim Cortes-Martinez.',
     stack: 'Figma, built with the Figma MCP and Claude · usability tests in Harvard Yard',
     stats: [],
     sections: [],
