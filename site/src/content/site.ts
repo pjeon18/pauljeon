@@ -13,7 +13,6 @@ import portraitFront from '../assets/portrait-front.webp'
 import pokemaps from '../assets/pokemaps.webp'
 import pocketTactics from '../assets/pocket-tactics-fit.webp'
 import portraitBack from '../assets/portrait-back.webp'
-import gYtViz from '../assets/g-yt-viz.webp'
 import gPokemaps from '../assets/g-pokemaps.webp'
 import gImpostor from '../assets/g-impostor.webp'
 import posterHumanInventory from '../assets/poster-human-inventory.webp'
@@ -223,11 +222,13 @@ const allCards: Card[] = [
     t: 2026.081,
     blurb: 'Enriched 13,000 contacts into a scored pipeline for the BDR team, with agents doing the grunt work and a confidence rating on every lead.',
     slug: 'onapsis-gtm',
+    pages: [{ label: 'Org Chart Explorer', href: '/work/org-chart-explorer' }],
     demo: { label: 'GitHub', href: 'https://github.com/pjeon18/orgcharexplorer', soon: true },
     image: onapsis,
   },
   {
     id: 'org',
+    boxOnly: true,
     section: 'work',
     cats: ['engineering'],
     title: 'Org Chart Explorer',
@@ -241,6 +242,7 @@ const allCards: Card[] = [
   },
   {
     id: 'pocket-tactics',
+    boxOnly: true,
     section: 'projects',
     cats: ['product', 'engineering'],
     title: 'Pocket Tactics',
@@ -295,6 +297,7 @@ const allCards: Card[] = [
   },
   {
     id: 'f1',
+    boxOnly: true,
     section: 'coursework',
     cats: ['ml'],
     title: 'Undercut, or stay out?',
@@ -308,6 +311,7 @@ const allCards: Card[] = [
   },
   {
     id: 'media',
+    boxOnly: true,
     section: 'coursework',
     cats: ['engineering', 'ml'],
     title: 'Are videos getting shorter?',
@@ -396,7 +400,6 @@ export const tiles: Tile[] = [
     expand: 'Procurement and project management across storefronts — vendor negotiation, PO pipelines, and creative ways to hold a <b>65% profit margin</b>, working closely with the e-commerce, stores, and stock teams.',
     link: { label: 'theharvardshop.com ↗', href: 'https://www.theharvardshop.com/' },
   },
-  { id: 'yt-viz', height: 340, image: gYtViz, title: 'The YouTube visualization' },
   { id: 'studdy-room', height: 400, image: studdyTile, title: 'Studdy — a study spot that never closes', sub: 'A café you furnish with focused minutes', to: '/work/studdy' },
   { id: 'impostor-game', height: 250, image: gImpostor, title: 'The Impostor game' },
   {
@@ -486,7 +489,7 @@ export interface CaseStudy {
   sections: CaseSection[]
 }
 
-export const caseOrder = ['iso', 'the-dot', 'studdy', 'prep-io', 'org-chart-explorer', 'onapsis-gtm', 'f1-undercut', 'rl-agents', 'media-analytics']
+export const caseOrder = ['iso', 'the-dot', 'studdy', 'prep-io', 'onapsis-gtm', 'org-chart-explorer', 'rl-agents']
 
 export const caseStudies: Record<string, CaseStudy> = {
   'harvard-pathways': {
