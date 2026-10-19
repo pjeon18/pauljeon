@@ -72,7 +72,10 @@
   .card.up:hover .face video.ok { opacity:1; }
   /* paper: a whisper of grain and a sheen that catches the light as the card turns */
   .card .gloss { position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(105deg, transparent 30%, rgba(255,255,255,.55) 48%, transparent 66%); background-size:250% 100%; background-position:var(--g, 120%) 0; opacity:var(--go, 0); }
-  .card.up:hover .inner { transform:translateY(-5px) rotateZ(var(--rz)) !important; transition:transform .5s cubic-bezier(.2,.8,.2,1); }
+  .card.settled .inner { transition:transform .6s cubic-bezier(.2,.8,.2,1); }
+  .card.settled:hover .inner { transform:translateY(-18px) scale(1.02) rotateZ(var(--rz)) !important; }
+  .card.up .shadow.u { transition:box-shadow .6s cubic-bezier(.2,.8,.2,1), opacity .8s ease; }
+  .card.settled:hover .shadow.u { box-shadow:0 6px 10px rgba(0,0,0,.08), 0 22px 40px rgba(0,0,0,.12), 0 46px 80px rgba(0,0,0,.12); }
   .card .lab { display:none; margin-top:18px; white-space:nowrap; font:500 10.5px/1.45 Inter; letter-spacing:.07em; text-transform:uppercase; transition:opacity .4s; }
   .card .lab .n { color:var(--mute); margin-right:10px; }
   .card .lab .c { display:block; color:var(--mute); }
@@ -84,8 +87,13 @@
   .end .big { right:3vw; top:12vh; text-align:right; }
   .end .meta { right:3vw; top:calc(11vh + min(22vh, 13vw) * 1.8); grid-template-columns:max-content max-content; justify-items:end; }
   .end .meta > * { opacity:1; transform:none; }
-  .count { position:fixed; right:3vw; bottom:24px; z-index:10; font:500 10.5px Inter; letter-spacing:.07em; color:var(--mute); font-variant-numeric:tabular-nums; }
-  .count b { color:var(--ink); font-weight:500; }
+  .now { position:fixed; right:3vw; bottom:3.2vh; z-index:10; text-align:right; pointer-events:none; }
+  .now .row { display:block; overflow:hidden; }
+  .now .t { display:block; font:700 min(6.4vh, 4.6vw)/1 'Inter Tight', sans-serif; letter-spacing:-.045em; color:var(--ink); padding-bottom:.06em; }
+  .now .m { display:block; margin-top:.5em; font:500 11px/1.3 Inter; letter-spacing:.08em; text-transform:uppercase; color:var(--mute); }
+  .now .m b { color:var(--ink); font-weight:600; margin-right:.9em; }
+  .now .row > * { transition:transform .55s cubic-bezier(.2,.8,.2,1), opacity .4s ease; }
+  .now.out .row > * { transform:translateY(105%); opacity:0; }
 </style>
 </head>
 <body>
@@ -94,7 +102,7 @@
   <div id="track">
     <section class="intro"><div class="stack"><div class="big" id="name"><span class="row">Paul</span><span class="row">Jeon</span></div><div class="lists meta" id="lists"><div class="hd">Work</div></div></div></section>
   </div>
-  <div class="count" id="count"></div>
+  <div class="now out" id="now"><span class="row"><span class="t" id="nowT"></span></span><span class="row"><span class="m" id="nowM"></span></span></div>
 <script src="data.js"></script>
 <script src="cs.js"></script>
 <script src="detail2.js?v=4"></script>
@@ -197,7 +205,7 @@ function flip(c) {
     { transform: `translate3d(0,0,0) rotateY(180deg) rotateZ(${c.rz})` },
     { transform: `translate3d(0,-22px,60px) rotateY(90deg) rotateZ(${c.rz})`, offset: 0.5 },
     { transform: `translate3d(0,0,0) rotateY(0deg) rotateZ(${c.rz})` },
-  ], { duration: 900, easing: 'cubic-bezier(.45,.05,.2,1)', fill: 'forwards' }).onfinish = () => { c.inner.style.transform = `rotateZ(${c.rz})`; c.inner.getAnimations().forEach(x => x.cancel()) }
+  ], { duration: 900, easing: 'cubic-bezier(.45,.05,.2,1)', fill: 'forwards' }).onfinish = () => { c.inner.style.transform = `rotateZ(${c.rz})`; c.inner.getAnimations().forEach(x => x.cancel()); c.el.classList.add('settled') }
   g.forEach(e => e.animate([{ backgroundPosition: '130% 0', opacity: 0 }, { opacity: 1, offset: 0.5 }, { backgroundPosition: '-30% 0', opacity: 0 }], { duration: 900, easing: 'ease-in-out' }))
   lab(c).animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 450, fill: 'forwards', easing: 'cubic-bezier(.2,.8,.2,1)' })
 }
@@ -339,6 +347,8 @@ function resize() {
   measure(); const keep = x; track.style.transform = 'none'; blocks.forEach(raster); track.style.transform = `translateX(${-keep}px)`
 }
 
+const nowEl = document.getElementById('now'), nowT = document.getElementById('nowT'), nowM = document.getElementById('nowM')
+let nowShown = -1, nowTimer = 0
 const t0 = performance.now(), outExpo = k => k >= 1 ? 1 : 1 - Math.pow(2, -10 * k), rows = [...document.querySelectorAll('#lists > *')]
 function frame(now) {
   const prev = x
@@ -366,7 +376,12 @@ function frame(now) {
   cards.forEach(c => { if (c.dealt && !c.up) { const r = c.el.getBoundingClientRect(); if (r.left + r.width / 2 < innerWidth * 0.62) flip(c) } })
   let fi = 0, best = 1e9
   cards.forEach((c, i) => { const r = c.el.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - innerWidth / 2); if (d < best) { best = d; fi = i } })
-  document.getElementById('count').innerHTML = x < innerWidth * 0.3 || x > maxX - innerWidth * 0.3 ? '' : `<b>${pad(fi + 1)}</b> / ${pad(cards.length)}`
+  // only once that card has been turned over, so the corner never gives a face-down card away
+  const show = x > innerWidth * 0.25 && x < maxX - innerWidth * 0.35 && cards[fi].up && !Chapter.isOpen() ? fi : -1
+  if (show !== nowShown) {
+    nowShown = show; nowEl.classList.add('out'); clearTimeout(nowTimer)
+    if (show >= 0) nowTimer = setTimeout(() => { const it = PROJ[show]; nowT.textContent = it.title; nowM.innerHTML = `<b>${it.year}</b>${LOOK[it.id][3]}`; nowEl.classList.remove('out') }, 380)
+  }
   requestAnimationFrame(frame)
 }
 addEventListener('resize', resize)
