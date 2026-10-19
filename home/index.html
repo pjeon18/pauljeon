@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Paul Jeon</title>
+<meta name="description" content="Paul Jeon — product and engineering. Projects, work, and case studies." />
+<meta property="og:title" content="Paul Jeon" />
+<meta property="og:image" content="https://pjeon18.github.io/pauljeon/classic/og.png" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=Inter+Tight:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* Plain cards. The shader lives on the type: the name at the start and the
+     line at the end are drawn in WebGL, develop out of halftone dots, break back
+     into dots under the cursor, and smear with the scroll speed. */
+  :root { --ink:#141414; --mute:#9a9a9a; }
+  html, body { margin:0; height:100%; overflow:hidden; background:#fff; font-family:Inter, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
+  canvas#gl { position:fixed; inset:0; width:100vw; height:100vh; z-index:2; pointer-events:none; }
+  .nav { position:fixed; left:3vw; right:3vw; top:22px; display:flex; justify-content:space-between; z-index:10; font:500 11px/1 Inter; letter-spacing:.06em; text-transform:uppercase; }
+  .nav .who { opacity:0; transition:opacity .5s; font-weight:600; }
+  .nav .who.on { opacity:1; }
+  .nav .r { display:flex; gap:26px; }
+  .nav .r span, .nav .r a { position:relative; cursor:pointer; color:inherit; text-decoration:none; }
+  .nav .r a::after { content:''; position:absolute; left:0; right:0; bottom:-3px; height:1px; background:var(--ink); transform:scaleX(0); transform-origin:left; transition:transform .45s cubic-bezier(.2,.8,.2,1); }
+  .nav .r a:hover::after { transform:scaleX(1); }
+  .nav .r span::after, .end .meta .v::after, .card .lab .t::after { content:''; position:absolute; left:0; right:0; bottom:-3px; height:1px; background:var(--ink); transform:scaleX(0); transform-origin:left; transition:transform .45s cubic-bezier(.2,.8,.2,1); }
+  .nav .r span:hover::after, .end .meta .v:hover::after, .card:hover .lab .t::after { transform:scaleX(1); }
+  #track { position:absolute; left:0; top:0; height:100vh; display:flex; align-items:center; will-change:transform; z-index:1; }
+  .intro { position:relative; flex:none; height:100vh; width:max(62vw, 760px); }
+  /* the type is laid out in HTML (and stays selectable/readable) but painted by the shader */
+  .big { position:absolute; font:700 min(22vh, 13vw)/.8 'Inter Tight', sans-serif; letter-spacing:-.06em; color:transparent; }
+  .big .row { display:block; padding:0 .04em .06em 0; margin-bottom:-.04em; white-space:nowrap; }
+  .stack { position:absolute; left:2.6vw; bottom:7vh; display:flex; flex-direction:column; }
+  .stack .big { position:relative; }
+  .meta { position:absolute; display:grid; grid-template-columns:max-content max-content; column-gap:40px; row-gap:5px; font:500 10.5px/1.3 Inter; letter-spacing:.07em; text-transform:uppercase; }
+  .stack .lists { position:relative; margin:4.5vh 0 0 .4vw; }
+  .lists .hd { font:600 10.5px/1 Inter; letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+  .lists .hd.gap { margin-top:22px; }
+  .lists { grid-template-columns:max-content; }
+  .lists b { font-weight:700; color:var(--ink); background:linear-gradient(var(--ink), var(--ink)) 0 100% / 0 1px no-repeat; transition:background-size .45s cubic-bezier(.2,.8,.2,1); }
+  .lists .v:hover b { background-size:100% 1px; }
+  .lists .k { margin-left:10px; }
+  .meta .p { width:max-content; }
+  .meta .p i { font-style:normal; color:var(--mute); margin-left:8px; }
+  .meta .k { color:var(--mute); }
+  .meta .v { cursor:pointer; position:relative; width:max-content; color:var(--ink); text-decoration:none; }
+  .meta .v i { font-style:normal; color:var(--mute); margin-left:8px; }
+  .meta > * { opacity:0; transform:translateY(10px); }
+  .card { position:relative; flex:none; margin-right:8vw; cursor:pointer; }
+  /* a real card: photographed back, printed face with a white margin, and a flip in 3D */
+  .card .slot { position:relative; height:min(64vh, 40vw); width:calc(min(64vh, 40vw) * 0.6443); perspective:1400px; }
+  .card .inner { position:absolute; inset:0; transform-style:preserve-3d; will-change:transform; }
+  .card .face, .card .back { position:absolute; inset:0; border-radius:5.02% / 3.23%; overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  /* one shadow per side, each always 1px behind its side: a single shadow ends up in front once the card is turned over */
+  .card .shadow.d { transform:rotateY(180deg) translateZ(-1px); box-shadow:0 2px 3px rgba(0,0,0,.17), 0 10px 22px rgba(0,0,0,.18), 0 28px 60px rgba(0,0,0,.16); }
+  .card.pile .shadow { opacity:0; transition:opacity 0s; }
+  .card .shadow { transition:box-shadow .9s ease, opacity .8s ease; position:absolute; inset:1.5% 2%; border-radius:6% / 4%; box-shadow:0 1px 2px rgba(0,0,0,.11), 0 7px 16px rgba(0,0,0,.11), 0 22px 46px rgba(0,0,0,.10); transform:translateZ(-1px); backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  .card .back { background:url(m/placeholder/card-back.png?v=4) center / 100% 100% no-repeat; transform:rotateY(180deg); }
+  /* the same card stock as the back: quilted from patches of the back photo's own white border, one sheet per card */
+  .card .face { background:#f5f5f4 url(m/placeholder/card-paper.jpg?v=2) 0 0 / 100% 100% no-repeat; }
+  .card .face .print { position:absolute; left:7%; right:7%; top:23%; aspect-ratio:1.158; border-radius:2px; overflow:hidden; background:#eee; }
+  /* printed on the card, like an index and a caption */
+  /* corner index: the number, and the ISO pawn as the suit */
+  .card .face .ix { position:absolute; left:6%; top:3.4%; display:flex; flex-direction:column; align-items:center; gap:.18em; font:700 clamp(20px, 3.6vh, 38px)/.85 'Inter Tight', sans-serif; letter-spacing:-.04em; color:#141414; }
+  .card .face .ix b { display:block; font:inherit; }
+  .card .face .ix img { width:.5em; height:auto; display:block; }
+  .card .face .ix.b { left:auto; top:auto; right:6%; bottom:3.4%; transform:rotate(180deg); }
+  .card .face .cap { position:absolute; left:7.5%; right:20%; top:calc(23% + 86% / 1.158 * 0.6443 + 4.5%); }
+  .card .face .cap .t { display:block; font:700 clamp(15px, 2.3vh, 24px)/1.02 'Inter Tight', sans-serif; letter-spacing:-.03em; color:#141414; }
+  .card .face .cap .c { display:block; margin-top:8px; font:500 clamp(9px, 1.05vh, 11px)/1.3 Inter; letter-spacing:.07em; text-transform:uppercase; color:#8a8a8a; }
+  .card .face .print img, .card .face video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .card .face video { opacity:0; transition:opacity .5s; }
+  .card.up:hover .face video.ok { opacity:1; }
+  /* paper: a whisper of grain and a sheen that catches the light as the card turns */
+  .card .gloss { position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(105deg, transparent 30%, rgba(255,255,255,.55) 48%, transparent 66%); background-size:250% 100%; background-position:var(--g, 120%) 0; opacity:var(--go, 0); }
+  .card.up:hover .inner { transform:translateY(-5px) rotateZ(var(--rz)) !important; transition:transform .5s cubic-bezier(.2,.8,.2,1); }
+  .card .lab { display:none; margin-top:18px; white-space:nowrap; font:500 10.5px/1.45 Inter; letter-spacing:.07em; text-transform:uppercase; transition:opacity .4s; }
+  .card .lab .n { color:var(--mute); margin-right:10px; }
+  .card .lab .c { display:block; color:var(--mute); }
+  .card .lab .t { position:relative; }
+  .card.away .lab { opacity:0; }
+  .card.hid .slot { visibility:hidden; }
+  /* the last thing on the row, pinned to its right edge */
+  .end { position:relative; flex:none; height:100vh; width:92vw; }
+  .end .big { right:3vw; top:12vh; text-align:right; }
+  .end .meta { right:3vw; top:calc(11vh + min(22vh, 13vw) * 1.8); grid-template-columns:max-content max-content; justify-items:end; }
+  .end .meta > * { opacity:1; transform:none; }
+  .count { position:fixed; right:3vw; bottom:24px; z-index:10; font:500 10.5px Inter; letter-spacing:.07em; color:var(--mute); font-variant-numeric:tabular-nums; }
+  .count b { color:var(--ink); font-weight:500; }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div class="nav"><span class="who" id="who">Paul Jeon</span><span class="r"><span id="navWork">Work</span><span id="navEnd">Contact</span><a href="classic/" class="navlink">Previous site</a><a href="classic/Paul_Jeon-Resume.pdf" target="_blank" rel="noopener" class="navlink">Résumé</a></span></div>
+  <div id="track">
+    <section class="intro"><div class="stack"><div class="big" id="name"><span class="row">Paul</span><span class="row">Jeon</span></div><div class="lists meta" id="lists"><div class="hd">Work</div></div></div></section>
+  </div>
+  <div class="count" id="count"></div>
+<script src="data.js"></script>
+<script src="cs.js"></script>
+<script src="detail2.js?v=4"></script>
+<script>
+const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the colour, the kind of work
+  'iso-redesign': ['m/isor-thumb.webp', 'm/iso-features-loop.mp4', '#6E56CF', 'Product design'], pathways: ['m/path-thumb.webp', 'm/pathways-loop.mp4', '#D21F4F', 'Product design'],
+  tracker: ['m/tracker-card.jpg', 'm/tracker-loop.mp4', '#2F6FE4', 'Interaction'], lila: ['m/thumb-lila.webp', null, '#141414', 'GTM engineering'],
+  'the-dot': ['m/dot-thumb.webp', null, '#D9342B', 'Interaction'], studdy: ['m/studdy-logo-card.webp', null, '#C9741E', 'Product'],
+  prepio: ['m/prepio.webp', 'm/prepio-loop.mp4', '#1F6B47', 'Product'], iso: ['m/iso-film-thumb-fit.webp', 'm/iso-v1-loop.mp4', '#F07800', 'Product'],
+  pokemaps: ['m/pokemaps.webp', null, '#B88A00', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
+}
+const SHORT = { 'iso-redesign': 'White and ink. Color only where someone is live.', pathways: 'Become a Harvard student. Then walk their day.', tracker: 'The Mac sound menu, as cables you can see.', lila: 'Account intelligence for AI-driven science.', 'the-dot': 'Onboarding with no buttons. Just a dot.', studdy: 'A study café that never closes.', prepio: 'Career office hours, made live.', iso: 'One conversation at a time.', pokemaps: 'Guess the place from the clues.', onapsis: '13,000 contacts, one scored pipeline.' }
+const LIVE = { 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
+const tint = hex => { const n = parseInt(hex.slice(1), 16), r = n >> 16, g = n >> 8 & 255, b = n & 255, f = .085; return `rgb(${Math.round(255 - (255 - r) * f)},${Math.round(255 - (255 - g) * f)},${Math.round(255 - (255 - b) * f)})` }
+const pad = n => String(n).padStart(2, '0')
+
+// ---- the row: projects as cards; jobs live in their own list on the left
+const JOBS = ['lila', 'onapsis']
+// the order on this page (ISO and The Dot traded places); the chapter's "Next" follows it too
+const ORDER = ['iso-redesign', 'pathways', 'tracker', 'iso', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
+WORK.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id))
+const PROJ = WORK.filter(w => !JOBS.includes(w.id))
+const ROLES = [
+  ['lila', 'Enterprise GTM Co-op', 'Lila Sciences', 'Now'],
+  ['onapsis', 'AI GTM Intern', 'Onapsis', '2026'],
+  [null, 'UI/UX Designer', 'Tech for Social Good', '2025'],
+  [null, 'Procurement Manager', 'The Harvard Shop', '2023–2025'],
+  [null, 'Marketing Analytics Intern', 'The Harvard Shop', '2023'],
+]
+const meta = document.getElementById('lists')
+const projRows = () => PROJ.forEach((it, i) => meta.insertAdjacentHTML('beforeend', `<span class="v" data-i="${i}"><b>${it.title}</b><span class="k">${LOOK[it.id][3]}</span><i>${it.year}</i></span>`))
+const track = document.getElementById('track')
+WORK.forEach(it => { const [thumb, , acc] = LOOK[it.id]; Object.assign(it, { tile: thumb, kind: 'cover', acc, tint: tint(acc), short: SHORT[it.id], live: LIVE[it.id] }) })
+const jobs = meta
+ROLES.forEach(([id, role, org, yr]) => jobs.insertAdjacentHTML('beforeend', `<span class="${id ? 'v' : 'p'}"${id ? ` data-id="${id}"` : ''}><b>${org}</b><span class="k">${role}</span>${yr ? `<i>${yr}</i>` : ''}</span>`))
+meta.insertAdjacentHTML('beforeend', '<div class="hd gap">Projects</div>')
+projRows()
+jobs.querySelectorAll('.v[data-id]').forEach(v => v.onclick = () => { if (Chapter.isOpen()) return; const it = WORK.find(w => w.id === v.dataset.id); Chapter.open(it, v, { targetRect: () => v.getBoundingClientRect(), next: nxt => { const j = PROJ.indexOf(nxt); if (j >= 0) { tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) } } }) })
+const cards = PROJ.map((it, i) => {
+  const [thumb, loop] = LOOK[it.id]
+  const el = document.createElement('div'); el.className = 'card'
+  const rz = (Math.sin(i * 12.9898) * 1.1).toFixed(2) + 'deg'   // dealt by hand: never quite square
+  el.style.setProperty('--rz', rz)
+  el.innerHTML = `<div class="slot"><div class="inner" style="transform:rotateY(180deg) rotateZ(${rz})"><div class="shadow u"></div><div class="shadow d"></div><div class="face"><span class="ix"><b>${i + 1}</b><img src="m/iso-suit.svg" alt=""></span><span class="ix b"><b>${i + 1}</b><img src="m/iso-suit.svg" alt=""></span><div class="print"><img src="${thumb}" alt="${it.title}">${loop ? `<video src="${loop}" muted loop playsinline preload="metadata"></video>` : ''}</div><div class="cap"><span class="t">${it.title}</span><span class="c">${LOOK[it.id][3]} · ${it.year}</span></div><div class="gloss"></div></div><div class="back"><div class="gloss"></div></div></div></div><div class="lab"><span class="n">${pad(i + 1)}</span><span class="t">${it.title}</span><span class="c">${LOOK[it.id][3]} · ${it.year}</span></div>`
+  const v = el.querySelector('video')
+  if (v) { v.addEventListener('playing', () => v.classList.add('ok')); el.onmouseenter = () => v.play().catch(() => {}); el.onmouseleave = () => { v.pause(); v.classList.remove('ok') } }
+  el.onclick = () => { if (!c.up) { flip(c); setTimeout(() => openCard(i), 650) } else openCard(i) }
+  track.appendChild(el)
+  const c = { el, slot: el.querySelector('.slot'), inner: el.querySelector('.inner'), rz, up: false, dealt: false }
+  return c
+})
+const end = document.createElement('section'); end.className = 'end'
+end.innerHTML = `<div class="big" id="more"><span class="row">Let’s</span><span class="row">Connect!</span></div><div class="meta">${[['Write', 'Email', 'mailto:pauljeon@college.harvard.edu'], ['Connect', 'LinkedIn', ME.links.find(l => l[0] === 'LinkedIn')[1]], ['Follow', 'GitHub', 'https://github.com/pjeon18'], ['Revisit', 'The previous portfolio', 'https://pjeon18.github.io/pauljeon/classic/']].map(([k, t, h]) => `<span class="k">${k}</span><a class="v" href="${h}"${h.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`
+track.appendChild(end)
+meta.querySelectorAll('.v[data-i]').forEach(v => v.onclick = () => goTo(+v.dataset.i))
+
+// ---- scroll
+let x = 0, tx = 0, maxX = 0, vel = 0
+const measure = () => { maxX = track.scrollWidth - innerWidth }
+const clamp = v => Math.max(0, Math.min(maxX, v))
+addEventListener('wheel', e => { if (Chapter.isOpen()) return; tx = clamp(tx + e.deltaY + e.deltaX) }, { passive: true })
+let touch = null
+addEventListener('touchstart', e => { touch = e.touches[0].clientX + e.touches[0].clientY })
+addEventListener('touchmove', e => { if (Chapter.isOpen() || touch == null) return; const v = e.touches[0].clientX + e.touches[0].clientY; tx = clamp(tx + (touch - v) * 1.6); touch = v })
+addEventListener('keydown', e => { if (Chapter.isOpen()) return; if (['ArrowRight', 'ArrowDown'].includes(e.key)) tx = clamp(tx + innerWidth * .45); if (['ArrowLeft', 'ArrowUp'].includes(e.key)) tx = clamp(tx - innerWidth * .45) })
+const centreOf = i => { const r = cards[i].el.getBoundingClientRect(); return x + r.left + r.width / 2 - innerWidth / 2 }
+document.getElementById('navWork').onclick = () => { if (!Chapter.isOpen()) tx = clamp(centreOf(0)) }
+document.getElementById('navEnd').onclick = () => { if (!Chapter.isOpen()) tx = maxX }
+function goTo(i) { if (!Chapter.isOpen()) tx = clamp(centreOf(i)) }
+const ptr = { x: -1e4, y: -1e4 }
+addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY })
+document.addEventListener('mouseleave', () => { ptr.x = ptr.y = -1e4 })
+
+// ---- the deal: every card starts in one pile where the first card lands, then goes out face down, far card first
+const lab = c => c.el.querySelector('.lab')
+cards.forEach(c => lab(c).style.opacity = 0)
+function deal() {
+  const base = cards[0].el.offsetLeft
+  cards.forEach((c, i) => {
+    const dx = base - c.el.offsetLeft, pileRz = (Math.sin(i * 78.233) * 3).toFixed(2)
+    const from = `translate3d(${dx - i * 0.7}px, ${-i * 0.7 + 30}px, 0) rotateY(180deg) rotateZ(${pileRz}deg)`
+    const to = `translate3d(0,0,0) rotateY(180deg) rotateZ(${c.rz})`
+    c.inner.style.transform = from
+    c.el.style.zIndex = i + 1   // the far card is on top of the pile, so it goes out first
+    if (i) c.el.classList.add('pile')   // one deck casts one shadow; each card gets its own as it leaves
+    // fade the slot, not the 3D card (opacity on a 3D parent flattens it and shows the face)
+    c.slot.animate([{ opacity: 0, transform: 'translateY(40px)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: 300 + i * 25, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' })
+    setTimeout(() => {
+      c.el.classList.remove('pile')
+      c.inner.animate([{ transform: from }, { transform: `translate3d(${dx * 0.45}px, -26px, 40px) rotateY(180deg) rotateZ(${(+pileRz * 0.4 + 2).toFixed(2)}deg)`, offset: 0.45 }, { transform: to }], { duration: 760, easing: 'cubic-bezier(.3,.6,.15,1)', fill: 'forwards' }).onfinish = () => { c.inner.style.transform = to; c.inner.getAnimations().forEach(x => x.cancel()); c.dealt = true; c.el.style.zIndex = '' }
+    }, 1100 + (cards.length - 1 - i) * 120)
+  })
+}
+// a card turns over once it has travelled far enough into the page, and stays turned
+function flip(c) {
+  if (c.up) return; c.up = true
+  const g = c.el.querySelectorAll('.gloss')
+  c.inner.getAnimations().forEach(a => a.cancel())
+  c.inner.animate([
+    { transform: `translate3d(0,0,0) rotateY(180deg) rotateZ(${c.rz})` },
+    { transform: `translate3d(0,-22px,60px) rotateY(90deg) rotateZ(${c.rz})`, offset: 0.5 },
+    { transform: `translate3d(0,0,0) rotateY(0deg) rotateZ(${c.rz})` },
+  ], { duration: 900, easing: 'cubic-bezier(.45,.05,.2,1)', fill: 'forwards' }).onfinish = () => { c.inner.style.transform = `rotateZ(${c.rz})`; c.inner.getAnimations().forEach(x => x.cancel()) }
+  g.forEach(e => e.animate([{ backgroundPosition: '130% 0', opacity: 0 }, { opacity: 1, offset: 0.5 }, { backgroundPosition: '-30% 0', opacity: 0 }], { duration: 900, easing: 'ease-in-out' }))
+  lab(c).animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 450, fill: 'forwards', easing: 'cubic-bezier(.2,.8,.2,1)' })
+}
+
+// ---- the type shader
+const cv = document.getElementById('gl')
+const gl = cv.getContext('webgl2', { premultipliedAlpha: true, antialias: false })
+let DPR = 1
+function sh(t, src) { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s); return s }
+const P = gl.createProgram()
+gl.attachShader(P, sh(gl.VERTEX_SHADER, `#version 300 es
+in vec2 aC; uniform vec4 uRect; uniform vec2 uRes; out vec2 vUv;
+void main() { vUv = aC; vec2 p = uRect.xy + aC * uRect.zw; gl_Position = vec4(p.x / uRes.x * 2.0 - 1.0, 1.0 - p.y / uRes.y * 2.0, 0.0, 1.0); }`))
+gl.attachShader(P, sh(gl.FRAGMENT_SHADER, `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform sampler2D uTex; uniform vec4 uRect; uniform vec2 uMouse; uniform float uDev, uVel, uDpr, uTime;
+out vec4 o;
+float A(vec2 px) { return texture(uTex, px / uRect.zw).a; }
+// the three warm-to-cool colours the dots print in before they settle to ink
+vec3 chroma(float k) { vec3 a = vec3(1.0, 0.50, 0.0), b = vec3(0.93, 0.20, 0.55), c = vec3(0.33, 0.36, 1.0); return k < 0.5 ? mix(a, b, k * 2.0) : mix(b, c, k * 2.0 - 1.0); }
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+// one halftone dot per cell, never larger than its cell; jit scrambles which part of the letter a dot reads from
+float dots(vec2 px, float cell, float h, float jit, float fill, out vec2 cc) {
+  cc = (floor(px / cell) + 0.5) * cell;
+  vec2 id = floor(px / cell);
+  vec2 off = (vec2(hash(id), hash(id + 7.3)) - 0.5) * cell * 1.1 * jit;
+  float cov = A(cc + off);
+  // fill 0: round dots that stay inside their cell; fill 1: dots swell to fill the cell, so the grid reads as solid
+  float r = min(cell * mix(0.46, 0.72, fill), cell * 0.5 * sqrt(cov) * mix(0.62 + 0.5 * h, 1.5, fill));
+  float aa = min(uDpr, cell * 0.25);
+  return (1.0 - smoothstep(r - aa, r + aa * 0.5, distance(px, cc))) * smoothstep(0.0, 0.03, cov);
+}
+vec4 shade(vec2 px) {
+  float solid = A(px);
+  vec2 cc;
+  // the opening: coarse, scrambled dots settle into place, get finer, then close up into the letters
+  if (uDev < 1.0) {
+    float e = uDev;
+    // the grid keeps getting finer, down past a pixel, so the dots become the letters with no hand-off
+    float cell = exp(mix(log(22.0), log(3.0), smoothstep(0.0, 0.8, e))) * uDpr;
+    vec2 id = floor(px / cell);
+    float lag = hash(id + 3.1) * 0.25;                   // each dot finds its place at its own moment
+    float k = clamp((e - lag) / 0.75, 0.0, 1.0);
+    float d = dots(px, cell, 1.0 - k, pow(1.0 - k, 2.0), 0.0, cc);
+    float fin = smoothstep(0.74, 1.0, e);                 // once the dots are dense, they quietly become the type
+    vec3 col = mix(chroma(fract(cc.x / uRect.z * 0.9 + cc.y / uRect.w * 0.3)), vec3(0.078), smoothstep(0.3, 0.7, e));
+    float a = mix(d * smoothstep(0.0, 0.08, e), solid, fin);
+    return vec4(mix(col, vec3(0.078), fin) * a, a);
+  }
+  return vec4(vec3(0.078) * solid, solid);
+}
+void main() {
+  vec2 px = vUv * uRect.zw;
+  float L = clamp(abs(uVel) * 0.9, 0.0, 140.0) * uDpr;   // smear length from the scroll speed
+  if (L < 0.8) { o = shade(px); return; }
+  vec4 acc = vec4(0.0); float rs = 0.0, bs = 0.0, ca = smoothstep(10.0, 100.0, L / uDpr) * 0.16;
+  for (int i = 0; i < 18; i++) {
+    float f = float(i) / 17.0 - 0.5;
+    vec4 s = shade(px + vec2(f * L, 0.0));
+    acc += s;
+    rs += shade(px + vec2(f * L + ca * L, 0.0)).r;
+    bs += shade(px + vec2(f * L - ca * L, 0.0)).b;
+  }
+  acc /= 18.0; acc.r = rs / 18.0; acc.b = bs / 18.0;
+  o = acc;
+}`))
+gl.linkProgram(P); if (!gl.getProgramParameter(P, gl.LINK_STATUS)) throw gl.getProgramInfoLog(P)
+const U = {}; for (let i = 0, n = gl.getProgramParameter(P, gl.ACTIVE_UNIFORMS); i < n; i++) { const a = gl.getActiveUniform(P, i); U[a.name] = gl.getUniformLocation(P, a.name) }
+const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW)
+const loc = gl.getAttribLocation(P, 'aC'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
+
+// each block of type is rasterised once into a texture, from its own HTML layout
+const PADX = 160
+const blocks = [document.getElementById('name'), document.getElementById('more')].map(el => ({ el, tex: gl.createTexture(), w: 0, h: 0, dev: 0, start: null }))
+function raster(b) {
+  const r = b.el.getBoundingClientRect(), cs = getComputedStyle(b.el)
+  const w = Math.ceil((r.width + PADX * 2) * DPR), h = Math.ceil((r.height + 40) * DPR)
+  const c = document.createElement('canvas'); c.width = w; c.height = h
+  const g = c.getContext('2d'); g.scale(DPR, DPR)
+  g.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; g.letterSpacing = cs.letterSpacing; g.fillStyle = '#000'; g.textBaseline = 'alphabetic'
+  const right = cs.textAlign === 'right'
+  b.el.querySelectorAll('.row').forEach(row => {
+    const rr = row.getBoundingClientRect(), rs = getComputedStyle(row), t = row.textContent
+    const m = g.measureText(t), asc = m.fontBoundingBoxAscent, desc = m.fontBoundingBoxDescent
+    const lh = parseFloat(cs.lineHeight), top = rr.top - r.top + parseFloat(rs.paddingTop)
+    const y = top + (lh - (asc + desc)) / 2 + asc
+    const xL = right ? rr.right - r.left - parseFloat(rs.paddingRight) - m.width : rr.left - r.left
+    g.fillText(t, PADX + xL, 20 + y)
+  })
+  gl.bindTexture(gl.TEXTURE_2D, b.tex)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  b.w = w; b.h = h
+}
+blocks.forEach(b => { b.el.style.cursor = 'pointer'; b.el.onclick = () => { b.start = performance.now(); if (b.el.id === 'name') flapAll(300) } })
+
+// ---- the lists arrive like a departure board: each letter flips through the alphabet, then lands
+const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+const flaps = []
+function flapAll(start) {
+  flaps.forEach(f => { f.el.textContent = f.fin; f.el.style.width = '' }); flaps.length = 0
+  const rows = [...document.querySelectorAll('#lists > *')]
+  rows.forEach((row, r) => {
+    row.style.opacity = 1; row.style.transform = 'none'
+    const parts = row.classList.contains('hd') ? [row] : [...row.children]
+    let lead = 0
+    parts.forEach(el => {
+      if (!el.dataset.final) el.dataset.final = el.textContent
+      const fin = el.dataset.final
+      el.style.display = 'inline-block'; el.style.whiteSpace = 'pre'; el.style.overflow = 'hidden'; el.style.verticalAlign = 'bottom'
+      el.textContent = fin; el.style.width = el.getBoundingClientRect().width + 'px'   // hold the final width so nothing jostles
+      el.textContent = ''
+      flaps.push({ el, fin, at: performance.now() + start + r * 90 + lead })
+      lead += fin.length * 30
+    })
+  })
+}
+function tickFlaps(now) {
+  for (let j = flaps.length - 1; j >= 0; j--) {
+    const f = flaps[j], t = now - f.at
+    if (t < 0) continue
+    const step = Math.floor(t / 65)   // a flap every 65ms, not every frame
+    let out = '', done = true
+    for (let i = 0; i < f.fin.length; i++) {
+      const c = f.fin[i]
+      if (t < i * 30) { out += ' '; done = false; continue }            // this flap has not started turning yet
+      if (c === ' ' || t >= 760 + i * 30 || !/[A-Za-z0-9]/.test(c)) { out += c; continue }
+      done = false
+      out += GLYPHS[(Math.floor(Math.abs(Math.sin((i + 1) * 91.7 + step * 12.3)) * 1e4)) % GLYPHS.length]
+    }
+    f.el.textContent = out
+    if (done) { f.el.textContent = f.fin; f.el.style.width = ''; flaps.splice(j, 1) }
+  }
+}
+function resize() {
+  DPR = Math.min(2, devicePixelRatio || 1); cv.width = Math.round(innerWidth * DPR); cv.height = Math.round(innerHeight * DPR)
+  measure(); const keep = x; track.style.transform = 'none'; blocks.forEach(raster); track.style.transform = `translateX(${-keep}px)`
+}
+
+const t0 = performance.now(), outExpo = k => k >= 1 ? 1 : 1 - Math.pow(2, -10 * k), rows = [...document.querySelectorAll('#lists > *')]
+function frame(now) {
+  const prev = x
+  x += (tx - x) * 0.085
+  vel += ((x - prev) - vel) * 0.35
+  track.style.transform = `translateX(${-x}px)`
+  const t = (now - t0) / 1000
+  tickFlaps(now)
+  document.getElementById('who').classList.toggle('on', x > innerWidth * 0.5)
+
+  gl.viewport(0, 0, cv.width, cv.height); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT)
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.useProgram(P)
+  gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform1f(U.uDpr, DPR); gl.uniform1f(U.uTime, t); gl.uniform1f(U.uVel, Chapter.isOpen() ? 0 : vel)
+  blocks.forEach(b => {
+    const r = b.el.getBoundingClientRect()
+    if (r.right < -PADX || r.left > innerWidth + PADX || Chapter.isOpen()) { if (r.left > innerWidth) b.start = null; return }
+    // the develop plays the first time a block comes into view (and again each time the end comes back)
+    if (b.start == null) b.start = now
+    const k = Math.min(1, (now - b.start) / 5200), dev = k * k * (3 - 2 * k)
+    const X = (r.left - PADX) * DPR, Y = (r.top - 20) * DPR
+    gl.uniform4f(U.uRect, X, Y, b.w, b.h); gl.uniform1f(U.uDev, dev)
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, b.tex); gl.uniform1i(U.uTex, 0)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+  })
+  cards.forEach(c => { if (c.dealt && !c.up) { const r = c.el.getBoundingClientRect(); if (r.left + r.width / 2 < innerWidth * 0.62) flip(c) } })
+  let fi = 0, best = 1e9
+  cards.forEach((c, i) => { const r = c.el.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - innerWidth / 2); if (d < best) { best = d; fi = i } })
+  document.getElementById('count').innerHTML = x < innerWidth * 0.3 || x > maxX - innerWidth * 0.3 ? '' : `<b>${pad(fi + 1)}</b> / ${pad(cards.length)}`
+  requestAnimationFrame(frame)
+}
+addEventListener('resize', resize)
+document.fonts.ready.then(() => { resize(); deal(); flapAll(1100); requestAnimationFrame(frame) })
+
+function openCard(i) {
+  const c = cards[i]
+  const go = () => {
+    Chapter.open(PROJ[i], c.slot, {
+      onOpen: () => { cards.forEach(o => o.el.classList.add('away')); c.el.classList.add('hid') },
+      onClose: () => { cards.forEach(o => o.el.classList.remove('away')); c.el.classList.remove('hid') },
+      targetRadius: () => getComputedStyle(c.el.querySelector('.back')).borderRadius,
+      targetRect: () => c.slot.getBoundingClientRect(),
+      next: nxt => { const j = PROJ.indexOf(nxt); if (j < 0) return; tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) },
+    })
+  }
+  const d = Math.abs(centreOf(i) - x); goTo(i); setTimeout(go, d > 40 ? 650 : 0)
+}
+</script>
+</body>
+</html>

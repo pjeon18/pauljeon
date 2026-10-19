@@ -29,21 +29,30 @@ jobs:
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
       
+      # the React site now lives one level down, at /pauljeon/classic/
       - name: Build
         working-directory: ./site
         env:
-          BASE_PATH: "/pauljeon/"
+          BASE_PATH: "/pauljeon/classic/"
         run: npm run build
-      
-      - name: SPA fallback
-        working-directory: ./site
+
+      # the card home (static, in home/) at /pauljeon/, the React site under it at /classic/.
+      # 404.html is the React app plus a redirect, so old links (/pauljeon/work/iso) land on
+      # /pauljeon/classic/work/iso and deep links inside /classic/ still render.
+      - name: Assemble
         run: |
-          mkdir -p dist
-          if [ -f dist/index.html ]; then cp dist/index.html dist/404.html; fi
-      
+          mkdir -p out
+          cp -R home/. out/
+          cp -R site/dist out/classic
+          python3 - <<'PY'
+          src = open('out/classic/index.html').read()
+          hop = """<script>(function(){var p=location.pathname,b='/pauljeon/';if(p.indexOf(b+'classic/')!==0&&p.indexOf(b)===0){location.replace(b+'classic/'+p.slice(b.length)+location.search+location.hash)}})()</script>"""
+          open('out/404.html', 'w').write(src.replace('<head>', '<head>' + hop, 1))
+          PY
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./site/dist
+          path: ./out
 
   deploy:
     needs: build
