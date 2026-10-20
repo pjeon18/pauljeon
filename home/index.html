@@ -116,6 +116,19 @@ const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the
 }
 const SHORT = { 'iso-redesign': 'White and ink. Color only where someone is live.', pathways: 'Become a Harvard student. Then walk their day.', tracker: 'The Mac sound menu, as cables you can see.', lila: 'Account intelligence for AI-driven science.', 'the-dot': 'Onboarding with no buttons. Just a dot.', studdy: 'A study café that never closes.', prepio: 'Career office hours, made live.', iso: 'One conversation at a time.', pokemaps: 'Guess the place from the clues.', onapsis: '13,000 contacts, one scored pipeline.' }
 const LIVE = { 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
+// the brief: about a minute of context before the full case study (all of it from the site's own copy)
+const BRIEF = {
+  'iso-redesign': ['The first ISO proved the idea: one live conversation at a time, or nothing.', 'The redesign keeps that rule and changes everything around it. White and ink, with color only where someone is live. It adds holding a moment from a chat, Memories in place of saved chats, and set hours when ISO is open.', 'I led it end to end over eight days in October 2026, designed in Figma and built as a coded prototype, with Claude in my workflow for faster prototyping and iteration.'],
+  pathways: ['A five-question quiz turns a kid into a specific Harvard student.', 'Then the family walks that student’s day on campus, with a stamp card for every stop.', 'Four ideas narrowed to one, tested with families in Harvard Yard. CS79 at Harvard, a team of three with Carolyn Dorantes and Kim Cortes-Martinez.'],
+  tracker: ['In the Mac sound menu, connected and playing look the same.', 'Tracker draws each app as a cable plugged into the device it plays on. Moving Zoom to the speaker is one drag, and an unplugged cable pauses its app.', 'Built on a real cable simulation, with a cyberdeck edition.'],
+  iso: ['Dating apps optimize for parallel conversations, which quietly optimizes for none of them mattering.', 'ISO refuses inboxes: one live conversation at a time, or nothing. You only keep talking if you both say yes.', 'I wrote the PRD, built the design system, and shipped the working prototype, 31 screens.'],
+  studdy: ['Everyone already studies with strangers: study-with-me videos, lofi radio, Discord voice rooms.', 'Studdy is a multiplayer study café that never closes. Real people, one shared 25/5 clock, and a room you furnish with focused minutes.', 'Product, design and engineering, solo. Shipped with real auth, live presence, and a server-verified economy, then field-tested until it was honest.'],
+  prepio: ['Career advice online is stuck at two extremes: recorded content anyone can fake, and booked one-on-ones few people can get.', 'On Prep.io, recruiters and people who do the job go live, and anyone job hunting can walk in and ask a question.', 'Product, design and engineering, solo. It took six versions to get from the PRD to the prototype that is live now.'],
+  'the-dot': ['On this site’s old homepage, a dot walked first-time visitors around the page.', 'The Dot turns it into onboarding with no buttons. Red while it moves, black while it waits on you, green when you can go.', 'It teaches its own rules on the first screen and leaves a trail you can tap to go back. Tested against Duolingo’s five questions, side by side.'],
+  pokemaps: ['A daily puzzle: guess the Pokémon in-game location from a series of clues.', 'Five region packs, 373 locations, a new one every day.'],
+  lila: ['Building the account-intelligence system behind enterprise sales for AI-driven science.', 'A named-account universe, citation-backed enrichment, and fit and timing scores written into Salesforce.'],
+  onapsis: ['A 13,000-row contact list is not a pipeline. The team already had the rows; the problem was prioritization.', 'I built a pipeline in Google Apps Script, where the team already worked, that enriches contacts from ZoomInfo and scores them, with a confidence rating on every lead.', 'By August it was over 300 leads across more than 70 accounts. AI GTM Intern, May to August 2026.'],
+}
 const tint = hex => { const n = parseInt(hex.slice(1), 16), r = n >> 16, g = n >> 8 & 255, b = n & 255, f = .085; return `rgb(${Math.round(255 - (255 - r) * f)},${Math.round(255 - (255 - g) * f)},${Math.round(255 - (255 - b) * f)})` }
 const pad = n => String(n).padStart(2, '0')
 
@@ -135,12 +148,12 @@ const ROLES = [
 const meta = document.getElementById('lists')
 const projRows = () => PROJ.forEach((it, i) => meta.insertAdjacentHTML('beforeend', `<span class="v" data-i="${i}"><b>${it.title}</b><span class="k">${LOOK[it.id][3]}</span><i>${it.year}</i></span>`))
 const track = document.getElementById('track')
-WORK.forEach(it => { const [thumb, , acc] = LOOK[it.id]; Object.assign(it, { tile: thumb, kind: 'cover', acc, tint: tint(acc), short: SHORT[it.id], live: LIVE[it.id] }) })
+WORK.forEach(it => { const [thumb, , acc] = LOOK[it.id]; Object.assign(it, { tile: thumb, kind: 'cover', acc, tint: tint(acc), short: SHORT[it.id], live: LIVE[it.id], brief: BRIEF[it.id] }) })
 const jobs = meta
 ROLES.forEach(([id, role, org, yr]) => jobs.insertAdjacentHTML('beforeend', `<span class="${id ? 'v' : 'p'}"${id ? ` data-id="${id}"` : ''}><b>${org}</b><span class="k">${role}</span>${yr ? `<i>${yr}</i>` : ''}</span>`))
 meta.insertAdjacentHTML('beforeend', '<div class="hd gap">Projects</div>')
 projRows()
-jobs.querySelectorAll('.v[data-id]').forEach(v => v.onclick = () => { if (Chapter.isOpen()) return; const it = WORK.find(w => w.id === v.dataset.id); Chapter.open(it, v, { targetRect: () => v.getBoundingClientRect(), next: nxt => { const j = PROJ.indexOf(nxt); if (j >= 0) { tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) } } }) })
+jobs.querySelectorAll('.v[data-id]').forEach(v => v.onclick = () => { if (Chapter.isOpen()) return; const it = WORK.find(w => w.id === v.dataset.id); Chapter.open(it, v, { targetRect: () => v.getBoundingClientRect(), nextItem: () => null, next: nxt => { const j = PROJ.indexOf(nxt); if (j >= 0) { tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) } } }) })
 const cards = PROJ.map((it, i) => {
   const [thumb, loop] = LOOK[it.id]
   const el = document.createElement('div'); el.className = 'card'
@@ -395,6 +408,7 @@ function openCard(i) {
       onClose: () => { cards.forEach(o => o.el.classList.remove('away')); c.el.classList.remove('hid') },
       targetRadius: () => getComputedStyle(c.el.querySelector('.back')).borderRadius,
       targetRect: () => c.slot.getBoundingClientRect(),
+      nextItem: () => PROJ[(i + 1) % PROJ.length],
       next: nxt => { const j = PROJ.indexOf(nxt); if (j < 0) return; tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) },
     })
   }

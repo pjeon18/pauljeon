@@ -65,6 +65,18 @@
   #ch .panel img { max-width:100%; max-height:74vh; border-radius:14px; display:block; box-shadow:0 30px 60px -40px rgba(0,0,0,.35); }
   #ch .panel.phones img { max-height:72vh; border-radius:28px; }
   #ch .panel + figcaption { font:500 13px/1.45 Inter, sans-serif; color:#86868b; margin-top:14px; max-width:620px; }
+  /* the brief: about a minute of reading, one idea per line, then a choice */
+  #ch .brief { max-width:880px; margin-top:6vh; }
+  #ch .brief p { margin:0 0 1.1em; font:500 clamp(19px, 1.55vw, 24px)/1.5 Inter, sans-serif; letter-spacing:-.012em; color:#424245; }
+  #ch .fork { display:grid; grid-template-columns:1fr 1fr; gap:2vw; margin-top:12vh; }
+  #ch .fork .go { cursor:pointer; padding:5vh 3vw; border-radius:24px; background:#f5f5f7; transition:background .35s, transform .5s cubic-bezier(.2,.8,.2,1); }
+  #ch .fork .go:hover { background:var(--tint); transform:translateY(-4px); }
+  #ch .fork .go h3 { margin:0; font:700 clamp(28px, 3vw, 48px)/1.02 Inter, sans-serif; letter-spacing:-.04em; color:#1d1d1f; }
+  #ch .fork .go h3 em { font-style:normal; color:#86868b; display:block; }
+  #ch .fork .go:only-child { grid-column:1 / -1; }
+  #ch .full { position:relative; height:100vh; margin:14vh -6vw 0; border-top:1px solid #e8e8ed; background:#fff; }
+  #ch .full iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#fff; }
+  #ch .body.framed { padding-bottom:0; }
   #ch .next { margin-top:22vh; cursor:pointer; }
   #ch .next h2 { margin:0; font:700 clamp(48px, 7vw, 110px)/.95 Inter, sans-serif; letter-spacing:-.05em; color:#1d1d1f; }
   #ch .next h2 em { font-style:normal; color:#86868b; }`
@@ -92,21 +104,16 @@
   function twoPart(head, first) { return `<em>${esc(head.replace(/\.$/, ''))}.</em> ${esc(first)}` }
   function bodyHTML(it) {
     const slug = CASE[it.id], c = slug && window.CS && CS.caseStudies[slug], beats = slug && CS.caseBeats[slug]
-    const work = window.WORK, nxt = work[(work.indexOf(it) + 1) % work.length]
+    const nxt = hooks.nextItem ? hooks.nextItem() : null
     let h = `<div class="facts"><span><b>${esc(it.title)}</b></span><span>${esc(it.area)}</span><span>${esc(it.disc)}</span><span>${esc(it.year)}</span></div>
       <p class="lead"><em>${esc(it.title)}.</em> ${esc(it.head)}</p>`
+    h += `<div class="brief">${(it.brief || [it.body]).map(t => `<p>${esc(t)}</p>`).join('')}</div>`
     if (c && c.stats.length) h += `<div class="stats">${c.stats.map((s, i) => `<div><b>${esc(s.value)}</b>${esc(beats && beats.stats && beats.stats[i] || s.label)}</div>`).join('')}</div>`
-    if (c) h += `<div class="meta2"><div><b>Role</b>${esc(c.role)}</div><div><b>Built with</b>${esc(c.stack)}</div><div><b>Links</b>${(c.links || []).map(l => `<a href="${l.href}" target="_blank">${esc(l.label)} ›</a>`).join('') || `<a href="https://pjeon18.github.io/pauljeon/work/${slug}" target="_blank">Read the case study ›</a>`}</div></div>`
-    if (c && c.sections.length) {
-      c.sections.forEach((s, i) => {
-        const b = beats && beats.sections[i], lines = b ? b.beats : [s.body.replace(/<[^>]+>/g, '')]
-        const fig = s.image ? `<figure style="margin:0"><div class="panel"><img src="${s.image}" alt=""></div>${(b && b.cap) || s.imageCaption ? `<figcaption>${esc((b && b.cap) || s.imageCaption)}</figcaption>` : ''}</figure>` : ''
-        h += `<section class="sec"><h2>${twoPart(s.heading, lines[0])}</h2>${lines.length > 1 ? `<div class="tx">${lines.slice(1).map(t => `<p>${esc(t)}</p>`).join('')}</div>` : ''}${fig}</section>`
-      })
-    } else {
-      h += `<section class="sec"><h2>${twoPart('In short', it.body)}</h2></section><div class="media"></div>`
-    }
-    h += `<div class="next"><h2><em>Next.</em><br>${esc(nxt.title)}</h2></div>`
+    if (!slug) h += `<div class="media"></div>`
+    // after a minute: move on to the next card, or keep going into the whole story
+    const opts = (nxt ? `<div class="go" data-act="next"><h3><em>Next</em>${esc(nxt.title)} →</h3></div>` : '') + (slug ? `<div class="go" data-act="deep"><h3><em>Keep scrolling</em>The full case study ↓</h3></div>` : '')
+    if (opts) h += `<div class="fork">${opts}</div>`
+    if (slug) h += `<div class="full"><iframe title="${esc(it.title)} case study" data-src="classic/work/${slug}" loading="lazy"></iframe></div>`
     return h
   }
   async function fillMedia(it) {
@@ -117,17 +124,34 @@
     box.querySelectorAll('img').forEach(i => i.onload = measure); measure()
   }
   function measure() { maxY = Math.max(0, scroller.scrollHeight - innerHeight) }
+  // the case study scrolls itself once it fills the screen; until then (and when you scroll
+  // back up past its top) the wheel moves this page instead
+  function wheelHere(dy) {
+    ty += dy
+    if (ty < 0) { pull += -ty; ty = 0; if (pull > 200) close() } else pull = Math.max(0, pull - Math.abs(dy))
+    ty = Math.min(ty, maxY)
+  }
+  function wireFrame(frame) {
+    frame.addEventListener('load', () => {
+      let w; try { w = frame.contentWindow; w.document } catch (e) { return }
+      w.addEventListener('wheel', e => {
+        if (!cur) return
+        const docked = ty >= maxY - 2 && y >= maxY - 6, atTop = w.scrollY <= 0
+        if (!docked || (atTop && e.deltaY < 0)) { e.preventDefault(); e.stopImmediatePropagation(); wheelHere(e.deltaY) }
+      }, { passive: false, capture: true })
+      w.addEventListener('keydown', e => { if (e.key === 'Escape' && cur) close() })
+    })
+  }
 
   function open(it, fromEl, h) {
     if (busy || cur) return
     busy = true; cur = it; hooks = h || {}; y = ty = 0; pull = 0; from = fromEl
-    const work = window.WORK, nxt = work[(work.indexOf(it) + 1) % work.length]
     root.style.setProperty('--acc', it.acc); root.style.setProperty('--tint', it.tint)
     hero.classList.toggle('still', !FILM[it.id] && !(it.tile && it.tile.endsWith('.mp4')))
     hero.innerHTML = heroInner(it) + `<div class="shade"></div><div class="over"><small>${esc(it.area)} · ${esc(it.year)}</small><h1>${esc(it.title)}.<br><span>${esc(it.short || it.head)}</span></h1></div>` + (FILM[it.id] ? `<div class="ctrl"><button class="pp">Pause</button><div class="bar"><i></i></div><button class="snd">Sound on</button></div>` : '')
     film = hero.querySelector('video.film')
     if (film) {
-      film.muted = false; film.play().catch(() => { film.muted = true; film.play().catch(() => {}) })
+      film.volume = 0.3; film.muted = false; film.play().catch(() => { film.muted = true; film.play().catch(() => {}) })
       const pp = hero.querySelector('.pp'), snd = hero.querySelector('.snd'), bar = hero.querySelector('.bar i')
       pp.onclick = e => { e.stopPropagation(); film.paused ? film.play() : film.pause(); pp.textContent = film.paused ? 'Play' : 'Pause' }
       const lab = () => snd.textContent = film.muted ? 'Sound off' : 'Sound on'
@@ -136,9 +160,16 @@
     }
     const C = card()
     scroller.innerHTML = `<div class="body" style="top:${SHRINK() + C.top + C.height + 56}px">${bodyHTML(it)}</div>`
-    scroller.querySelector('.next').onclick = () => close(() => hooks.next && hooks.next(nxt))
-    local.innerHTML = `<b>${esc(it.title)}</b><nav><span data-go="0">Overview</span>${CASE[it.id] ? '<span data-go="1">Case study</span>' : ''}${it.live ? `<a href="${it.live}" target="_blank">Try it</a>` : ''}</nav>`
-    local.querySelectorAll('[data-go]').forEach(n => n.onclick = () => { ty = n.dataset.go === '0' ? 0 : Math.min(maxY, SHRINK() + innerHeight * 0.55) })
+    const nxt = hooks.nextItem ? hooks.nextItem() : null
+    const body = scroller.querySelector('.body'), frame = scroller.querySelector('.full iframe')
+    if (frame) body.classList.add('framed')
+    scroller.querySelectorAll('.fork .go').forEach(g => g.onclick = () => {
+      if (g.dataset.act === 'next' && nxt) { const hk = hooks; close(() => hk.next && hk.next(nxt)) }
+      else ty = maxY   // glide down until the case study fills the screen
+    })
+    if (frame) wireFrame(frame)
+    local.innerHTML = `<b>${esc(it.title)}</b><nav><span data-go="0">Overview</span>${CASE[it.id] ? '<span data-go="1">Full case study</span>' : ''}${it.live ? `<a href="${it.live}" target="_blank">Try it</a>` : ''}</nav>`
+    local.querySelectorAll('[data-go]').forEach(n => n.onclick = () => { ty = n.dataset.go === '0' ? 0 : maxY })
     fillMedia(it)
     // the card opens to the full screen
     const r = fromEl.getBoundingClientRect()
@@ -171,9 +202,7 @@
   addEventListener('wheel', e => {
     if (!cur || busy) return
     e.preventDefault()
-    ty += e.deltaY
-    if (ty < 0) { pull += -ty; ty = 0; if (pull > 200) close() } else pull = Math.max(0, pull - Math.abs(e.deltaY))
-    ty = Math.min(ty, maxY)
+    wheelHere(e.deltaY)
   }, { passive: false })
   addEventListener('keydown', e => { if (e.key === 'Escape' && cur) close() })
   closeB.onclick = () => close()
@@ -190,7 +219,10 @@
       const over = hero.querySelector('.over'); if (over) over.style.opacity = 1 - Math.min(1, y / (SHRINK() * 0.3))
       const ctrl = hero.querySelector('.ctrl'); if (ctrl) ctrl.style.opacity = 1 - Math.min(1, y / (SHRINK() * 0.5))
       const shade = hero.querySelector('.shade'); if (shade) shade.style.opacity = 1 - k
-      local.classList.toggle('show', y > SHRINK() * 0.85)
+      const fr = scroller.querySelector('.full iframe')
+      if (fr && !fr.src && y > SHRINK() * 0.4) fr.src = fr.dataset.src
+      const inFrame = fr && y > maxY - innerHeight * 0.5
+      local.classList.toggle('show', y > SHRINK() * 0.85 && !inFrame)
       closeB.classList.toggle('light', y > SHRINK() * 0.6)
       closeB.style.top = y > SHRINK() * 0.85 ? '9px' : '16px'
     }
