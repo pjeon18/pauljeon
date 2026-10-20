@@ -6,7 +6,8 @@
 <title>Queue Blocks</title>
 <script>if(/[?&]embed\b/.test(location.search)) document.documentElement.classList.add('embed');
 if(/[?&]device\b/.test(location.search)) document.documentElement.classList.add('embed','device');
-if(/[?&]rec\b/.test(location.search)) document.documentElement.classList.add('embed','rec');</script>
+if(/[?&]rec\b/.test(location.search)) document.documentElement.classList.add('embed','rec');
+if(/[?&]present\b/.test(location.search)) document.documentElement.classList.add('present');</script>
 <style>
 :root{
   /* Spotify dark theme values */
@@ -315,6 +316,9 @@ html.device .ph-wrap::before{content:"";position:absolute;left:-20px;top:150px;w
 html.device .ph-wrap::after{content:"";position:absolute;right:-20px;top:236px;width:4px;height:104px;border-radius:0 2px 2px 0;background:linear-gradient(90deg,#77777c,#3d3d40)}
 html.device .status{padding-left:44px;padding-right:36px}
 html.solo .stage>.ph-wrap:nth-child(2),html.solo .ghost{visibility:hidden}
+/* ?present: no title, mode switch or footer; the panel is just the running captions */
+html.present .panel>div:first-child,html.present .modes,html.present .foot{display:none}
+html.present body{background:#0b0b0b}
 /* ?rec: the phone at 2x, for recording sharp clips (screen recording captures CSS pixels) */
 html.rec .phone,html.rec body.compare .phone{zoom:2!important}
 html.rec .ph-lbl{display:none!important}
@@ -1473,7 +1477,7 @@ document.getElementById('cmp-reset').onclick=startCompare;
 
 seed(); render(); loadColors(); requestAnimationFrame(tick);
 const qs=new URLSearchParams(location.search);
-if(qs.has('tour')) runTour(); else if(qs.has('compare')) startCompare(); else setMode('try');
+if(qs.has('tour')) runTour(); else if(qs.has('compare')){ startCompare(); if(qs.has('autoplay')) setTimeout(playDay,1600); } else setMode('try');
 </script>
 </body>
 </html>
