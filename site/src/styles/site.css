@@ -828,3 +828,6 @@ html.vt-case::view-transition-group(case-title) { animation-duration: 820ms; ani
   opacity: 0; transition: opacity 180ms ease, transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .soon-tip.on { opacity: 1; transform: translate(-50%, -100%) translateY(-2px); }
+
+/* shown inside the new home's project view */
+html.embedded .case-back, html.embedded .edge { display: none !important; }
