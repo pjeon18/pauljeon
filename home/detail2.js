@@ -3,8 +3,8 @@
 // rounded card, then the short facts, the stats, and the case study in
 // two-part headings follow. A slim local nav sticks to the top.
 (function () {
-  const CASE = { 'iso-redesign': 'iso-redesign', pathways: 'harvard-pathways', 'the-dot': 'the-dot', studdy: 'studdy', prepio: 'prep-io', iso: 'iso', onapsis: 'onapsis-gtm', f1: 'f1-undercut', media: 'media-analytics' }
-  const FILM = { 'iso-redesign': 'm/iso-features.mp4', pathways: 'm/pathways.mp4', tracker: 'm/tracker.mp4', prepio: 'm/prepio.mp4', iso: 'm/iso-v1.mp4', media: 'm/media.mp4' }
+  const CASE = { 'queue-blocks': 'queue-blocks/case-study.html', 'iso-redesign': 'iso-redesign', pathways: 'harvard-pathways', 'the-dot': 'the-dot', studdy: 'studdy', prepio: 'prep-io', iso: 'iso', onapsis: 'onapsis-gtm', f1: 'f1-undercut', media: 'media-analytics' }
+  const FILM = { 'queue-blocks': 'm/queue-blocks.mp4', 'iso-redesign': 'm/iso-features.mp4', pathways: 'm/pathways.mp4', tracker: 'm/tracker.mp4', prepio: 'm/prepio.mp4', iso: 'm/iso-v1.mp4', media: 'm/media.mp4' }
   const css = `
   #ch { position:fixed; inset:0; z-index:50; pointer-events:none; }
   #ch.on { pointer-events:auto; }
@@ -113,7 +113,7 @@
     // after a minute: move on to the next card, or keep going into the whole story
     const opts = (nxt ? `<div class="go" data-act="next"><h3><em>Next</em>${esc(nxt.title)} →</h3></div>` : '') + (slug ? `<div class="go" data-act="deep"><h3><em>Keep scrolling</em>The full case study ↓</h3></div>` : '')
     if (opts) h += `<div class="fork">${opts}</div>`
-    if (slug) h += `<div class="full"><iframe title="${esc(it.title)} case study" data-src="classic/work/${slug}" loading="lazy"></iframe></div>`
+    if (slug) h += `<div class="full"><iframe title="${esc(it.title)} case study" data-src="${slug.includes('/') ? slug : 'classic/work/' + slug}" loading="lazy"></iframe></div>`
     return h
   }
   async function fillMedia(it) {

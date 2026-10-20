@@ -1,0 +1,874 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Queue Blocks</title>
+<style>
+:root{
+  /* Spotify dark theme values (Encore web tokens) */
+  --base:#000; --bg:#121212; --elev:#1f1f1f; --elev2:#2a2a2a; --high:#282828; --press:#3e3e3e;
+  --text:#fff; --sub:#b3b3b3; --sub2:#a7a7a7; --line:rgba(255,255,255,.1);
+  --green:#1ed760; --fallback:#191414;
+  --ease:cubic-bezier(.3,0,0,1);
+  /* Spotify design guideline: platform default sans, then Helvetica Neue, Helvetica, Arial */
+  --font:-apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#0b0b0b;color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;display:flex;gap:56px;align-items:center;justify-content:center;min-height:100vh;padding:32px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+svg{display:block}
+
+/* ---------- demo panel ---------- */
+.panel{width:320px;flex:0 0 320px;align-self:stretch;display:flex;flex-direction:column;gap:28px;padding-top:24px;max-height:calc(100vh - 64px);overflow:auto}
+.panel h1{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.panel .lede{color:var(--sub);font-size:15px;line-height:1.45;margin-top:10px}
+.concepts{display:flex;flex-direction:column;gap:2px}
+.concept{text-align:left;padding:14px 16px;border-radius:8px;display:grid;grid-template-columns:28px 1fr;gap:2px 12px;transition:background .2s}
+.concept:hover{background:#1a1a1a}
+.concept.on{background:#232323}
+.concept .k{grid-row:span 2;font-size:15px;font-weight:700;color:var(--sub2);padding-top:1px}
+.concept.on .k{color:var(--green)}
+.concept .n{font-size:17px;font-weight:700}
+.concept .d{font-size:13.5px;color:var(--sub);line-height:1.4}
+.lbl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub2);margin-bottom:10px}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px}
+.pill{height:32px;padding:0 14px;border-radius:999px;background:var(--elev2);font-size:13.5px;font-weight:600;transition:background .15s,transform .1s}
+.pill:hover{background:var(--press)}
+.pill:active{transform:scale(.97)}
+.pill.on{background:var(--text);color:#000}
+.rules{font-size:13.5px;line-height:1.55;color:var(--sub);display:flex;flex-direction:column;gap:6px}
+.rules b{color:var(--text);font-weight:600}
+
+/* ---------- phone ---------- */
+.phone{width:390px;height:844px;flex:0 0 390px;border-radius:52px;background:var(--bg);position:relative;overflow:hidden;box-shadow:0 0 0 10px #1c1c1c,0 0 0 11px #2c2c2c,0 40px 80px rgba(0,0,0,.6)}
+.status{position:absolute;inset:0 0 auto 0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:6px 32px 0 40px;font-size:16px;font-weight:600;z-index:40;pointer-events:none}
+.status .r{display:flex;gap:6px;align-items:center}
+#screen{position:absolute;inset:0;overflow:hidden}
+.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+/* artwork: 4px radius per Spotify guidelines, never overlaid */
+.art{border-radius:4px;flex:0 0 auto;background:var(--fallback);position:relative;overflow:hidden}
+.mosaic{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border-radius:4px;overflow:hidden;flex:0 0 auto;background:var(--elev2)}
+.mosaic>.art{border-radius:0;width:100%!important;height:100%!important}
+.mosaic.one{grid-template-columns:1fr;grid-template-rows:1fr}
+.mosaic.empty{display:flex;align-items:center;justify-content:center;color:var(--sub2)}
+
+/* type */
+.t1{font-size:16px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t2{font-size:14px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.green{color:var(--green)!important}
+.h-sec{font-size:16px;font-weight:700;padding:0 16px;margin:24px 0 12px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub)}
+
+/* track rows (Spotify queue row: 48px art, title, artist, handle) */
+.row{display:flex;align-items:center;gap:12px;padding:8px 16px;max-height:64px;overflow:hidden;transition:max-height .32s var(--ease),opacity .25s,padding .32s var(--ease)}
+.row .meta{flex:1;min-width:0}
+.row .ic{color:var(--sub);flex:0 0 auto;padding:4px}
+.leaving{max-height:0!important;opacity:0!important;padding-top:0!important;padding-bottom:0!important}
+.enter{animation:enter .45s var(--ease) both}
+@keyframes enter{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.eq{display:inline-flex;gap:2px;align-items:flex-end;height:12px;margin-right:6px;vertical-align:-1px}
+.eq i{width:3px;background:var(--green);border-radius:1px;animation:eq 1s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:-.4s}.eq i:nth-child(3){animation-delay:-.7s}
+.paused .eq i{animation-play-state:paused}
+@keyframes eq{0%,100%{height:3px}50%{height:12px}}
+
+/* headers */
+.qhead{position:sticky;top:0;z-index:5;padding:56px 16px 12px;display:grid;grid-template-columns:32px 1fr 32px;align-items:center;background:var(--bg)}
+.qhead .c{text-align:center}
+.qhead .c .s{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sub)}
+.qhead .c .m{font-size:14px;font-weight:700;margin-top:2px}
+.ibtn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--text);transition:transform .1s,background .15s}
+.ibtn:active{transform:scale(.92)}
+.ibtn.sub{color:var(--sub)}
+
+/* block group card */
+.blk{margin:0 8px 8px;border-radius:8px;background:transparent;transition:background .2s,box-shadow .2s}
+.blk.playing{background:var(--elev)}
+.bh{display:flex;align-items:center;gap:12px;padding:12px 8px 8px}
+.bh .meta{flex:1;min-width:0}
+.bh .nm{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.blk .row{padding-left:8px;padding-right:8px}
+
+/* drag */
+[data-drag]{touch-action:none;user-select:none;-webkit-user-select:none}
+.ghost{position:fixed;z-index:999;pointer-events:none;opacity:.92;transform-origin:center;box-shadow:0 16px 40px rgba(0,0,0,.6);border-radius:8px;transition:transform .15s}
+.drag-src{opacity:.3}
+.dz{display:none}
+body.dragging .dz{display:flex}
+.dz{margin:4px 8px 12px;height:56px;border:1.5px dashed rgba(255,255,255,.25);border-radius:8px;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--sub);transition:all .15s}
+.over{border-color:var(--text)!important;color:var(--text)!important;background:rgba(255,255,255,.06)!important}
+
+/* shelf tray (concept A) */
+.tray{position:absolute;left:0;right:0;bottom:0;background:#181818;border-radius:16px 16px 0 0;padding:14px 0 30px;z-index:10;box-shadow:0 -12px 30px rgba(0,0,0,.45);transition:background .15s}
+.tray.over{background:#222!important}
+.tray-h{display:flex;align-items:center;justify-content:space-between;padding:0 16px 12px}
+.tray-h .tt{font-size:16px;font-weight:700}
+.tray-h .tt span{color:var(--sub);font-weight:400;margin-left:6px}
+.shelf{display:flex;gap:12px;overflow-x:auto;padding:0 16px;scrollbar-width:none}
+.shelf::-webkit-scrollbar{display:none}
+.scard{flex:0 0 104px;text-align:left}
+.scard .nm{font-size:13px;font-weight:600;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scard .t2{font-size:12px;margin-top:2px}
+.newcard{flex:0 0 104px;height:104px;border-radius:4px;border:1.5px dashed rgba(255,255,255,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--sub);font-size:13px;font-weight:600}
+
+/* group concept (B) */
+.grp{border-top:1px solid var(--line)}
+.grp:first-child{border-top:0}
+.gh{display:flex;align-items:center;gap:12px;padding:12px 16px;width:100%;text-align:left}
+.gh .meta{flex:1;min-width:0}
+.gh .nm{font-size:16px;font-weight:700}
+.chev{transition:transform .3s var(--ease);color:var(--sub)}
+.grp.open .chev{transform:rotate(180deg)}
+.gbody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ease)}
+.grp.open .gbody{grid-template-rows:1fr}
+.gbody>div{overflow:hidden}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:700;background:var(--elev2);color:var(--sub);margin-left:8px;vertical-align:2px}
+.chip-act{height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.3);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.chip-act:hover{border-color:#fff}
+
+/* now playing (C) */
+.np{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;transition:background .6s}
+.np::-webkit-scrollbar{display:none}
+.np-art{width:280px;height:280px;margin:8px auto 0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:background .5s}
+.np-meta{display:flex;align-items:center;padding:22px 32px 0;gap:12px}
+.np-meta .meta{flex:1;min-width:0}
+.np-meta .ti{font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-meta .ar{font-size:16px;color:rgba(255,255,255,.7);margin-top:4px}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,.3);margin:20px 32px 0;overflow:hidden}
+.bar i{display:block;height:100%;background:#fff;border-radius:2px;width:0}
+.times{display:flex;justify-content:space-between;padding:8px 32px 0;font-size:11px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums}
+.transport{display:flex;align-items:center;justify-content:space-between;padding:8px 26px 0}
+.bigplay{width:64px;height:64px;border-radius:50%;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;transition:transform .1s}
+.bigplay:active{transform:scale(.95)}
+.deck{display:flex;gap:12px;overflow-x:auto;padding:0 32px 140px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.deck::-webkit-scrollbar{display:none}
+.dcard{flex:0 0 132px;scroll-snap-align:start;text-align:left;padding:10px;border-radius:8px;background:rgba(0,0,0,.28);transition:background .2s}
+.dcard.on{background:rgba(0,0,0,.5)}
+.segs{display:flex;gap:2px;margin-top:10px;height:4px}
+.segs i{width:8px;flex:0 0 8px;border-radius:1px;background:rgba(255,255,255,.35);transition:flex-basis .32s var(--ease),width .32s var(--ease),opacity .25s,margin .32s}
+.segs i.cur{background:var(--green)}
+.segs i.leaving{flex-basis:0;width:0;opacity:0;margin-right:-2px}
+.dcard .nm{font-size:13px;font-weight:700;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dcard .t2{font-size:12px}
+
+/* workbench (D) */
+.lib-h{padding:58px 16px 8px;display:flex;align-items:center;gap:12px}
+.avatar{width:32px;height:32px;border-radius:50%;background:#e8a15a;color:#000;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.lib-h h2{font-size:24px;font-weight:700;flex:1}
+.chips{display:flex;gap:8px;padding:8px 16px 4px;overflow-x:auto;scrollbar-width:none}
+.chip{height:32px;padding:0 12px;border-radius:999px;background:var(--elev2);font-size:14px;display:flex;align-items:center;gap:6px;flex:0 0 auto;transition:background .15s}
+.chip.on{background:var(--green);color:#000;font-weight:600}
+.socket{margin:16px 16px 8px;border-radius:8px;padding:12px;background:var(--elev);transition:box-shadow .15s}
+.socket.over{box-shadow:inset 0 0 0 2px #fff}
+.brick{padding:10px 12px 12px;margin:0 8px;border-radius:8px;transition:background .15s,box-shadow .15s}
+.brick:hover{background:#181818}
+.brick.over{box-shadow:inset 0 0 0 2px #fff;background:#1d1d1d}
+.brick.sel{background:var(--elev)}
+.brick .bt{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.brick .bt .nm{font-size:15px;font-weight:700}
+.studs{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.stud{width:28px;height:28px;border-radius:4px;transition:width .32s var(--ease),opacity .25s,margin .32s var(--ease)}
+.stud.cur{box-shadow:0 0 0 2px var(--green)}
+.stud.leaving{width:0;opacity:0;margin-right:-3px}
+.seam{width:3px;height:28px;margin:0 -3px;position:relative;z-index:2}
+.split-mode .seam{width:14px;margin:0 -2px;cursor:pointer}
+.split-mode .seam::after{content:"";position:absolute;left:6px;top:-3px;bottom:-3px;width:2px;border-radius:1px;background:rgba(255,255,255,.35);transition:background .15s}
+.split-mode .seam:hover::after{background:#fff}
+.zone-lbl{font-size:12px;color:var(--sub);padding:0 24px 8px}
+.bench-drop{min-height:40px;border-radius:8px;margin:0 8px;transition:background .15s}
+.bench-drop.over{background:rgba(255,255,255,.05)}
+
+/* mini player + tabbar */
+.mini{position:absolute;left:8px;right:8px;bottom:84px;height:56px;border-radius:6px;display:flex;align-items:center;gap:10px;padding:0 8px;z-index:20;overflow:hidden;transition:background .6s}
+.mini .meta{flex:1;min-width:0}
+.mini .t1{font-size:13px;font-weight:600}
+.mini .t2{font-size:13px;color:rgba(255,255,255,.7)}
+.mini .prog{position:absolute;left:8px;right:8px;bottom:0;height:2px;background:rgba(255,255,255,.25);border-radius:1px;overflow:hidden}
+.mini .prog i{display:block;height:100%;background:#fff;width:0}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:100px;padding-top:30px;display:flex;justify-content:space-around;background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.85) 40%,#000);z-index:15}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--sub);width:72px}
+.tab.on{color:#fff}
+
+/* sheets, toasts */
+#layer{position:absolute;inset:0;z-index:60;pointer-events:none}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.6);opacity:0;transition:opacity .3s;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:78%;overflow-y:auto;background:var(--high);border-radius:12px 12px 0 0;padding:8px 0 34px;transform:translateY(100%);transition:transform .38s var(--ease);pointer-events:auto;scrollbar-width:none}
+.sheet::-webkit-scrollbar{display:none}
+.open .scrim{opacity:1}.open .sheet{transform:none}
+.grab{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.3);margin:4px auto 12px}
+.sh-head{display:flex;gap:12px;align-items:center;padding:4px 16px 16px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.sh-head .nm{font-size:16px;font-weight:700}
+.sh-title{font-size:20px;font-weight:700;padding:4px 16px 4px}
+.sh-sub{font-size:14px;color:var(--sub);padding:0 16px 16px;line-height:1.4}
+.item{display:flex;align-items:center;gap:16px;padding:13px 20px;width:100%;text-align:left;font-size:16px;transition:background .12s}
+.item:hover{background:rgba(255,255,255,.06)}
+.item .ic{color:var(--sub)}
+.item.dim{opacity:.4;pointer-events:none}
+.splitline{display:flex;align-items:center;gap:8px;padding:0 16px;height:14px;width:100%;cursor:pointer}
+.splitline i{flex:1;height:1px;background:transparent;transition:background .15s}
+.splitline span{font-size:11px;font-weight:700;color:transparent;transition:color .15s;letter-spacing:.05em;text-transform:uppercase}
+.splitline:hover i{background:#fff}.splitline:hover span{color:#fff}
+.btn-g{height:48px;padding:0 32px;border-radius:999px;background:var(--green);color:#000;font-size:16px;font-weight:700;transition:transform .1s}
+.btn-g:active{transform:scale(.97)}
+.btn-o{height:48px;padding:0 32px;border-radius:999px;border:1px solid rgba(255,255,255,.5);font-size:16px;font-weight:700}
+.check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--sub);display:flex;align-items:center;justify-content:center;flex:0 0 auto;transition:all .15s}
+.check.on{background:var(--green);border-color:var(--green);color:#000}
+
+.toast{position:absolute;left:8px;right:8px;bottom:150px;z-index:70;background:#fff;color:#000;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.4);transform:translateY(16px);opacity:0;transition:transform .35s var(--ease),opacity .25s;pointer-events:auto}
+.toast.show{transform:none;opacity:1}
+.toast .msg{flex:1;line-height:1.3}
+.toast .msg b{font-weight:700;display:block}
+.toast .msg span{color:#555;font-size:13px}
+.toast .act{font-weight:700;font-size:14px;color:#000;white-space:nowrap}
+.toast .act.pill-b{background:#000;color:#fff;height:32px;padding:0 14px;border-radius:999px}
+.toast .x{color:#555;padding:4px}
+
+.empty-state{padding:24px 24px;text-align:center;color:var(--sub);font-size:14px;line-height:1.5}
+.empty-state b{display:block;color:#fff;font-size:16px;margin-bottom:4px}
+
+@media (max-width:820px){body{flex-direction:column;padding:16px;gap:24px}.panel{width:100%;flex:none;max-height:none;padding-top:0}.phone{transform:none}}
+</style>
+</head>
+<body>
+
+<aside class="panel">
+  <div>
+    <h1>Queue Blocks</h1>
+    <p class="lede">Four ways to show one model. Blocks hold their place while they wait, shrink as they play, and disappear when they run out.</p>
+  </div>
+  <div>
+    <div class="lbl">Concepts</div>
+    <div class="concepts" id="concepts"></div>
+  </div>
+  <div>
+    <div class="lbl">Playback</div>
+    <div class="ctrls">
+      <button class="pill" id="c-play">Pause</button>
+      <button class="pill" id="c-finish">Finish song</button>
+      <button class="pill" id="c-skip">Skip</button>
+    </div>
+    <div class="ctrls" style="margin-top:8px" id="c-speed"></div>
+  </div>
+  <div>
+    <div class="lbl">Time</div>
+    <div class="ctrls">
+      <button class="pill" id="c-week">Skip ahead a week</button>
+      <button class="pill" id="c-reset">Reset</button>
+    </div>
+  </div>
+  <div>
+    <div class="lbl">Rules</div>
+    <div class="rules">
+      <div><b>Finished</b> songs leave the block. <b>Skipped</b> songs leave too.</div>
+      <div>On a block's <b>last song</b>, you're offered a copy of the original.</div>
+      <div><b>Queued today</b> keeps every song you queued. It clears at midnight.</div>
+      <div>Blocks left on the shelf for <b>two weeks</b> get a cleanup prompt.</div>
+    </div>
+  </div>
+</aside>
+
+<div class="phone" id="phone">
+  <div class="status"><span>9:41</span><span class="r">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="#fff" opacity=".4"/><rect x="2" y="2" width="17" height="8" rx="1.5" fill="#fff"/><rect x="24" y="4" width="1.5" height="4" rx=".75" fill="#fff" opacity=".4"/></svg>
+  </span></div>
+  <div id="screen"></div>
+  <div id="layer"></div>
+</div>
+
+<script>
+/* =====================================================================
+   Data. Artwork is a placeholder: generated colour tiles stand in for
+   Spotify-supplied album art (never cropped, never overlaid).
+   ===================================================================== */
+const PAL = {
+  'M83':['#1b2a6b','#e0607e'], 'Fleetwood Mac':['#d9c7a3','#5b4636'], 'MGMT':['#f2d64b','#c2412d'],
+  'Childish Gambino':['#2b1b17','#c97b3c'], 'Frank Ocean':['#f0f0ee','#e86f9c'], 'Rex Orange County':['#7fb3d5','#f4e1a8'],
+  'Daft Punk':['#111','#b88c2f'], 'Aphex Twin':['#c9c9c9','#2a2a2a'], 'Bon Iver':['#6f7f5b','#e2dccb'],
+  'Sigur Rós':['#dfe6ea','#7d93a3'], 'Brian Eno':['#0d1b2a','#5c7c99'], 'Ludovico Einaudi':['#e9e4dc','#8a7f73'],
+  'Nils Frahm':['#262626','#bfa67a'], 'Sleeping At Last':['#0c2340','#f1c27d'], 'The xx':['#f5f5f5','#111'],
+  'Kendrick Lamar':['#b11e23','#f2efe9'], 'Macklemore & Ryan Lewis':['#2c3e50','#e67e22'], 'Kanye West':['#7a1f1f','#e8c070'],
+  'Eminem':['#3b3b3b','#9aa0a6'], 'The Weeknd':['#b5121b','#1a0a0a'], 'Dua Lipa':['#1d1452','#ff6fb5'],
+  'Travis Scott':['#5a3e2b','#d9b38c'], 'Neil Young':['#d8a23a','#3d2a14'], 'Nick Drake':['#a7c1d9','#d98b6c'],
+  'The Paper Kites':['#e9d3c0','#6b8f71'], 'Bright Eyes':['#efe7d2','#9b2f2f'], 'The Head and the Heart':['#d7c7a0','#4c6a8a'],
+  'The Killers':['#c4372d','#1c1c1c'], 'John Denver':['#7da35a','#e3cf9a'], 'Tom Cochrane':['#2f5d8a','#f0b23e'],
+  'Pink Floyd':['#000','#e3e3e3'], 'James Blake':['#e6e1d8','#3b4a5c'], 'Phoebe Bridgers':['#2a1f3d','#d7b3e0'],
+};
+const RAW = [
+ // commute
+ ['Midnight City','M83',243],['Dreams','Fleetwood Mac',254],['Electric Feel','MGMT',229],['Redbone','Childish Gambino',327],
+ ['Pink + White','Frank Ocean',184],['Ivy','Frank Ocean',249],['Nights','Frank Ocean',307],['Loving Is Easy','Rex Orange County',154],
+ ['Sunflower','Rex Orange County',252],['Kids','MGMT',302],['Something About Us','Daft Punk',231],['Digital Love','Daft Punk',298],
+ // deep work
+ ['Avril 14th','Aphex Twin',125],['Re: Stacks','Bon Iver',401],['Holocene','Bon Iver',336],['Hoppípolla','Sigur Rós',268],
+ ['An Ending (Ascent)','Brian Eno',266],['Experience','Ludovico Einaudi',315],['Nuvole Bianche','Ludovico Einaudi',357],
+ ['Says','Nils Frahm',498],['Saturn','Sleeping At Last',289],['Intro','The xx',127],
+ // gym
+ ['HUMBLE.','Kendrick Lamar',177],["Can't Hold Us",'Macklemore & Ryan Lewis',258],['POWER','Kanye West',292],['Lose Yourself','Eminem',326],
+ ["'Till I Collapse",'Eminem',297],['Blinding Lights','The Weeknd',200],['Levitating','Dua Lipa',203],['SICKO MODE','Travis Scott',312],
+ // sunday
+ ['Harvest Moon','Neil Young',303],['Pink Moon','Nick Drake',124],['Bloom','The Paper Kites',210],['First Day of My Life','Bright Eyes',188],
+ ['Rivers and Roads','The Head and the Heart',320],
+ // road trip
+ ['Mr. Brightside','The Killers',222],['Take Me Home, Country Roads','John Denver',193],['Life Is a Highway','Tom Cochrane',266],
+ // extras
+ ['Breathe (In the Air)','Pink Floyd',163],['Retrograde','James Blake',223],['Kyoto','Phoebe Bridgers',184],
+ ['Motion Sickness','Phoebe Bridgers',229],['Self Control','Frank Ocean',249],['Pyramids','Frank Ocean',592],
+];
+const SONGS = {};
+RAW.forEach(([t,a,d],i)=>{ SONGS['s'+i] = {id:'s'+i,t,a,d}; });
+const ids = (from,to)=>Array.from({length:to-from},(_,i)=>'s'+(from+i));
+
+/* ---------- icons (stroke set, Encore-like weight) ---------- */
+const P = {
+  down:'<path d="M5 9l7 7 7-7"/>', clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  more:'<circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', addc:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  play:'<path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none"/>', pause:'<rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/>',
+  next:'<path d="M5 5v14l10-7z" fill="currentColor" stroke="none"/><path d="M18 5v14" stroke-width="2.4"/>', prev:'<path d="M19 5v14L9 12z" fill="currentColor" stroke="none"/><path d="M6 5v14" stroke-width="2.4"/>',
+  shuffle:'<path d="M3 7h3c4 0 6 10 10 10h4M17 14l3 3-3 3M3 17h3c1.4 0 2.6-1.2 3.6-2.8M13.4 9.8C14.4 8.2 15.6 7 17 7h3M17 4l3 3-3 3"/>',
+  repeat:'<path d="M4 11V9a3 3 0 013-3h12M16 3l3 3-3 3M20 13v2a3 3 0 01-3 3H5M8 21l-3-3 3-3"/>',
+  swap:'<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>', shelf:'<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>',
+  split:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.6 7.6L20 18M8.6 16.4L20 6"/>',
+  merge:'<path d="M6 3v6a6 6 0 006 6h0a6 6 0 016 6M18 3v6a6 6 0 01-6 6"/>',
+  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  handle:'<path d="M4 9h16M4 15h16"/>', check:'<path d="M5 12l5 5 9-10"/>', next2:'<path d="M4 6h10M4 12h10M4 18h7M17 15l4 3-4 3"/>',
+  home:'<path d="M3 10.5L12 3l9 7.5V21h-6v-6H9v6H3z"/>', search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  lib:'<path d="M4 3v18M9 3v18M14 4l5 16"/>', create:'<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M12 8v8M8 12h8"/>',
+  minus:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>', blocks:'<rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/>',
+};
+const I = (n,s=24,w=2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${P[n]}</svg>`;
+
+/* ---------- art ---------- */
+function artBg(sid){
+  const s=SONGS[sid]; const [a,b]=PAL[s.a]||['#333','#777'];
+  const n=parseInt(sid.slice(1)); const k=n%4;
+  const shapes=[
+    `radial-gradient(circle at 68% 34%, ${b} 0 22%, transparent 23%), linear-gradient(160deg, ${a}, ${a})`,
+    `linear-gradient(${b} 0 0) 0 62%/100% 38% no-repeat, ${a}`,
+    `radial-gradient(circle at 50% 120%, ${b} 0 55%, transparent 56%), ${a}`,
+    `linear-gradient(135deg, ${a} 0 50%, ${b} 50% 100%)`,
+  ];
+  return shapes[k];
+}
+const art=(sid,s=48)=>`<div class="art" style="width:${s}px;height:${s}px;background:${artBg(sid)}"></div>`;
+function mosaic(b,s=48){
+  const list=b.songs.slice(0,4);
+  if(!list.length) return `<div class="mosaic empty" style="width:${s}px;height:${s}px">${I('blocks',Math.round(s*.4),1.6)}</div>`;
+  if(list.length<4) return `<div class="mosaic one" style="width:${s}px;height:${s}px">${art(list[0],s)}</div>`;
+  return `<div class="mosaic" style="width:${s}px;height:${s}px">${list.map(id=>art(id,s/2)).join('')}</div>`;
+}
+const dom=(sid)=> (PAL[SONGS[sid].a]||['#191414'])[0];
+function darken(hex,f=.55){ let h=hex.replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join('');
+  const n=parseInt(h,16); let r=n>>16,g=n>>8&255,b=n&255;
+  // keep player backgrounds dark enough for white text
+  const lum=(.299*r+.587*g+.114*b)/255; const k=lum>.5?f*.55:f;
+  return `rgb(${r*k|0},${g*k|0},${b*k|0})`; }
+const fmt=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+const mins=b=>Math.max(1,Math.round(b.songs.reduce((t,id)=>t+SONGS[id].d,0)/60));
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* =====================================================================
+   Model
+   ===================================================================== */
+let S;
+function seed(){
+  S = {day:0, seq:0, roots:{}, blocks:{}, rail:[], shelf:[], frac:.18, playing:true, speed:4,
+       offered:{}, today:[], concept:S?S.concept:'A', open:{}, sel:null, split:false, fresh:null, asked:false};
+  const A=mk('Commute',ids(0,12),0), B=mk('Deep Work',ids(12,22),-1), C=mk('Gym',ids(22,30),-2),
+        D=mk('Sunday',ids(30,35),-12), E=mk('Road trip',ids(35,38),-13);
+  S.rail=[A.id]; S.shelf=[B.id,C.id,D.id,E.id];
+  S.open[A.id]=true;
+  // Queued today: what was queued this morning, plus a few strays
+  const t0=7*60+48;
+  ids(0,12).forEach((id,i)=>S.today.push({sid:id,at:t0+i%3,status:'queued'}));
+  [['s40',8*60+31],['s39',9*60+2],['s42',9*60+14]].forEach(([sid,at])=>S.today.push({sid,at,status:'skipped'}));
+  S.today.find(e=>e.sid==='s39').status='played';
+}
+function mk(name,songs,last,root){
+  const id='b'+(++S.seq);
+  if(!root){ root='r'+S.seq; S.roots[root]={name,songs:[...songs]}; }
+  S.blocks[id]={id,name,root,songs:[...songs],last:last??S.day,pos:0};
+  return S.blocks[id];
+}
+const cur=()=>{ const b=S.blocks[S.rail[0]]; return b&&b.songs.length?{b,sid:b.songs[0]}:null; };
+const where=id=>S.rail.includes(id)?(S.rail[0]===id?'playing':'rail'):'shelf';
+function snap(){ return JSON.stringify(S); }
+function restore(j){ const c=S.concept; S=JSON.parse(j); S.concept=c; render(); }
+function logToday(sid,status){ const e=[...S.today].reverse().find(e=>e.sid===sid); if(e) e.status=status; }
+
+/* consume the current song: finished (used) or skipped (removed) */
+let busy=false;
+function consume(kind){
+  const c=cur(); if(!c||busy) return; busy=true;
+  document.querySelectorAll(`[data-sr="${c.b.id}-${c.sid}"]`).forEach(el=>el.classList.add('leaving'));
+  setTimeout(()=>{
+    c.b.songs.shift(); c.b.last=S.day; S.frac=0;
+    logToday(c.sid, kind==='skip'?'skipped':'played');
+    if(!c.b.songs.length){
+      S.rail.shift(); delete S.blocks[c.b.id];
+      toast({title:`${c.b.name} is used up`, sub: S.rail.length?`Now playing ${S.blocks[S.rail[0]].name}`:'Pull a block off your shelf to keep listening'});
+    }
+    busy=false; render();
+  }, 320);
+}
+function checkOffer(){
+  const c=cur(); if(!c) return;
+  if(c.b.songs.length===1 && !S.offered[c.b.id]){
+    S.offered[c.b.id]=true;
+    const r=S.roots[c.b.root];
+    toast({title:`Last song in ${c.b.name}`, sub:`Keep a copy brings back all ${r.songs.length} songs`, art:c.b,
+      action:'Keep a copy', pill:true, persist:true, onAction:()=>{
+        const nb=mk(r.name,r.songs,S.day,c.b.root); S.shelf.unshift(nb.id); S.fresh=nb.id; render();
+        toast({title:`${r.name} is back on your shelf`, sub:`${r.songs.length} songs`});
+      }});
+  }
+}
+/* block operations */
+function playNow(id){
+  const u=snap(); const prev=S.rail[0];
+  if(prev===id) return;
+  if(prev){ S.blocks[prev].pos=S.frac; }
+  S.rail=S.rail.filter(x=>x!==id&&x!==prev); S.shelf=S.shelf.filter(x=>x!==id);
+  S.rail.unshift(id); if(prev) S.shelf.unshift(prev);
+  S.frac=S.blocks[id].pos||0; S.blocks[id].last=S.day; S.open[id]=true;
+  render();
+  toast({title:`Playing ${S.blocks[id].name}`, sub: prev?`${S.blocks[prev].name} is on your shelf with ${S.blocks[prev].songs.length} left`:'', action:'Undo', onAction:()=>restore(u)});
+}
+function playAfter(id){ S.shelf=S.shelf.filter(x=>x!==id); S.rail=S.rail.filter(x=>x!==id); S.rail.push(id); if(S.rail.length===1){S.frac=S.blocks[id].pos||0;} render(); }
+function hold(id){
+  const u=snap();
+  if(S.rail[0]===id){ S.blocks[id].pos=S.frac; const nx=S.rail[1]; S.frac=nx?(S.blocks[nx].pos||0):0; }
+  S.rail=S.rail.filter(x=>x!==id); S.shelf=S.shelf.filter(x=>x!==id); S.shelf.unshift(id); render();
+  toast({title:`${S.blocks[id].name} moved to your shelf`, sub:`${S.blocks[id].songs.length} songs waiting`, action:'Undo', onAction:()=>restore(u)});
+}
+function place(newId,afterId){ const arr=S.rail.includes(afterId)?S.rail:S.shelf; arr.splice(arr.indexOf(afterId)+1,0,newId); }
+function duplicate(id){ const b=S.blocks[id]; const nb=mk(b.name+' copy',b.songs,S.day,b.root); S.shelf.unshift(nb.id); S.fresh=nb.id; render(); toast({title:`Duplicated ${b.name}`, sub:'The copy is on your shelf'}); }
+function split(id,idx){
+  const u=snap(); const b=S.blocks[id]; const rest=b.songs.splice(idx);
+  const nb=mk(b.name+' · 2',rest,S.day,b.root); place(nb.id,id); S.fresh=nb.id; render();
+  toast({title:`Split ${b.name}`, sub:`${b.songs.length} + ${rest.length} songs`, action:'Undo', onAction:()=>restore(u)});
+}
+function merge(srcId,dstId){
+  if(srcId===dstId) return; const u=snap();
+  // the playing block always survives a merge
+  if(S.rail[0]===srcId){ [srcId,dstId]=[dstId,srcId]; }
+  const s=S.blocks[srcId], d=S.blocks[dstId];
+  d.songs.push(...s.songs); S.rail=S.rail.filter(x=>x!==srcId); S.shelf=S.shelf.filter(x=>x!==srcId); delete S.blocks[srcId];
+  render(); toast({title:`Merged into ${d.name}`, sub:`${d.songs.length} songs`, action:'Undo', onAction:()=>restore(u)});
+}
+function removeBlock(id){
+  const u=snap(); const nm=S.blocks[id].name;
+  if(S.rail[0]===id){ const nx=S.rail[1]; S.frac=nx?(S.blocks[nx].pos||0):0; }
+  S.rail=S.rail.filter(x=>x!==id); S.shelf=S.shelf.filter(x=>x!==id); delete S.blocks[id]; render();
+  toast({title:`Removed ${nm}`, action:'Undo', onAction:()=>restore(u)});
+}
+function removeSong(bid,sid){
+  const b=S.blocks[bid]; const i=b.songs.indexOf(sid); if(i<0) return;
+  if(S.rail[0]===bid && i===0){ consume('skip'); return; }
+  document.querySelectorAll(`[data-sr="${bid}-${sid}"]`).forEach(el=>el.classList.add('leaving'));
+  setTimeout(()=>{ b.songs.splice(b.songs.indexOf(sid),1); logToday(sid,'removed'); if(!b.songs.length){ S.rail=S.rail.filter(x=>x!==bid); S.shelf=S.shelf.filter(x=>x!==bid); delete S.blocks[bid]; } render(); },320);
+}
+function addSong(bid,sid){
+  const b=S.blocks[bid]; b.songs.push(sid);
+  const now=9*60+41; S.today.push({sid,at:now,status:'queued'});
+  render(); toast({title:`Added to ${b.name}`, sub:SONGS[sid].t});
+}
+function newBlock(){ const b=mk('New block',[],S.day); S.shelf.unshift(b.id); S.fresh=b.id; render(); sheetAdd(b.id); }
+
+/* =====================================================================
+   Shared fragments
+   ===================================================================== */
+function songRow(bid,sid,i,{handle=true,minus=false}={}){
+  const isCur = S.rail[0]===bid && i===0;
+  const s=SONGS[sid];
+  return `<div class="row" data-sr="${bid}-${sid}">${art(sid,48)}
+    <div class="meta"><div class="t1 ${isCur?'green':''}">${isCur?`<span class="eq"><i></i><i></i><i></i></span>`:''}${esc(s.t)}</div><div class="t2">${esc(s.a)}</div></div>
+    ${minus?`<button class="ic" data-act="rmsong" data-b="${bid}" data-s="${sid}" title="Remove">${I('minus',22,1.6)}</button>`:''}
+    ${handle?`<span class="ic">${I('handle',22,1.8)}</span>`:''}</div>`;
+}
+const sub=b=>{ const r=S.roots[b.root]; const n=b.songs.length;
+  return `${n} song${n===1?'':'s'} · ${mins(b)} min`; };
+const ago=b=>{ const d=S.day-b.last; return d<=0?'Played today':d===1?'Played yesterday':`Played ${d} days ago`; };
+function miniPlayer(){
+  const c=cur(); if(!c) return `<div class="mini" style="background:#282828"><div class="meta" style="padding-left:6px"><div class="t1">Nothing playing</div><div class="t2">Your rail is empty</div></div></div>`;
+  return `<div class="mini" style="background:${darken(dom(c.sid))}">${art(c.sid,40)}
+    <div class="meta"><div class="t1">${esc(SONGS[c.sid].t)}</div><div class="t2">${esc(c.b.name)} · ${c.b.songs.length} left</div></div>
+    <button class="ibtn" data-act="toggle">${I(S.playing?'pause':'play',22)}</button>
+    <div class="prog"><i data-prog></i></div></div>`;
+}
+const tabbar=(on)=>`<nav class="tabbar">${[['home','Home'],['search','Search'],['lib','Your Library'],['create','Create']].map(([k,l])=>`<div class="tab ${on===k?'on':''}">${I(k,24,on===k?2.4:1.8)}<span>${l}</span></div>`).join('')}</nav>`;
+function emptyRail(){ return `<div class="empty-state"><b>Nothing on the rail</b>Drag a block up from your shelf, or tap one to play it.</div>`; }
+
+/* =====================================================================
+   Concept A — Rail & Shelf (the Queue screen)
+   ===================================================================== */
+function viewA(){
+  const c=cur();
+  const railHtml = S.rail.map((id,ri)=>{ const b=S.blocks[id];
+    return `<div class="blk ${ri===0?'playing':''} ${S.fresh===id?'enter':''}" data-drop="${ri===0?'play':'next'}">
+      <div class="bh" data-drag="${id}">${mosaic(b,40)}
+        <div class="meta"><div class="nm">${esc(b.name)}</div><div class="t2">${ri===0?'<span class="green">Playing</span> · ':''}${sub(b)}</div></div>
+        <button class="ibtn sub" data-act="menu" data-b="${id}">${I('more',22)}</button></div>
+      ${b.songs.map((sid,i)=>songRow(id,sid,i)).join('')}
+    </div>`; }).join('');
+  return `<div class="scroll" style="padding-bottom:230px">
+    <div class="qhead"><button class="ibtn">${I('down',24)}</button>
+      <div class="c"><div class="m">Queue</div></div>
+      <button class="ibtn" data-act="today" title="Queued today">${I('clock',22)}</button></div>
+    ${c?'':emptyRail()}
+    ${S.rail.length?`<div class="h-sec" style="margin-top:8px">On the rail</div>`:''}
+    <div data-drop="next">${railHtml}</div>
+    <div class="dz" data-drop="play">Drop here to play now</div>
+    <div class="dz" data-drop="next">Drop here to play next</div>
+  </div>
+  <div class="tray" data-drop="shelf">
+    <div class="tray-h"><div class="tt">Shelf<span>${S.shelf.length}</span></div>
+      <button class="ibtn sub" data-act="today">${I('clock',20)}</button></div>
+    <div class="shelf">${S.shelf.map(id=>{ const b=S.blocks[id];
+      return `<button class="scard ${S.fresh===id?'enter':''}" data-drag="${id}" data-act="menu" data-b="${id}">${mosaic(b,104)}
+        <div class="nm">${esc(b.name)}</div><div class="t2">${b.songs.length} left</div></button>`; }).join('')}
+      <button class="newcard" data-act="new">${I('plus',22)}New block</button>
+    </div>
+  </div>`;
+}
+
+/* =====================================================================
+   Concept B — Groups (tab-group style list)
+   ===================================================================== */
+function viewB(){
+  const grp=(id,label)=>{ const b=S.blocks[id]; const w=where(id); const open=!!S.open[id];
+    const action = w==='shelf'
+      ? `<button class="chip-act" data-act="play" data-b="${id}">${I('swap',16)}Swap in</button>`
+      : w==='playing' ? `<button class="chip-act" data-act="hold" data-b="${id}">${I('shelf',16)}Hold</button>`
+      : `<button class="chip-act" data-act="play" data-b="${id}">${I('play',14)}Play now</button>`;
+    return `<div class="grp ${open?'open':''} ${S.fresh===id?'enter':''}">
+      <div class="gh"><button data-act="fold" data-b="${id}" style="display:flex;gap:12px;align-items:center;flex:1;min-width:0;text-align:left">
+        ${mosaic(b,48)}<div class="meta"><div class="nm">${esc(b.name)}${w==='playing'?'<span class="tag green" style="background:rgba(30,215,96,.12)">Playing</span>':''}</div>
+        <div class="t2">${sub(b)}${w==='shelf'?' · '+ago(b):''}</div></div></button>
+        ${action}
+        <button class="ibtn sub" data-act="menu" data-b="${id}">${I('more',20)}</button></div>
+      <div class="gbody"><div>${b.songs.map((sid,i)=>songRow(id,sid,i,{handle:false,minus:true})).join('')}<div style="height:8px"></div></div></div>
+    </div>`; };
+  const todayCount=S.today.length;
+  return `<div class="scroll" style="padding-bottom:40px">
+    <div class="qhead"><button class="ibtn">${I('down',24)}</button>
+      <div class="c"><div class="s">Queue</div><div class="m">${cur()?esc(cur().b.name):'Nothing playing'}</div></div>
+      <button class="ibtn" data-act="new" title="New block">${I('plus',24)}</button></div>
+    ${cur()?'':emptyRail()}
+    ${S.rail.length?`<div class="h-sec" style="margin-top:4px">Now and next</div>`:''}
+    ${S.rail.map(id=>grp(id)).join('')}
+    <div class="h-sec" style="margin-top:28px">Shelf <span style="color:var(--sub);font-weight:400">${S.shelf.length}</span></div>
+    ${S.shelf.map(id=>grp(id)).join('')}
+    <div class="grp" style="margin-top:20px;border-top:1px solid var(--line)"><button class="gh" data-act="today">
+      <div class="mosaic empty" style="width:48px;height:48px">${I('clock',22,1.8)}</div>
+      <div class="meta"><div class="nm">Queued today</div><div class="t2">${todayCount} songs · clears at midnight</div></div>
+      <span class="chev" style="transform:rotate(-90deg)">${I('down',20)}</span></button></div>
+  </div>`;
+}
+
+/* =====================================================================
+   Concept C — Deck (Now Playing)
+   ===================================================================== */
+function viewC(){
+  const c=cur();
+  const bg = c?darken(dom(c.sid),.7):'#191414';
+  const cards=[...S.rail,...S.shelf].map(id=>{ const b=S.blocks[id]; const w=where(id);
+    return `<button class="dcard ${w==='playing'?'on':''} ${S.fresh===id?'enter':''}" data-act="${w==='playing'?'menu':'deckpick'}" data-b="${id}">
+      ${mosaic(b,112)}
+      <div class="nm">${esc(b.name)}</div>
+      <div class="t2">${w==='playing'?'<span class="green">Playing</span>':w==='rail'?'Up next':b.songs.length+' left'}</div>
+      <div class="segs">${b.songs.slice(0,13).map((sid,i)=>`<i class="${w==='playing'&&i===0?'cur':''}" data-sr="${id}-${sid}"></i>`).join('')}</div>
+    </button>`; }).join('');
+  return `<div class="np" style="background:linear-gradient(180deg, ${bg} 0%, ${bg} 30%, #121212 92%)">
+    <div class="qhead" style="background:transparent;position:relative"><button class="ibtn">${I('down',24)}</button>
+      <div class="c"><div class="s">Playing from block</div><div class="m">${c?esc(c.b.name):'—'}</div></div>
+      <button class="ibtn" data-act="${c?'menu':''}" data-b="${c?c.b.id:''}">${I('more',22)}</button></div>
+    ${c?`<div class="np-art" style="background:${artBg(c.sid)}"></div>
+    <div class="np-meta"><div class="meta"><div class="ti">${esc(SONGS[c.sid].t)}</div><div class="ar">${esc(SONGS[c.sid].a)}</div></div>
+      <button class="ibtn" style="color:var(--sub)">${I('addc',26,1.6)}</button></div>
+    <div class="bar"><i data-prog></i></div>
+    <div class="times"><span data-time>0:00</span><span>${fmt(SONGS[c.sid].d)}</span></div>
+    <div class="transport"><button class="ibtn sub">${I('shuffle',24,1.8)}</button><button class="ibtn">${I('prev',30)}</button>
+      <button class="bigplay" data-act="toggle">${I(S.playing?'pause':'play',28)}</button>
+      <button class="ibtn" data-act="skip">${I('next',30)}</button><button class="ibtn" data-act="today" title="Queued today">${I('clock',24,1.8)}</button></div>`
+    :`<div class="np-art" style="display:flex;align-items:center;justify-content:center;background:#282828;color:var(--sub)">${I('blocks',72,1.2)}</div>
+      <div class="empty-state" style="padding-top:28px"><b>Nothing playing</b>Pick a block below.</div>`}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 32px 12px">
+      <div style="font-size:16px;font-weight:700">Blocks</div>
+      <button class="eyebrow" data-act="new" style="color:#fff">New block</button></div>
+    <div class="deck">${cards}</div>
+  </div>`;
+}
+
+/* =====================================================================
+   Concept D — Workbench (Your Library → Blocks)
+   ===================================================================== */
+function brick(id,{socket=false}={}){
+  const b=S.blocks[id]; const w=where(id);
+  const studs=b.songs.map((sid,i)=>{
+    const seam = i>0?`<span class="seam" data-act="seam" data-b="${id}" data-i="${i}"></span>`:'';
+    return `${seam}<span class="stud ${w==='playing'&&i===0?'cur':''}" data-sr="${id}-${sid}" style="background:${artBg(sid)}"></span>`; }).join('');
+  return `<div class="brick ${S.sel===id?'sel':''} ${S.fresh===id?'enter':''} ${S.split?'split-mode':''}" data-drag="${id}" data-drop="merge:${id}" data-act="select" data-b="${id}" style="${socket?'margin:0;padding:0;background:transparent':''}">
+    <div class="bt"><span class="nm">${esc(b.name)}</span><span class="t2">${sub(b)}${w==='shelf'?' · '+ago(b):''}</span></div>
+    <div class="studs">${studs||'<span class="t2">Empty. Add songs from the menu.</span>'}</div></div>`;
+}
+function viewD(){
+  const c=cur(); const sel=S.sel&&S.blocks[S.sel]?S.sel:null;
+  const tools = sel?`<div class="chips" style="padding-top:4px">
+      ${where(sel)!=='playing'?`<button class="chip" data-act="play" data-b="${sel}">${I('play',14)}Play now</button>`:''}
+      ${where(sel)==='shelf'?`<button class="chip" data-act="after" data-b="${sel}">${I('next2',16)}Play next</button>`:`<button class="chip" data-act="hold" data-b="${sel}">${I('shelf',16)}Hold</button>`}
+      <button class="chip" data-act="dup" data-b="${sel}">${I('copy',16)}Duplicate</button>
+      <button class="chip" data-act="menu" data-b="${sel}">${I('more',16)}</button></div>`:'';
+  return `<div class="scroll" style="padding-bottom:180px">
+    <div class="lib-h"><div class="avatar">P</div><h2>Blocks</h2>
+      <button class="ibtn" data-act="today">${I('clock',22)}</button><button class="ibtn" data-act="new">${I('plus',24)}</button></div>
+    <div class="chips"><span class="chip">Playlists</span><span class="chip on">Blocks</span><span class="chip">Artists</span>
+      <button class="chip ${S.split?'on':''}" data-act="splitmode">${I('split',14)}${S.split?'Done splitting':'Split'}</button></div>
+    ${tools}
+    <div class="socket" data-drop="play">
+      <div class="eyebrow" style="margin-bottom:10px">${c?'<span class="green">Playing</span>':'Drop a block here to play'}</div>
+      ${c?brick(c.b.id,{socket:true}):'<div style="height:44px"></div>'}
+    </div>
+    <div class="h-sec" style="margin-top:20px">Up next</div>
+    <div class="bench-drop" data-drop="next">${S.rail.slice(1).map(id=>brick(id)).join('')||'<div class="zone-lbl">Drag a block here to queue it after this one</div>'}</div>
+    <div class="h-sec" style="margin-top:20px">Shelf</div>
+    <div class="bench-drop" data-drop="shelf">${S.shelf.map(id=>brick(id)).join('')}</div>
+    <div class="zone-lbl" style="padding-top:14px">${S.split?'Tap between two songs to split a block.':'Drag a block onto another to merge them. Drag onto Playing to swap.'}</div>
+  </div>${miniPlayer()}${tabbar('lib')}`;
+}
+
+/* =====================================================================
+   Sheets & toasts
+   ===================================================================== */
+const layer=document.getElementById('layer');
+function sheet(html){
+  layer.innerHTML=`<div class="scrim" data-act="close"></div><div class="sheet"><div class="grab"></div>${html}</div>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('open')));
+}
+function closeSheet(){ layer.classList.remove('open'); setTimeout(()=>{ if(!layer.classList.contains('open')) layer.innerHTML=''; },380); }
+const item=(act,icon,label,b,extra='')=>`<button class="item" data-act="${act}" data-b="${b||''}" ${extra}><span class="ic">${I(icon,22,1.8)}</span>${label}</button>`;
+function sheetMenu(id){
+  const b=S.blocks[id]; if(!b) return; const w=where(id); const r=S.roots[b.root];
+  const lineage = r.name!==b.name || r.songs.length!==b.songs.length ? ` · from ${esc(r.name)} (${r.songs.length})`:'';
+  sheet(`<div class="sh-head">${mosaic(b,48)}<div><div class="nm">${esc(b.name)}</div><div class="t2">${sub(b)}${lineage}</div></div></div>
+    ${w!=='playing'?item('play','swap','Play now',id):''}
+    ${w==='shelf'?item('after','next2','Play after current block',id):''}
+    ${w!=='shelf'?item('hold','shelf','Move to shelf',id):''}
+    ${item('add','addc','Add songs',id)}
+    ${item('dup','copy','Duplicate',id)}
+    ${item('splitsheet','split','Split',id, b.songs.length<2?'disabled':'')}
+    ${item('mergesheet','merge','Merge into another block',id)}
+    ${item('rm','trash','Remove block',id)}`);
+}
+function sheetSplit(id){
+  const b=S.blocks[id];
+  sheet(`<div class="sh-title">Split ${esc(b.name)}</div><div class="sh-sub">Tap between two songs. Everything below the line becomes its own block.</div>
+    ${b.songs.map((sid,i)=>`${i>0?`<button class="splitline" data-act="dosplit" data-b="${id}" data-i="${i}"><i></i><span>Split here</span><i></i></button>`:''}
+      <div class="row" style="padding-top:4px;padding-bottom:4px">${art(sid,40)}<div class="meta"><div class="t1">${esc(SONGS[sid].t)}</div><div class="t2">${esc(SONGS[sid].a)}</div></div></div>`).join('')}`);
+}
+function sheetMerge(id){
+  const others=[...S.rail,...S.shelf].filter(x=>x!==id);
+  sheet(`<div class="sh-title">Merge ${esc(S.blocks[id].name)} into…</div><div class="sh-sub">Its songs go on the end of the block you pick.</div>
+    ${others.map(o=>{ const b=S.blocks[o]; return `<button class="item" data-act="domerge" data-b="${id}" data-t="${o}">${mosaic(b,40)}<div style="min-width:0"><div>${esc(b.name)}</div><div class="t2">${sub(b)}</div></div></button>`; }).join('')}`);
+}
+function sheetAdd(id){
+  const b=S.blocks[id]; const inBlock=new Set(b.songs);
+  const todayIds=[...new Set(S.today.map(e=>e.sid))].reverse();
+  const lib=Object.keys(SONGS).filter(s=>!todayIds.includes(s)).slice(-8);
+  const rowFor=sid=>`<div class="row">${art(sid,40)}<div class="meta"><div class="t1">${esc(SONGS[sid].t)}</div><div class="t2">${esc(SONGS[sid].a)}</div></div>
+    ${inBlock.has(sid)?`<span class="ic green">${I('check',22)}</span>`:`<button class="ic" data-act="doadd" data-b="${id}" data-s="${sid}">${I('addc',24,1.6)}</button>`}</div>`;
+  sheet(`<div class="sh-title">Add to ${esc(b.name)}</div>
+    <div class="h-sec" style="margin-top:12px">Queued today</div>${todayIds.map(rowFor).join('')}
+    <div class="h-sec">Recently played</div>${lib.map(rowFor).join('')}`);
+}
+function statusOf(e){
+  for(const id of [...S.rail,...S.shelf]){ if(S.blocks[id].songs.includes(e.sid)) return {t:`In ${S.blocks[id].name}`,live:true}; }
+  return {t:{played:'Played',skipped:'Skipped',removed:'Removed',queued:'Gone'}[e.status]||'Played',live:false};
+}
+function sheetToday(){
+  const list=[...S.today].reverse();
+  const tm=m=>{ const h=Math.floor(m/60), mm=String(m%60).padStart(2,'0'); return `${h>12?h-12:h}:${mm} ${h>=12?'PM':'AM'}`; };
+  sheet(`<div class="sh-title">Queued today</div>
+    <div class="sh-sub">Every song you queued since midnight, including ones that already played. Clears tonight.</div>
+    ${list.map(e=>{ const st=statusOf(e); return `<div class="row">${art(e.sid,40)}
+      <div class="meta"><div class="t1">${esc(SONGS[e.sid].t)}</div><div class="t2">${esc(SONGS[e.sid].a)} · ${st.t}</div></div>
+      <span class="t2" style="font-size:12px;flex:0 0 auto">${tm(e.at)}</span>
+      ${st.live?`<span style="width:32px"></span>`:`<button class="ic" data-act="requeue" data-s="${e.sid}">${I('addc',24,1.6)}</button>`}</div>`; }).join('')}`);
+}
+function sheetPickBlock(sid){
+  sheet(`<div class="sh-title">Queue ${esc(SONGS[sid].t)}</div><div class="sh-sub">Pick a block.</div>
+    ${[...S.rail,...S.shelf].map(o=>{ const b=S.blocks[o]; return `<button class="item" data-act="doadd" data-b="${o}" data-s="${sid}">${mosaic(b,40)}<div style="min-width:0"><div>${esc(b.name)}</div><div class="t2">${where(o)==='playing'?'Playing':where(o)==='rail'?'Up next':'On shelf'}</div></div></button>`; }).join('')}
+    <button class="item" data-act="newwith" data-s="${sid}"><span class="ic">${I('plus',22)}</span>New block</button>`);
+}
+let cleanupSel=new Set();
+function sheetCleanup(){
+  const idle=S.shelf.filter(id=>S.day-S.blocks[id].last>=14);
+  if(!idle.length) return;
+  cleanupSel=new Set(idle);
+  const draw=()=>`<div class="sh-title">Clean up your shelf?</div>
+    <div class="sh-sub">These blocks haven't played in two weeks or more.</div>
+    ${idle.map(id=>{ const b=S.blocks[id]; return `<button class="item" data-act="cltoggle" data-b="${id}">${mosaic(b,48)}
+      <div style="flex:1;min-width:0"><div>${esc(b.name)}</div><div class="t2">${b.songs.length} songs · ${ago(b)}</div></div>
+      <span class="check ${cleanupSel.has(id)?'on':''}">${cleanupSel.has(id)?I('check',14,3):''}</span></button>`; }).join('')}
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 16px 0">
+      <button class="btn-g" data-act="clgo">${cleanupSel.size?`Remove ${cleanupSel.size}`:'Keep all'}</button>
+      <button class="t2" data-act="close" style="font-weight:700;color:#fff;padding:8px">Not now</button></div>`;
+  sheet(draw()); sheetCleanup.redraw=()=>{ layer.querySelector('.sheet').innerHTML='<div class="grab"></div>'+draw(); };
+}
+
+let toastTimer, toastData;
+function toast(t){
+  toastData=t; clearTimeout(toastTimer);
+  const old=document.querySelector('.toast'); if(old) old.remove();
+  const el=document.createElement('div'); el.className='toast';
+  el.innerHTML=`${t.art?mosaic(t.art,36):''}<div class="msg"><b>${esc(t.title)}</b>${t.sub?`<span>${esc(t.sub)}</span>`:''}</div>
+    ${t.action?`<button class="act ${t.pill?'pill-b':''}" data-act="toastact">${t.action}</button>`:''}
+    ${t.persist?`<button class="x" data-act="toastx">${I('x',16)}</button>`:''}`;
+  if(S.concept==='A'||S.concept==='B') el.style.bottom = S.concept==='A'?'200px':'24px';
+  if(S.concept==='C') el.style.bottom='24px';
+  document.getElementById('phone').appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  if(!t.persist) toastTimer=setTimeout(hideToast,3200);
+}
+function hideToast(){ const el=document.querySelector('.toast'); if(!el) return; el.classList.remove('show'); setTimeout(()=>el.remove(),300); }
+
+/* =====================================================================
+   Render + events
+   ===================================================================== */
+const VIEWS={A:viewA,B:viewB,C:viewC,D:viewD};
+const CONCEPTS=[
+  ['A','Rail & Shelf','The queue screen, split in two. What plays sits on top; held blocks wait in a tray you drag from.'],
+  ['B','Groups','One list, like tab groups. Every block folds open or shut and swaps in with one button.'],
+  ['C','Deck','Lives on Now Playing. Blocks are cards under the artwork; each bar loses a segment as songs finish.'],
+  ['D','Workbench','A sandbox in Your Library. Blocks are bricks of songs you split, merge and drop into the player.'],
+];
+function render(){
+  const sc=document.getElementById('screen');
+  const keep=sc.querySelector('.scroll,.np'); const top=keep?keep.scrollTop:0;
+  const shelfEl=sc.querySelector('.shelf,.deck'); const left=shelfEl?shelfEl.scrollLeft:0;
+  sc.innerHTML=VIEWS[S.concept]();
+  const k2=sc.querySelector('.scroll,.np'); if(k2&&render.same) k2.scrollTop=top;
+  const s2=sc.querySelector('.shelf,.deck'); if(s2&&render.same) s2.scrollLeft=left;
+  render.same=true; S.fresh=null;
+  document.getElementById('concepts').innerHTML=CONCEPTS.map(([k,n,d])=>`<button class="concept ${S.concept===k?'on':''}" data-concept="${k}"><span class="k">${k}</span><span class="n">${n}</span><span class="d">${d}</span></button>`).join('');
+  document.getElementById('c-play').textContent=S.playing?'Pause':'Play';
+  document.getElementById('c-speed').innerHTML=[1,4,12].map(x=>`<button class="pill ${S.speed===x?'on':''}" data-speed="${x}">${x}×</button>`).join('');
+  document.getElementById('phone').classList.toggle('paused',!S.playing);
+  paint(); checkOffer();
+}
+function paint(){
+  const c=cur(); const f=c?S.frac:0;
+  document.querySelectorAll('[data-prog]').forEach(el=>el.style.width=(f*100)+'%');
+  if(c) document.querySelectorAll('[data-time]').forEach(el=>el.textContent=fmt(f*SONGS[c.sid].d));
+}
+let last=performance.now();
+function tick(now){
+  const dt=now-last; last=now;
+  if(S.playing && cur() && !busy){
+    // one song ≈ 40s at 1×, so the shrink is watchable
+    S.frac += dt/40000*S.speed;
+    if(S.frac>=1){ S.frac=1; consume('finish'); }
+    paint();
+  }
+  requestAnimationFrame(tick);
+}
+
+document.addEventListener('click',e=>{
+  if(suppressClick){ suppressClick=false; return; }
+  const cEl=e.target.closest('[data-concept]'); if(cEl){ S.concept=cEl.dataset.concept; S.sel=null; S.split=false; render.same=false; hideToast(); closeSheet(); try{localStorage.setItem('qb-concept',S.concept)}catch(_){}; render(); return; }
+  const sp=e.target.closest('[data-speed]'); if(sp){ S.speed=+sp.dataset.speed; render(); return; }
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const a=el.dataset.act, b=el.dataset.b, s=el.dataset.s;
+  const close=()=>closeSheet();
+  switch(a){
+    case 'close': close(); break;
+    case 'toggle': S.playing=!S.playing; render(); break;
+    case 'skip': consume('skip'); break;
+    case 'menu': if(b) sheetMenu(b); break;
+    case 'play': close(); playNow(b); break;
+    case 'after': close(); playAfter(b); break;
+    case 'hold': close(); hold(b); break;
+    case 'dup': close(); duplicate(b); break;
+    case 'rm': close(); removeBlock(b); break;
+    case 'add': sheetAdd(b); break;
+    case 'doadd': addSong(b,s); if(layer.querySelector('.sh-title')?.textContent.startsWith('Add')) sheetAdd(b); else close(); break;
+    case 'splitsheet': sheetSplit(b); break;
+    case 'dosplit': close(); split(b,+el.dataset.i); break;
+    case 'mergesheet': sheetMerge(b); break;
+    case 'domerge': close(); merge(b,el.dataset.t); break;
+    case 'today': sheetToday(); break;
+    case 'requeue': sheetPickBlock(s); break;
+    case 'newwith': { close(); const nb=mk('New block',[s],S.day); S.shelf.unshift(nb.id); S.fresh=nb.id; S.today.push({sid:s,at:9*60+41,status:'queued'}); render(); toast({title:'New block on your shelf', sub:SONGS[s].t}); break; }
+    case 'new': close(); newBlock(); break;
+    case 'fold': S.open[b]=!S.open[b]; el.closest('.grp').classList.toggle('open'); break;
+    case 'rmsong': e.stopPropagation(); removeSong(b,s); break;
+    case 'deckpick': sheetMenu(b); break;
+    case 'select': if(S.split) break; S.sel = S.sel===b?null:b; render(); break;
+    case 'seam': if(S.split){ e.stopPropagation(); split(b,+el.dataset.i); } else { S.sel=S.sel===b?null:b; render(); } break;
+    case 'splitmode': S.split=!S.split; S.sel=null; render(); break;
+    case 'toastact': { const t=toastData; hideToast(); t&&t.onAction&&t.onAction(); break; }
+    case 'toastx': hideToast(); break;
+    case 'cltoggle': cleanupSel.has(b)?cleanupSel.delete(b):cleanupSel.add(b); sheetCleanup.redraw(); break;
+    case 'clgo': { const n=cleanupSel.size; const u=snap(); cleanupSel.forEach(id=>{ S.shelf=S.shelf.filter(x=>x!==id); delete S.blocks[id]; }); close(); render(); if(n) toast({title:`Removed ${n} block${n>1?'s':''}`, action:'Undo', onAction:()=>restore(u)}); break; }
+  }
+});
+document.getElementById('c-play').onclick=()=>{ S.playing=!S.playing; render(); };
+document.getElementById('c-finish').onclick=()=>consume('finish');
+document.getElementById('c-skip').onclick=()=>consume('skip');
+document.getElementById('c-week').onclick=()=>{ S.day+=7; render(); if(S.shelf.some(id=>S.day-S.blocks[id].last>=14)) setTimeout(sheetCleanup,400); else toast({title:'A week later', sub:'Nothing on your shelf has sat for two weeks yet'}); };
+document.getElementById('c-reset').onclick=()=>{ closeSheet(); hideToast(); seed(); render.same=false; render(); };
+
+/* ---------- drag ---------- */
+let drag=null, suppressClick=false;
+document.addEventListener('pointerdown',e=>{
+  const h=e.target.closest('[data-drag]'); if(!h||e.button!==0) return;
+  if(S.split) return;
+  drag={id:h.dataset.drag, el:h, x0:e.clientX, y0:e.clientY, started:false};
+});
+document.addEventListener('pointermove',e=>{
+  if(!drag) return;
+  if(!drag.started){
+    if(Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<8) return;
+    drag.started=true;
+    const src = drag.el.closest('.blk')||drag.el;
+    const r=src.getBoundingClientRect();
+    const g=src.cloneNode(true); g.classList.add('ghost'); g.style.width=Math.min(r.width,340)+'px'; g.style.maxHeight='160px'; g.style.overflow='hidden';
+    g.style.background='#2a2a2a'; g.style.left=r.left+'px'; g.style.top=r.top+'px';
+    drag.dx=e.clientX-r.left; drag.dy=e.clientY-r.top; drag.g=g; drag.src=src;
+    document.body.appendChild(g); src.classList.add('drag-src'); document.body.classList.add('dragging');
+    requestAnimationFrame(()=>g.style.transform='scale(.92) rotate(-1.5deg)');
+  }
+  drag.g.style.left=(e.clientX-drag.dx)+'px'; drag.g.style.top=(e.clientY-drag.dy)+'px';
+  const t=document.elementFromPoint(e.clientX,e.clientY);
+  let z=t&&t.closest('[data-drop]');
+  if(z&&z.dataset.drop==='merge:'+drag.id) z=z.parentElement&&z.parentElement.closest('[data-drop]');
+  document.querySelectorAll('.over').forEach(x=>x!==z&&x.classList.remove('over'));
+  if(z) z.classList.add('over'); drag.zone=z;
+});
+document.addEventListener('pointerup',()=>{
+  if(!drag) return;
+  const d=drag; drag=null;
+  if(!d.started) return;
+  suppressClick=true; setTimeout(()=>suppressClick=false,50);
+  d.g.remove(); d.src.classList.remove('drag-src'); document.body.classList.remove('dragging');
+  document.querySelectorAll('.over').forEach(x=>x.classList.remove('over'));
+  const z=d.zone&&d.zone.dataset.drop; if(!z) return;
+  const id=d.id, w=where(id);
+  if(z==='play'){ if(w!=='playing') playNow(id); }
+  else if(z==='next'){ if(w==='playing') return; playAfter(id); }
+  else if(z==='shelf'){ if(w!=='shelf') hold(id); }
+  else if(z.startsWith('merge:')) merge(id,z.slice(6));
+});
+
+seed();
+try{ const c=localStorage.getItem('qb-concept'); if(c&&VIEWS[c]) S.concept=c; }catch(_){}
+render(); requestAnimationFrame(tick);
+</script>
+</body>
+</html>

@@ -108,16 +108,18 @@
 <script src="detail2.js?v=4"></script>
 <script>
 const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the colour, the kind of work
+  'queue-blocks': ['m/queue-blocks-thumb.webp', 'm/queue-blocks-loop.mp4', '#1ED760', 'Product design'],
   'iso-redesign': ['m/isor-thumb.webp', 'm/iso-features-loop.mp4', '#6E56CF', 'Product design'], pathways: ['m/path-thumb.webp', 'm/pathways-loop.mp4', '#D21F4F', 'Product design'],
   tracker: ['m/tracker-card.jpg', 'm/tracker-loop.mp4', '#2F6FE4', 'Interaction'], lila: ['m/thumb-lila.webp', null, '#141414', 'GTM engineering'],
   'the-dot': ['m/dot-thumb.webp', null, '#D9342B', 'Interaction'], studdy: ['m/studdy-logo-card.webp', null, '#C9741E', 'Product'],
   prepio: ['m/prepio.webp', 'm/prepio-loop.mp4', '#1F6B47', 'Product'], iso: ['m/iso-film-thumb-fit.webp', 'm/iso-v1-loop.mp4', '#F07800', 'Product'],
   pokemaps: ['m/pokemaps.webp', null, '#B88A00', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
 }
-const SHORT = { 'iso-redesign': 'White and ink. Color only where someone is live.', pathways: 'Become a Harvard student. Then walk their day.', tracker: 'The Mac sound menu, as cables you can see.', lila: 'Account intelligence for AI-driven science.', 'the-dot': 'Onboarding with no buttons. Just a dot.', studdy: 'A study café that never closes.', prepio: 'Career office hours, made live.', iso: 'One conversation at a time.', pokemaps: 'Guess the place from the clues.', onapsis: '13,000 contacts, one scored pipeline.' }
-const LIVE = { 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
+const SHORT = { 'queue-blocks': 'A Spotify queue that keeps your place.', 'iso-redesign': 'White and ink. Color only where someone is live.', pathways: 'Become a Harvard student. Then walk their day.', tracker: 'The Mac sound menu, as cables you can see.', lila: 'Account intelligence for AI-driven science.', 'the-dot': 'Onboarding with no buttons. Just a dot.', studdy: 'A study café that never closes.', prepio: 'Career office hours, made live.', iso: 'One conversation at a time.', pokemaps: 'Guess the place from the clues.', onapsis: '13,000 contacts, one scored pipeline.' }
+const LIVE = { 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
 // the brief: about a minute of context before the full case study (all of it from the site's own copy)
 const BRIEF = {
+  'queue-blocks': ['Spotify’s queue is one list. Switching from your commute to work means clearing it, and the songs you hadn’t heard are deleted.', 'Queue Blocks turns the queue into blocks. A block shrinks as it plays, and one you swap out waits on a shelf, right where you stopped.', 'Product thinking, interaction design, a working prototype and a demo film, solo. Thirteen rounds of design review. It hasn’t been tested with users yet.'],
   'iso-redesign': ['The first ISO proved the idea: one live conversation at a time, or nothing.', 'The redesign keeps that rule and changes everything around it. White and ink, with color only where someone is live. It adds holding a moment from a chat, Memories in place of saved chats, and set hours when ISO is open.', 'I led it end to end over eight days in October 2026, designed in Figma and built as a coded prototype, with Claude in my workflow for faster prototyping and iteration.'],
   pathways: ['A five-question quiz turns a kid into a specific Harvard student.', 'Then the family walks that student’s day on campus, with a stamp card for every stop.', 'Four ideas narrowed to one, tested with families in Harvard Yard. CS79 at Harvard, a team of three with Carolyn Dorantes and Kim Cortes-Martinez.'],
   tracker: ['In the Mac sound menu, connected and playing look the same.', 'Tracker draws each app as a cable plugged into the device it plays on. Moving Zoom to the speaker is one drag, and an unplugged cable pauses its app.', 'Built on a real cable simulation, with a cyberdeck edition.'],
@@ -135,7 +137,7 @@ const pad = n => String(n).padStart(2, '0')
 // ---- the row: projects as cards; jobs live in their own list on the left
 const JOBS = ['lila', 'onapsis']
 // the order on this page (ISO and The Dot traded places); the chapter's "Next" follows it too
-const ORDER = ['iso-redesign', 'pathways', 'tracker', 'iso', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
+const ORDER = ['queue-blocks', 'iso-redesign', 'pathways', 'tracker', 'iso', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
 WORK.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id))
 const PROJ = WORK.filter(w => !JOBS.includes(w.id))
 const ROLES = [

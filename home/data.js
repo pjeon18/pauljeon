@@ -6,6 +6,10 @@ window.ME = {
   portrait: 'm/portrait-front.webp',
 }
 window.WORK_ALL = [
+  { id: 'queue-blocks', title: 'Queue Blocks', area: 'Product design', disc: 'Spotify queue concept', year: '2026', cover: 'm/queue-blocks-thumb.webp', loop: 'm/queue-blocks-loop.mp4',
+    head: 'A Spotify queue made of blocks that keep your place.',
+    body: 'Swap your commute music out for work music and it waits on a shelf, right where you stopped. A PM critique, a working prototype, and a demo film.',
+    m: [] },
   { id: 'iso-redesign', title: 'ISO, redesigned', area: 'Product design', disc: 'Figma · Coded prototype', year: '2026', cover: 'm/isor-thumb.webp', loop: 'm/iso-features-loop.mp4',
     head: 'The second version of ISO: white and ink, with color only where someone is live.',
     body: 'It adds holding a moment from a chat, Memories in place of saved chats, and set hours when ISO is open. Designed in Figma and built as a coded prototype, with Claude in my workflow for faster prototyping and iteration.',
