@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Queue Blocks</title>
+<script>if (window.top !== window.self) document.documentElement.classList.add('embedded')</script>
+<style>
+:root{
+  --ink:#111112; --body:#2b2b2e; --surface:#f4f4f5; --line:#e7e7ea;
+  --black:#121212; --green:#1ed760;
+  --rise:cubic-bezier(.2,.8,.25,1);
+  --font:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#fff;color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+img,video{display:block;max-width:100%}
+a{color:inherit}
+html.embedded .film{display:none}
+html.embedded section:first-of-type{padding-bottom:40px}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--green);z-index:10}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 40px}
+section{padding:140px 0}
+.band-dark{background:var(--black);color:#fff}
+.band-green{background:var(--green);color:var(--black)}
+.band-grey{background:var(--surface)}
+
+/* type: one size per idea, revealed in order */
+h1{font-size:clamp(64px,10vw,148px);font-weight:700;letter-spacing:-.035em;line-height:.95}
+.lead{font-size:clamp(28px,3.4vw,44px);font-weight:600;letter-spacing:-.02em;line-height:1.15;max-width:900px;margin-top:28px}
+.beat{font-size:clamp(32px,4.2vw,58px);font-weight:700;letter-spacing:-.025em;line-height:1.08;max-width:1000px}
+.beat+.beat{margin-top:56px}
+h2{font-size:clamp(40px,5.4vw,76px);font-weight:700;letter-spacing:-.03em;line-height:1;margin-bottom:56px}
+h3{font-size:28px;font-weight:700;letter-spacing:-.015em;line-height:1.15}
+p,li,td,th{font-size:17.5px;line-height:1.55;color:var(--body)}
+.band-dark p,.band-dark li,.band-dark td,.band-dark th{color:#e8e8e8}
+.band-green p{color:var(--black)}
+p+p{margin-top:14px}
+.meta{margin-top:28px;font-size:17.5px;color:var(--ink)}
+b{font-weight:700;color:inherit}
+
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:36px}
+.btn{display:inline-flex;align-items:center;height:52px;padding:0 26px;border-radius:999px;font-size:17px;font-weight:700;text-decoration:none;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.solid{background:var(--ink);color:#fff}
+.btn.line{box-shadow:inset 0 0 0 2px var(--ink)}
+
+.film{margin-top:72px;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 30px 60px rgba(0,0,0,.18)}
+.film video{width:100%}
+
+.phones{display:grid;gap:28px;margin-top:72px}
+.phones figure img{width:100%}
+.phones figcaption{margin-top:16px}
+.phones.p2{grid-template-columns:repeat(2,minmax(0,330px));justify-content:start}
+.phones.p4{grid-template-columns:repeat(4,1fr)}
+.when{font-size:34px;font-weight:700;letter-spacing:-.02em;color:var(--ink);margin-bottom:4px}
+.wide{margin-top:72px;max-width:780px}
+.wide img{width:100%;border-radius:18px}
+.wide.devices img{border-radius:0}
+.note{margin-top:28px;max-width:720px}
+
+.people{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:var(--surface);border-radius:22px;padding:40px}
+.card h3{font-size:34px;margin-bottom:18px}
+
+.dec{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.dec .card{display:grid;grid-template-columns:190px 1fr;gap:28px;align-items:start}
+.dec .card img{width:190px}
+.dec .card h3{font-size:26px;margin-bottom:12px}
+.dec .card p+p{margin-top:10px}
+
+.concepts{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.concepts img{width:100%;border-radius:16px}
+.concepts h3{color:#fff;margin-top:18px;font-size:24px}
+.concepts p{margin-top:6px}
+.concepts .on h3{color:var(--green)}
+
+table{width:100%;border-collapse:collapse;margin-top:16px}
+th,td{text-align:left;padding:14px 18px 14px 0;border-bottom:1px solid rgba(255,255,255,.14);vertical-align:top}
+th{font-weight:700;color:#fff!important}
+td:first-child{width:46%}
+
+.moscow{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.moscow .card{padding:30px}
+.moscow h3{font-size:30px;margin-bottom:14px}
+.moscow .card.must{background:var(--ink)}
+.moscow .card.must h3,.moscow .card.must p{color:#fff}
+
+.measure .beat{font-size:clamp(28px,3.4vw,46px)}
+ol.tasks{margin-top:24px;padding-left:22px;max-width:760px}
+ol.tasks li+li{margin-top:6px}
+footer{padding:80px 0 100px;border-top:1px solid var(--line)}
+footer .btns{margin-top:0}
+
+.rv{opacity:0;transform:translateY(40px);transition:opacity .6s var(--rise),transform .6s var(--rise)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+@media (max-width:860px){
+  .wrap{padding:0 22px} section{padding:96px 0}
+  .people,.dec,.moscow{grid-template-columns:1fr}
+  .phones.p4,.concepts{grid-template-columns:repeat(2,1fr)}
+  .dec .card{grid-template-columns:110px 1fr}.dec .card img{width:110px}
+}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+
+<!-- product first -->
+<section style="padding-top:110px">
+  <div class="wrap">
+    <h1 class="rv">Queue Blocks</h1>
+    <div class="lead rv">A redesign of Spotify's queue for people whose listening changes through the day</div>
+    <p class="meta rv">Solo concept project. Product thinking, interaction design, a working prototype and a demo film. October 2026.</p>
+    <div class="btns rv"><a class="btn solid" href="index.html">Try the prototype</a><a class="btn line" href="index.html?tour">Watch the tour</a><a class="btn line" href="index.html?compare">Compare with today's queue</a></div>
+    <div class="film rv"><video src="media/queue-blocks-demo-1280.mp4" poster="media/queue-blocks-demo-poster.jpg" controls playsinline preload="metadata"></video></div>
+  </div>
+</section>
+
+<!-- the problem -->
+<section class="band-dark">
+  <div class="wrap">
+    <div class="beat rv">Spotify's queue is one list</div>
+    <div class="beat rv">Switching from your commute to work means clearing it</div>
+    <div class="beat rv">The songs you hadn't heard are deleted, and getting them back means searching for each one</div>
+    <figure class="wide devices rv"><img src="media/shots/compare.webp" alt="Today's queue next to Queue Blocks after the same day"></figure>
+    <p class="note rv">Left is today's queue at the end of a day of switching. Right is the same day with blocks. How often people hit this is still an assumption, so a survey is the first thing in what comes next.</p>
+  </div>
+</section>
+
+<!-- who -->
+<section>
+  <div class="wrap">
+    <h2 class="rv">Who it's for</h2>
+    <div class="people">
+      <div class="card rv"><h3>People whose listening changes through the day</h3>
+        <p>Commute, then work, then the gym. They edit the queue every week and keep throwaway playlists to cope.</p>
+        <p>They want to go back to music they were in the middle of without rebuilding it.</p></div>
+      <div class="card rv"><h3>People who just tap Add to queue</h3>
+        <p>They never manage the queue. A song they add should play soon, with no new steps.</p>
+        <p>Every decision was checked against them too. Blocks must never make this slower.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- the idea -->
+<section class="band-green">
+  <div class="wrap">
+    <div class="beat rv">The queue is made of blocks</div>
+    <div class="beat rv">A block shrinks as its songs finish</div>
+    <div class="beat rv">Swap one out and it waits on the shelf, right where you stopped</div>
+    <figure class="wide rv" style="max-width:none"><img src="media/shots/structure.webp" alt="Deep Work playing in the queue, Commute waiting on the shelf with ten songs left"><figcaption><p style="margin-top:16px">The queue holds what's playing and what's next. The shelf holds the rest, each block where you left it.</p></figcaption></figure>
+  </div>
+</section>
+
+<!-- a day -->
+<section>
+  <div class="wrap">
+    <h2 class="rv">One day with blocks</h2>
+    <div class="phones p4">
+      <figure class="rv"><div class="when">7:45</div><img src="media/shots/queue.webp" alt="Commute playing"><figcaption><p>The commute is one block of twelve songs.</p></figcaption></figure>
+      <figure class="rv"><div class="when">9:00</div><img src="media/shots/swap.webp" alt="Swapping in Deep Work"><figcaption><p>Deep Work swaps in. Commute goes to the shelf with ten left.</p></figcaption></figure>
+      <figure class="rv"><div class="when">17:30</div><img src="media/shots/gap.webp" alt="A gap opens in the queue for Sunday"><figcaption><p>Gym lines up for later. A gap opens where a block will land.</p></figcaption></figure>
+      <figure class="rv"><div class="when">18:45</div><img src="media/shots/played.webp" alt="Commute playing again with Played expanded"><figcaption><p>Commute picks up where it stopped. Played shows what you already heard.</p></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- decisions -->
+<section class="band-grey">
+  <div class="wrap">
+    <h2 class="rv">Decisions and what they cost</h2>
+    <div class="dec">
+      <div class="card rv"><img src="media/shots/gap.webp" alt=""><div><h3>Show where a drop will land</h3><p>The blocks around the pointer slide apart and leave a dashed gap. You can't trust a drop you can't see.</p><p><b>Cost</b> More motion on screen, so the spring is quick and settles in a quarter second.</p></div></div>
+      <div class="card rv"><img src="media/shots/song-menu.webp" alt=""><div><h3>Every drag has a tap</h3><p>Tap a song for Move to, Play next and Remove. Every block action is in its menu.</p><p><b>Cost</b> Two ways to do one thing. Drag is hard to discover and isn't accessible on its own.</p></div></div>
+      <div class="card rv"><img src="media/shots/block-menu.webp" alt=""><div><h3>Menus as bento, not lists</h3><p>Spotify's long menus give the main action the same weight as the rarest one. Related actions now sit together and the likely one is the big tile.</p><p><b>Cost</b> Less room for labels on rare actions.</p></div></div>
+      <div class="card rv"><img src="media/shots/pick-block.webp" alt=""><div><h3>Just add to queue stays one tap</h3><p>Adding a song asks for a block, but the first tile skips the choice and adds it to the end of the queue.</p><p><b>Cost</b> A loose "Added songs" group that isn't a real block.</p></div></div>
+      <div class="card rv"><img src="media/shots/album.webp" alt=""><div><h3>Albums become blocks in one tap</h3><p>Building blocks song by song was the biggest barrier. People already have albums and playlists.</p><p><b>Cost</b> These blocks skip Keep a copy, since the original still exists.</p></div></div>
+      <div class="card rv"><img src="media/shots/add-songs.webp" alt=""><div><h3>Adding starts with search</h3><p>Then a short list matched to the block's mood, then songs you queue often. Nothing else.</p><p><b>Cost</b> Mood comes from the block's songs, so a mixed block gets mixed picks.</p></div></div>
+      <div class="card rv"><img src="media/shots/last-24h.webp" alt=""><div><h3>The queue remembers</h3><p>Back returns the last song to its block. Everything you queued in the last 24 hours stays one tap away, played or not.</p><p><b>Cost</b> Played folds to one row and the 24 hour list sits at the end of the shelf, so neither takes space from what's next.</p></div></div>
+      <div class="card rv"><img src="media/shots/merge.webp" alt=""><div><h3>Drop between songs to merge</h3><p>Hovering a block between two songs opens a gap labelled with how many songs will merge in.</p><p><b>Cost</b> One more meaning for a drop, which is why the gap says what it will do.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- process -->
+<section class="band-dark">
+  <div class="wrap">
+    <h2 class="rv">Four concepts, one model</h2>
+    <div class="concepts">
+      <div class="on rv"><img src="media/shots/concept-A.webp" alt="Rail and Shelf concept"><h3>Queue and Shelf</h3><p>Lives in the queue screen people already use. Chosen.</p></div>
+      <div class="rv"><img src="media/shots/concept-B.webp" alt="Groups concept"><h3>Groups</h3><p>Clear, but the swap hides behind buttons.</p></div>
+      <div class="rv"><img src="media/shots/concept-C.webp" alt="Deck concept"><h3>Deck</h3><p>Easy to glance at, but it fights the artwork on Now Playing.</p></div>
+      <div class="rv"><img src="media/shots/concept-D.webp" alt="Workbench concept"><h3>Workbench</h3><p>The most expressive, and the furthest from where people queue.</p></div>
+    </div>
+    <h2 class="rv" style="margin-top:140px">Thirteen review rounds</h2>
+    <p class="rv" style="max-width:760px">Each round started from walking through the running prototype. These are design reviews, not usability tests with outside participants.</p>
+    <table class="rv">
+      <tr><th>What came up</th><th>What changed</th></tr>
+      <tr><td>"Rail" meant nothing to people</td><td>Renamed to Queue, with Now playing and Next in queue</td></tr>
+      <tr><td>Drops felt blind</td><td>A gap opens where the block will land</td></tr>
+      <tr><td>Blocks didn't read as lists of songs</td><td>Every block folds and unfolds from its header</td></tr>
+      <tr><td>No way to combine blocks at an exact point</td><td>Drop between two songs to merge</td></tr>
+      <tr><td>No way back, and the queue forgot</td><td>Back, Played, and a 24 hour list of everything queued</td></tr>
+      <tr><td>Adding songs was a dump of lists</td><td>Search, then recommended, then frequently queued</td></tr>
+      <tr><td>Action lists were hard to use</td><td>Bento menus with related actions together</td></tr>
+      <tr><td>Shelf blocks past the fourth were out of reach mid-drag</td><td>Hold at the shelf's edge and it scrolls</td></tr>
+      <tr><td>No sense of how far into the song you were</td><td>A thin green meter on the playing row</td></tr>
+      <tr><td>Moving a song was drag only</td><td>Tap a song for Move to</td></tr>
+      <tr><td>On a phone, the shelf and queue wouldn't scroll</td><td>Blocks drag on a short hold, swipes scroll</td></tr>
+      <tr><td>Edges scrolled while you passed through them</td><td>Edge scrolling waits for a short rest</td></tr>
+      <tr><td>Toasts blocked taps on the songs beneath</td><td>Only the toast's buttons take taps</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- priorities -->
+<section>
+  <div class="wrap">
+    <h2 class="rv">What ships first</h2>
+    <div class="moscow">
+      <div class="card must rv"><h3>Must</h3><p>Blocks, the shelf, swap, shrinking as songs play, the block picker with Just add to queue, albums as blocks</p></div>
+      <div class="card rv"><h3>Should</h3><p>The insert gap, folding, Back and Played, the 24 hour list, Move to</p></div>
+      <div class="card rv"><h3>Could</h3><p>Split, merge, duplicate, rename, Keep a copy, shelf cleanup</p></div>
+      <div class="card rv"><h3>Not yet</h3><p>Shuffle inside a block, shared Jam queues, syncing the shelf across devices</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- measure -->
+<section class="band-dark measure">
+  <div class="wrap">
+    <h2 class="rv">How it would be measured</h2>
+    <div class="beat rv">The main number is sessions where someone resumes a block from the shelf</div>
+    <div class="beat rv">Queue clears and playlists deleted within a week should both fall</div>
+    <div class="beat rv">Adding a song must not get slower for people who never touch blocks</div>
+    <p class="note rv">These are targets to test, not results. Nothing here has been measured yet.</p>
+  </div>
+</section>
+
+<!-- next -->
+<section>
+  <div class="wrap">
+    <h2 class="rv">What comes next</h2>
+    <div class="beat rv" style="font-size:clamp(28px,3.4vw,44px)">A short survey on how often people clear the queue and keep temporary playlists, then five moderated sessions</div>
+    <ol class="tasks rv">
+      <li>Find what's next and fold away the songs you don't need to see</li>
+      <li>Switch to work music without losing your place in the commute</li>
+      <li>Line up the gym for after work</li>
+      <li>Put the Sunday songs in the middle of Deep Work</li>
+      <li>Get back a song you skipped by accident</li>
+      <li>Add a specific song to the gym block</li>
+      <li>Find a song you queued last night</li>
+    </ol>
+    <p class="note rv">After the second task each person says how a block differs from a playlist. If they can't, the concept needs work before anything else does.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="btns"><a class="btn solid" href="index.html">Try the prototype</a><a class="btn line" href="PROCESS.md">Full process notes</a><a class="btn line" href="DESIGN_LOG.md">Review log and test plan</a></div>
+  </div>
+</footer>
+
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }),{rootMargin:'0px 0px -12% 0px'});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+const bar=document.getElementById('bar');
+addEventListener('scroll',()=>{ const h=document.documentElement; bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'; },{passive:true});
+</script>
+</body>
+</html>
