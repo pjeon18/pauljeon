@@ -74,6 +74,8 @@
   #ch .fork .go h3 { margin:0; font:700 clamp(28px, 3vw, 48px)/1.02 Inter, sans-serif; letter-spacing:-.04em; color:#1d1d1f; }
   #ch .fork .go h3 em { font-style:normal; color:#86868b; display:block; }
   #ch .fork .go:only-child { grid-column:1 / -1; }
+  #ch .demo { position:relative; height:86vh; margin-top:10vh; border-radius:28px; overflow:hidden; background:var(--tint); box-shadow:0 30px 70px -45px rgba(0,0,0,.4); }
+  #ch .demo iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
   #ch .full { position:relative; height:100vh; margin:14vh -6vw 0; border-top:1px solid #e8e8ed; background:#fff; }
   #ch .full iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#fff; }
   #ch .body.framed { padding-bottom:0; }
@@ -108,6 +110,9 @@
     let h = `<div class="facts"><span><b>${esc(it.title)}</b></span><span>${esc(it.area)}</span><span>${esc(it.disc)}</span><span>${esc(it.year)}</span></div>
       <p class="lead"><em>${esc(it.title)}.</em> ${esc(it.head)}</p>`
     h += `<div class="brief">${(it.brief || [it.body]).map(t => `<p>${esc(t)}</p>`).join('')}</div>`
+    // the working prototype, already loaded, before the long read (Queue Blocks and the ISO redesign carry theirs inside the case study)
+    const demo = it.live && !['queue-blocks', 'iso-redesign'].includes(it.id) ? it.live : null
+    if (demo) h += `<div class="demo"><iframe title="${esc(it.title)} prototype" data-src="${demo}" allow="autoplay; clipboard-write"></iframe></div>`
     if (c && c.stats.length) h += `<div class="stats">${c.stats.map((s, i) => `<div><b>${esc(s.value)}</b>${esc(beats && beats.stats && beats.stats[i] || s.label)}</div>`).join('')}</div>`
     if (!slug) h += `<div class="media"></div>`
     // after a minute: move on to the next card, or keep going into the whole story
@@ -143,6 +148,16 @@
     })
   }
 
+  // over the prototype, the wheel still moves this page, unless it is scrolling a list inside the prototype
+  function wireDemo(frame) {
+    frame.addEventListener('load', () => {
+      let w; try { w = frame.contentWindow; w.document } catch (e) { return }
+      const canScroll = (el, dy) => { for (; el && el !== w.document.documentElement; el = el.parentElement) { const cs = w.getComputedStyle(el); if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1) { if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true } } return false }
+      w.addEventListener('wheel', e => { if (!cur) return; if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || canScroll(e.target, e.deltaY)) return; e.preventDefault(); e.stopImmediatePropagation(); wheelHere(e.deltaY) }, { passive: false, capture: true })
+      w.addEventListener('keydown', e => { if (e.key === 'Escape' && cur) close() })
+      measure()
+    })
+  }
   function open(it, fromEl, h) {
     if (busy || cur) return
     busy = true; cur = it; hooks = h || {}; y = ty = 0; pull = 0; from = fromEl
@@ -168,6 +183,7 @@
       else ty = maxY   // glide down until the case study fills the screen
     })
     if (frame) wireFrame(frame)
+    const demoF = scroller.querySelector('.demo iframe'); if (demoF) wireDemo(demoF)
     local.innerHTML = `<b>${esc(it.title)}</b><nav><span data-go="0">Overview</span>${CASE[it.id] ? '<span data-go="1">Full case study</span>' : ''}${it.live ? `<a href="${it.live}" target="_blank">Try it</a>` : ''}</nav>`
     local.querySelectorAll('[data-go]').forEach(n => n.onclick = () => { ty = n.dataset.go === '0' ? 0 : maxY })
     fillMedia(it)
@@ -221,6 +237,8 @@
       const shade = hero.querySelector('.shade'); if (shade) shade.style.opacity = 1 - k
       const fr = scroller.querySelector('.full iframe')
       if (fr && !fr.src && y > SHRINK() * 0.4) fr.src = fr.dataset.src
+      const dm = scroller.querySelector('.demo iframe')
+      if (dm && !dm.src && y > SHRINK() * 0.2) dm.src = dm.dataset.src
       const inFrame = fr && y > maxY - innerHeight * 0.5
       local.classList.toggle('show', y > SHRINK() * 0.85 && !inFrame)
       closeB.classList.toggle('light', y > SHRINK() * 0.6)
