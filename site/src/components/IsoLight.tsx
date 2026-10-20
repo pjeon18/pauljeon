@@ -1,11 +1,12 @@
-// ISO, redesigned. The chromatic redesign as a deck you scroll.
+// ISO, redesigned. The chromatic redesign as a deck: one scroll, one slide.
 //
 // How the motion works:
-// - Every slide is a section `len` screens tall with a sticky stage. Sections overlap by one
-//   screen, so the next stage rises over the pinned one (it rounds its shoulders while it rises,
-//   and the covered stage recedes and dims).
-// - One rAF loop reads a smoothed scroll position and writes, per slide, --p (progress through
-//   the slide), --e (how far it has risen into place) and --c (how far the next one covers it).
+// - Slides are stacked full-screen stages. A wheel gesture, swipe or arrow key moves one slide:
+//   the next stage rises over the current one (it rounds its shoulders while it rises, and the
+//   covered stage recedes and dims).
+// - Once a slide has risen, its content plays out on its own clock (`len` sets how long). One rAF
+//   loop writes, per slide, --p (playback through the slide), --e (how far it has risen into
+//   place) and --c (how far the next one covers it).
 // - Inside a slide, anything with data-a/data-b arrives over that window of --p and leaves over
 //   data-c/data-d. The loop writes eased --t and --u, and CSS turns them into opacity, travel and
 //   blur. Words in .il-words get their own staggered windows.
@@ -137,6 +138,18 @@ const FX: Record<string, Fx> = {
   },
 }
 
+// where each scripted motion moves, so the deck's clock knows not to linger there
+const FX_SPANS: Record<string, [number, number][]> = {
+  cover: [[0, 0.6], [0.28, 0.9]],
+  inbox: [[0.04, 0.5], [0.62, 0.8], [0.72, 0.86]],
+  swap: [[0.4, 0.66]],
+  light: [[0.27, 0.5]],
+  figma: [[0.02, 0.5], [0.56, 1]],
+  loop: Array.from({ length: 6 }, (_, k) => [k / 6, k / 6 + 0.25 / 6] as [number, number]),
+  live: [[0.06, 0.42], [0.42, 0.62]],
+  rev: [[0.29, 0.36], [0.53, 0.63], [0.76, 0.85], [0.93, 1]],
+}
+
 /* ---------- the deck engine ---------- */
 function useDeck(root: React.RefObject<HTMLDivElement>, onSlide: (i: number) => void) {
   useLayoutEffect(() => {
@@ -154,54 +167,125 @@ function useDeck(root: React.RefObject<HTMLDivElement>, onSlide: (i: number) => 
       })
     })
     const pieces = slides.map((s) => [...s.querySelectorAll<HTMLElement>('[data-a]:not(.il-words)')])
-    let tops: number[] = [], lens: number[] = [], vh = window.innerHeight
-    const measure = () => {
-      vh = window.innerHeight
-      tops = slides.map((s) => s.getBoundingClientRect().top + window.scrollY)
-      lens = slides.map((s) => Number(s.dataset.len))
-    }
-    measure()
-    const ro = new ResizeObserver(measure); ro.observe(el)
-    window.addEventListener('resize', measure)
+    const lens = slides.map((s) => Number(s.dataset.len))
+    const n = slides.length
 
-    let y = window.scrollY, last = performance.now(), raf = 0, cur = -1
+    // every slide plays on its own clock once it has risen; the wheel only moves between slides.
+    // The clock is paced by the content: while something moves, playback runs at a steady speed;
+    // while everything is still, it holds long enough to read.
+    const MOVE = 3.2                          // seconds per screen of the old scroll length, while moving
+    const HOLD = (screens: number) => clamp(screens * 8, 2.6, 5)
+    const timelines = slides.map((s, i) => {
+      const spans: [number, number][] = []
+      s.querySelectorAll<HTMLElement>('[data-a]').forEach((n) => {
+        if (n.classList.contains('il-words')) return
+        spans.push([Number(n.dataset.a), Number(n.dataset.b)])
+        if (n.dataset.c) spans.push([Number(n.dataset.c), Number(n.dataset.d)])
+      })
+      spans.push(...(FX_SPANS[s.dataset.fx || ''] || []))
+      const edges = [...new Set([0, 1, ...spans.flat().map((v) => clamp(v))])].sort((a, b) => a - b)
+      const pts: [number, number][] = [[0, 0]]   // (seconds, p)
+      let t = 0
+      for (let k = 1; k < edges.length; k++) {
+        const a = edges[k - 1], b = edges[k], scr = (b - a) * lens[i]
+        const moving = spans.some(([x, y]) => x < b - 1e-6 && y > a + 1e-6)
+        t += moving || scr < 0.12 ? scr * MOVE : HOLD(scr)
+        pts.push([t, b])
+      }
+      return pts
+    })
+    const pAt = (i: number, t: number) => {
+      const pts = timelines[i]
+      for (let k = 1; k < pts.length; k++) if (t <= pts[k][0]) {
+        const [t0, p0] = pts[k - 1], [t1, p1] = pts[k]
+        return p0 + (p1 - p0) * ((t - t0) / Math.max(1e-6, t1 - t0))
+      }
+      return 1
+    }
+    const clock: number[] = slides.map(() => 0)
+    const RISE = reduce ? 0.001 : 1.05       // seconds for the next slide to rise over this one
+    const p: number[] = slides.map(() => 0), e: number[] = slides.map((_, i) => (i === 0 ? 1 : 0)), c: number[] = slides.map(() => 0)
+    let at = 0, tr: { from: number; to: number; t0: number } | null = null
+    let last = performance.now(), raf = 0
     const set = (n: HTMLElement, k: string, v: number) => {
       const s = v.toFixed(4); if (n.style.getPropertyValue(k) !== s) n.style.setProperty(k, s)
     }
+    const show = (i: number) => {
+      at = i; onSlide(i)
+      el.classList.toggle('on-dark', slides[i].classList.contains('il-dark'))
+    }
+    const go = (to: number) => {
+      to = clamp(to, 0, n - 1)
+      if (to === at || tr) return
+      // finish the slides being skipped so they sit where they would have ended
+      if (to > at) { p[to] = 0; clock[to] = 0; for (let i = 0; i < to; i++) { if (i !== at) { e[i] = 1; c[i] = 1 } } }
+      else for (let i = to + 1; i < n; i++) if (i !== at) { e[i] = 0; c[i] = 0 }
+      if (to < at) { e[to] = 1; for (let i = 0; i < to; i++) { e[i] = 1; c[i] = 1 } }
+      tr = { from: at, to, t0: performance.now() }
+      show(to)
+    }
     const frame = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000); last = now
-      const target = window.scrollY
-      // the visuals trail the scroll a touch, so motion glides instead of stepping with the wheel
-      y = reduce ? target : y + (target - y) * (1 - Math.exp(-dt * 11))
-      if (Math.abs(target - y) < 0.1) y = target
-      const docH = document.documentElement.scrollHeight
-      el.style.setProperty('--prog', clamp(y / Math.max(1, docH - vh)).toFixed(4))
-      let active = 0
+      if (tr) {
+        const k = clamp((now - tr.t0) / 1000 / RISE), k2 = easeInOut(k)
+        if (tr.to > tr.from) { e[tr.to] = k2; c[tr.from] = k2 } else { e[tr.from] = 1 - k2; c[tr.to] = 1 - k2 }
+        if (k >= 1) tr = null
+      } else { clock[at] += reduce ? 1e3 : dt; p[at] = pAt(at, clock[at]) }
+      el.style.setProperty('--prog', ((at + p[at]) / n).toFixed(4))
       slides.forEach((s, i) => {
-        const top = tops[i], len = lens[i]
-        const p = clamp((y - top) / (len * vh))
-        const e = i === 0 ? 1 : clamp(1 - (top - y) / vh)
-        const next = tops[i + 1]
-        const c = next == null ? 0 : clamp(1 - (next - y) / vh)
-        set(s, '--p', p); set(s, '--e', easeOut(e)); set(s, '--c', c)
-        if (y + vh * 0.5 >= top) active = i
-        // only slides on screen do the per-piece work
-        if (e <= 0 || c >= 1) return
+        const vis = e[i] > 0 && c[i] < 1
+        s.style.visibility = vis ? '' : 'hidden'
+        if (!vis) return
+        set(s, '--p', p[i]); set(s, '--e', e[i]); set(s, '--c', c[i])
         pieces[i].forEach((n) => {
           const a = Number(n.dataset.a), b = Number(n.dataset.b)
-          set(n, '--t', easeOut(win(p, a, b)))
-          if (n.dataset.c) set(n, '--u', easeInOut(win(p, Number(n.dataset.c), Number(n.dataset.d))))
+          set(n, '--t', easeOut(win(p[i], a, b)))
+          if (n.dataset.c) set(n, '--u', easeInOut(win(p[i], Number(n.dataset.c), Number(n.dataset.d))))
         })
-        FX[s.dataset.fx || '']?.(p, s)
+        FX[s.dataset.fx || '']?.(p[i], s)
       })
-      if (active !== cur) {
-        cur = active; onSlide(active)
-        el.classList.toggle('on-dark', slides[active].classList.contains('il-dark'))
-      }
       raf = requestAnimationFrame(frame)
     }
     raf = requestAnimationFrame(frame)
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener('resize', measure) }
+    show(0)
+
+    // one wheel gesture = one slide; the trackpad's momentum tail belongs to the same gesture
+    let acc = 0, fired = false, quiet = 0
+    const onWheel = (ev: WheelEvent) => {
+      if (Math.abs(ev.deltaX) > Math.abs(ev.deltaY)) return
+      ev.preventDefault()
+      clearTimeout(quiet); quiet = window.setTimeout(() => { fired = false; acc = 0 }, 240)
+      if (fired) return
+      acc += ev.deltaY
+      if (Math.abs(acc) > 30) { fired = true; go(at + Math.sign(acc)) }
+    }
+    const onKey = (ev: KeyboardEvent) => {
+      const t = ev.target as HTMLElement
+      if (t && /INPUT|TEXTAREA/.test(t.tagName)) return
+      const d = ['ArrowDown', 'PageDown', 'ArrowRight', ' '].includes(ev.key) ? 1 : ['ArrowUp', 'PageUp', 'ArrowLeft'].includes(ev.key) ? -1 : 0
+      if (ev.key === 'Home') go(0); else if (ev.key === 'End') go(n - 1); else if (d) { ev.preventDefault(); go(at + d) }
+    }
+    let ty0: number | null = null
+    const onTouchStart = (ev: TouchEvent) => { ty0 = ev.touches[0].clientY }
+    const onTouchMove = (ev: TouchEvent) => { if (ty0 != null) ev.preventDefault() }
+    const onTouchEnd = (ev: TouchEvent) => {
+      if (ty0 == null) return
+      const dy = ty0 - ev.changedTouches[0].clientY; ty0 = null
+      if (Math.abs(dy) > 50) go(at + Math.sign(dy))
+    }
+    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
+    window.addEventListener('touchend', onTouchEnd)
+    // the home page frames this deck; it asks where we are so scrolling up past slide one hands back to it
+    const w = window as unknown as { isoDeck?: { index: () => number; go: (i: number) => void } }
+    w.isoDeck = { index: () => at, go }
+    return () => {
+      cancelAnimationFrame(raf); clearTimeout(quiet); delete w.isoDeck
+      window.removeEventListener('wheel', onWheel); window.removeEventListener('keydown', onKey)
+      window.removeEventListener('touchstart', onTouchStart); window.removeEventListener('touchmove', onTouchMove); window.removeEventListener('touchend', onTouchEnd)
+    }
   }, [])
 }
 
@@ -234,12 +318,7 @@ export default function IsoLight() {
     document.title = 'ISO, redesigned · Paul Jeon'
     window.scrollTo(0, 0)
   }, [])
-  const goTo = (i: number) => {
-    const s = root.current?.querySelectorAll<HTMLElement>('.il-slide')[i]
-    if (!s) return
-    const top = s.getBoundingClientRect().top + window.scrollY
-    window.scrollTo({ top: top + 2, behavior: 'smooth' })
-  }
+  const goTo = (i: number) => (window as unknown as { isoDeck?: { go: (i: number) => void } }).isoDeck?.go(i)
 
   return (
     <div className="il" ref={root}>
