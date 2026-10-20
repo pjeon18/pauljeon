@@ -76,6 +76,8 @@
   #ch .fork .go:only-child { grid-column:1 / -1; }
   #ch .demo { position:relative; height:86vh; margin-top:10vh; border-radius:28px; overflow:hidden; background:var(--tint); box-shadow:0 30px 70px -45px rgba(0,0,0,.4); }
   #ch .demo iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
+  #ch .demo iframe, #ch .full iframe { opacity:0; transition:opacity .7s ease; }
+  #ch .demo iframe.ready, #ch .full iframe.ready { opacity:1; }
   #ch .full { position:relative; height:100vh; margin:14vh -6vw 0; border-top:1px solid #e8e8ed; background:#fff; }
   #ch .full iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#fff; }
   #ch .body.framed { padding-bottom:0; }
@@ -131,7 +133,10 @@
   function measure() { maxY = Math.max(0, scroller.scrollHeight - innerHeight) }
   // the case study scrolls itself once it fills the screen; until then (and when you scroll
   // back up past its top) the wheel moves this page instead
+  // the last time this page took a wheel event: a gesture that docks the case study never spills into it
+  let lastHere = 0
   function wheelHere(dy) {
+    lastHere = performance.now()
     ty += dy
     if (ty < 0) { pull += -ty; ty = 0; if (pull > 200) close() } else pull = Math.max(0, pull - Math.abs(dy))
     ty = Math.min(ty, maxY)
@@ -141,8 +146,8 @@
       let w; try { w = frame.contentWindow; w.document } catch (e) { return }
       w.addEventListener('wheel', e => {
         if (!cur) return
-        const docked = ty >= maxY - 2 && y >= maxY - 6, atTop = w.scrollY <= 0
-        if (!docked || (atTop && e.deltaY < 0)) { e.preventDefault(); e.stopImmediatePropagation(); wheelHere(e.deltaY) }
+        const deck = w.isoDeck, docked = ty >= maxY - 2 && y >= maxY - 6, atTop = w.scrollY <= 0 && (!deck || deck.index() === 0)
+        if (!docked || (atTop && e.deltaY < 0) || performance.now() - lastHere < 260) { e.preventDefault(); e.stopImmediatePropagation(); wheelHere(e.deltaY) }
       }, { passive: false, capture: true })
       w.addEventListener('keydown', e => { if (e.key === 'Escape' && cur) close() })
     })
@@ -160,7 +165,13 @@
   }
   function open(it, fromEl, h) {
     if (busy || cur) return
+    build(it, fromEl, h, 'morph')
+  }
+  // mode 'morph': the card grows into the page. mode 'swap': the page is already open and the next
+  // project fades up in place, so moving between projects never closes and reopens a window.
+  function build(it, fromEl, h, mode) {
     busy = true; cur = it; hooks = h || {}; y = ty = 0; pull = 0; from = fromEl
+    scroller.style.transform = 'translateY(0px)'
     root.style.setProperty('--acc', it.acc); root.style.setProperty('--tint', it.tint)
     hero.classList.toggle('still', !FILM[it.id] && !(it.tile && it.tile.endsWith('.mp4')))
     hero.innerHTML = heroInner(it) + `<div class="shade"></div><div class="over"><small>${esc(it.area)} · ${esc(it.year)}</small><h1>${esc(it.title)}.<br><span>${esc(it.short || it.head)}</span></h1></div>` + (FILM[it.id] ? `<div class="ctrl"><button class="pp">Pause</button><div class="bar"><i></i></div><button class="snd">Sound on</button></div>` : '')
@@ -179,22 +190,48 @@
     const body = scroller.querySelector('.body'), frame = scroller.querySelector('.full iframe')
     if (frame) body.classList.add('framed')
     scroller.querySelectorAll('.fork .go').forEach(g => g.onclick = () => {
-      if (g.dataset.act === 'next' && nxt) { const hk = hooks; close(() => hk.next && hk.next(nxt)) }
+      if (g.dataset.act === 'next' && nxt) { if (hooks.next) hooks.next(nxt); else { const hk = hooks; close(() => hk.next && hk.next(nxt)) } }
       else ty = maxY   // glide down until the case study fills the screen
     })
     if (frame) wireFrame(frame)
     const demoF = scroller.querySelector('.demo iframe'); if (demoF) wireDemo(demoF)
+    scroller.querySelectorAll('iframe').forEach(f => f.addEventListener('load', () => f.classList.add('ready')))
     local.innerHTML = `<b>${esc(it.title)}</b><nav><span data-go="0">Overview</span>${CASE[it.id] ? '<span data-go="1">Full case study</span>' : ''}${it.live ? `<a href="${it.live}" target="_blank">Try it</a>` : ''}</nav>`
     local.querySelectorAll('[data-go]').forEach(n => n.onclick = () => { ty = n.dataset.go === '0' ? 0 : maxY })
     fillMedia(it)
+    const F = full(), ov = hero.querySelector('.over')
+    fromEl.style.visibility = 'hidden'
+    root.classList.add('on'); hooks.onOpen && hooks.onOpen()
+    // the headline rises while the picture is still settling, so the two arrive as one move
+    const headline = delay => ov.animate([{ opacity: 0, transform: 'translateY(22px)' }, { opacity: 1, transform: 'none' }], { duration: 760, delay, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' })
+    const done = () => { place(F, 0); hero.getAnimations().forEach(x => x.cancel()); phase = 'open'; busy = false; measure() }
+    if (mode === 'swap') {
+      place(F, 0); phase = 'open'
+      hero.animate([{ opacity: 0, transform: 'scale(1.035)' }, { opacity: 1, transform: 'none' }], { duration: 900, easing: 'cubic-bezier(.2,.8,.2,1)' }).onfinish = done
+      scroller.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 300, easing: 'ease-out', fill: 'backwards' })
+      headline(260)
+      return
+    }
     // the card opens to the full screen
     const r = fromEl.getBoundingClientRect()
-    fromEl.style.visibility = 'hidden'
-    place(r, 28); root.classList.add('on'); hooks.onOpen && hooks.onOpen()
-    hero.querySelector('.over').style.opacity = 0
-    const F = full()
-    const a = hero.animate([{ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: '28px' }, { left: '0px', top: '0px', width: F.width + 'px', height: F.height + 'px', borderRadius: '0px' }], { duration: 820, easing: 'cubic-bezier(.22,.9,.22,1)', fill: 'forwards' })
-    a.onfinish = () => { place(F, 0); a.cancel(); phase = 'open'; busy = false; measure(); const ov = hero.querySelector('.over'); ov.style.opacity = ''; ov.animate([{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' }) }
+    place(r, 28)
+    hero.animate([{ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: '28px' }, { left: '0px', top: '0px', width: F.width + 'px', height: F.height + 'px', borderRadius: '0px' }], { duration: 820, easing: 'cubic-bezier(.22,.9,.22,1)', fill: 'forwards' }).onfinish = done
+    headline(420)
+  }
+  // to the next project without leaving the page: this one dissolves, the next one fades up in its place
+  function swap(it, fromEl, h) {
+    if (busy || !cur) return
+    busy = true; phase = 'swapping'
+    if (film) { film.pause(); film.muted = true }
+    local.classList.remove('show')
+    const old = hooks, oldFrom = from
+    const out = { duration: 420, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }
+    scroller.animate([{ opacity: 1 }, { opacity: 0 }], out)
+    hero.animate([{ opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(10px)' }], out).onfinish = () => {
+      hero.getAnimations().forEach(x => x.cancel()); scroller.getAnimations().forEach(x => x.cancel())
+      old && old.onClose && old.onClose(); if (oldFrom) oldFrom.style.visibility = ''
+      build(it, fromEl, h, 'swap')
+    }
   }
   function close(after) {
     if (busy || !cur) return
@@ -204,16 +241,24 @@
     local.classList.remove('show'); root.classList.remove('on'); hooks.onClose && hooks.onClose()
     // stop the headline mid-entrance and let it go quickly, so nothing is still arriving while the card shrinks away
     hero.querySelectorAll('.over,.ctrl,.shade').forEach(n => { const o = getComputedStyle(n).opacity; n.getAnimations().forEach(x => x.cancel()); n.style.opacity = 0; n.animate([{ opacity: o }, { opacity: 0 }], { duration: 160, easing: 'ease-out' }) })
+    scroller.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: 'ease-out', fill: 'forwards' })
+    const finish = () => {
+      hero.getAnimations().forEach(x => x.cancel()); scroller.getAnimations().forEach(x => x.cancel()); hero.innerHTML = ''; hero.style.width = '0px'; scroller.innerHTML = ''
+      cur = null; busy = false; phase = 'idle'; film = null; const hk = hooks; hooks = null
+      hk && hk.onClosed && hk.onClosed(); after && after()
+    }
+    if (r0.bottom < innerHeight * 0.3) {
+      hero.style.opacity = 0
+      if (from) { from.style.visibility = ''; from.animate([{ opacity: 0, transform: 'translateY(26px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 640, delay: 140, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }) }
+      setTimeout(() => { hero.style.opacity = ''; finish() }, 780)
+      return
+    }
     const rad = hooks.targetRadius ? hooks.targetRadius() : '28px'
     const a = hero.animate([{ left: r0.left + 'px', top: r0.top + 'px', width: r0.width + 'px', height: r0.height + 'px', borderRadius: getComputedStyle(hero).borderRadius }, { left: t.left + 'px', top: t.top + 'px', width: t.width + 'px', height: t.height + 'px', borderRadius: rad }], { duration: 680, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' })
     // the real card is already back underneath; over the last part of the shrink the page dissolves into it
     hero.animate([{ opacity: 1 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }], { duration: 680, easing: 'ease-in', fill: 'forwards' })
     if (from) { from.style.visibility = ''; from.animate([{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: 1 }], { duration: 680, easing: 'ease-out' }) }
-    a.onfinish = () => {
-      hero.getAnimations().forEach(x => x.cancel()); hero.innerHTML = ''; hero.style.width = '0px'; scroller.innerHTML = ''
-      cur = null; busy = false; phase = 'idle'; film = null; const hk = hooks; hooks = null
-      hk && hk.onClosed && hk.onClosed(); after && after()
-    }
+    a.onfinish = finish
   }
   addEventListener('wheel', e => {
     if (!cur || busy) return
@@ -246,5 +291,5 @@
     }
     requestAnimationFrame(loop)
   })()
-  window.Chapter = { open, close, isOpen: () => !!cur }
+  window.Chapter = { open, close, swap, isOpen: () => !!cur }
 })()

@@ -402,18 +402,31 @@ function frame(now) {
 addEventListener('resize', resize)
 document.fonts.ready.then(() => { resize(); deal(); flapAll(1100); requestAnimationFrame(frame) })
 
-function openCard(i) {
+// a card already turned over, with no flip to watch (used behind an open chapter)
+function settle(c) {
+  if (c.up) return; c.up = true
+  c.inner.getAnimations().forEach(a => a.cancel()); c.inner.style.transform = `rotateZ(${c.rz})`; c.el.classList.add('settled')
+  lab(c).getAnimations().forEach(a => a.cancel()); lab(c).style.opacity = ''
+}
+function hooksFor(i) {
   const c = cards[i]
-  const go = () => {
-    Chapter.open(PROJ[i], c.slot, {
-      onOpen: () => { cards.forEach(o => o.el.classList.add('away')); c.el.classList.add('hid') },
-      onClose: () => { cards.forEach(o => o.el.classList.remove('away')); c.el.classList.remove('hid') },
-      targetRadius: () => getComputedStyle(c.el.querySelector('.back')).borderRadius,
-      targetRect: () => c.slot.getBoundingClientRect(),
-      nextItem: () => PROJ[(i + 1) % PROJ.length],
-      next: nxt => { const j = PROJ.indexOf(nxt); if (j < 0) return; tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) },
-    })
+  return {
+    onOpen: () => { cards.forEach(o => o.el.classList.add('away')); c.el.classList.add('hid') },
+    onClose: () => { cards.forEach(o => o.el.classList.remove('away')); c.el.classList.remove('hid') },
+    targetRadius: () => getComputedStyle(c.el.querySelector('.back')).borderRadius,
+    targetRect: () => c.slot.getBoundingClientRect(),
+    nextItem: () => PROJ[(i + 1) % PROJ.length],
+    // the next project opens in place; behind it, the row jumps to that card so closing lands on it
+    next: nxt => {
+      const j = PROJ.indexOf(nxt); if (j < 0) return
+      cards.forEach((o, k) => { if (k <= j) settle(o) })
+      tx = x = clamp(centreOf(j))
+      Chapter.swap(nxt, cards[j].slot, hooksFor(j))
+    },
   }
+}
+function openCard(i) {
+  const go = () => Chapter.open(PROJ[i], cards[i].slot, hooksFor(i))
   const d = Math.abs(centreOf(i) - x); goTo(i); setTimeout(go, d > 40 ? 650 : 0)
 }
 </script>

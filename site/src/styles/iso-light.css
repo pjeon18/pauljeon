@@ -62,10 +62,9 @@
 @media (max-width: 760px) { .il-dots { display: none; } }
 
 /* ---------- the deck ---------- */
-.il-slide { position: relative; }
-.il-slide:not(:last-of-type) { margin-bottom: -100vh; }
+.il-slide { position: fixed; inset: 0; height: 100vh !important; transform: translateY(calc((1 - var(--e, 0)) * 100vh)); }
 .il-stage {
-  position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff;
+  position: relative; height: 100vh; overflow: hidden; background: #fff;
   /* entering: rises as a card with rounded shoulders; covered: recedes and dims */
   border-radius: calc((1 - var(--e, 1)) * 36px) calc((1 - var(--e, 1)) * 36px) 0 0;
   box-shadow: 0 -30px 80px -40px rgba(17,17,18, calc((1 - var(--e, 1)) * .35));
