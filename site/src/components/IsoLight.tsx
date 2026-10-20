@@ -173,8 +173,8 @@ function useDeck(root: React.RefObject<HTMLDivElement>, onSlide: (i: number) => 
     // every slide plays on its own clock once it has risen; the wheel only moves between slides.
     // The clock is paced by the content: while something moves, playback runs at a steady speed;
     // while everything is still, it holds long enough to read.
-    const MOVE = 3.2                          // seconds per screen of the old scroll length, while moving
-    const HOLD = (screens: number) => clamp(screens * 8, 2.6, 5)
+    const MOVE = 2.2                          // seconds per screen of the old scroll length, while moving
+    const HOLD = (screens: number) => clamp(screens * 5.5, 1.8, 3.4)
     const timelines = slides.map((s, i) => {
       const spans: [number, number][] = []
       s.querySelectorAll<HTMLElement>('[data-a]').forEach((n) => {
@@ -203,7 +203,7 @@ function useDeck(root: React.RefObject<HTMLDivElement>, onSlide: (i: number) => 
       return 1
     }
     const clock: number[] = slides.map(() => 0)
-    const RISE = reduce ? 0.001 : 1.05       // seconds for the next slide to rise over this one
+    const RISE = reduce ? 0.001 : 0.42       // seconds for the next slide to rise over this one
     const p: number[] = slides.map(() => 0), e: number[] = slides.map((_, i) => (i === 0 ? 1 : 0)), c: number[] = slides.map(() => 0)
     let at = 0, tr: { from: number; to: number; t0: number } | null = null
     let last = performance.now(), raf = 0
