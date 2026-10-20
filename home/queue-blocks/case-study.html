@@ -93,6 +93,7 @@ ol.tasks{margin-top:24px;padding-left:22px;max-width:760px}
 ol.tasks li+li{margin-top:6px}
 footer{padding:80px 0 100px;border-top:1px solid var(--line)}
 .proto{max-width:1340px;margin:0 auto;padding:0 20px}
+.proto.play{margin-top:56px}
 .proto iframe{display:block;width:100%;height:960px;border:0;border-radius:24px;background:#0b0b0b}
 @media (max-width:860px){.proto iframe{height:900px}}
 footer .btns{margin-top:0}
@@ -116,7 +117,6 @@ footer .btns{margin-top:0}
   <div class="wrap">
     <h1 class="rv">Queue Blocks</h1>
     <div class="lead rv">A redesign of Spotify's queue for people whose listening changes through the day</div>
-    <div class="btns rv"><a class="btn solid" href="#try">Try the prototype</a><a class="btn line" href="index.html?tour">Watch the tour</a><a class="btn line" href="index.html?compare">Compare with today's queue</a></div>
     <div class="film rv"><video src="media/queue-blocks-demo-1280.mp4" poster="media/queue-blocks-demo-poster.jpg" controls playsinline preload="metadata"></video></div>
   </div>
 </section>
@@ -127,9 +127,9 @@ footer .btns{margin-top:0}
     <div class="beat rv">Spotify's queue is one list</div>
     <div class="beat rv">Switching from your commute to work means clearing it</div>
     <div class="beat rv">The songs you hadn't heard are deleted, and getting them back means searching for each one</div>
-    <figure class="wide devices rv"><img src="media/shots/compare.webp" alt="Today's queue next to Queue Blocks after the same day"></figure>
-    <p class="note rv">Left is today's queue at the end of a day of switching. Right is the same day with blocks.</p>
+    <p class="note rv">Left is today's queue. Right is the same day with blocks.</p>
   </div>
+  <div class="proto play"><iframe data-src="index.html?compare&present&autoplay" title="Today's queue next to Queue Blocks over one day"></iframe></div>
 </section>
 
 <!-- who -->
@@ -168,6 +168,12 @@ footer .btns{margin-top:0}
       <figure class="rv"><div class="when">18:45</div><img src="media/shots/played.webp" alt="Commute playing again with Played expanded"><figcaption><p>Commute picks up where it stopped. Played shows what you already heard.</p></figcaption></figure>
     </div>
   </div>
+</section>
+
+<!-- the tour -->
+<section class="band-dark">
+  <div class="wrap"><h2 class="rv">Every interaction, played through</h2></div>
+  <div class="proto play"><iframe data-src="index.html?tour&present" title="Queue Blocks tour"></iframe></div>
 </section>
 
 <!-- decisions -->
@@ -251,6 +257,7 @@ footer .btns{margin-top:0}
 <script>
 const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }),{rootMargin:'0px 0px -12% 0px'});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+document.querySelectorAll('iframe[data-src]').forEach(f=>{ const o=new IntersectionObserver(es=>{ if(es[0].isIntersecting){ f.src=f.dataset.src; o.disconnect(); } },{threshold:.35}); o.observe(f); });
 const bar=document.getElementById('bar');
 addEventListener('scroll',()=>{ const h=document.documentElement; bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'; },{passive:true});
 </script>
