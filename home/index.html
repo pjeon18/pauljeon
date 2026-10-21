@@ -82,6 +82,9 @@
   .card .lab .t { position:relative; }
   .card.away .lab { opacity:0; }
   .card.hid .slot { visibility:hidden; }
+  /* while a project opens or closes, the cards stay put, so the morph lands exactly on one */
+  body.ch-busy .card.settled:hover .inner { transform:rotateZ(var(--rz)) !important; transition:none; }
+  body.ch-busy .card.settled:hover .shadow.u { box-shadow:0 1px 2px rgba(0,0,0,.11), 0 7px 16px rgba(0,0,0,.11), 0 22px 46px rgba(0,0,0,.10); }
   /* the last thing on the row, pinned to its right edge */
   .end { position:relative; flex:none; height:100vh; width:92vw; }
   .end .big { right:3vw; top:12vh; text-align:right; }
@@ -413,6 +416,10 @@ function hooksFor(i) {
   return {
     onOpen: () => { cards.forEach(o => o.el.classList.add('away')); c.el.classList.add('hid') },
     onClose: () => { cards.forEach(o => o.el.classList.remove('away')); c.el.classList.remove('hid') },
+    cardFace: () => c.el.querySelector('.face'),
+    cardRotate: () => c.rz,
+    // where the card is actually drawn: lifted and slightly enlarged if the pointer is on it
+    fromRect: () => { const r = c.slot.getBoundingClientRect(); if (!c.el.matches('.settled:hover')) return r; const w = r.width * 1.02, h = r.height * 1.02; return { left: r.left - (w - r.width) / 2, top: r.top - (h - r.height) / 2 - 18, width: w, height: h } },
     targetRadius: () => getComputedStyle(c.el.querySelector('.back')).borderRadius,
     targetRect: () => c.slot.getBoundingClientRect(),
     nextItem: () => PROJ[(i + 1) % PROJ.length],
