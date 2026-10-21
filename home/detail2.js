@@ -81,6 +81,8 @@
   #ch .full { position:relative; height:100vh; margin:14vh -6vw 0; border-top:1px solid #e8e8ed; background:#fff; }
   #ch .full iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#fff; }
   #ch .body.framed { padding-bottom:0; }
+  /* a copy of the card face, scaled with the hero, so opening grows out of the card and closing lands on it */
+  #ch .ch-ghost { position:absolute !important; left:0; top:0; margin:0 !important; transform-origin:0 0; pointer-events:none; z-index:5; opacity:0; }
   #ch .next { margin-top:22vh; cursor:pointer; }
   #ch .next h2 { margin:0; font:700 clamp(48px, 7vw, 110px)/.95 Inter, sans-serif; letter-spacing:-.05em; color:#1d1d1f; }
   #ch .next h2 em { font-style:normal; color:#86868b; }`
@@ -163,6 +165,20 @@
       measure()
     })
   }
+  const CARD_SHADOW = '0 1px 2px rgba(0,0,0,.11), 0 7px 16px rgba(0,0,0,.11), 0 22px 46px rgba(0,0,0,.10)', NO_SHADOW = '0 1px 2px rgba(0,0,0,0), 0 7px 16px rgba(0,0,0,0), 0 22px 46px rgba(0,0,0,0)'
+  let ghost = null, ghostSize = null, ghostRaf = 0
+  function makeGhost(r) {
+    dropGhost()
+    const face = hooks.cardFace && hooks.cardFace(); if (!face) return null
+    const g = document.createElement('div'); g.className = 'card ch-ghost'
+    const f = face.cloneNode(true); f.querySelectorAll('video').forEach(v => v.remove())
+    g.appendChild(f); g.style.width = r.width + 'px'; g.style.height = r.height + 'px'
+    hero.appendChild(g); ghost = g; ghostSize = { w: r.width, h: r.height }
+    // scaled evenly (never stretched) to cover the hero, centred; at the card's own size this is exactly the card
+    const sync = () => { if (!ghost) return; const W = hero.offsetWidth, H = hero.offsetHeight, k = Math.max(W / ghostSize.w, H / ghostSize.h); ghost.style.transform = `translate(${(W - ghostSize.w * k) / 2}px, ${(H - ghostSize.h * k) / 2}px) scale(${k})`; ghostRaf = requestAnimationFrame(sync) }
+    sync(); return g
+  }
+  function dropGhost() { cancelAnimationFrame(ghostRaf); if (ghost) ghost.remove(); ghost = null }
   function open(it, fromEl, h) {
     if (busy || cur) return
     build(it, fromEl, h, 'morph')
@@ -213,9 +229,13 @@
       return
     }
     // the card opens to the full screen
-    const r = fromEl.getBoundingClientRect()
-    place(r, 28)
-    hero.animate([{ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: '28px' }, { left: '0px', top: '0px', width: F.width + 'px', height: F.height + 'px', borderRadius: '0px' }], { duration: 820, easing: 'cubic-bezier(.22,.9,.22,1)', fill: 'forwards' }).onfinish = done
+    document.body.classList.add('ch-busy')
+    const r = hooks.fromRect ? hooks.fromRect() : fromEl.getBoundingClientRect()
+    const rad = hooks.targetRadius ? hooks.targetRadius() : '28px', rz = hooks.cardRotate ? hooks.cardRotate() : '0deg'
+    place(r, 0)
+    const g = makeGhost(r)
+    hero.animate([{ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: rad, transform: `rotate(${rz})`, boxShadow: CARD_SHADOW }, { left: '0px', top: '0px', width: F.width + 'px', height: F.height + 'px', borderRadius: '0px', transform: 'rotate(0deg)', boxShadow: NO_SHADOW }], { duration: 820, easing: 'cubic-bezier(.22,.9,.22,1)', fill: 'forwards' }).onfinish = () => { dropGhost(); done() }
+    if (g) g.animate([{ opacity: 1 }, { opacity: 1, offset: 0.12 }, { opacity: 0, offset: 0.45 }, { opacity: 0 }], { duration: 820, easing: 'linear', fill: 'forwards' })
     headline(420)
   }
   // to the next project without leaving the page: this one dissolves, the next one fades up in its place
@@ -243,7 +263,8 @@
     hero.querySelectorAll('.over,.ctrl,.shade').forEach(n => { const o = getComputedStyle(n).opacity; n.getAnimations().forEach(x => x.cancel()); n.style.opacity = 0; n.animate([{ opacity: o }, { opacity: 0 }], { duration: 160, easing: 'ease-out' }) })
     scroller.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: 'ease-out', fill: 'forwards' })
     const finish = () => {
-      hero.getAnimations().forEach(x => x.cancel()); scroller.getAnimations().forEach(x => x.cancel()); hero.innerHTML = ''; hero.style.width = '0px'; scroller.innerHTML = ''
+      dropGhost(); hero.getAnimations().forEach(x => x.cancel()); scroller.getAnimations().forEach(x => x.cancel()); hero.innerHTML = ''; hero.style.width = '0px'; scroller.innerHTML = ''
+      requestAnimationFrame(() => document.body.classList.remove('ch-busy'))
       cur = null; busy = false; phase = 'idle'; film = null; const hk = hooks; hooks = null
       hk && hk.onClosed && hk.onClosed(); after && after()
     }
@@ -253,12 +274,13 @@
       setTimeout(() => { hero.style.opacity = ''; finish() }, 780)
       return
     }
-    const rad = hooks.targetRadius ? hooks.targetRadius() : '28px'
-    const a = hero.animate([{ left: r0.left + 'px', top: r0.top + 'px', width: r0.width + 'px', height: r0.height + 'px', borderRadius: getComputedStyle(hero).borderRadius }, { left: t.left + 'px', top: t.top + 'px', width: t.width + 'px', height: t.height + 'px', borderRadius: rad }], { duration: 680, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' })
-    // the real card is already back underneath; over the last part of the shrink the page dissolves into it
-    hero.animate([{ opacity: 1 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }], { duration: 680, easing: 'ease-in', fill: 'forwards' })
-    if (from) { from.style.visibility = ''; from.animate([{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: 1 }], { duration: 680, easing: 'ease-out' }) }
-    a.onfinish = finish
+    const rad = hooks.targetRadius ? hooks.targetRadius() : '28px', rz = hooks.cardRotate ? hooks.cardRotate() : '0deg'
+    const g = makeGhost(t)
+    const a = hero.animate([{ left: r0.left + 'px', top: r0.top + 'px', width: r0.width + 'px', height: r0.height + 'px', borderRadius: getComputedStyle(hero).borderRadius, transform: 'rotate(0deg)', boxShadow: NO_SHADOW }, { left: t.left + 'px', top: t.top + 'px', width: t.width + 'px', height: t.height + 'px', borderRadius: rad, transform: `rotate(${rz})`, boxShadow: CARD_SHADOW }], { duration: 720, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' })
+    if (g) g.animate([{ opacity: 0 }, { opacity: 0, offset: 0.3 }, { opacity: 1, offset: 0.78 }, { opacity: 1 }], { duration: 720, easing: 'linear', fill: 'forwards' })
+    else hero.animate([{ opacity: 1 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }], { duration: 720, easing: 'ease-in', fill: 'forwards' })
+    // the page is the card by the end, so the real one appears under it in the same place and nothing jumps
+    a.onfinish = () => { if (from) from.style.visibility = ''; finish() }
   }
   addEventListener('wheel', e => {
     if (!cur || busy) return
