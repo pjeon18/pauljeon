@@ -12,7 +12,8 @@
   /* Plain cards. The shader lives on the type: the name at the start and the
      line at the end are drawn in WebGL, develop out of halftone dots, break back
      into dots under the cursor, and smear with the scroll speed. */
-  :root { --ink:#141414; --mute:#9a9a9a; }
+  :root { --ink:#141414; --mute:#8e8e93; }
+  body { text-rendering:optimizeLegibility; }
   html, body { margin:0; height:100%; overflow:hidden; background:#fff; font-family:Inter, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
   canvas#gl { position:fixed; inset:0; width:100vw; height:100vh; z-index:2; pointer-events:none; }
   .nav { position:fixed; left:3vw; right:3vw; top:22px; display:flex; justify-content:space-between; z-index:10; font:500 11px/1 Inter; letter-spacing:.06em; text-transform:uppercase; }
@@ -24,7 +25,8 @@
   .nav .r a:hover::after { transform:scaleX(1); }
   .nav .r span::after, .end .meta .v::after, .card .lab .t::after { content:''; position:absolute; left:0; right:0; bottom:-3px; height:1px; background:var(--ink); transform:scaleX(0); transform-origin:left; transition:transform .45s cubic-bezier(.2,.8,.2,1); }
   .nav .r span:hover::after, .end .meta .v:hover::after, .card:hover .lab .t::after { transform:scaleX(1); }
-  #track { position:absolute; left:0; top:0; height:100vh; display:flex; align-items:center; will-change:transform; z-index:1; }
+  #track { position:absolute; left:0; top:0; height:100vh; display:flex; align-items:center; z-index:1; }
+  #track.moving { will-change:transform; }
   .intro { position:relative; flex:none; height:100vh; width:max(62vw, 760px); }
   /* the type is laid out in HTML (and stays selectable/readable) but painted by the shader */
   .big { position:absolute; font:700 min(22vh, 13vw)/.8 'Inter Tight', sans-serif; letter-spacing:-.06em; color:transparent; }
@@ -48,13 +50,14 @@
   .card { position:relative; flex:none; margin-right:8vw; cursor:pointer; }
   /* a real card: photographed back, printed face with a white margin, and a flip in 3D */
   .card .slot { position:relative; height:min(64vh, 40vw); width:calc(min(64vh, 40vw) * 0.6443); perspective:1400px; }
-  .card .inner { position:absolute; inset:0; transform-style:preserve-3d; will-change:transform; }
+  .card .inner { position:absolute; inset:0; transform-style:preserve-3d; }
+  .card:not(.settled) .inner, .card.settled:hover .inner { will-change:transform; }
   .card .face, .card .back { position:absolute; inset:0; border-radius:5.02% / 3.23%; overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
   /* one shadow per side, each always 1px behind its side: a single shadow ends up in front once the card is turned over */
   .card .shadow.d { transform:rotateY(180deg) translateZ(-1px); box-shadow:0 2px 3px rgba(0,0,0,.17), 0 10px 22px rgba(0,0,0,.18), 0 28px 60px rgba(0,0,0,.16); }
   .card.pile .shadow { opacity:0; transition:opacity 0s; }
   .card .shadow { transition:box-shadow .9s ease, opacity .8s ease; position:absolute; inset:1.5% 2%; border-radius:6% / 4%; box-shadow:0 1px 2px rgba(0,0,0,.11), 0 7px 16px rgba(0,0,0,.11), 0 22px 46px rgba(0,0,0,.10); transform:translateZ(-1px); backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-  .card .back { background:url(m/placeholder/card-back.png?v=4) center / 100% 100% no-repeat; transform:rotateY(180deg); }
+  .card .back { background:url(m/placeholder/card-back.png?v=5) center / 100% 100% no-repeat; transform:rotateY(180deg); }
   /* plain card white on the front */
   .card .face { background:#fdfcf9; }
   .card .face .print { position:absolute; left:7%; right:7%; top:23%; aspect-ratio:1.158; border-radius:2px; overflow:hidden; background:#eee; }
@@ -66,7 +69,7 @@
   .card .face .ix.b { left:auto; top:auto; right:6%; bottom:3.4%; transform:rotate(180deg); }
   .card .face .cap { position:absolute; left:7.5%; right:20%; top:calc(23% + 86% / 1.158 * 0.6443 + 4.5%); }
   .card .face .cap .t { display:block; font:700 clamp(15px, 2.3vh, 24px)/1.02 'Inter Tight', sans-serif; letter-spacing:-.03em; color:#141414; }
-  .card .face .cap .c { display:block; margin-top:8px; font:500 clamp(9px, 1.05vh, 11px)/1.3 Inter; letter-spacing:.07em; text-transform:uppercase; color:#8a8a8a; }
+  .card .face .cap .c { display:block; margin-top:8px; font:500 clamp(9px, 1.05vh, 11px)/1.3 Inter; letter-spacing:.07em; text-transform:uppercase; color:var(--mute); }
   .card .face .print img, .card .face video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
   .card .face video { opacity:0; transition:opacity .5s; }
   .card.up:hover .face video.ok { opacity:1; }
@@ -221,9 +224,13 @@ function flip(c) {
   c.inner.getAnimations().forEach(a => a.cancel())
   c.inner.animate([
     { transform: `translate3d(0,0,0) rotateY(180deg) rotateZ(${c.rz})` },
-    { transform: `translate3d(0,-22px,60px) rotateY(90deg) rotateZ(${c.rz})`, offset: 0.5 },
-    { transform: `translate3d(0,0,0) rotateY(0deg) rotateZ(${c.rz})` },
-  ], { duration: 900, easing: 'cubic-bezier(.45,.05,.2,1)', fill: 'forwards' }).onfinish = () => { c.inner.style.transform = `rotateZ(${c.rz})`; c.inner.getAnimations().forEach(x => x.cancel()); c.el.classList.add('settled') }
+    { transform: `translate3d(0,-22px,60px) rotateY(90deg) rotateZ(${parseFloat(c.rz) / 2}deg)`, offset: 0.5 },
+    { transform: 'translate3d(0,0,0) rotateY(0deg) rotateZ(0deg)' },
+  ], { duration: 900, easing: 'cubic-bezier(.45,.05,.2,1)', fill: 'forwards' }).onfinish = () => {
+    // face up, the card sits perfectly square: any tilt makes the browser resample its type and picture
+    c.rz = '0deg'; c.el.style.setProperty('--rz', '0deg'); c.inner.style.transform = 'none'
+    c.inner.getAnimations().forEach(x => x.cancel()); c.el.classList.add('settled')
+  }
   g.forEach(e => e.animate([{ backgroundPosition: '130% 0', opacity: 0 }, { opacity: 1, offset: 0.5 }, { backgroundPosition: '-30% 0', opacity: 0 }], { duration: 900, easing: 'ease-in-out' }))
   lab(c).animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 450, fill: 'forwards', easing: 'cubic-bezier(.2,.8,.2,1)' })
 }
@@ -371,8 +378,11 @@ const t0 = performance.now(), outExpo = k => k >= 1 ? 1 : 1 - Math.pow(2, -10 * 
 function frame(now) {
   const prev = x
   x += (tx - x) * 0.085
+  if (Math.abs(tx - x) < 0.35) x = tx = Math.round(tx)          // settle on a whole pixel, so type is drawn sharp
   vel += ((x - prev) - vel) * 0.35
-  track.style.transform = `translateX(${-x}px)`
+  const moving = Math.abs(tx - x) > 0.01
+  track.classList.toggle('moving', moving)
+  track.style.transform = `translateX(${-(moving ? x : Math.round(x))}px)`
   const t = (now - t0) / 1000
   tickFlaps(now)
   document.getElementById('who').classList.toggle('on', x > innerWidth * 0.5)
@@ -386,7 +396,7 @@ function frame(now) {
     // the develop plays the first time a block comes into view (and again each time the end comes back)
     if (b.start == null) b.start = now
     const k = Math.min(1, (now - b.start) / 5200), dev = k * k * (3 - 2 * k)
-    const X = (r.left - PADX) * DPR, Y = (r.top - 20) * DPR
+    const X = Math.round((r.left - PADX) * DPR), Y = Math.round((r.top - 20) * DPR)
     gl.uniform4f(U.uRect, X, Y, b.w, b.h); gl.uniform1f(U.uDev, dev)
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, b.tex); gl.uniform1i(U.uTex, 0)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
