@@ -395,7 +395,8 @@ function frame(now) {
   let fi = 0, best = 1e9
   cards.forEach((c, i) => { const r = c.el.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - innerWidth / 2); if (d < best) { best = d; fi = i } })
   // only once that card has been turned over, so the corner never gives a face-down card away
-  const show = x > innerWidth * 0.25 && x < maxX - innerWidth * 0.35 && cards[fi].up && !Chapter.isOpen() ? fi : -1
+  // named whenever a turned card is near the middle, the first one included; nothing over the intro or the ending
+  const show = best < innerWidth * 0.3 && cards[fi].up && !Chapter.isOpen() ? fi : -1
   if (show !== nowShown) {
     nowShown = show; nowEl.classList.add('out'); clearTimeout(nowTimer)
     if (show >= 0) nowTimer = setTimeout(() => { const it = PROJ[show]; nowT.textContent = it.title; nowM.innerHTML = `<b>${it.year}</b>${LOOK[it.id][3]}`; nowEl.classList.remove('out') }, 380)
