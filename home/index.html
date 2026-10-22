@@ -53,10 +53,11 @@
   /* the work: one big tile per project, centred one at a time. A soft grainy gradient in the
      project's own colours, the real product large on it and running off the bottom edge. */
   .card { position:relative; cursor:pointer; }
-  .card .slot { position:relative; width:100%; aspect-ratio:3 / 2; border-radius:16px; overflow:hidden; container-type:size; }
+  .card .slot { position:relative; width:100%; aspect-ratio:3 / 2; border-radius:16px; overflow:hidden; container-type:size; transition:transform .7s cubic-bezier(.2,.8,.2,1), box-shadow .7s cubic-bezier(.2,.8,.2,1); box-shadow:0 0 0 rgba(30,24,16,0); }
+  .card:hover .slot { transform:translateY(-6px); box-shadow:0 18px 30px -20px rgba(30,24,16,.22); }
   .card .art { position:absolute; inset:0; border-radius:inherit; overflow:hidden; background:#eee center / cover no-repeat; }
   .card .art::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.11; mix-blend-mode:overlay; background-size:140px 140px !important; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  .card .dev { position:absolute; left:50%; display:block; transform:translateX(-50%); transition:transform .9s cubic-bezier(.2,.8,.2,1); filter:drop-shadow(0 18px 30px rgba(20,16,10,.16)) drop-shadow(0 3px 6px rgba(20,16,10,.10)); }
+  .card .dev { position:absolute; left:50%; display:block; transform:translateX(-50%); transition:transform .9s cubic-bezier(.2,.8,.2,1); filter:drop-shadow(0 24px 22px rgba(20,16,10,.10)) drop-shadow(0 2px 3px rgba(20,16,10,.08)); }
   .card .dev.phone { height:112cqh; width:auto; top:12cqh; }
   .card .dev.win { width:min(84cqw, 128cqh); top:21cqh; }
   .card .dev.panel { height:84cqh; width:auto; top:9cqh; }
@@ -359,7 +360,7 @@ function raster(b) {
 blocks.forEach(b => { b.el.style.cursor = 'pointer'; b.el.onclick = () => { b.start = performance.now() } })
 // the name flips through a few lines before it lands, like the board below it
 const nameEl = document.getElementById('name'); nameEl.style.color = 'var(--ink)'; nameEl.style.cursor = 'pointer'; nameEl.setAttribute('aria-label', 'Paul Jeon')
-const LINES = [['Hi, I’m', 'Paul'], ['I like', 'Design'], ['Especially', 'when it’s'], ['Human', 'Centered'], ['I go to', 'Harvard'], ['Studying', 'CS + Art'], ['Paul', 'Jeon']]
+const LINES = [['Hi, I’m', 'Paul'], ['I like', 'Design'], ['Especially', 'when it’s'], ['Human', 'Centered'], ['Currently @', 'Harvard'], ['Studying', 'CS + Art'], ['Paul', 'Jeon']]
 const RAND = 'abcdeghknopqrsuvxyz', RAND_UP = 'ABCDEGHKNOPRSUVXYZ'   // narrow-ish, case-matched, so a scrambled word stays about its real width
 let nameRun = 0
 function flapName(delay = 0) {
@@ -395,7 +396,7 @@ function flapName(delay = 0) {
         const c = to[i] || from[i] || 'a'
         if (i < to.length && local > settleAt) out += to[i]
         else if (local < startAt && i < from.length) out += from[i]          // the wave has not reached this letter yet
-        else out += /[\s’',!+]/.test(c) ? (to[i] || c) : pick(c, i, r, f)
+        else out += /[\s’',!+@]/.test(c) ? (to[i] || c) : pick(c, i, r, f)
       }
       row.textContent = out || NB
     })
@@ -522,6 +523,36 @@ function openCard(i) {
   const go = () => Chapter.open(PROJ[i], cards[i].slot, hooksFor(i))
   const d = Math.abs(centreOf(i) - x); goTo(i); setTimeout(go, d > 40 ? 650 : 0)
 }
+</script>
+<div id="cur" aria-hidden="true"></div>
+<style>
+  @media (hover:hover) and (pointer:fine) {
+    html.has-cur, html.has-cur * { cursor:none !important; }
+    html.has-cur iframe { cursor:auto !important; }
+    #cur { position:fixed; left:0; top:0; z-index:1000; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%; background:#fff; mix-blend-mode:difference; pointer-events:none; opacity:0; will-change:transform;
+      transition:width .4s cubic-bezier(.2,.8,.2,1), height .4s cubic-bezier(.2,.8,.2,1), margin .4s cubic-bezier(.2,.8,.2,1), opacity .3s; }
+    #cur.on { opacity:1; }
+    #cur.big { width:26px; height:26px; margin:-13px 0 0 -13px; }
+    #cur.down { width:9px; height:9px; margin:-4.5px 0 0 -4.5px; }
+    #cur.big.down { width:20px; height:20px; margin:-10px 0 0 -10px; }
+  }
+  @media not ((hover:hover) and (pointer:fine)) { #cur { display:none; } }
+</style>
+<script>
+(() => {
+  if (!matchMedia('(hover:hover) and (pointer:fine)').matches) return
+  document.documentElement.classList.add('has-cur')
+  const c = document.getElementById('cur'); let x = -100, y = -100, cx = -100, cy = -100
+  const CLICK = 'a, button, .card, .v, #name, #more, .nav .r > *, #me .back, #me .pic, #ch .close, #ch .go, #ch .local [data-go], video[controls]'
+  addEventListener('pointermove', e => { x = e.clientX; y = e.clientY; c.classList.add('on'); const t = e.target
+    c.classList.toggle('big', !!(t.closest && t.closest(CLICK))) }, { passive: true })
+  addEventListener('pointerdown', () => c.classList.add('down')); addEventListener('pointerup', () => c.classList.remove('down'))
+  document.addEventListener('pointerleave', () => c.classList.remove('on'))
+  // over an embedded page the browser's own cursor takes over, so the dot steps aside
+  addEventListener('pointerover', e => { if (e.target.tagName === 'IFRAME') c.classList.remove('on') })
+  addEventListener('blur', () => c.classList.remove('on'))
+  ;(function loop() { cx += (x - cx) * 0.28; cy += (y - cy) * 0.28; c.style.transform = `translate3d(${cx}px, ${cy}px, 0)`; requestAnimationFrame(loop) })()
+})()
 </script>
 </body>
 </html>
