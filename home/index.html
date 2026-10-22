@@ -7,16 +7,18 @@
 <meta name="description" content="Paul Jeon — product and engineering. Projects, work, and case studies." />
 <meta property="og:title" content="Paul Jeon" />
 <meta property="og:image" content="https://pjeon18.github.io/pauljeon/classic/og.png" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=Inter+Tight:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=Inter+Tight:wght@300;500;600;700;800&family=Instrument+Serif&display=swap" rel="stylesheet" />
+
 <style>
   /* Plain cards. The shader lives on the type: the name at the start and the
      line at the end are drawn in WebGL, develop out of halftone dots, break back
      into dots under the cursor, and smear with the scroll speed. */
-  :root { --ink:#141414; --mute:#8e8e93; }
+  :root { --ink:#141414; --mute:#8e8e93; --disp:'Instrument Serif', serif; --dw:400; --dls:-.025em; --dls-xl:-.035em; --S:11px; --M:clamp(20px, 2.7vh, 28px); }
   body { text-rendering:optimizeLegibility; }
-  html, body { margin:0; height:100%; overflow:hidden; background:#fff; font-family:Inter, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
+  html { overflow-x:hidden; } body { overflow-x:clip; }
+  html, body { margin:0; background:#fff; font-family:Inter, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
   canvas#gl { position:fixed; inset:0; width:100vw; height:100vh; z-index:2; pointer-events:none; }
-  .nav { position:fixed; left:3vw; right:3vw; top:22px; display:flex; justify-content:space-between; z-index:10; font:500 11px/1 Inter; letter-spacing:.06em; text-transform:uppercase; }
+  .nav { position:fixed; left:3vw; right:3vw; top:22px; display:flex; justify-content:space-between; z-index:10; font:500 var(--S)/1 Inter; letter-spacing:.06em; text-transform:uppercase; }
   .nav .who { opacity:0; transition:opacity .5s; font-weight:600; }
   .nav .who.on { opacity:1; }
   .nav .r { display:flex; gap:26px; }
@@ -25,17 +27,17 @@
   .nav .r a:hover::after { transform:scaleX(1); }
   .nav .r span::after, .end .meta .v::after, .card .lab .t::after { content:''; position:absolute; left:0; right:0; bottom:-3px; height:1px; background:var(--ink); transform:scaleX(0); transform-origin:left; transition:transform .45s cubic-bezier(.2,.8,.2,1); }
   .nav .r span:hover::after, .end .meta .v:hover::after, .card:hover .lab .t::after { transform:scaleX(1); }
-  #track { position:absolute; left:0; top:0; height:100vh; display:flex; align-items:center; z-index:1; }
+  #track { position:relative; z-index:1; padding:0 3vw; }
   #track.moving { will-change:transform; }
-  .intro { position:relative; flex:none; height:100vh; width:max(62vw, 760px); }
+  .intro { position:relative; padding:12vh 0 7vh; box-sizing:border-box; display:flex; align-items:flex-end; }
   /* the type is laid out in HTML (and stays selectable/readable) but painted by the shader */
-  .big { position:absolute; font:700 min(22vh, 13vw)/.8 'Inter Tight', sans-serif; letter-spacing:-.06em; color:transparent; }
+  .big { position:absolute; font:var(--dw) min(22vh, 13vw)/.84 var(--disp); letter-spacing:var(--dls-xl); color:transparent; }
   .big .row { display:block; padding:0 .04em .06em 0; margin-bottom:-.04em; white-space:nowrap; }
-  .stack { position:absolute; left:2.6vw; bottom:7vh; display:flex; flex-direction:column; }
-  .stack .big { position:relative; }
-  .meta { position:absolute; display:grid; grid-template-columns:max-content max-content; column-gap:40px; row-gap:5px; font:500 10.5px/1.3 Inter; letter-spacing:.07em; text-transform:uppercase; }
-  .stack .lists { position:relative; margin:4.5vh 0 0 .4vw; }
-  .lists .hd { font:600 10.5px/1 Inter; letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+  .stack { position:relative; width:100%; display:flex; align-items:flex-end; justify-content:space-between; gap:4.5vw; }
+  .stack .big { position:relative; margin-left:-.4vw; }
+  .meta { position:absolute; display:grid; grid-template-columns:max-content max-content; column-gap:40px; row-gap:5px; font:500 var(--S)/1.35 Inter; letter-spacing:.07em; text-transform:uppercase; }
+  .stack .lists { position:relative; margin:0 0 1.2vh; }
+  .lists .hd { font:600 var(--S)/1 Inter; letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
   .lists .hd.gap { margin-top:22px; }
   .lists { grid-template-columns:max-content; }
   .lists b { font-weight:700; color:var(--ink); background:linear-gradient(var(--ink), var(--ink)) 0 100% / 0 1px no-repeat; transition:background-size .45s cubic-bezier(.2,.8,.2,1); }
@@ -48,55 +50,45 @@
   .meta .v i { font-style:normal; color:var(--mute); margin-left:8px; }
   .meta > * { opacity:0; transform:translateY(10px); }
   .card { position:relative; flex:none; margin-right:8vw; cursor:pointer; }
-  /* a real card: photographed back, printed face with a white margin, and a flip in 3D */
-  .card .slot { position:relative; height:min(64vh, 40vw); width:calc(min(64vh, 40vw) * 0.6443); perspective:1400px; }
-  .card .inner { position:absolute; inset:0; transform-style:preserve-3d; }
-  .card:not(.settled) .inner, .card.settled:hover .inner { will-change:transform; }
-  .card .face, .card .back { position:absolute; inset:0; border-radius:5.02% / 3.23%; overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-  /* one shadow per side, each always 1px behind its side: a single shadow ends up in front once the card is turned over */
-  .card .shadow.d { transform:rotateY(180deg) translateZ(-1px); box-shadow:0 2px 3px rgba(0,0,0,.17), 0 10px 22px rgba(0,0,0,.18), 0 28px 60px rgba(0,0,0,.16); }
-  .card.pile .shadow { opacity:0; transition:opacity 0s; }
-  .card .shadow { transition:box-shadow .9s ease, opacity .8s ease; position:absolute; inset:1.5% 2%; border-radius:6% / 4%; box-shadow:0 1px 2px rgba(0,0,0,.11), 0 7px 16px rgba(0,0,0,.11), 0 22px 46px rgba(0,0,0,.10); transform:translateZ(-1px); backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-  .card .back { background:url(m/placeholder/card-back.png?v=5) center / 100% 100% no-repeat; transform:rotateY(180deg); }
-  /* plain card white on the front */
-  .card .face { background:#fdfcf9; }
-  .card .face .print { position:absolute; left:7%; right:7%; top:23%; aspect-ratio:1.158; border-radius:2px; overflow:hidden; background:#eee; }
-  /* printed on the card, like an index and a caption */
-  /* corner index: the number, and the ISO pawn as the suit */
-  .card .face .ix { position:absolute; left:6%; top:3.4%; display:flex; flex-direction:column; align-items:center; gap:.18em; font:700 clamp(20px, 3.6vh, 38px)/.85 'Inter Tight', sans-serif; letter-spacing:-.04em; color:#141414; }
-  .card .face .ix b { display:block; font:inherit; }
-  .card .face .ix img { width:.5em; height:auto; display:block; }
-  .card .face .ix.b { left:auto; top:auto; right:6%; bottom:3.4%; transform:rotate(180deg); }
-  .card .face .cap { position:absolute; left:7.5%; right:20%; top:calc(23% + 86% / 1.158 * 0.6443 + 4.5%); }
-  .card .face .cap .t { display:block; font:700 clamp(15px, 2.3vh, 24px)/1.02 'Inter Tight', sans-serif; letter-spacing:-.03em; color:#141414; }
-  .card .face .cap .c { display:block; margin-top:8px; font:500 clamp(9px, 1.05vh, 11px)/1.3 Inter; letter-spacing:.07em; text-transform:uppercase; color:var(--mute); }
-  .card .face .print img, .card .face video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
-  .card .face video { opacity:0; transition:opacity .5s; }
-  .card.up:hover .face video.ok { opacity:1; }
-  /* paper: a whisper of grain and a sheen that catches the light as the card turns */
-  .card .gloss { position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(105deg, transparent 30%, rgba(255,255,255,.55) 48%, transparent 66%); background-size:250% 100%; background-position:var(--g, 120%) 0; opacity:var(--go, 0); }
-  .card.settled .inner { transition:transform .6s cubic-bezier(.2,.8,.2,1); }
-  .card.settled:hover .inner { transform:translateY(-18px) scale(1.02) rotateZ(var(--rz)) !important; }
-  .card.up .shadow.u { transition:box-shadow .6s cubic-bezier(.2,.8,.2,1), opacity .8s ease; }
-  .card.settled:hover .shadow.u { box-shadow:0 6px 10px rgba(0,0,0,.08), 0 22px 40px rgba(0,0,0,.12), 0 46px 80px rgba(0,0,0,.12); }
-  .card .lab { display:none; margin-top:18px; white-space:nowrap; font:500 10.5px/1.45 Inter; letter-spacing:.07em; text-transform:uppercase; transition:opacity .4s; }
-  .card .lab .n { color:var(--mute); margin-right:10px; }
-  .card .lab .c { display:block; color:var(--mute); }
-  .card .lab .t { position:relative; }
+  /* the work: one big tile per project, centred one at a time. A soft grainy gradient in the
+     project's own colours, the real product large on it and running off the bottom edge. */
+  .card { position:relative; cursor:pointer; }
+  .card .slot { position:relative; width:100%; aspect-ratio:3 / 2; border-radius:16px; overflow:hidden; container-type:size; }
+  .card .art { position:absolute; inset:0; border-radius:inherit; overflow:hidden; background:#eee center / cover no-repeat; }
+  .card .art::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.11; mix-blend-mode:overlay; background-size:140px 140px !important; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .card .dev { position:absolute; left:50%; display:block; transform:translateX(-50%); transition:transform .9s cubic-bezier(.2,.8,.2,1); filter:drop-shadow(0 18px 30px rgba(20,16,10,.16)) drop-shadow(0 3px 6px rgba(20,16,10,.10)); }
+  .card .dev.phone { height:112cqh; width:auto; top:12cqh; }
+  .card .dev.win { width:min(84cqw, 128cqh); top:21cqh; }
+  .card .dev.panel { height:84cqh; width:auto; top:9cqh; }
+  .card .full { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .card .dev.winv { width:min(86cqw, 136cqh); top:50%; transform:translate(-50%, -50%); border-radius:1.4cqw; background:#fafaf8; }
+  .card:hover .dev.winv { transform:translate(-50%, -50%) translateY(-8px); }
+  .card .dev.logo { width:min(56cqw, 140cqh); top:50%; transform:translate(-50%, -50%); image-rendering:pixelated; filter:none; }
+  .card:hover .dev.logo { transform:translate(-50%, -50%) translateY(-8px); }
+  .card:hover .dev { transform:translateX(-50%) translateY(-10px); }
+  .card .lab { margin-top:16px; font:500 14px/1.35 Inter; color:var(--ink); letter-spacing:-.005em; transition:opacity .4s; }
+  .card .lab span { display:block; font-weight:400; color:var(--mute); }
   .card.away .lab { opacity:0; }
   .card.hid .slot { visibility:hidden; }
-  /* while a project opens or closes, the cards stay put, so the morph lands exactly on one */
-  body.ch-busy .card.settled:hover .inner { transform:rotateZ(var(--rz)) !important; transition:none; }
-  body.ch-busy .card.settled:hover .shadow.u { box-shadow:0 1px 2px rgba(0,0,0,.11), 0 7px 16px rgba(0,0,0,.11), 0 22px 46px rgba(0,0,0,.10); }
   /* the last thing on the row, pinned to its right edge */
-  .end { position:relative; flex:none; height:100vh; width:92vw; }
-  .end .big { right:3vw; top:12vh; text-align:right; }
-  .end .meta { right:3vw; top:calc(11vh + min(22vh, 13vw) * 1.8); grid-template-columns:max-content max-content; justify-items:end; }
+  .grid .card { margin:0; }
+  /* 3 · editorial: rows alternate wide and narrow on a 12-column grid, one height per row */
+  html.l-editorial .grid { grid-template-columns:repeat(12, minmax(0, 1fr)); }
+  html.l-editorial .grid .card.w8 { grid-column:span 8; } html.l-editorial .grid .card.w4 { grid-column:span 4; } html.l-editorial .grid .card.w12 { grid-column:span 12; }
+  html.l-editorial .grid .card .slot { aspect-ratio:auto; height:clamp(320px, 31vw, 620px); }
+  html.l-editorial .grid .card.small { grid-column:span 4; }
+  html.l-editorial .grid .card.small .slot { height:clamp(220px, 19vw, 380px); }
+  /* the top bar sits on a soft white so the tiles pass under it cleanly */
+  .nav::before { content:''; position:fixed; left:0; right:0; top:0; height:64px; z-index:-1; background:linear-gradient(#fff 55%, rgba(255,255,255,0)); pointer-events:none; }
+  .grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); column-gap:1.6vw; row-gap:5vh; }
+  .end { position:relative; padding:24vh 0 14vh; display:flex; flex-direction:column; align-items:flex-end; gap:6vh; }
+  .end .big { position:relative; text-align:right; }
+  .end .meta { position:relative; grid-template-columns:max-content max-content; justify-items:end; }
   .end .meta > * { opacity:1; transform:none; }
-  .now { position:fixed; right:3vw; bottom:3.2vh; z-index:10; text-align:right; pointer-events:none; }
+  .now { display:none; position:fixed; right:3vw; bottom:3.2vh; z-index:10; text-align:right; pointer-events:none; }
   .now .row { display:block; overflow:hidden; }
-  .now .t { display:block; font:700 min(6.4vh, 4.6vw)/1 'Inter Tight', sans-serif; letter-spacing:-.045em; color:var(--ink); padding-bottom:.06em; }
-  .now .m { display:block; margin-top:.5em; font:500 11px/1.3 Inter; letter-spacing:.08em; text-transform:uppercase; color:var(--mute); }
+  .now .t { display:block; font:var(--dw) calc(var(--M) * 1.9)/1 var(--disp); letter-spacing:var(--dls); color:var(--ink); padding-bottom:.06em; }
+  .now .m { display:block; margin-top:.5em; font:500 var(--S)/1.3 Inter; letter-spacing:.08em; text-transform:uppercase; color:var(--mute); }
   .now .m b { color:var(--ink); font-weight:600; margin-right:.9em; }
   .now .row > * { transition:transform .55s cubic-bezier(.2,.8,.2,1), opacity .4s ease; }
   .now.out .row > * { transform:translateY(105%); opacity:0; }
@@ -104,7 +96,7 @@
 </head>
 <body>
   <canvas id="gl"></canvas>
-  <div class="nav"><span class="who" id="who">Paul Jeon</span><span class="r"><span id="navWork">Work</span><span id="navEnd">Contact</span><a href="classic/" class="navlink">Previous site</a><a href="classic/Paul_Jeon-Resume.pdf" target="_blank" rel="noopener" class="navlink">Résumé</a></span></div>
+  <div class="nav"><span class="who" id="who">Paul Jeon</span><span class="r"><span id="navMe">Me</span><a href="deck/" class="navlink">Previous site</a><a href="classic/" class="navlink">Pre-previous site</a></span></div>
   <div id="track">
     <section class="intro"><div class="stack"><div class="big" id="name"><span class="row">Paul</span><span class="row">Jeon</span></div><div class="lists meta" id="lists"><div class="hd">Work</div></div></div></section>
   </div>
@@ -114,12 +106,12 @@
 <script src="detail2.js?v=4"></script>
 <script>
 const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the colour, the kind of work
-  'queue-blocks': ['m/queue-blocks-thumb.webp', 'm/queue-blocks-loop.mp4', '#1ED760', 'Product design'],
-  'iso-redesign': ['m/isor-thumb.webp', 'm/iso-features-loop.mp4', '#6E56CF', 'Product design'], pathways: ['m/path-thumb.webp', 'm/pathways-loop.mp4', '#D21F4F', 'Product design'],
-  tracker: ['m/tracker-card.jpg', 'm/tracker-loop.mp4', '#2F6FE4', 'Interaction'], lila: ['m/thumb-lila.webp', null, '#141414', 'GTM engineering'],
-  'the-dot': ['m/dot-thumb.webp', null, '#D9342B', 'Interaction'], studdy: ['m/studdy-logo-card.webp', null, '#C9741E', 'Product'],
-  prepio: ['m/prepio.webp', 'm/prepio-loop.mp4', '#1F6B47', 'Product'], iso: ['m/iso-film-thumb-fit.webp', 'm/iso-v1-loop.mp4', '#F07800', 'Product'],
-  pokemaps: ['m/pokemaps.webp', null, '#B88A00', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
+  'queue-blocks': ['m/faces/queue-blocks.webp', 'm/queue-blocks-loop.mp4', '#1ED760', 'Product design'],
+  'iso-redesign': ['m/faces/iso-redesign.webp', 'm/iso-features-loop.mp4', '#6E56CF', 'Product design'], pathways: ['m/faces/pathways.webp', 'm/pathways-loop.mp4', '#D21F4F', 'Product design'],
+  tracker: ['m/faces/tracker.webp', 'm/tracker-loop.mp4', '#2F6FE4', 'Interaction'], lila: ['m/thumb-lila.webp', null, '#141414', 'GTM engineering'],
+  'the-dot': ['m/faces/the-dot.webp', null, '#D9342B', 'Interaction'], studdy: ['m/faces/studdy.webp', null, '#C9741E', 'Product'],
+  prepio: ['m/faces/prepio.webp', 'm/prepio-loop.mp4', '#1F6B47', 'Product'], iso: ['m/faces/iso.webp', 'm/iso-v1-loop.mp4', '#F07800', 'Product'],
+  pokemaps: ['m/faces/pokemaps.webp', null, '#B88A00', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
 }
 const SHORT = { 'queue-blocks': 'A Spotify queue that keeps your place.', 'iso-redesign': 'White and ink. Color only where someone is live.', pathways: 'Become a Harvard student. Then walk their day.', tracker: 'The Mac sound menu, as cables you can see.', lila: 'Account intelligence for AI-driven science.', 'the-dot': 'Onboarding with no buttons. Just a dot.', studdy: 'A study café that never closes.', prepio: 'Career office hours, made live.', iso: 'One conversation at a time.', pokemaps: 'Guess the place from the clues.', onapsis: '13,000 contacts, one scored pipeline.' }
 const LIVE = { 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
@@ -159,24 +151,45 @@ const track = document.getElementById('track')
 WORK.forEach(it => { const [thumb, , acc] = LOOK[it.id]; Object.assign(it, { tile: thumb, kind: 'cover', acc, tint: tint(acc), short: SHORT[it.id], live: LIVE[it.id], brief: BRIEF[it.id] }) })
 const jobs = meta
 ROLES.forEach(([id, role, org, yr]) => jobs.insertAdjacentHTML('beforeend', `<span class="${id ? 'v' : 'p'}"${id ? ` data-id="${id}"` : ''}><b>${org}</b><span class="k">${role}</span>${yr ? `<i>${yr}</i>` : ''}</span>`))
-meta.insertAdjacentHTML('beforeend', '<div class="hd gap">Projects</div>')
-projRows()
 jobs.querySelectorAll('.v[data-id]').forEach(v => v.onclick = () => { if (Chapter.isOpen()) return; const it = WORK.find(w => w.id === v.dataset.id); Chapter.open(it, v, { targetRect: () => v.getBoundingClientRect(), nextItem: () => null, next: nxt => { const j = PROJ.indexOf(nxt); if (j >= 0) { tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) } } }) })
+// each project's light: three colours, soft blobs, a little grain (drawn small, shown large, so it stays soft)
+const GLOW = {
+  'queue-blocks': ['#cfe6dc', '#78cfa0', '#a9c9e6'], 'iso-redesign': ['#e3dcf7', '#f4c3ab', '#b6d0f6'], pathways: ['#f4d3d6', '#e7808f', '#f3bfa6'],
+  tracker: ['#d9e3f7', '#9fbdf2', '#efc4a6'], iso: ['#fde3c4', '#ff9f45', '#ffc58c'], studdy: ['#d6e8f6', '#efb6cb', '#a9d3ef'],
+  prepio: ['#d3e5da', '#6fae88', '#c3d8cb'], 'the-dot': ['#efe3e1', '#e79f94', '#a8d8bb'], pokemaps: ['#e2edd6', '#9fcf7f', '#efc98b'],
+}
+const DEV = { 'queue-blocks': 'phone', 'iso-redesign': 'phone', pathways: 'winv', iso: 'full', tracker: 'panel', studdy: 'logo', prepio: 'win', 'the-dot': 'winv', pokemaps: 'win' }
+const MEDIA = { pathways: 'm/dev/pathways-stamp.mp4', iso: 'm/dev/iso-logo.mp4', 'the-dot': 'm/dev/the-dot.mp4', studdy: 'm/dev/studdy-logo.webp' }
+function glow(id, i) {
+  const [base, a, b] = GLOW[id] || ['#eee', '#ddd', '#ccc']
+  const c = document.createElement('canvas'); c.width = 300; c.height = 200; const g = c.getContext('2d')
+  g.fillStyle = base; g.fillRect(0, 0, 300, 200)
+  const r = k => (Math.sin((i + 1) * 91.7 + k * 13.1) + 1) / 2
+  ;[[a, 0.22 + r(1) * 0.25, 0.25 + r(2) * 0.4, 150], [b, 0.6 + r(3) * 0.25, 0.45 + r(4) * 0.4, 170], [a, 0.5 + r(5) * 0.2, 1.0, 120]].forEach(([col, px, py, rad]) => {
+    const gr = g.createRadialGradient(px * 300, py * 200, 0, px * 300, py * 200, rad); gr.addColorStop(0, col); gr.addColorStop(1, col + '00'); g.fillStyle = gr; g.fillRect(0, 0, 300, 200)
+  })
+  return c.toDataURL('image/png')
+}
+const grid = document.createElement('div'); grid.className = 'grid'; track.appendChild(grid)
+const layout = 'editorial'
+document.documentElement.classList.add('l-editorial')
 const cards = PROJ.map((it, i) => {
-  const [thumb, loop] = LOOK[it.id]
-  const el = document.createElement('div'); el.className = 'card'
-  const rz = (Math.sin(i * 12.9898) * 1.1).toFixed(2) + 'deg'   // dealt by hand: never quite square
-  el.style.setProperty('--rz', rz)
-  el.innerHTML = `<div class="slot"><div class="inner" style="transform:rotateY(180deg) rotateZ(${rz})"><div class="shadow u"></div><div class="shadow d"></div><div class="face"><span class="ix"><b>${i + 1}</b><img src="m/iso-suit.svg" alt=""></span><span class="ix b"><b>${i + 1}</b><img src="m/iso-suit.svg" alt=""></span><div class="print"><img src="${thumb}" alt="${it.title}">${loop ? `<video src="${loop}" muted loop playsinline preload="metadata"></video>` : ''}</div><div class="cap"><span class="t">${it.title}</span><span class="c">${LOOK[it.id][3]} · ${it.year}</span></div><div class="gloss"></div></div><div class="back"><div class="gloss"></div></div></div></div><div class="lab"><span class="n">${pad(i + 1)}</span><span class="t">${it.title}</span><span class="c">${LOOK[it.id][3]} · ${it.year}</span></div>`
-  const v = el.querySelector('video')
-  if (v) { v.addEventListener('playing', () => v.classList.add('ok')); el.onmouseenter = () => v.play().catch(() => {}); el.onmouseleave = () => { v.pause(); v.classList.remove('ok') } }
-  el.onclick = () => { if (!c.up) { flip(c); setTimeout(() => openCard(i), 650) } else openCard(i) }
-  track.appendChild(el)
-  const c = { el, slot: el.querySelector('.slot'), inner: el.querySelector('.inner'), rz, up: false, dealt: false }
-  return c
+  const kind = DEV[it.id] || 'win'
+  const el = document.createElement('div'); el.className = 'card k-' + kind
+  // editorial rhythm: wide then narrow, then narrow then wide; a last odd tile takes the whole row
+  { const row = Math.floor(i / 2), first = i % 2 === 0, last = i === PROJ.length - 1 && i % 2 === 0; last ? el.classList.add('w4', 'small') : el.classList.add( (row % 2 === 0) === first ? 'w8' : 'w4') }
+  const vid = src => `<video src="${src}" muted loop autoplay playsinline preload="auto"`
+  const media = kind === 'full' ? `${vid(MEDIA[it.id])} class="full"></video>`
+    : kind === 'winv' ? `${vid(MEDIA[it.id])} class="dev winv"></video>`
+    : kind === 'logo' ? `<img class="dev logo" src="${MEDIA[it.id]}" alt="${it.title}">`
+    : `<img class="dev ${kind}" src="m/dev/${it.id}.webp" alt="${it.title}">`
+  el.innerHTML = `<div class="slot"><div class="art" style="${kind === 'full' ? '' : `background-image:url(${glow(it.id, i)})`}">${media}</div></div><div class="lab">${it.title}<span>${LOOK[it.id][3]} · ${it.year}</span></div>`
+  el.onclick = () => openCard(i)
+  grid.appendChild(el)
+  return { el, slot: el.querySelector('.slot'), up: true }
 })
 const end = document.createElement('section'); end.className = 'end'
-end.innerHTML = `<div class="big" id="more"><span class="row">Let’s</span><span class="row">Connect!</span></div><div class="meta">${[['Write', 'Email', 'mailto:pauljeon@college.harvard.edu'], ['Connect', 'LinkedIn', ME.links.find(l => l[0] === 'LinkedIn')[1]], ['Follow', 'GitHub', 'https://github.com/pjeon18'], ['Revisit', 'The previous portfolio', 'https://pjeon18.github.io/pauljeon/classic/']].map(([k, t, h]) => `<span class="k">${k}</span><a class="v" href="${h}"${h.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`
+end.innerHTML = `<div class="big" id="more"><span class="row">Let’s</span><span class="row">Connect!</span></div><div class="meta">${[['Write', 'Email', 'mailto:pauljeon@college.harvard.edu'], ['Connect', 'LinkedIn', ME.links.find(l => l[0] === 'LinkedIn')[1]], ['Follow', 'GitHub', 'https://github.com/pjeon18'], ['Revisit', 'The previous site', 'deck/'], ['Revisit', 'The one before that', 'classic/']].map(([k, t, h]) => `<span class="k">${k}</span><a class="v" href="${h}"${h.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`
 track.appendChild(end)
 meta.querySelectorAll('.v[data-i]').forEach(v => v.onclick = () => goTo(+v.dataset.i))
 
@@ -190,50 +203,11 @@ addEventListener('touchstart', e => { touch = e.touches[0].clientX + e.touches[0
 addEventListener('touchmove', e => { if (Chapter.isOpen() || touch == null) return; const v = e.touches[0].clientX + e.touches[0].clientY; tx = clamp(tx + (touch - v) * 1.6); touch = v })
 addEventListener('keydown', e => { if (Chapter.isOpen()) return; if (['ArrowRight', 'ArrowDown'].includes(e.key)) tx = clamp(tx + innerWidth * .45); if (['ArrowLeft', 'ArrowUp'].includes(e.key)) tx = clamp(tx - innerWidth * .45) })
 const centreOf = i => { const r = cards[i].el.getBoundingClientRect(); return x + r.left + r.width / 2 - innerWidth / 2 }
-document.getElementById('navWork').onclick = () => { if (!Chapter.isOpen()) tx = clamp(centreOf(0)) }
-document.getElementById('navEnd').onclick = () => { if (!Chapter.isOpen()) tx = maxX }
-function goTo(i) { if (!Chapter.isOpen()) tx = clamp(centreOf(i)) }
+document.getElementById('navMe').onclick = () => { if (!Chapter.isOpen()) end.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
+function goTo(i) { if (!Chapter.isOpen()) cards[i].el.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
 const ptr = { x: -1e4, y: -1e4 }
 addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY })
 document.addEventListener('mouseleave', () => { ptr.x = ptr.y = -1e4 })
-
-// ---- the deal: every card starts in one pile where the first card lands, then goes out face down, far card first
-const lab = c => c.el.querySelector('.lab')
-cards.forEach(c => lab(c).style.opacity = 0)
-function deal() {
-  const base = cards[0].el.offsetLeft
-  cards.forEach((c, i) => {
-    const dx = base - c.el.offsetLeft, pileRz = (Math.sin(i * 78.233) * 3).toFixed(2)
-    const from = `translate3d(${dx - i * 0.7}px, ${-i * 0.7 + 30}px, 0) rotateY(180deg) rotateZ(${pileRz}deg)`
-    const to = `translate3d(0,0,0) rotateY(180deg) rotateZ(${c.rz})`
-    c.inner.style.transform = from
-    c.el.style.zIndex = i + 1   // the far card is on top of the pile, so it goes out first
-    if (i) c.el.classList.add('pile')   // one deck casts one shadow; each card gets its own as it leaves
-    // fade the slot, not the 3D card (opacity on a 3D parent flattens it and shows the face)
-    c.slot.animate([{ opacity: 0, transform: 'translateY(40px)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: 300 + i * 25, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' })
-    setTimeout(() => {
-      c.el.classList.remove('pile')
-      c.inner.animate([{ transform: from }, { transform: `translate3d(${dx * 0.45}px, -26px, 40px) rotateY(180deg) rotateZ(${(+pileRz * 0.4 + 2).toFixed(2)}deg)`, offset: 0.45 }, { transform: to }], { duration: 760, easing: 'cubic-bezier(.3,.6,.15,1)', fill: 'forwards' }).onfinish = () => { c.inner.style.transform = to; c.inner.getAnimations().forEach(x => x.cancel()); c.dealt = true; c.el.style.zIndex = '' }
-    }, 1100 + (cards.length - 1 - i) * 120)
-  })
-}
-// a card turns over once it has travelled far enough into the page, and stays turned
-function flip(c) {
-  if (c.up) return; c.up = true
-  const g = c.el.querySelectorAll('.gloss')
-  c.inner.getAnimations().forEach(a => a.cancel())
-  c.inner.animate([
-    { transform: `translate3d(0,0,0) rotateY(180deg) rotateZ(${c.rz})` },
-    { transform: `translate3d(0,-22px,60px) rotateY(90deg) rotateZ(${parseFloat(c.rz) / 2}deg)`, offset: 0.5 },
-    { transform: 'translate3d(0,0,0) rotateY(0deg) rotateZ(0deg)' },
-  ], { duration: 900, easing: 'cubic-bezier(.45,.05,.2,1)', fill: 'forwards' }).onfinish = () => {
-    // face up, the card sits perfectly square: any tilt makes the browser resample its type and picture
-    c.rz = '0deg'; c.el.style.setProperty('--rz', '0deg'); c.inner.style.transform = 'none'
-    c.inner.getAnimations().forEach(x => x.cancel()); c.el.classList.add('settled')
-  }
-  g.forEach(e => e.animate([{ backgroundPosition: '130% 0', opacity: 0 }, { opacity: 1, offset: 0.5 }, { backgroundPosition: '-30% 0', opacity: 0 }], { duration: 900, easing: 'ease-in-out' }))
-  lab(c).animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 450, fill: 'forwards', easing: 'cubic-bezier(.2,.8,.2,1)' })
-}
 
 // ---- the type shader
 const cv = document.getElementById('gl')
@@ -305,7 +279,7 @@ const loc = gl.getAttribLocation(P, 'aC'); gl.enableVertexAttribArray(loc); gl.v
 
 // each block of type is rasterised once into a texture, from its own HTML layout
 const PADX = 160
-const blocks = [document.getElementById('name'), document.getElementById('more')].map(el => ({ el, tex: gl.createTexture(), w: 0, h: 0, dev: 0, start: null }))
+const blocks = [document.getElementById('more')].map(el => ({ el, tex: gl.createTexture(), w: 0, h: 0, dev: 0, start: null }))
 function raster(b) {
   const r = b.el.getBoundingClientRect(), cs = getComputedStyle(b.el)
   const w = Math.ceil((r.width + PADX * 2) * DPR), h = Math.ceil((r.height + 40) * DPR)
@@ -327,7 +301,61 @@ function raster(b) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   b.w = w; b.h = h
 }
-blocks.forEach(b => { b.el.style.cursor = 'pointer'; b.el.onclick = () => { b.start = performance.now(); if (b.el.id === 'name') flapAll(300) } })
+blocks.forEach(b => { b.el.style.cursor = 'pointer'; b.el.onclick = () => { b.start = performance.now() } })
+// the name flips through a few lines before it lands, like the board below it
+const nameEl = document.getElementById('name'); nameEl.style.color = 'var(--ink)'; nameEl.style.cursor = 'pointer'; nameEl.setAttribute('aria-label', 'Paul Jeon')
+const LINES = [['Hi, I’m', 'Paul'], ['I like', 'Design'], ['Especially', 'when it’s'], ['Human', 'Centered'], ['I go to', 'Harvard'], ['Studying', 'CS + Art'], ['Paul', 'Jeon']]
+const RAND = 'abcdeghknopqrsuvxyz', RAND_UP = 'ABCDEGHKNOPRSUVXYZ'   // narrow-ish, case-matched, so a scrambled word stays about its real width
+let nameRun = 0
+function flapName(delay = 0) {
+  // one continuous morph: each phrase grows out of the last. A wave runs left to right that turns
+  // letters into noise, the word stretches or shrinks one letter at a time, then the letters lock in order.
+  const run = ++nameRun, rows = [...nameEl.querySelectorAll('.row')], t0 = performance.now() + delay
+  const HOLD = 360, MIX = 1050, FLICK = 75, WAVE = 38, GROW = 45
+  const NB = ' ', txt = (k, r) => (LINES[k][r] || '').replace(NB, '').trim() ? LINES[k][r] : ''
+  // the order letters lock in changes every phrase: sometimes the bottom word lands first, sometimes they interleave.
+  // each letter gets a score from where it sits in its word, a little noise, and a per-row lean chosen at random
+  const ORDER = LINES.map((ln, k) => {
+    const rnd = x => (Math.sin((k + 1) * 78.2 + x * 37.7) * 43758.5) % 1, abs = x => Math.abs(rnd(x))
+    const lean = ln.map((_, r) => (abs(r + 11) - 0.5) * 0.9), cells = []
+    ln.forEach((w, r) => [...w].forEach((_, i) => cells.push({ r, i, s: (i / Math.max(1, w.length)) * 0.55 + abs(r * 31 + i) * 0.35 + lean[r] })))
+    cells.sort((a, b) => a.s - b.s); const rank = ln.map(w => new Array(w.length)); cells.forEach((c, n) => rank[c.r][c.i] = n)
+    return rank
+  })
+  const pick = (c, i, r, f) => { const set = c === c.toUpperCase() && c !== c.toLowerCase() ? RAND_UP : RAND; return set[Math.floor(Math.abs(Math.sin((i + 1) * 12.9 + r * 7.7 + f * 3.1)) * 1e4) % set.length] }
+  const tick = now => {
+    if (run !== nameRun) return
+    const t = now - t0; if (t < 0) return requestAnimationFrame(tick)
+    const k = Math.min(LINES.length - 1, Math.floor(t / (MIX + HOLD))), local = t - k * (MIX + HOLD), f = Math.floor(t / FLICK)
+    const nAll = LINES[k].join('').length || 1
+    rows.forEach((row, r) => {
+      const to = txt(k, r), from = k ? txt(k - 1, r) : to
+      // the row's length walks from the old word's length to the new one, a letter at a time
+      const dl = to.length - from.length, steps = Math.min(Math.abs(dl), Math.floor(Math.max(0, local - 120) / GROW))
+      const len = k === 0 && local > MIX ? to.length : from.length + Math.sign(dl) * steps
+      let out = ''
+      for (let i = 0; i < len; i++) {
+        const rk = ORDER[k][r] && ORDER[k][r][i] != null ? ORDER[k][r][i] : i
+        const settleAt = 260 + (rk + 1) / nAll * (MIX - 300), startAt = i * WAVE + r * 90
+        const c = to[i] || from[i] || 'a'
+        if (i < to.length && local > settleAt) out += to[i]
+        else if (local < startAt && i < from.length) out += from[i]          // the wave has not reached this letter yet
+        else out += /[\s’',!+]/.test(c) ? (to[i] || c) : pick(c, i, r, f)
+      }
+      row.textContent = out || NB
+    })
+    if (k < LINES.length - 1 || local < MIX + 200) requestAnimationFrame(tick)
+    else rows.forEach((row, r) => row.textContent = LINES[k][r])
+  }
+  requestAnimationFrame(tick)
+}
+nameEl.onclick = () => flapName(0)
+// hold the name's box at its widest line, so the list beside it never shifts while it flips
+function lockName() {
+  const rows = [...nameEl.querySelectorAll('.row')]; nameEl.style.width = 'max-content'; nameEl.style.flexShrink = '0'; let w = 0
+  LINES.forEach(l => { rows.forEach((row, r) => row.textContent = l[r]); w = Math.max(w, nameEl.getBoundingClientRect().width) })
+  rows.forEach((row, r) => row.textContent = LINES[0][r]); nameEl.style.width = Math.ceil(w * 1.12) + 'px'; nameEl.style.clipPath = 'inset(-40% 0 -40% -10%)'   // room for scrambled letters, which run wider than the real ones
+}
 
 // ---- the lists arrive like a departure board: each letter flips through the alphabet, then lands
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -385,14 +413,15 @@ function frame(now) {
   track.style.transform = `translateX(${-(moving ? x : Math.round(x))}px)`
   const t = (now - t0) / 1000
   tickFlaps(now)
-  document.getElementById('who').classList.toggle('on', x > innerWidth * 0.5)
+  document.getElementById('who').classList.toggle('on', scrollY > innerHeight * 0.5)
+
 
   gl.viewport(0, 0, cv.width, cv.height); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT)
   gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.useProgram(P)
   gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform1f(U.uDpr, DPR); gl.uniform1f(U.uTime, t); gl.uniform1f(U.uVel, Chapter.isOpen() ? 0 : vel)
   blocks.forEach(b => {
     const r = b.el.getBoundingClientRect()
-    if (r.right < -PADX || r.left > innerWidth + PADX || Chapter.isOpen()) { if (r.left > innerWidth) b.start = null; return }
+    if (r.bottom < -40 || r.top > innerHeight + 40 || Chapter.isOpen()) { if (r.top > innerHeight) b.start = null; return }
     // the develop plays the first time a block comes into view (and again each time the end comes back)
     if (b.start == null) b.start = now
     const k = Math.min(1, (now - b.start) / 5200), dev = k * k * (3 - 2 * k)
@@ -401,7 +430,6 @@ function frame(now) {
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, b.tex); gl.uniform1i(U.uTex, 0)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   })
-  cards.forEach(c => { if (c.dealt && !c.up) { const r = c.el.getBoundingClientRect(); if (r.left + r.width / 2 < innerWidth * 0.62) flip(c) } })
   let fi = 0, best = 1e9
   cards.forEach((c, i) => { const r = c.el.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - innerWidth / 2); if (d < best) { best = d; fi = i } })
   // only once that card has been turned over, so the corner never gives a face-down card away
@@ -414,33 +442,25 @@ function frame(now) {
   requestAnimationFrame(frame)
 }
 addEventListener('resize', resize)
-document.fonts.ready.then(() => { resize(); deal(); flapAll(1100); requestAnimationFrame(frame) })
+document.fonts.ready.then(() => { resize(); lockName(); reveal(); flapName(350); flapAll(1100); requestAnimationFrame(frame) })
 
-// a card already turned over, with no flip to watch (used behind an open chapter)
-function settle(c) {
-  if (c.up) return; c.up = true
-  c.inner.getAnimations().forEach(a => a.cancel()); c.inner.style.transform = `rotateZ(${c.rz})`; c.el.classList.add('settled')
-  lab(c).getAnimations().forEach(a => a.cancel()); lab(c).style.opacity = ''
+// the tiles rise in once, left to right
+function reveal() {
+  const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; io.unobserve(e.target); const i = cards.findIndex(c => c.el === e.target)
+    e.target.animate([{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 1000, delay: (i % 2) * 110, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }) }), { rootMargin: '0px 0px -8% 0px' })
+  cards.forEach(c => io.observe(c.el))
 }
 function hooksFor(i) {
   const c = cards[i]
   return {
     onOpen: () => { cards.forEach(o => o.el.classList.add('away')); c.el.classList.add('hid') },
     onClose: () => { cards.forEach(o => o.el.classList.remove('away')); c.el.classList.remove('hid') },
-    cardFace: () => c.el.querySelector('.face'),
-    cardRotate: () => c.rz,
-    // where the card is actually drawn: lifted and slightly enlarged if the pointer is on it
-    fromRect: () => { const r = c.slot.getBoundingClientRect(); if (!c.el.matches('.settled:hover')) return r; const w = r.width * 1.02, h = r.height * 1.02; return { left: r.left - (w - r.width) / 2, top: r.top - (h - r.height) / 2 - 18, width: w, height: h } },
-    targetRadius: () => getComputedStyle(c.el.querySelector('.back')).borderRadius,
+    heroArt: () => c.el.querySelector('.art'), wasLifted: () => c.el.matches(':hover'),
+    cardRotate: () => '0deg', flat: true,
+    targetRadius: () => '16px',
     targetRect: () => c.slot.getBoundingClientRect(),
     nextItem: () => PROJ[(i + 1) % PROJ.length],
-    // the next project opens in place; behind it, the row jumps to that card so closing lands on it
-    next: nxt => {
-      const j = PROJ.indexOf(nxt); if (j < 0) return
-      cards.forEach((o, k) => { if (k <= j) settle(o) })
-      tx = x = clamp(centreOf(j))
-      Chapter.swap(nxt, cards[j].slot, hooksFor(j))
-    },
+    next: nxt => { const j = PROJ.indexOf(nxt); if (j < 0) return; tx = x = clamp(centreOf(j)); Chapter.swap(nxt, cards[j].slot, hooksFor(j)) },
   }
 }
 function openCard(i) {
