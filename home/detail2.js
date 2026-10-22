@@ -83,6 +83,16 @@
   #ch .body.framed { padding-bottom:0; }
   /* a copy of the card face, scaled with the hero, so opening grows out of the card and closing lands on it */
   #ch .ch-ghost { position:absolute !important; left:0; top:0; margin:0 !important; transform-origin:0 0; pointer-events:none; z-index:5; opacity:0; }
+  /* tile projects: the hero IS the tile (same light, same device), so opening is the tile growing */
+  #ch .hero.tile { background:#eee; }
+  #ch .hero .hero-tile { position:absolute !important; inset:0; margin:0 !important; container-type:size; }
+  #ch .hero .hero-tile .slot { display:none; }
+  #ch .hero .hero-tile .dev.lifted { transform:translateX(-50%) translateY(-10px); }
+  #ch .hero.tile .over { left:4vw; right:auto; top:9%; text-align:left; max-width:26vw; z-index:2; }
+  #ch .hero.tile .over small { color:#1d1d1f; opacity:.55; }
+  #ch .hero.tile .over h1 { font-size:clamp(26px, 2.5vw, 40px); }
+  #ch .filmp { margin-top:10vh; border-radius:20px; overflow:hidden; background:#111; }
+  #ch .filmp video { display:block; width:100%; height:auto; }
   #ch .next { margin-top:22vh; cursor:pointer; }
   #ch .next h2 { margin:0; font:700 clamp(48px, 7vw, 110px)/.95 Inter, sans-serif; letter-spacing:-.05em; color:#1d1d1f; }
   #ch .next h2 em { font-style:normal; color:#86868b; }`
@@ -114,6 +124,7 @@
     let h = `<div class="facts"><span><b>${esc(it.title)}</b></span><span>${esc(it.area)}</span><span>${esc(it.disc)}</span><span>${esc(it.year)}</span></div>
       <p class="lead"><em>${esc(it.title)}.</em> ${esc(it.head)}</p>`
     h += `<div class="brief">${(it.brief || [it.body]).map(t => `<p>${esc(t)}</p>`).join('')}</div>`
+    if (hooks.heroArt && FILM[it.id]) h += `<div class="filmp"><video class="film2" src="${FILM[it.id]}" playsinline controls preload="metadata"></video></div>`
     // the working prototype, already loaded, before the long read (Queue Blocks and the ISO redesign carry theirs inside the case study)
     const demo = it.live && !['queue-blocks', 'iso-redesign'].includes(it.id) ? it.live : null
     if (demo) h += `<div class="demo"><iframe title="${esc(it.title)} prototype" data-src="${demo}" allow="autoplay; clipboard-write"></iframe></div>`
@@ -189,9 +200,18 @@
     busy = true; cur = it; hooks = h || {}; y = ty = 0; pull = 0; from = fromEl
     scroller.style.transform = 'translateY(0px)'
     root.style.setProperty('--acc', it.acc); root.style.setProperty('--tint', it.tint)
-    hero.classList.toggle('still', !FILM[it.id] && !(it.tile && it.tile.endsWith('.mp4')))
-    hero.innerHTML = heroInner(it) + `<div class="shade"></div><div class="over"><small>${esc(it.area)} · ${esc(it.year)}</small><h1>${esc(it.title)}.<br><span>${esc(it.short || it.head)}</span></h1></div>` + (FILM[it.id] ? `<div class="ctrl"><button class="pp">Pause</button><div class="bar"><i></i></div><button class="snd">Sound on</button></div>` : '')
+    const art = hooks.heroArt && hooks.heroArt()
+    hero.classList.toggle('tile', !!art)
+    hero.classList.toggle('still', !art && !FILM[it.id] && !(it.tile && it.tile.endsWith('.mp4')))
+    if (art) {
+      hero.innerHTML = `<div class="card hero-tile"></div><div class="over"><small>${esc(it.area)} · ${esc(it.year)}</small><h1>${esc(it.title)}.<br><span>${esc(it.short || it.head)}</span></h1></div>`
+      const cl = art.cloneNode(true); hero.firstChild.appendChild(cl)
+      cl.querySelectorAll('video').forEach((v, k) => { const o = art.querySelectorAll('video')[k]; v.muted = true; if (o) v.currentTime = o.currentTime; v.play().catch(() => {}) })
+      if (hooks.wasLifted && hooks.wasLifted()) { const d = cl.querySelector('.dev'); if (d) { d.classList.add('lifted'); requestAnimationFrame(() => requestAnimationFrame(() => d.classList.remove('lifted'))) } }
+    } else hero.innerHTML = heroInner(it) + `<div class="shade"></div><div class="over"><small>${esc(it.area)} · ${esc(it.year)}</small><h1>${esc(it.title)}.<br><span>${esc(it.short || it.head)}</span></h1></div>` + (FILM[it.id] ? `<div class="ctrl"><button class="pp">Pause</button><div class="bar"><i></i></div><button class="snd">Sound on</button></div>` : '')
     film = hero.querySelector('video.film')
+    setTimeout(() => { const f2 = scroller.querySelector('video.film2'); if (!f2) return
+      const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { f2.volume = 0.3; f2.play().catch(() => { f2.muted = true; f2.play().catch(() => {}) }) } else f2.pause() }), { threshold: 0.5 }); io.observe(f2); f2._io = io }, 0)
     if (film) {
       film.volume = 0.3; film.muted = false; film.play().catch(() => { film.muted = true; film.play().catch(() => {}) })
       const pp = hero.querySelector('.pp'), snd = hero.querySelector('.snd'), bar = hero.querySelector('.bar i')
@@ -233,8 +253,8 @@
     const r = hooks.fromRect ? hooks.fromRect() : fromEl.getBoundingClientRect()
     const rad = hooks.targetRadius ? hooks.targetRadius() : '28px', rz = hooks.cardRotate ? hooks.cardRotate() : '0deg'
     place(r, 0)
-    const g = makeGhost(r)
-    hero.animate([{ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: rad, transform: `rotate(${rz})`, boxShadow: CARD_SHADOW }, { left: '0px', top: '0px', width: F.width + 'px', height: F.height + 'px', borderRadius: '0px', transform: 'rotate(0deg)', boxShadow: NO_SHADOW }], { duration: 820, easing: 'cubic-bezier(.22,.9,.22,1)', fill: 'forwards' }).onfinish = () => { dropGhost(); done() }
+    const g = hooks.heroArt ? null : makeGhost(r)
+    hero.animate([{ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: rad, transform: `rotate(${rz})`, boxShadow: (hooks.flat ? NO_SHADOW : CARD_SHADOW) }, { left: '0px', top: '0px', width: F.width + 'px', height: F.height + 'px', borderRadius: '0px', transform: 'rotate(0deg)', boxShadow: NO_SHADOW }], { duration: 820, easing: 'cubic-bezier(.22,.9,.22,1)', fill: 'forwards' }).onfinish = () => { dropGhost(); done() }
     if (g) g.animate([{ opacity: 1 }, { opacity: 1, offset: 0.12 }, { opacity: 0, offset: 0.45 }, { opacity: 0 }], { duration: 820, easing: 'linear', fill: 'forwards' })
     headline(420)
   }
@@ -275,10 +295,10 @@
       return
     }
     const rad = hooks.targetRadius ? hooks.targetRadius() : '28px', rz = hooks.cardRotate ? hooks.cardRotate() : '0deg'
-    const g = makeGhost(t)
-    const a = hero.animate([{ left: r0.left + 'px', top: r0.top + 'px', width: r0.width + 'px', height: r0.height + 'px', borderRadius: getComputedStyle(hero).borderRadius, transform: 'rotate(0deg)', boxShadow: NO_SHADOW }, { left: t.left + 'px', top: t.top + 'px', width: t.width + 'px', height: t.height + 'px', borderRadius: rad, transform: `rotate(${rz})`, boxShadow: CARD_SHADOW }], { duration: 720, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' })
+    const g = hooks.heroArt ? null : makeGhost(t)
+    const a = hero.animate([{ left: r0.left + 'px', top: r0.top + 'px', width: r0.width + 'px', height: r0.height + 'px', borderRadius: getComputedStyle(hero).borderRadius, transform: 'rotate(0deg)', boxShadow: NO_SHADOW }, { left: t.left + 'px', top: t.top + 'px', width: t.width + 'px', height: t.height + 'px', borderRadius: rad, transform: `rotate(${rz})`, boxShadow: (hooks.flat ? NO_SHADOW : CARD_SHADOW) }], { duration: 720, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' })
     if (g) g.animate([{ opacity: 0 }, { opacity: 0, offset: 0.3 }, { opacity: 1, offset: 0.78 }, { opacity: 1 }], { duration: 720, easing: 'linear', fill: 'forwards' })
-    else hero.animate([{ opacity: 1 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }], { duration: 720, easing: 'ease-in', fill: 'forwards' })
+    else if (!hooks.heroArt) hero.animate([{ opacity: 1 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }], { duration: 720, easing: 'ease-in', fill: 'forwards' })
     // the page is the card by the end, so the real one appears under it in the same place and nothing jumps
     a.onfinish = () => { if (from) from.style.visibility = ''; finish() }
   }
