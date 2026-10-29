@@ -6,6 +6,10 @@ window.ME = {
   portrait: 'm/portrait-front.webp',
 }
 window.WORK_ALL = [
+  { id: 'event-countdowns', title: 'Event Countdowns', area: 'Product design', disc: 'Instagram concept', year: '2026', cover: 'm/event-countdowns-thumb.webp', loop: 'm/event-countdowns-loop.mp4',
+    head: 'Events that know when they end.',
+    body: 'A countdown on the post, one reminder the night before it ends, and a Map pin that stays until it does.',
+    m: [] },
   { id: 'queue-blocks', title: 'Queue Blocks', area: 'Product design', disc: 'Spotify queue concept', year: '2026', cover: 'm/queue-blocks-thumb.webp', loop: 'm/queue-blocks-loop.mp4',
     head: 'A Spotify queue made of blocks that keep your place.',
     body: 'Swap your commute music out for work music and it waits on a shelf, right where you stopped.',
