@@ -149,6 +149,7 @@
 <script src="detail2.js?v=4"></script>
 <script>
 const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the colour, the kind of work
+  'event-countdowns': ['m/event-countdowns-thumb.webp', 'm/event-countdowns-loop.mp4', '#D6005F', 'Product design'],
   'queue-blocks': ['m/faces/queue-blocks.webp', 'm/queue-blocks-loop.mp4', '#1ED760', 'Product design'],
   'iso-redesign': ['m/faces/iso-redesign.webp', 'm/iso-features-loop.mp4', '#6E56CF', 'Product design'], pathways: ['m/faces/pathways.webp', 'm/pathways-loop.mp4', '#D21F4F', 'Product design'],
   tracker: ['m/faces/tracker.webp', 'm/tracker-loop.mp4', '#2F6FE4', 'Interaction'], lila: ['m/thumb-lila.webp', null, '#141414', 'GTM engineering'],
@@ -156,10 +157,11 @@ const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the
   prepio: ['m/faces/prepio.webp', 'm/prepio-loop.mp4', '#1F6B47', 'Product'], iso: ['m/faces/iso.webp', 'm/iso-v1-loop.mp4', '#F07800', 'Product'],
   pokemaps: ['m/faces/pokemaps.webp', null, '#B88A00', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
 }
-const SHORT = { 'queue-blocks': 'A Spotify queue that keeps your place.', 'iso-redesign': 'White and ink. Color only where someone is live.', pathways: 'Become a Harvard student. Then walk their day.', tracker: 'The Mac sound menu, as cables you can see.', lila: 'Account intelligence for AI-driven science.', 'the-dot': 'Onboarding with no buttons. Just a dot.', studdy: 'A study café that never closes.', prepio: 'Career office hours, made live.', iso: 'One conversation at a time.', pokemaps: 'Guess the place from the clues.', onapsis: '13,000 contacts, one scored pipeline.' }
-const LIVE = { 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
+const SHORT = { 'event-countdowns': 'Instagram events that know when they end.', 'queue-blocks': 'A Spotify queue that keeps your place.', 'iso-redesign': 'White and ink. Color only where someone is live.', pathways: 'Become a Harvard student. Then walk their day.', tracker: 'The Mac sound menu, as cables you can see.', lila: 'Account intelligence for AI-driven science.', 'the-dot': 'Onboarding with no buttons. Just a dot.', studdy: 'A study café that never closes.', prepio: 'Career office hours, made live.', iso: 'One conversation at a time.', pokemaps: 'Guess the place from the clues.', onapsis: '13,000 contacts, one scored pipeline.' }
+const LIVE = { 'event-countdowns': 'event-countdowns/', 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
 // the brief: about a minute of context before the full case study (all of it from the site's own copy)
 const BRIEF = {
+  'event-countdowns': ['Instagram can remind you when something starts. A post about a pop-up, a sale or a sign-up has no end date, so you find out it ended after it did.', 'This concept gives event posts one. A countdown sticker sits on the photo, Interested sends one reminder the night before, friends can see who is going, and the Map keeps the pin until it ends.', 'Built on the real Instagram app from my own screen recordings, with fictional accounts and stock photos. An unaffiliated concept. Interviews with people who go to these events and the people who post them come next.'],
   'queue-blocks': ['Spotify’s queue is one list. Switching from your commute to work means clearing it, and the songs you hadn’t heard are deleted.', 'Queue Blocks turns the queue into blocks. A block shrinks as it plays, and one you swap out waits on a shelf, right where you stopped.'],
   'iso-redesign': ['The first ISO proved the idea: one live conversation at a time, or nothing.', 'The redesign keeps that rule and changes everything around it. White and ink, with color only where someone is live. It adds holding a moment from a chat, Memories in place of saved chats, and set hours when ISO is open.', 'I led it end to end over eight days in October 2026, designed in Figma and built as a coded prototype, with Claude in my workflow for faster prototyping and iteration.'],
   pathways: ['A five-question quiz turns a kid into a specific Harvard student.', 'Then the family walks that student’s day on campus, with a stamp card for every stop.', 'Four ideas narrowed to one, tested with families in Harvard Yard. CS79 at Harvard, a team of three with Carolyn Dorantes and Kim Cortes-Martinez.'],
@@ -178,7 +180,7 @@ const pad = n => String(n).padStart(2, '0')
 // ---- the row: projects as cards; jobs live in their own list on the left
 const JOBS = ['lila', 'onapsis']
 // the order on this page (ISO and The Dot traded places); the chapter's "Next" follows it too
-const ORDER = ['queue-blocks', 'iso-redesign', 'pathways', 'tracker', 'iso', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
+const ORDER = ['event-countdowns', 'queue-blocks', 'iso-redesign', 'pathways', 'tracker', 'iso', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
 WORK.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id))
 const PROJ = WORK.filter(w => !JOBS.includes(w.id))
 const ROLES = [
@@ -197,11 +199,12 @@ ROLES.forEach(([id, role, org, yr]) => jobs.insertAdjacentHTML('beforeend', `<sp
 jobs.querySelectorAll('.v[data-id]').forEach(v => v.onclick = () => { if (Chapter.isOpen()) return; const it = WORK.find(w => w.id === v.dataset.id); Chapter.open(it, v, { targetRect: () => v.getBoundingClientRect(), nextItem: () => null, next: nxt => { const j = PROJ.indexOf(nxt); if (j >= 0) { tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) } } }) })
 // each project's light: three colours, soft blobs, a little grain (drawn small, shown large, so it stays soft)
 const GLOW = {
+  'event-countdowns': ['#fde4dc', '#ff8fb1', '#ffc285'],
   'queue-blocks': ['#cfe6dc', '#78cfa0', '#a9c9e6'], 'iso-redesign': ['#e3dcf7', '#f4c3ab', '#b6d0f6'], pathways: ['#f4d3d6', '#e7808f', '#f3bfa6'],
   tracker: ['#d9e3f7', '#9fbdf2', '#efc4a6'], iso: ['#fde3c4', '#ff9f45', '#ffc58c'], studdy: ['#d6e8f6', '#efb6cb', '#a9d3ef'],
   prepio: ['#d3e5da', '#6fae88', '#c3d8cb'], 'the-dot': ['#efe3e1', '#e79f94', '#a8d8bb'], pokemaps: ['#e2edd6', '#9fcf7f', '#efc98b'],
 }
-const DEV = { 'queue-blocks': 'phone', 'iso-redesign': 'phone', pathways: 'winv', iso: 'full', tracker: 'panel', studdy: 'logo', prepio: 'win', 'the-dot': 'winv', pokemaps: 'win' }
+const DEV = { 'event-countdowns': 'phone', 'queue-blocks': 'phone', 'iso-redesign': 'phone', pathways: 'winv', iso: 'full', tracker: 'panel', studdy: 'logo', prepio: 'win', 'the-dot': 'winv', pokemaps: 'win' }
 const MEDIA = { pathways: 'm/dev/pathways-stamp.mp4', iso: 'm/dev/iso-logo.mp4', 'the-dot': 'm/dev/the-dot.mp4', studdy: 'm/dev/studdy-logo.webp' }
 function glow(id, i) {
   const [base, a, b] = GLOW[id] || ['#eee', '#ddd', '#ccc']
