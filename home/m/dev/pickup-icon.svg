@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="480" height="480" role="img" aria-label="Pick Up">
+  <defs>
+    <linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="120"><stop stop-color="#7E93FF"/><stop offset=".42" stop-color="#3D5BFF"/><stop offset="1" stop-color="#1C34E4"/></linearGradient>
+    <radialGradient id="vi" gradientUnits="userSpaceOnUse" cx="66" cy="129.6" r="74.4"><stop stop-color="#B49BFF" stop-opacity=".9"/><stop offset="1" stop-color="#B49BFF" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gl" gradientUnits="userSpaceOnUse" cx="33.6" cy="-6" r="102"><stop stop-color="#fff" stop-opacity=".5"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gf" gradientUnits="userSpaceOnUse" x1="0" y1="22" x2="0" y2="101"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#EEF1FF"/></linearGradient>
+    <filter id="ish" x="-40%" y="-60%" width="180%" height="220%"><feComponentTransfer in="SourceAlpha"><feFuncA type="table" tableValues="1 0"/></feComponentTransfer><feGaussianBlur stdDeviation=".75"/><feOffset dy="1.2" result="sh"/><feFlood flood-color="#0A1890" flood-opacity=".38"/><feComposite in2="sh" operator="in"/><feComposite in2="SourceAlpha" operator="in" result="inner"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="inner"/></feMerge></filter>
+    <clipPath id="cl"><rect width="120" height="120" rx="27.6"/></clipPath>
+    <filter id="rim" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.9"/></filter>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2.16" stdDeviation="2.16" flood-color="#0A1890" flood-opacity=".38"/></filter>
+  </defs>
+  <g clip-path="url(#cl)">
+    <rect width="120" height="120" fill="url(#bg)"/><rect width="120" height="120" fill="url(#vi)"/><rect width="120" height="120" fill="url(#gl)"/>
+    <rect x="2.2" y="2.2" width="115.6" height="115.6" rx="25.8" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="4.1" filter="url(#rim)"/>
+  </g>
+  <path transform="translate(29.68 19.84)" d="M33.1208 2.16003C49.0263 2.16029 61.9205 15.0543 61.9206 30.9598C61.9206 46.8655 49.0264 59.7594 33.1208 59.7596C29.3011 59.7596 25.6555 59.0143 22.32 57.6639V72.16C22.32 77.1306 18.2906 81.16 13.32 81.16C8.34945 81.16 4.32001 77.1306 4.32001 72.16V33.6678C4.32001 33.3262 4.33864 32.9924 4.37177 32.6669C4.33875 32.1021 4.32001 31.5329 4.32001 30.9598C4.32011 15.0541 17.2151 2.16003 33.1208 2.16003ZM33.1208 14.66C26.8247 14.66 21.7204 19.7644 21.7204 26.0604C21.7206 32.3563 26.8249 37.4598 33.1208 37.4598C39.4165 37.4596 44.52 32.3561 44.5202 26.0604C44.5202 19.7645 39.4166 14.6603 33.1208 14.66Z" fill="url(#gf)" filter="url(#sh)"/>
+  <g fill="none" stroke-width="3" stroke-linecap="round" filter="url(#ish)">
+    <path d="M69.000 63.678C73.521 72.307 77.598 69.855 79.072 67.551" stroke="url(#bg)"/><path d="M69.000 63.678C73.521 72.307 77.598 69.855 79.072 67.551" stroke="url(#vi)"/><path d="M69.000 63.678C73.521 72.307 77.598 69.855 79.072 67.551" stroke="url(#gl)"/>
+  </g>
+</svg>
