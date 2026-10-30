@@ -90,10 +90,9 @@
   #ch .hero.tile { background:#eee; }
   #ch .hero .hero-tile { position:absolute !important; inset:0; margin:0 !important; container-type:size; }
   #ch .hero .hero-tile .slot { display:none; }
+  #ch .hero .hero-tile video.full { position:absolute; inset:0; width:100%; height:100%; margin:0; border:0; object-fit:cover; }   /* not the case study's .full frame */
   #ch .hero .hero-tile .dev.lifted { transform:translateX(-50%) translateY(-10px); }
   #ch .hero .hero-tile .dev.icon.lifted { transform:translate(-50%, -50%) translateY(-8px); }
-  #ch .hero .hero-tile .dev.phone.pm { left:63%; }
-  #ch .hero .hero-tile .mk { left:calc(63% - 47cqh); }
   #ch .hero.tile .over { left:4vw; right:auto; top:9%; text-align:left; max-width:26vw; z-index:2; }
   #ch .hero.tile .over small { color:#1d1d1f; opacity:.55; }
   #ch .hero.tile .over h1 { font-size:clamp(26px, 2.5vw, 40px); }
