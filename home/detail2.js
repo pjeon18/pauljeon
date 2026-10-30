@@ -4,7 +4,7 @@
 // two-part headings follow. A slim local nav sticks to the top.
 (function () {
   const CASE = { 'queue-blocks': 'queue-blocks/case-study.html', 'iso-redesign': 'iso-redesign', pathways: 'harvard-pathways', 'the-dot': 'the-dot', studdy: 'studdy', prepio: 'prep-io', iso: 'iso', onapsis: 'onapsis-gtm', f1: 'f1-undercut', media: 'media-analytics' }
-  const FILM = { 'event-countdowns': 'm/event-countdowns.mp4', 'queue-blocks': 'm/queue-blocks.mp4', 'iso-redesign': 'm/iso-features.mp4', pathways: 'm/pathways.mp4', tracker: 'm/tracker.mp4', prepio: 'm/prepio.mp4', iso: 'm/iso-v1.mp4', media: 'm/media.mp4' }
+  const FILM = { 'order-dial': 'm/order-dial.mp4', 'event-countdowns': 'm/event-countdowns.mp4', 'queue-blocks': 'm/queue-blocks.mp4', 'iso-redesign': 'm/iso-features.mp4', pathways: 'm/pathways.mp4', tracker: 'm/tracker.mp4', prepio: 'm/prepio.mp4', iso: 'm/iso-v1.mp4', media: 'm/media.mp4' }
   const css = `
   #ch { position:fixed; inset:0; z-index:50; pointer-events:none; }
   #ch.on { pointer-events:auto; }
