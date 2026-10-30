@@ -77,6 +77,14 @@
   #ch .fork .go:only-child { grid-column:1 / -1; }
   #ch .credit { margin:9vh 0 0; font:500 14px/1.7 Inter, sans-serif; color:#86868b; }
   #ch .credit a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
+  #ch .moments { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:9vh 3vw; margin-top:12vh; }
+  #ch .moments figure { margin:0; display:grid; justify-items:center; gap:22px; }
+  #ch .moments .mph { width:min(100%, 300px); aspect-ratio:422 / 876; box-sizing:border-box; padding:4.8%; border-radius:16.5% / 8%; background:#050505; box-shadow:0 0 0 1px #2a2a2c, 0 0 0 2px #77777c, 0 0 0 3px #2c2c2e, 0 40px 70px -40px rgba(0,0,0,.45); }
+  #ch .moments .scr { position:relative; width:100%; height:100%; border-radius:13.5% / 6.3%; overflow:hidden; background:#2B4BFF; }
+  #ch .moments video { display:block; width:100%; height:100%; object-fit:cover; }
+  #ch .moments .isl { position:absolute; top:1.7%; left:50%; width:33%; height:3.6%; transform:translateX(-50%); border-radius:99px; background:#000; }
+  #ch .moments figcaption { font:600 clamp(17px, 1.3vw, 21px)/1.3 Inter, sans-serif; letter-spacing:-.015em; color:#1d1d1f; text-align:center; }
+  @media (max-width:820px) { #ch .moments { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
   #ch .demo { position:relative; height:86vh; margin-top:10vh; border-radius:28px; overflow:hidden; background:var(--tint); box-shadow:0 30px 70px -45px rgba(0,0,0,.4); }
   #ch .demo iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
   #ch .demo iframe, #ch .full iframe { opacity:0; transition:opacity .7s ease; }
@@ -132,7 +140,9 @@
     h += `<div class="brief">${(it.brief || [it.body]).map(t => `<p>${esc(t)}</p>`).join('')}</div>`
     if (hooks.heroArt && FILM[it.id]) h += `<div class="filmp"><video class="film2" src="${FILM[it.id]}" playsinline controls preload="metadata"></video></div>`
     // the working prototype, already loaded, before the long read (Queue Blocks and the ISO redesign carry theirs inside the case study)
-    const demo = it.live && !['queue-blocks', 'iso-redesign'].includes(it.id) ? it.live : null
+    // moments: one phone per moment of the product, each a short loop of the real prototype, in place of the embedded prototype
+    if (it.moments) h += `<div class="moments">${it.moments.map(([label, src]) => `<figure><div class="mph"><div class="scr"><video src="${src}.mp4" poster="${src}.webp" muted loop autoplay playsinline preload="metadata"></video><i class="isl"></i></div></div><figcaption>${esc(label)}</figcaption></figure>`).join('')}</div>`
+    const demo = it.live && !it.moments && !['queue-blocks', 'iso-redesign'].includes(it.id) ? it.live : null
     if (demo) h += `<div class="demo"><iframe title="${esc(it.title)} prototype" data-src="${demo}" allow="autoplay; clipboard-write"></iframe></div>`
     if (c && c.stats.length) h += `<div class="stats">${c.stats.map((s, i) => `<div><b>${esc(s.value)}</b>${esc(beats && beats.stats && beats.stats[i] || s.label)}</div>`).join('')}</div>`
     if (!slug) h += `<div class="media"></div>`
