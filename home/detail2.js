@@ -4,6 +4,7 @@
 // two-part headings follow. A slim local nav sticks to the top.
 (function () {
   const CASE = { 'queue-blocks': 'queue-blocks/case-study.html', 'iso-redesign': 'iso-redesign', pathways: 'harvard-pathways', 'the-dot': 'the-dot', studdy: 'studdy', prepio: 'prep-io', iso: 'iso', onapsis: 'onapsis-gtm', f1: 'f1-undercut', media: 'media-analytics' }
+  const MUSIC = ['event-countdowns', 'order-dial']   // films scored with Motivate Me; credited at the foot of the page
   const FILM = { 'order-dial': 'm/order-dial.mp4', 'event-countdowns': 'm/event-countdowns.mp4', 'queue-blocks': 'm/queue-blocks.mp4', 'iso-redesign': 'm/iso-features.mp4', pathways: 'm/pathways.mp4', tracker: 'm/tracker.mp4', prepio: 'm/prepio.mp4', iso: 'm/iso-v1.mp4', media: 'm/media.mp4' }
   const css = `
   #ch { position:fixed; inset:0; z-index:50; pointer-events:none; }
@@ -74,6 +75,8 @@
   #ch .fork .go h3 { margin:0; font:700 clamp(28px, 3vw, 48px)/1.02 Inter, sans-serif; letter-spacing:-.04em; color:#1d1d1f; }
   #ch .fork .go h3 em { font-style:normal; color:#86868b; display:block; }
   #ch .fork .go:only-child { grid-column:1 / -1; }
+  #ch .credit { margin:9vh 0 0; font:500 14px/1.7 Inter, sans-serif; color:#86868b; }
+  #ch .credit a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
   #ch .demo { position:relative; height:86vh; margin-top:10vh; border-radius:28px; overflow:hidden; background:var(--tint); box-shadow:0 30px 70px -45px rgba(0,0,0,.4); }
   #ch .demo iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
   #ch .demo iframe, #ch .full iframe { opacity:0; transition:opacity .7s ease; }
@@ -88,9 +91,13 @@
   #ch .hero .hero-tile { position:absolute !important; inset:0; margin:0 !important; container-type:size; }
   #ch .hero .hero-tile .slot { display:none; }
   #ch .hero .hero-tile .dev.lifted { transform:translateX(-50%) translateY(-10px); }
+  #ch .hero .hero-tile .dev.icon.lifted { transform:translate(-50%, -50%) translateY(-8px); }
+  #ch .hero .hero-tile .dev.phone.pm { left:63%; }
+  #ch .hero .hero-tile .mk { left:calc(63% - 47cqh); }
   #ch .hero.tile .over { left:4vw; right:auto; top:9%; text-align:left; max-width:26vw; z-index:2; }
   #ch .hero.tile .over small { color:#1d1d1f; opacity:.55; }
   #ch .hero.tile .over h1 { font-size:clamp(26px, 2.5vw, 40px); }
+  #ch .hero.tile .over h1 span { color:#fff; text-shadow:0 1px 20px rgba(60,30,10,.14); }
   #ch .filmp { margin-top:10vh; border-radius:20px; overflow:hidden; background:#111; }
   #ch .filmp video { display:block; width:100%; height:auto; }
   #ch .next { margin-top:22vh; cursor:pointer; }
@@ -133,6 +140,7 @@
     // after a minute: move on to the next card, or keep going into the whole story
     const opts = (nxt ? `<div class="go" data-act="next"><h3><em>Next</em>${esc(nxt.title)} →</h3></div>` : '') + (slug ? `<div class="go" data-act="deep"><h3><em>Keep scrolling</em>The full case study ↓</h3></div>` : '')
     if (opts) h += `<div class="fork">${opts}</div>`
+    if (MUSIC.includes(it.id)) h += `<p class="credit">Music: Motivate Me by Mixaund | <a href="https://mixaund.bandcamp.com" target="_blank" rel="noopener">mixaund.bandcamp.com</a><br>Royalty Free Music by <a href="https://www.free-stock-music.com" target="_blank" rel="noopener">free-stock-music.com</a></p>`
     if (slug) h += `<div class="full"><iframe title="${esc(it.title)} case study" data-src="${slug.includes('/') ? slug : 'classic/work/' + slug}" loading="lazy"></iframe></div>`
     return h
   }
