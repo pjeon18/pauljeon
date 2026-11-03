@@ -6,6 +6,10 @@ window.ME = {
   portrait: 'm/portrait-front.webp',
 }
 window.WORK_ALL = [
+  { id: 'core-zone', title: 'Core Zone', area: 'Game', disc: 'Browser game · three.js', year: '2026', cover: 'm/core-zone-thumb.webp', loop: 'm/core-zone-loop.mp4',
+    head: 'A flying game where you build a core layer by layer while the sky tries to break it.',
+    body: 'Fly round a floating core and shoot blocks onto it until every face is covered and the layer seals. Meteors and enemy planes crack it, so you shoot them down or build faster. Solo levels, a daily run, and online matches with friends.',
+    m: [] },
   { id: 'event-countdowns', title: 'Event Countdowns', area: 'Product design', disc: 'Instagram concept', year: '2026', cover: 'm/event-countdowns-thumb.webp', loop: 'm/event-countdowns-loop.mp4',
     head: 'Posts that carry an end date, with a countdown and one reminder before it ends.',
     body: 'A countdown on the post, one reminder the night before it ends, and a Map pin that stays until it does.',
