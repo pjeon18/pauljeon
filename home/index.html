@@ -153,9 +153,10 @@
   <div class="now out" id="now"><span class="row"><span class="t" id="nowT"></span></span><span class="row"><span class="m" id="nowM"></span></span></div>
 <script src="data.js"></script>
 <script src="cs.js"></script>
-<script src="detail2.js?v=8"></script>
+<script src="detail2.js?v=9"></script>
 <script>
 const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the colour, the kind of work
+  'core-zone': ['m/core-zone-thumb.webp', 'm/core-zone-loop.mp4', '#E8202F', 'Game'],
   'event-countdowns': ['m/event-countdowns-thumb.webp', 'm/event-countdowns-loop.mp4', '#D6005F', 'Product design'],
   pickup: ['m/pickup-thumb.webp', 'm/pickup-loop.mp4', '#2B4BFF', 'Product'],
   'order-dial': ['m/order-dial-thumb.webp', 'm/order-dial-loop.mp4', '#DA291C', 'Product design'],
@@ -166,10 +167,11 @@ const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the
   prepio: ['m/faces/prepio.webp', 'm/prepio-loop.mp4', '#1F6B47', 'Product'], iso: ['m/faces/iso.webp', 'm/iso-v1-loop.mp4', '#F07800', 'Product'],
   pokemaps: ['m/faces/pokemaps.webp', null, '#B88A00', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
 }
-const SHORT = { 'order-dial': 'A McDonald’s ordering concept built around a dial.', pickup: 'A ride-sharing app for a group of friends.', 'event-countdowns': 'An Instagram concept for posts with an end date.', 'queue-blocks': 'A redesign of the Spotify queue.', 'iso-redesign': 'The second version of ISO, redesigned end to end.', pathways: 'A campus-visit app for families, built in CS79.', tracker: 'A redesign of the Mac sound menu.', lila: 'Account intelligence for enterprise sales.', 'the-dot': 'An onboarding flow navigated by a single dot.', studdy: 'A live multiplayer study app.', prepio: 'Live career office hours.', iso: 'A real-time dating app, from PRD to prototype.', pokemaps: 'A daily location-guessing puzzle.', onapsis: 'A scored lead pipeline for a BDR team.' }
-const LIVE = { 'order-dial': 'order-dial/', pickup: 'pickup/', 'event-countdowns': 'event-countdowns/', 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
+const SHORT = { 'core-zone': 'A 3D flying and building game for the browser.', 'order-dial': 'A McDonald’s ordering concept built around a dial.', pickup: 'A ride-sharing app for a group of friends.', 'event-countdowns': 'An Instagram concept for posts with an end date.', 'queue-blocks': 'A redesign of the Spotify queue.', 'iso-redesign': 'The second version of ISO, redesigned end to end.', pathways: 'A campus-visit app for families, built in CS79.', tracker: 'A redesign of the Mac sound menu.', lila: 'Account intelligence for enterprise sales.', 'the-dot': 'An onboarding flow navigated by a single dot.', studdy: 'A live multiplayer study app.', prepio: 'Live career office hours.', iso: 'A real-time dating app, from PRD to prototype.', pokemaps: 'A daily location-guessing puzzle.', onapsis: 'A scored lead pipeline for a BDR team.' }
+const LIVE = { 'core-zone': 'https://pjeon18.github.io/strata/', 'order-dial': 'order-dial/', pickup: 'pickup/', 'event-countdowns': 'event-countdowns/', 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
 // the brief: about a minute of context before the full case study (all of it from the site's own copy)
 const BRIEF = {
+  'core-zone': ['Core Zone is a 3D flying game. A small core floats over an island sea, and you fly round it shooting blocks onto its faces.', 'Cover every open face and the layer seals, cements and scores, and each new layer is bigger than the last. Meteors and enemy planes try to crack it, so you shoot them down or build a protective layer first.', 'Four loadouts, a swoop that carries you to the next face, and a shockwave that clears the sky. Solo levels with stars, a daily run, Containment against bots, and online Versus with friends, on keyboard or touch.', 'Design and engineering, solo, in three.js. The film is rendered from the real game with scripted cameras.'],
   'order-dial': ['Ordering online today is a form. A Big Mac alone is a list of checkboxes, one row per ingredient.', 'Order Dial is designed so a kid can order. The burger sits in the middle and every choice is a ring of pictures around it: what’s inside, then the side, then the drink. Turn a ring to choose, tap minus or plus for how much, and the burger drawing updates as you go.', 'The whole order fits on one screen and reads back as one sentence, the way you’d say it at the counter. Every ring is also an accessible slider, so arrow keys turn it and a screen reader announces each choice.', 'Designed and built solo as a coded prototype, with a self-playing tour and a demo film. An unaffiliated concept.'],
   pickup: ['Pick Up is a ride-sharing app for a group of friends. Anyone can say they’re driving, and anyone can ask the group for a ride.', 'The driver gets a plan with a time for each pickup. Riders watch the car on a live map with a time to be outside, and each stop posts to the group chat with how long the driver waited.', 'Up to two cars can be out at once, and an open drive lets friends ask for a seat.', 'Product management, design and engineering, solo: 39 product decisions logged with their trade-offs, a design system in Figma, and a working prototype of both the driver’s and the rider’s side, running on a simulated city.'],
   'event-countdowns': ['Instagram can remind you when something starts. A post about a pop-up, a sale or a sign-up has no end date, so you find out it ended after it did.', 'This concept gives event posts one. A countdown sticker sits on the photo, Interested sends one reminder the night before, friends can see who is going, and the Map keeps the pin until it ends.', 'Built as a working prototype on the real Instagram app, from my own screen recordings, with fictional accounts and stock photos, a self-playing tour and a demo film. An unaffiliated concept.'],
@@ -191,7 +193,7 @@ const pad = n => String(n).padStart(2, '0')
 // ---- the row: projects as cards; jobs live in their own list on the left
 const JOBS = ['lila', 'onapsis']
 // the order on this page, mixed so phones never run back to back; the chapter's "Next" follows it too
-const ORDER = ['iso-redesign', 'pickup', 'event-countdowns', 'order-dial', 'tracker', 'queue-blocks', 'iso', 'pathways', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
+const ORDER = ['iso-redesign', 'core-zone', 'pickup', 'event-countdowns', 'order-dial', 'tracker', 'queue-blocks', 'iso', 'pathways', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
 WORK.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id))
 const PROJ = WORK.filter(w => !JOBS.includes(w.id))
 const ROLES = [
@@ -220,8 +222,8 @@ const GLOW = {
   tracker: ['#d9e3f7', '#9fbdf2', '#efc4a6'], iso: ['#fde3c4', '#ff9f45', '#ffc58c'], studdy: ['#d6e8f6', '#efb6cb', '#a9d3ef'],
   prepio: ['#d3e5da', '#6fae88', '#c3d8cb'], 'the-dot': ['#efe3e1', '#e79f94', '#a8d8bb'], pokemaps: ['#e2edd6', '#9fcf7f', '#efc98b'],
 }
-const DEV = { 'order-dial': 'phonev', pickup: 'icon', 'event-countdowns': 'full', 'queue-blocks': 'phone', 'iso-redesign': 'phone', pathways: 'winv', iso: 'full', tracker: 'panel', studdy: 'logo', prepio: 'win', 'the-dot': 'winv', pokemaps: 'win' }
-const MEDIA = { pickup: 'm/dev/pickup-icon.svg', 'event-countdowns': 'm/dev/event-countdowns-sticker.mp4', pathways: 'm/dev/pathways-stamp.mp4', iso: 'm/dev/iso-logo.mp4', 'the-dot': 'm/dev/the-dot.mp4', studdy: 'm/dev/studdy-logo.webp' }
+const DEV = { 'core-zone': 'full', 'order-dial': 'phonev', pickup: 'icon', 'event-countdowns': 'full', 'queue-blocks': 'phone', 'iso-redesign': 'phone', pathways: 'winv', iso: 'full', tracker: 'panel', studdy: 'logo', prepio: 'win', 'the-dot': 'winv', pokemaps: 'win' }
+const MEDIA = { 'core-zone': 'm/dev/core-zone.mp4', pickup: 'm/dev/pickup-icon.svg', 'event-countdowns': 'm/dev/event-countdowns-sticker.mp4', pathways: 'm/dev/pathways-stamp.mp4', iso: 'm/dev/iso-logo.mp4', 'the-dot': 'm/dev/the-dot.mp4', studdy: 'm/dev/studdy-logo.webp' }
 function glow(id, i) {
   const [base, a, b] = GLOW[id] || ['#eee', '#ddd', '#ccc']
   const c = document.createElement('canvas'); c.width = 300; c.height = 200; const g = c.getContext('2d')

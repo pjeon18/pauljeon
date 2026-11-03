@@ -4,8 +4,10 @@
 // two-part headings follow. A slim local nav sticks to the top.
 (function () {
   const CASE = { 'queue-blocks': 'queue-blocks/case-study.html', 'iso-redesign': 'iso-redesign', pathways: 'harvard-pathways', 'the-dot': 'the-dot', studdy: 'studdy', prepio: 'prep-io', iso: 'iso', onapsis: 'onapsis-gtm', f1: 'f1-undercut', media: 'media-analytics' }
-  const MUSIC = ['event-countdowns', 'order-dial']   // films scored with Motivate Me; credited at the foot of the page
-  const FILM = { 'order-dial': 'm/order-dial.mp4', 'event-countdowns': 'm/event-countdowns.mp4', 'queue-blocks': 'm/queue-blocks.mp4', 'iso-redesign': 'm/iso-features.mp4', pathways: 'm/pathways.mp4', tracker: 'm/tracker.mp4', prepio: 'm/prepio.mp4', iso: 'm/iso-v1.mp4', media: 'm/media.mp4' }
+  // films scored with royalty-free tracks, each credited at the foot of the page
+  const MOTIVATE = ['Motivate Me by Mixaund', 'https://mixaund.bandcamp.com', 'mixaund.bandcamp.com']
+  const MUSIC = { 'event-countdowns': MOTIVATE, 'order-dial': MOTIVATE, 'core-zone': ['Journey Ahead (Loop) by Corporate Music Zone', 'https://corporate-music-zone.bandcamp.com', 'corporate-music-zone.bandcamp.com'] }
+  const FILM = { 'core-zone': 'm/core-zone.mp4', 'order-dial': 'm/order-dial.mp4', 'event-countdowns': 'm/event-countdowns.mp4', 'queue-blocks': 'm/queue-blocks.mp4', 'iso-redesign': 'm/iso-features.mp4', pathways: 'm/pathways.mp4', tracker: 'm/tracker.mp4', prepio: 'm/prepio.mp4', iso: 'm/iso-v1.mp4', media: 'm/media.mp4' }
   const css = `
   #ch { position:fixed; inset:0; z-index:50; pointer-events:none; }
   #ch.on { pointer-events:auto; }
@@ -149,7 +151,7 @@
     // after a minute: move on to the next card, or keep going into the whole story
     const opts = (nxt ? `<div class="go" data-act="next"><h3><em>Next</em>${esc(nxt.title)} →</h3></div>` : '') + (slug ? `<div class="go" data-act="deep"><h3><em>Keep scrolling</em>The full case study ↓</h3></div>` : '')
     if (opts) h += `<div class="fork">${opts}</div>`
-    if (MUSIC.includes(it.id)) h += `<p class="credit">Music: Motivate Me by Mixaund | <a href="https://mixaund.bandcamp.com" target="_blank" rel="noopener">mixaund.bandcamp.com</a><br>Royalty Free Music by <a href="https://www.free-stock-music.com" target="_blank" rel="noopener">free-stock-music.com</a></p>`
+    if (MUSIC[it.id]) { const [song, url, host] = MUSIC[it.id]; h += `<p class="credit">Music: ${song} | <a href="${url}" target="_blank" rel="noopener">${host}</a><br>Royalty Free Music by <a href="https://www.free-stock-music.com" target="_blank" rel="noopener">free-stock-music.com</a></p>` }
     if (slug) h += `<div class="full"><iframe title="${esc(it.title)} case study" data-src="${slug.includes('/') ? slug : 'classic/work/' + slug}" loading="lazy"></iframe></div>`
     return h
   }
