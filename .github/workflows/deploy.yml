@@ -76,10 +76,10 @@ jobs:
       # Needs a fine-grained PAT with Actions: write on pjeon18/pjeon18.github.io, saved
       # as the ROOT_DEPLOY_TOKEN secret; until then this step is skipped.
       - name: Refresh root site
-        if: ${{ secrets.ROOT_DEPLOY_TOKEN != '' }}
         env:
           TOKEN: ${{ secrets.ROOT_DEPLOY_TOKEN }}
         run: |
+          if [ -z "$TOKEN" ]; then echo "ROOT_DEPLOY_TOKEN not set; the root site syncs on its own schedule"; exit 0; fi
           curl -sS -X POST -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/pjeon18/pjeon18.github.io/dispatches \
             -d '{"event_type":"portfolio-updated"}'
