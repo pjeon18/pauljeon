@@ -5,7 +5,7 @@
 // them, and every piece fades in and rises a little as it scrolls into view
 // (useFlow, shared with Harvard Pathways). A few sections keep one small
 // scripted moment that starts once it is on screen: the inbox collapsing into
-// one dot, the turn ring draining, the countdown to 8, the review swaps.
+// one dot, and the market drawings settling into their numbers.
 import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BackToSite from './BackToSite'
@@ -23,13 +23,13 @@ import shInconvo from '../assets/iso-light/inconvo.webp'
 import shSelect from '../assets/iso-light/select.webp'
 import shFeel from '../assets/iso-light/feel.webp'
 import shMoment from '../assets/iso-light/moment.webp'
+import shMemories from '../assets/iso-light/memories.webp'
+import shSchedule from '../assets/iso-light/schedule.webp'
 import figmaRow from '../assets/iso-light/figma-row.webp'
 import figmaComps from '../assets/iso-light/figma-components.webp'
 import oldHome from '../assets/iso-queue.webp'
 
 const BASE = import.meta.env.BASE_URL
-const PAUL = `${BASE}iso-chromatic/assets/paul.jpg`
-const MAYA = 'https://images.unsplash.com/photo-1662850886700-4ec19bd30d11?w=320&h=320&fit=crop&crop=faces&q=80&auto=format'
 const PROTO = `${BASE}iso-chromatic/index.html`
 const FILM = `${BASE}films/iso-features.mp4`
 const FILM_POSTER = `${BASE}films/iso-features.jpg`
@@ -60,48 +60,28 @@ const Row = ({ flip, className = '', text, children }: { flip?: boolean; classNa
 )
 
 const BUBBLES = ['hey', 'haha', 'you up?', 'sorry, just saw this', 'so what do you do', 'lol', 'wyd', 'omg same', 'we should get coffee', 'hiii', 'how was your week', 'ok', 'whats your sign', 'brb', 'nice', 'sounds fun', 'hey stranger', 'u around?']
-const RING = 2 * Math.PI * 104
 
 const LOOP = [
-  { shot: shHome, line: 'Home is the queue. One button, and a count of who is here.' },
-  { shot: shSearching, line: 'ISO looks for someone who is online at the same moment.' },
-  { shot: shMatch, line: 'You get one person and one question you will both answer.' },
-  { shot: shRoom, line: 'In the live room, a slow ring shows whose turn it is.' },
-  { shot: shSealed, line: 'Either of you can ask to keep talking. Your answer stays sealed.' },
-  { shot: shMutual, line: 'Both answers flip at the same time. Green means you both said yes.' },
+  { shot: shSearching, line: 'Find someone looks for a person who is online at the same moment. Rings of light spread from your photo while it looks.' },
+  { shot: shMatch, line: 'You meet one person, with one question you will both answer.' },
+  { shot: shRoom, line: 'You talk live. The ring above the message box shows whose turn it is, and it never ends the chat for you.' },
+  { shot: shSealed, line: 'When either of you taps Ready to decide, you both answer Keep talking? in private.' },
+  { shot: shMutual, line: 'Both answers show at the same moment. Green appears only here, when you both say yes.' },
 ]
-/** the countdown to 8, run once when the clock comes into view */
-function LiveClock() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [left, setLeft] = useState(8)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setLeft(0); return }
-    let t = 0
-    const io = new IntersectionObserver((es) => {
-      if (!es.some((e) => e.isIntersecting)) return
-      io.disconnect()
-      const tick = () => setLeft((l) => { if (l > 1) t = window.setTimeout(tick, 420); return Math.max(0, l - 1) })
-      t = window.setTimeout(tick, 700)
-    }, { rootMargin: '0px 0px -20% 0px' })
-    io.observe(el)
-    return () => { io.disconnect(); clearTimeout(t) }
-  }, [])
-  const on = left === 0
-  return (
-    <div className={'il-live-stage' + (on ? ' on' : '')} ref={ref}>
-      <div className="il-live-rise" />
-      <div className={'il-live-state' + (on ? ' on' : '')}><i /><span>{on ? 'Live now' : 'Opens tonight at 8'}</span></div>
-      <div className="il-clock">{on ? <>8:00:<span>00</span></> : <>7:59:<span>{String(60 - left).padStart(2, '0')}</span></>}</div>
-    </div>
-  )
-}
-
 export default function IsoLight() {
   const root = useRef<HTMLDivElement>(null)
   const [see, setSee] = useState<'watch' | 'try' | 'film'>('watch')
   useFlow(root)
+  // the scale drawings play only once they reach the upper part of the screen, so the change is seen
+  useEffect(() => {
+    const els = [...(root.current?.querySelectorAll<HTMLElement>('[data-play]') ?? [])]
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { els.forEach((n) => n.classList.add('go')); return }
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('go'); io.unobserve(e.target) }
+    }), { rootMargin: '0px 0px -40% 0px' })
+    els.forEach((n) => io.observe(n))
+    return () => io.disconnect()
+  }, [])
   useEffect(() => {
     document.title = 'ISO, redesigned · Paul Jeon'
     window.scrollTo(0, 0)
@@ -122,67 +102,10 @@ export default function IsoLight() {
           <h1 style={{ viewTransitionName: 'case-title' } as React.CSSProperties}>
             {'ISO, redesigned'.split(' ').map((w, i) => <span key={i} className="il-boot" style={{ '--bi': i } as CSS}>{w + ' '}</span>)}
           </h1>
-          <p className="il-boot" style={{ '--bi': 3 } as CSS}>
-            A dating app where you talk to one person at a time. I redesigned it over eight days in October 2026, with Claude in my workflow for faster prototyping and iteration.
-          </p>
+          <p className="il-boot" style={{ '--bi': 3 } as CSS}>A dating app where you talk to one person at a time.</p>
         </div>
         <div className="il-cover-phone il-boot" style={{ '--bi': 5 } as CSS}>
           <Phone src={shHome} style={{ viewTransitionName: 'case-hero' } as React.CSSProperties} />
-        </div>
-      </section>
-
-      {/* why now: the market */}
-      <section className="il-sec">
-        <div className="il-wrap il-stack">
-          <Line className="il-kick">Why now</Line>
-          <Row text={<Line>Bumble went private this week for $1.3B. Five years ago it IPO’d at $14B.</Line>}>
-            <R d={0.2}><div className="il-fig"><span className="dim">$14B</span><span>$1.3B</span></div></R>
-          </Row>
-          <Row text={<Line>Paying users fell from about 3.8M to 3.2M in a year, and revenue has declined for nearly two.</Line>}>
-            <R d={0.2}><div className="il-fig"><span className="dim">3.8M</span><span>3.2M</span></div></R>
-          </Row>
-          <Row text={<Line>Match Group is holding up better but still shrinking: 13.3M payers, down 6%, with Tinder’s monthly actives down 7%.</Line>}>
-            <R d={0.2}><div className="il-fig"><span>−6%</span><small>Match Group payers</small><span>−7%</span><small>Tinder monthly actives</small></div></R>
-          </Row>
-          <Row text={<Line>Both now charge more per subscriber to cover the people leaving.</Line>}>
-            <R d={0.2}><div className="il-fig"><span>More</span><small>per subscriber</small></div></R>
-          </Row>
-        </div>
-      </section>
-
-      {/* why now: the admission */}
-      <section className="il-sec il-dark il-quote">
-        <div className="il-glow" />
-        <div className="il-wrap il-center">
-          <Line>“We failed to recognize and respond to changes in the younger demographic, especially Gen Z and what they want.”</Line>
-          <R d={0.5}><p className="il-quote-by">Spencer Rascoff, CEO, Match Group</p></R>
-        </div>
-      </section>
-
-      {/* why now: the exception, and where everyone is heading */}
-      <section className="il-sec">
-        <div className="il-wrap il-stack">
-          <Row text={<Line>Hinge is the exception. Revenue grew 22% last quarter to $203M.</Line>}>
-            <R d={0.2}><div className="il-fig"><span className="up">+22%</span><small>Hinge revenue, $203M</small></div></R>
-          </Row>
-          <Row text={<Line>It was the one major app built around intent instead of volume, and it’s the one still growing.</Line>} />
-          <Row text={<Line>The rest of the industry is moving the same direction. Tinder added an Events tab for meeting in person. Bumble is betting on group meetups and a replacement for the swipe.</Line>}>
-            <R d={0.2}><div className="il-fig il-fig-list"><span>Events</span><span>Meetups</span><span className="dim">The swipe</span></div></R>
-          </Row>
-          <Row text={<Line>Hinge’s founder, Justin McLeod, recently left to build Overtone: no swiping.</Line>}>
-            <R d={0.2}><div className="il-fig"><span>No swiping.</span><small>Overtone</small></div></R>
-          </Row>
-          <Row text={<Line>The person who built the app that works still decided the format was the problem.</Line>} />
-        </div>
-      </section>
-
-      {/* why now: ISO's answer */}
-      <section className="il-sec il-dark il-answer">
-        <div className="il-glow" />
-        <div className="il-wrap il-center il-stack">
-          <Line>ISO started from the same conclusion. One conversation at a time, live, with someone on your campus who you’ll actually run into.</Line>
-          <Line>Tinder and Bumble are adding commitment to feeds designed for abundance. Overtone makes the choice for you.</Line>
-          <Line>ISO leaves the choice with you and removes the backup plan: there’s nobody else to talk to until this ends, so the obvious next step is to meet.</Line>
         </div>
       </section>
 
@@ -190,7 +113,7 @@ export default function IsoLight() {
       <section className="il-sec il-inbox">
         <div className="il-wrap il-center il-stack">
           <Line>Most dating apps work like an inbox.</Line>
-          <Line>You keep a dozen conversations open, and most of them stop halfway.</Line>
+          <Line>You keep a dozen chats open, and most of them stop halfway.</Line>
           <div className="il-cloud" data-act>
             {BUBBLES.map((b, i) => {
               const ang = (i / BUBBLES.length) * Math.PI * 2 + 0.4
@@ -199,14 +122,59 @@ export default function IsoLight() {
             })}
             <div className="il-one" />
           </div>
-          <Line>ISO lets you talk to one person at a time, live.</Line>
+          <Line>ISO gives you one person at a time, live.</Line>
         </div>
       </section>
 
-      {/* orange to light */}
+      {/* why now: the apps built like an inbox are shrinking. Each drawing shows the scale the sentence states */}
+      <section className="il-sec">
+        <div className="il-wrap il-stack">
+          <Line>Those apps are losing people.</Line>
+          <Row text={<Line>Bumble went public at $14B. In October 2026 it went private for $1.3B.</Line>}>
+            {/* the ink square starts at $14B and shrinks to $1.3B by area */}
+            <R d={0.2}><div className="il-scale" data-play><i><em>$1.3B</em></i><em className="was">$14B</em></div></R>
+          </Row>
+          <Row flip text={<Line>In one year, Bumble’s paying users fell from 3.8M to 3.2M.</Line>}>
+            {/* one dot per hundred thousand paying users; six empty out */}
+            <R d={0.2}><div className="il-dotsw" data-play><div className="il-dots">{Array.from({ length: 38 }, (_, i) => <span key={i} className={i >= 32 ? 'gone' : ''} style={{ '--i': i - 32 } as CSS} />)}</div><div className="il-dotn"><em>3.2M</em><em className="lost">−0.6M</em></div></div></R>
+          </Row>
+          <Line>At Match Group, paying users fell 6%, and Tinder’s monthly users fell 7%.</Line>
+        </div>
+      </section>
+
+      {/* why now: the admission */}
+      <section className="il-sec il-dark il-quote">
+        <div className="il-glow" />
+        <div className="il-wrap il-center">
+          <Line>“We failed to recognize and respond to changes in the younger demographic, especially Gen Z and what they want.”</Line>
+          <R d={0.5}><p className="il-quote-by">Spencer Rascoff, CEO of Match Group</p></R>
+        </div>
+      </section>
+
+      {/* why now: the exception */}
+      <section className="il-sec">
+        <div className="il-wrap il-stack">
+          <Row text={<Line>Hinge is the exception. It was built around intent instead of volume, and its revenue grew 22% last quarter.</Line>}>
+            {/* the same quarter a year apart: the second bar rises by 22% */}
+            <R d={0.2}><div className="il-grow" data-play><span /><span><b><em>+22%</em></b></span></div></R>
+          </Row>
+          <Line>Hinge’s founder decided the format itself was the problem. He left to build Overtone, an app with no swiping.</Line>
+        </div>
+      </section>
+
+      {/* why now: ISO's answer */}
+      <section className="il-sec il-dark il-answer">
+        <div className="il-glow" />
+        <div className="il-wrap il-center il-stack">
+          <Line>ISO starts from the same conclusion.</Line>
+          <Line>Until this conversation ends, there is nobody else to talk to, so the next step is to meet.</Line>
+        </div>
+      </section>
+
+      {/* the redesign: orange everywhere, then color only where someone is live */}
       <section className="il-sec il-dark il-swap">
         <div className="il-wrap">
-          <Row text={<><Line>The first version of ISO was orange.</Line><Line className="c2" d={0.3}>It worked, but every screen was loud.</Line></>}>
+          <Row text={<Line>The first version of ISO was orange on every screen.</Line>}>
             <R d={0.2}><Phone src={oldHome} /></R>
           </Row>
         </div>
@@ -214,56 +182,13 @@ export default function IsoLight() {
       <section className="il-sec il-swap-new">
         <div className="il-glow" />
         <div className="il-wrap">
-          <Row flip text={<><Line>The redesign starts from white and ink.</Line><Line className="c2" d={0.3}>Color only shows up where someone is live.</Line></>}>
+          <Row flip text={<Line>The redesign is white and black. Color only appears as light, like the glowing dot beside the number of people online.</Line>}>
             <R d={0.2}><Phone src={shHome} /></R>
           </Row>
         </div>
       </section>
 
-      {/* the light: dot, ring, rings, green */}
-      <section className="il-sec il-light">
-        <div className="il-wrap il-light-grid">
-          <div className="il-light-item">
-            <R className="il-light-vis"><div className="il-pdot" /></R>
-            <Line d={0.15}>The dot means a person is online right now.</Line>
-          </div>
-          <div className="il-light-item">
-            <R className="il-light-vis">
-              <div className="il-ring" data-act>
-                <svg viewBox="0 0 230 230">
-                  <defs><linearGradient id="ilg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#FF8A3D" /><stop offset=".3" stopColor="#FF5BA8" /><stop offset=".55" stopColor="#B86BFF" /><stop offset=".8" stopColor="#5A9BFF" /><stop offset="1" stopColor="#3FDCD2" /></linearGradient></defs>
-                  <circle cx="115" cy="115" r="104" fill="none" stroke="#E7E7EA" strokeWidth="7" />
-                  <circle className="arc" cx="115" cy="115" r="104" fill="none" stroke="url(#ilg)" strokeWidth="7" strokeLinecap="round" strokeDasharray={String(RING)} style={{ '--drain': (RING * 0.7).toFixed(1) } as CSS} />
-                </svg>
-              </div>
-            </R>
-            <Line d={0.15}>The ring shows whose turn it is. It never turns red, and it never ends the chat for you.</Line>
-          </div>
-          <div className="il-light-item">
-            <R className="il-light-vis">
-              <div className="il-ripples"><div className="il-ripple" /><div className="il-ripple" /><div className="il-ripple" /><img className="av" src={PAUL} alt="" /></div>
-            </R>
-            <Line d={0.15}>While ISO looks for someone, rings spread out from your photo.</Line>
-          </div>
-          <div className="il-light-item">
-            <R className="il-light-vis"><div className="il-pair"><img src={PAUL} alt="" /><img src={MAYA} alt="" /><span className="yes" /></div></R>
-            <Line d={0.15}>Green shows up once, when you both say yes.</Line>
-          </div>
-        </div>
-      </section>
-
-      {/* figma */}
-      <section className="il-sec il-figma">
-        <div className="il-wrap"><Line>Every screen started in a Figma file.</Line></div>
-        <R className="il-strip"><img src={figmaRow} alt="The core flow in Figma" /></R>
-        <div className="il-wrap">
-          <Row text={<Line>Built all 64 screens using Figma MCP, on shared colors, type and components.</Line>}>
-            <R d={0.2} className="il-comps"><img src={figmaComps} alt="The component library in Figma" /></R>
-          </Row>
-        </div>
-      </section>
-
-      {/* the loop */}
+      {/* the loop, one screen per step */}
       <section className="il-sec il-loop">
         <div className="il-wrap il-stack">
           {LOOP.map((s, i) => (
@@ -277,110 +202,38 @@ export default function IsoLight() {
       {/* one at a time */}
       <section className="il-sec il-dark il-gate">
         <div className="il-wrap">
-          <Row text={<Line>While you are talking with Maya, the queue stays closed. You can meet someone new after this conversation ends.</Line>}>
+          <Row text={<Line>While you are talking with Maya, the queue stays closed. It opens again when the conversation ends.</Line>}>
             <R d={0.2}><Phone src={shInconvo} /></R>
           </Row>
         </div>
       </section>
 
-      {/* hold a moment */}
+      {/* hold a moment, then Memories and the hours */}
       <section className="il-sec il-hold">
         <div className="il-wrap il-stack">
           {[
-            { src: shRoom, z: 1.05, oy: 0, line: 'ISO does not save your conversations.' },
-            { src: shSelect, z: 1.45, oy: 16, line: 'Long-press a message, then tap where the good part ends.' },
-            { src: shFeel, z: 1.3, oy: 14, line: 'Then pick a word for how it felt.' },
-            { src: shMoment, z: 1.18, oy: 6, line: 'Their words stay and their name becomes an initial. If either of you blocks the other, the moment is deleted.' },
+            { src: shSelect, line: 'ISO does not save your chats. To keep part of one, long-press a message and tap where the good part ends.' },
+            { src: shFeel, line: 'Then pick the words for how it felt, and add a line for later if you want.' },
+            { src: shMoment, line: 'The moment keeps their words and shows only their initial. If either of you blocks the other, it is deleted.' },
+            { src: shMemories, line: 'Memories is private to you. It shows this week’s conversations and the moments you kept.' },
+            { src: shSchedule, line: 'ISO opens at set hours, the same for everyone, so the people looking are online together.' },
           ].map((h, i) => (
             <Row key={i} flip={i % 2 === 1} text={<Line>{h.line}</Line>}>
-              <R d={0.15} className="lens"><img src={h.src} alt="" style={{ '--z': h.z, '--oy': `${-h.oy}%` } as CSS} /></R>
+              <R d={0.15}><Phone src={h.src} /></R>
             </Row>
           ))}
         </div>
       </section>
 
-      {/* memories */}
-      <section className="il-sec il-mem">
-        <div className="il-wrap">
-          <Row text={<div className="il-stack-s"><Line>Memories keeps the conversations you had and the moments you chose to hold.</Line><Line d={0.4}>Big words in grey tiles. Nothing is color coded, and nobody gets a score.</Line></div>}>
-            <div className="il-bento">
-              {[
-                { cls: 'full hl', fx: '-24px', fy: '-18px', fr: '-2deg', s: 'Tonight', b: 'What’s the last thing that made you laugh out loud?', e: 'M.  ·  14 min  ·  kept talking' },
-                { cls: '', fx: '-30px', fy: '14px', fr: '2deg', s: 'This week', b: '4', xl: true, e: 'conversations' },
-                { cls: '', fx: '30px', fy: '16px', fr: '-2deg', s: 'Mostly', b: 'Laughed.', e: 'How it’s felt' },
-                { cls: 'full', fx: '18px', fy: '26px', fr: '1.5deg', s: 'Held  ·  9:02 PM', b: '“Honestly? My roommate trying to parallel park for eleven minutes.”', e: 'M.  ·  Laughed, butterflies' },
-              ].map((t, i) => (
-                <div key={i} className={'il-tile ' + t.cls} data-r style={{ '--fx': t.fx, '--fy': t.fy, '--fr': t.fr, '--dl': `${0.15 + i * 0.12}s` } as CSS}>
-                  <small>{t.s}</small><b className={t.xl ? 'xl' : ''}>{t.b}</b><em>{t.e}</em>
-                </div>
-              ))}
-            </div>
-          </Row>
+      {/* how it was made */}
+      <section className="il-sec il-figma">
+        <div className="il-wrap il-stack-s">
+          <Line>I redesigned ISO over eight days in October 2026, with Claude assisting my workflow so I could prototype and iterate faster.</Line>
+          <Line d={0.2}>I built all 64 screens in Figma using Figma MCP, on shared colors, type and components.</Line>
         </div>
-      </section>
-
-      {/* ISO Live */}
-      <section className="il-sec il-live">
-        <LiveClock />
-        <div className="il-wrap il-center il-stack">
-          <Line>ISO only opens at set hours.</Line>
-          <Line>Everyone looking is looking at once, so the first match comes fast.</Line>
-          <Line>Thursday Late runs until 2 am. Slow Sunday opens in the afternoon.</Line>
-        </div>
-      </section>
-
-      {/* what changed in review */}
-      <section className="il-sec il-rev">
-        <div className="il-wrap il-stack">
-          <Line>Four things changed after I reviewed them.</Line>
-          <div className="il-rv il-rv-s" data-act>
-            <Row text={<R><p className="il-line">I renamed <span className="il-strike">Journal</span> back to Memories.</p></R>}>
-              <R d={0.2}>
-                <div className="il-word">
-                  <span className="old">Journal</span>
-                  <span className="new">Memories</span>
-                </div>
-              </R>
-            </Row>
-          </div>
-          <div className="il-rv il-rv-gh" data-act>
-            <Row flip text={<Line>The gradient header was too strong, so it became one thin line of light.</Line>}>
-              <R d={0.2}><div className="il-gheader"><div className="band" /><div className="ttl">Memories</div><div className="acc" /><div className="row" /><div className="row" /></div></R>
-            </Row>
-          </div>
-          <div className="il-rv il-rv-gr" data-act>
-            <Row text={<Line>A color for every feeling looked like a template, so feelings became big words in grey tiles.</Line>}>
-              <R d={0.2}>
-                <div className="il-cards2">
-                  {[['#F5B83D', 'Laughed', '“The whole street clapped when she finally got it.”'], ['#FF5BA8', 'Seen', '“You don’t have to have it figured out.”'], ['#2FCFC4', 'Calm', '“Let’s just talk about sandwiches.”']].map(([c, f, q]) => (
-                    <div key={f} className="cc" style={{ '--rail': c } as CSS}><small><span className="dt" />{f}</small><b>{q}</b></div>
-                  ))}
-                </div>
-              </R>
-            </Row>
-          </div>
-          <div className="il-rv il-rv-fz" data-act>
-            <Row flip text={<Line>In the film, the phone frame fades out and the app fills the screen.</Line>}>
-              <R d={0.2}><div className="il-frame-demo"><Phone src={shFeel} className="ph" /></div></R>
-            </Row>
-          </div>
-        </div>
-      </section>
-
-      {/* how it was built */}
-      <section className="il-sec il-dark il-made">
-        <div className="il-wrap">
-          <Line>Claude assisted my workflow, so I could prototype and iterate faster.</Line>
-          <div className="il-made-list">
-            {[
-              ['Figma', 'Built all 64 screens, the color and type variables and the components using Figma MCP.'],
-              ['Prototype', 'A coded prototype, with a tour that drives the real screens instead of a recording.'],
-              ['Film', 'Rendered frame by frame from that prototype, with a camera that follows the finger.'],
-              ['Direction', 'I set the direction, made the calls, and cut anything that read as template work.'],
-            ].map(([k, v], i) => (
-              <R key={k} d={0.1 + i * 0.12} className="il-made-row"><b>{k}</b><span>{v}</span></R>
-            ))}
-          </div>
+        <R className="il-strip"><img src={figmaRow} alt="The core flow in Figma" /></R>
+        <div className="il-wrap il-comps-wrap">
+          <R className="il-comps"><img src={figmaComps} alt="The component library in Figma" /></R>
         </div>
       </section>
 
@@ -398,7 +251,7 @@ export default function IsoLight() {
           <p>
             {see === 'watch' && 'It plays itself. A finger types, taps and long-presses through the real screens, with a caption for each step.'}
             {see === 'try' && 'Nothing plays on its own. Type the email and code yourself and send your own messages. Maya answers from her script.'}
-            {see === 'film' && 'A fast cut of every feature, filmed from the prototype. Partway through, the camera goes inside the app.'}
+            {see === 'film' && 'A film of every feature, recorded from the prototype.'}
           </p>
           <div className="il-links">
             <a href={`${PROTO}?mode=${see === 'film' ? 'watch' : see}`} target="_blank" rel="noreferrer">Open it full screen ↗</a>
@@ -419,8 +272,7 @@ export default function IsoLight() {
         <div className="il-glow" />
         <R><img className="il-out-mark" src={mark} alt="ISO" /></R>
         <div className="il-out-line">
-          <Line>One conversation at a time.</Line>
-          <R d={0.3} className="il-links">
+          <R d={0.2} className="il-links">
             <Link to="/work/iso-redesign/brand">The brand</Link>
             <Link to="/work/iso-redesign/process">How it was made</Link>
             <a href={`${PROTO}?mode=watch`} target="_blank" rel="noreferrer">Watch the prototype ↗</a>
