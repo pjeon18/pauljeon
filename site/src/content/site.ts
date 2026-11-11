@@ -624,11 +624,7 @@ export const caseStudies: Record<string, CaseStudy> = {
       { label: 'The economy doc', href: 'https://github.com/pjeon18/studdy/blob/main/docs/ECONOMY.md' },
     ],
     image: studdyHero,
-    stats: [
-      { value: '25/5', label: 'one sprint clock, shared by every café in the world' },
-      { value: '1:1', label: 'one focused minute, one bean — there is no other way to earn' },
-      { value: '2', label: 'field testers — every break they found shipped a fix the same day' },
-    ],
+    stats: [],
     sections: [
       {
         heading: 'Everyone already studies with strangers',
@@ -679,11 +675,7 @@ export const caseStudies: Record<string, CaseStudy> = {
       { label: 'GitHub repository', href: 'https://github.com/pjeon18/prep-io' },
     ],
     image: prepioCard,
-    stats: [
-      { value: '6', label: 'versions, and the current one is live' },
-      { value: '0', label: 'live numbers typed in by hand. Viewers, chat and votes are all simulated' },
-      { value: '15px', label: 'is the smallest text anywhere in the app' },
-    ],
+    stats: [],
     sections: [
       {
         heading: 'The gap',

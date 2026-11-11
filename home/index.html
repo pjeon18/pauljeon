@@ -109,6 +109,12 @@
   html.l-editorial .grid .card .slot { aspect-ratio:auto; height:clamp(320px, 31vw, 620px); }
   html.l-editorial .grid .card.small { grid-column:span 4; }
   html.l-editorial .grid .card.small .slot { height:clamp(220px, 19vw, 380px); }
+  /* phones: one tile per row, every tile the same full width */
+  @media (max-width:820px) {
+    html.l-editorial .grid { grid-template-columns:1fr; row-gap:6vh; }
+    html.l-editorial .grid .card.w8, html.l-editorial .grid .card.w4, html.l-editorial .grid .card.small, html.l-editorial .grid .card.w12 { grid-column:1 / -1; }
+    html.l-editorial .grid .card .slot, html.l-editorial .grid .card.small .slot { height:min(118vw, 520px); }
+  }
   /* the top bar sits on a soft white so the tiles pass under it cleanly */
   .nav::before { content:''; position:fixed; left:0; right:0; top:0; height:64px; z-index:-1; background:linear-gradient(#fff 55%, rgba(255,255,255,0)); pointer-events:none; }
   .grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); column-gap:1.6vw; row-gap:5vh; }
@@ -153,7 +159,7 @@
   <div class="now out" id="now"><span class="row"><span class="t" id="nowT"></span></span><span class="row"><span class="m" id="nowM"></span></span></div>
 <script src="data.js"></script>
 <script src="cs.js"></script>
-<script src="detail2.js?v=10"></script>
+<script src="detail2.js?v=16"></script>
 <script>
 const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the colour, the kind of work
   'core-zone': ['m/core-zone-thumb.webp', 'm/core-zone-loop.mp4', '#E8202F', 'Game'],
@@ -181,7 +187,7 @@ const BRIEF = {
   tracker: ['In the Mac sound menu, connected and playing look the same.', 'Tracker draws each app as a cable plugged into the device it plays on. Moving Zoom to the speaker is one drag, and an unplugged cable pauses its app.', 'Built on a real cable simulation, with a cyberdeck edition.'],
   iso: ['Most dating apps are built around many conversations at once.', 'ISO allows one live conversation at a time, and you only keep talking if you both say yes.', 'I wrote the PRD, built the design system, and shipped the working prototype, 31 screens.'],
   studdy: ['People already study with strangers: study-with-me videos, lofi radio, Discord voice rooms.', 'Studdy is a multiplayer study café. Real people, one shared 25/5 clock, and a room you furnish with focused minutes.', 'Product, design and engineering, solo. Shipped with real auth, live presence, and a server-verified economy, then field-tested.'],
-  prepio: ['Career advice online sits at two extremes: recorded content anyone can make, and booked one-on-ones few people can get.', 'On Prep.io, recruiters and people who do the job go live, and anyone job hunting can walk in and ask a question.', 'Product, design and engineering, solo, iterated through six versions from the PRD to the live prototype.'],
+  prepio: ['People job hunting rarely get to ask someone who does the job. Recorded advice can’t answer their question, and a booked one-on-one costs money and assumes they already know what to ask.', 'Prep.io is a live streaming platform where recruiters and employees host sessions for people who are actively job hunting. Viewers watch for free, raise a hand to ask their own question, and get personal feedback from a real person in the hot seat.', 'Hosts are paid for their time through private breakouts and tips, so giving advice is worth their evening.', 'Product, design and engineering, solo, through six versions from the PRD to the live prototype.'],
   'the-dot': ['On this site’s old homepage, a dot walked first-time visitors around the page.', 'The Dot turns it into onboarding with no buttons. Red while it moves, black while it waits on you, green when you can go.', 'It teaches its own rules on the first screen and leaves a trail you can tap to go back. Tested against Duolingo’s five questions, side by side.'],
   pokemaps: ['A daily puzzle: guess the Pokémon in-game location from a series of clues.', 'Five region packs, 373 locations, a new one every day.'],
   lila: ['Building the account-intelligence system behind enterprise sales for AI-driven science.', 'A named-account universe, citation-backed enrichment, and fit and timing scores written into Salesforce.'],
@@ -211,7 +217,27 @@ const MOMENTS = {
   pickup: [['Onboarding', 'm/pickup/onboarding'], ['Asking for a ride', 'm/pickup/ask'], ['Planning the drive', 'm/pickup/plan'],
     ['Driving', 'm/pickup/driving'], ['Waiting for a rider', 'm/pickup/door'], ['Waiting for a ride', 'm/pickup/ride']],
 }
-WORK.forEach(it => { const [thumb, , acc] = LOOK[it.id]; Object.assign(it, { tile: thumb, kind: 'cover', acc, tint: tint(acc), short: SHORT[it.id], live: LIVE[it.id], brief: BRIEF[it.id], moments: MOMENTS[it.id] }) })
+// story: the problem, how the product answers it, and the designs, told in beats before the moments
+// (copy only from the project's brief and logged decisions; screens are the Figma frames)
+const STORY = {
+  pickup: {
+    logo: 'm/pickup/icon.svg',
+    before: [
+      { say: ['When friends share a ride, one person ends up running it.', 'The driver texts at every stop, calls whoever isn’t outside yet, and waits at the curb. Riders don’t know where they are in the order, so they start getting ready late.'] },
+      { say: ['Anyone in the group can say they’re driving, or ask for a ride.', 'Up to two cars can be out at once. On an open drive, friends ask for a seat and the driver approves each one.'], shots: ['g2-home', 'p2-open'] },
+      { say: ['The driver gets a time for every stop. Each rider gets a time to be outside.', 'Both of them watch the car on the map. In the last minute, the rider’s map zooms in to their own pin.'], shots: ['p3-driver', 'r3-rider', 'r4-closing'] },
+      { say: ['Every stop posts to the group chat, with how long the driver waited.', 'The app’s updates are flat cards, so they never look like a friend’s message. A wait longer than the driver’s limit turns red.'], shots: ['c1-chat'] },
+      { say: ['You set your own wait time when you sign up.', 'It becomes the limit at every door on drives you lead. Sign-up only asks for what changes a run: your pickup spot, your wait time, location and notifications.'], shots: ['o5-wait', 'o6-location', 'o7-live'] },
+      { say: ['Stats ranks who drives the most, and who is late the most.', 'I made the leaderboard public on purpose, because who drove and who held everyone up is the point of it. If a real group finds it starts fights, each person gets a switch to hide their own row.'], shots: ['s1-stats'] },
+      { say: ['Blue fills the screen only while a car is on its way.', 'The welcome, a live run and the arrival are the only blue screens. Everything else stays white, so you can tell at a glance when something is happening.'], shots: ['o0-welcome', 'r5-arrived'] },
+    ].map(b => ({ ...b, shots: (b.shots || []).map(s => 'm/pickup/figma/' + s + '.webp') })),
+    moments: 'The real prototype, one loop per moment.',
+    after: [
+      { say: ['Every screen was designed in Figma first.', 'Sixteen screens cover both seats, from first launch to the arrival.'], wide: ['m/pickup/figma/board.webp'] },
+    ],
+  },
+}
+WORK.forEach(it => { const [thumb, , acc] = LOOK[it.id]; Object.assign(it, { tile: thumb, kind: 'cover', acc, tint: tint(acc), short: SHORT[it.id], live: LIVE[it.id], brief: BRIEF[it.id], moments: MOMENTS[it.id], story: STORY[it.id] }) })
 const jobs = meta
 ROLES.forEach(([id, role, org, yr]) => jobs.insertAdjacentHTML('beforeend', `<span class="${id ? 'v' : 'p'}"${id ? ` data-id="${id}"` : ''}><b>${org}</b><span class="k">${role}</span>${yr ? `<i>${yr}</i>` : ''}</span>`))
 jobs.querySelectorAll('.v[data-id]').forEach(v => v.onclick = () => { if (Chapter.isOpen()) return; const it = WORK.find(w => w.id === v.dataset.id); Chapter.open(it, v, { targetRect: () => v.getBoundingClientRect(), nextItem: () => null, next: nxt => { const j = PROJ.indexOf(nxt); if (j >= 0) { tx = clamp(centreOf(j)); setTimeout(() => openCard(j), 750) } } }) })

@@ -9,8 +9,8 @@ import LiveEmbed from './LiveEmbed'
 import { consumeArrival } from '../lib/arrival'
 import '../styles/studdy-mag.css'
 import {
-  Band, Beats, BigList, Chapter, ChartBeats, Duo, LightUp, Ledger, More, PersonaSwitch,
-  Reveal, Say, Sequence, Shots, StackCards, StatScreens, StoryChrome, WideImg,
+  Band, Beats, BigList, Chapter, ChartBeats, Duo, PersonaSwitch,
+  Reveal, Say, Sequence, StatScreens, StoryChrome, WideImg,
 } from './story/Story'
 
 import heroImg from '../assets/studdy-hero.webp'
@@ -22,8 +22,6 @@ import texlabImg from '../assets/studdy-texlab.webp'
 import roomlabImg from '../assets/studdy-roomlab.webp'
 import badLightImg from '../assets/studdy-bad-light.webp'
 import badRetroImg from '../assets/studdy-bad-retro.webp'
-import bugCatImg from '../assets/studdy-bug-cat.webp'
-import bugGhostImg from '../assets/studdy-bug-ghost.webp'
 import charBeret from '../assets/studdy-char-beret.webp'
 import charCatears from '../assets/studdy-char-catears.webp'
 import charPlain from '../assets/studdy-char-plain.webp'
@@ -107,55 +105,6 @@ function MarketMap() {
   )
 }
 
-// Chart 2, Studdy's own interface graded on focus and company.
-function DecisionMap() {
-  const dots: { x: number; y: number; label: string; risk?: boolean; end?: boolean }[] = [
-    { x: 88, y: 88, label: 'shared 25/5 clock', end: true },
-    { x: 82, y: 64, label: 'chat only at breaks', end: true },
-    { x: 62, y: 76, label: 'napkin status' },
-    { x: 74, y: 40, label: 'headphones mean do-not-disturb', end: true },
-    { x: 52, y: 93, label: 'name tags over heads', end: true },
-    { x: 42, y: 66, label: 'guestbook doodles', end: true },
-    { x: 30, y: 82, label: 'friend-is-studying banner', risk: true },
-    { x: 24, y: 32, label: 'xp leaderboard', risk: true },
-    { x: 66, y: 20, label: 'streaks that pause' },
-    { x: 52, y: 52, label: 'lofi radio per café' },
-    { x: 40, y: 12, label: 'furniture and wardrobe', end: true },
-  ]
-  const pos = (d: { x: number; y: number }) => [70 + (d.x / 100) * 540, 20 + ((100 - d.y) / 100) * 380]
-  return (
-    <svg viewBox="0 0 640 460" role="img" aria-label="Studdy interface decisions graded on supporting focus and adding company">
-      <line className="cb-ax" data-beat="0" x1="70" y1="210" x2="610" y2="210" stroke="#E2DDD3" />
-      <line className="cb-ax" data-beat="0" x1="340" y1="20" x2="340" y2="400" stroke="#E2DDD3" />
-      <line className="cb-ax" data-beat="0" x1="70" y1="400" x2="610" y2="400" stroke="#141210" strokeWidth="1.5" />
-      <line className="cb-ax" data-beat="0" x1="70" y1="400" x2="70" y2="20" stroke="#141210" strokeWidth="1.5" />
-      <g data-beat="0">
-        <text x="72" y="428" fontSize="15" fill="#6E675D">hurts focus</text>
-        <text x="608" y="428" fontSize="15" fill="#141210" textAnchor="end" fontWeight="700">supports focus</text>
-        <text x="54" y="398" fontSize="15" fill="#6E675D" transform="rotate(-90 54 398)">works alone</text>
-        <text x="54" y="150" fontSize="15" fill="#141210" fontWeight="700" transform="rotate(-90 54 150)">adds company</text>
-      </g>
-      {dots.map((d) => {
-        const [cx, cy] = pos(d)
-        return (
-          <g key={d.label} className="cb-pop" data-beat={d.risk ? 2 : 1}>
-            {d.risk
-              ? <circle cx={cx} cy={cy} r="7" fill="#FDFDFB" stroke="#FF7A9E" strokeWidth="2.5" />
-              : <circle cx={cx} cy={cy} r="7" fill="#141210" />}
-            <text x={d.end ? cx - 15 : cx + 15} y={cy + 5} textAnchor={d.end ? 'end' : 'start'} fontSize="14.5" fontWeight="700" fill={d.risk ? '#D9527E' : '#141210'}>{d.label}</text>
-          </g>
-        )
-      })}
-      {dots.filter((d) => d.risk).map((d) => {
-        const [cx, cy] = pos(d)
-        return <circle key={`r${d.label}`} className="cb-pop" data-beat="3" cx={cx} cy={cy} r="17" fill="none" stroke="#FF7A9E" strokeWidth="1.5" strokeDasharray="3 4" />
-      })}
-    </svg>
-  )
-}
-
-// ---------------------------------------------------------------------------
-
 const REFS = [
   { img: refLofigirl, name: 'Lofi Girl', stat: '15.8M subscribers', line: 'One illustrated girl, studying forever. About 100k people listening at any hour.' },
   { img: refStudywithme, name: 'Study with me', stat: 'millions of views a video', line: 'Two silent hours of a stranger at a desk. Born in Korea as gongbang.' },
@@ -198,31 +147,6 @@ function RefCarousel() {
     </div>
   )
 }
-
-function PriorityMatrix() {
-  const Q = [
-    { cls: 'q-blue', name: 'Shipped first', items: ['shared clock', 'napkin status', 'headphones as do-not-disturb', 'streak pausing', 'name tags'] },
-    { cls: 'q-green', name: 'The big bets', items: ['realtime presence', 'server-verified economy', 'clubs and clubhouse', 'lofi radio'] },
-    { cls: 'q-purple', name: 'Nice to have', items: ['tag charms', 'guestbook doodles', 'warm and cool bulbs'] },
-    { cls: 'q-yellow', name: 'Declined or deferred', items: ['retro toggle, shipped then killed', 'room extension, later', 'voice chat, never'] },
-  ]
-  return (
-    <Reveal className="sm-matrix st-matrix-sm">
-      <div className="sm-matrix-y"><span>High value</span><span>Low value</span></div>
-      <div className="sm-matrix-grid">
-        {Q.map((q) => (
-          <div className={'sm-quad ' + q.cls} key={q.name}>
-            <div className="sm-quad-name">{q.name}</div>
-            <div className="sm-quad-chips">{q.items.map((it) => <span key={it}>{it}</span>)}</div>
-          </div>
-        ))}
-      </div>
-      <div className="sm-matrix-x"><span>Low effort</span><span>High effort</span></div>
-    </Reveal>
-  )
-}
-
-// ---------------------------------------------------------------------------
 
 export default function StuddyMag() {
   const root = useReveals()
@@ -304,7 +228,6 @@ export default function StuddyMag() {
       ]}>
         <MarketMap />
       </ChartBeats>
-      <LightUp text="The streams never know you exist. The Discord is a black window full of names. Nobody was building mutual presence at ambient pressure." accent="mutual presence at ambient pressure" />
       <Duo frame="desktop" side="right" img={refRoblox} alt="An avatar platform's home page" lines={[
         { text: 'The generation that grew up inside avatar worlds is aging into exams and theses.', size: 'l' },
         { text: 'On the biggest platform, 44% of daily users are now past 17.' },
@@ -330,20 +253,12 @@ export default function StuddyMag() {
         ]} />
         <Say size="xl" align="center" tone="acc">A little café you own, where real people come to study, and the only thing anyone can do to each other is be there.</Say>
       </Band>
-      <div className="st-sp" />
-      <StackCards cards={[
-        { n: '1', title: 'Company without performance', body: 'Being there is all anyone has to do. No followers, no camera, nothing to keep up.', bg: '#FFE9F0', fg: '#17150F', num: '#D9527E' },
-        { n: '2', title: 'A place, not an app', body: 'You walk in a door and take a seat. Someone’s radio is playing.', bg: '#E3F0FA', fg: '#17150F', num: '#3A6EA5', variant: 'big' },
-        { n: '3', title: 'Low stakes, on purpose', body: 'Soft blocky art, warm colors and a cat. Looking like a toy lets it feel gentle.', bg: '#17150F', fg: '#FBE7EE', num: '#FF7A9E', variant: 'flip' },
-      ]} />
-
       {/* ---------------- 04 day one ---------------- */}
       <Chapter n="04" title="The first prototype" name="Day one" />
       <WideImg src={v0Img} alt="The first committed build of Studdy, a gray empty room" />
       <Beats lines={[
-        { text: 'The first version had to prove a fixed camera angle could still feel alive, and that a browser could draw a furnished room smoothly.' },
-        { text: 'It got the walls, the lighting and the font wrong.', align: 'indent' },
-        { text: 'It did not look cheap. It looked like nobody lived there.', size: 'xl', align: 'right', tone: 'acc' },
+        { text: 'The first build was a gray, empty room. It proved a fixed camera angle could still feel alive and that a browser could draw a furnished room smoothly.' },
+        { text: 'The walls, the lighting and the font all had to change before anyone wanted to sit in it.', align: 'indent' },
       ]} />
 
       {/* ---------------- 05 avatar ---------------- */}
@@ -378,7 +293,6 @@ export default function StuddyMag() {
       <div className="st-sp" />
       <Beats lines={[
         { text: 'The trick comes from pixel artists. Instead of darkening a shadow, change its color.', size: 'xl', align: 'right' },
-        { text: 'The palette stopped being muddy the day the shadows stopped being gray.' },
       ]} />
       <WideImg src={roomlabImg} alt="The room lab, the chosen treatment on a full café" />
       <Duo frame="desktop" img={badRetroImg} alt="The removed retro mode, heavily pixelated" lines={[
@@ -395,81 +309,10 @@ export default function StuddyMag() {
           { text: '“Now it’s way too strong.” Every time of day got its own brightness curve.' },
           { text: 'Then the details. Lamp light that pools softly, shades that never color the light, and a warm or cool bulb for each café.', tone: 'acc' },
         ]} />
-        <Say size="xl" align="center">The first fix lit the room evenly and made it look flat. Even light was never the goal.</Say>
       </Band>
 
-      {/* ---------------- 08 trust ---------------- */}
-      <Chapter n="08" title="Designing trust, honor versus proof" name="Trust" />
-      <Beats lines={[
-        { text: 'Focused minutes are the only currency, so the first question was what stops someone from lying.', size: 'xl' },
-        { text: 'Anything private runs on honor. Your beans, your napkin, your streak.', align: 'indent' },
-        { text: 'Anything other people can see is only counted by the server, which checks in every minute and never credits more time than has passed.' },
-        { text: 'If you want to lie to a pixel cat, that is between you and the cat.', align: 'right', tone: 'acc' },
-      ]} />
-      <Sequence lines={[
-        { text: 'In week one, a tester closed her laptop mid-session and woke up rich.', size: 'xl' },
-        { text: 'Should the app trust idle time, pause the clock, or stand you up from your seat?', align: 'indent' },
-        { text: 'All three, in their kindest forms. The clock only counts while the app is awake.' },
-        { text: '“You drifted off. We tucked your chair in.”', size: 'xl', align: 'right', tone: 'acc' },
-      ]} />
-      <More summary="How the server draws the line">
-        <ul>
-          <li>Row-level security on every table. Café docs, notes and friendships are all scoped by policy.</li>
-          <li>The ranked columns, XP and café stars, are writable by <b>no client at all</b>. Server functions grant them from session heartbeats.</li>
-          <li>Heartbeats credit real elapsed time, capped at 90 seconds a beat, 6 hours a sitting and 16 hours a day.</li>
-          <li>The club bonus while a clubmate studies is computed on the server from live sessions too.</li>
-          <li>Rate limits live in policies. One study-log row per 8 minutes, 3 gifts a day, 5 reports a day.</li>
-        </ul>
-      </More>
-      <More summary="Retention, tested against one question">
-        <ul>
-          <li>Does this still respect the user on their worst day?</li>
-          <li><b>Streaks pause.</b> Miss a day and the count keeps. Only a second missed day resets it, and nothing turns red.</li>
-          <li><b>Goals run on honor</b> but can only be claimed the next day, which stops impulse claiming without policing anyone.</li>
-          <li><b>One interruption exists,</b> the friend-is-studying banner. One tap to join, one tap to snooze for half an hour.</li>
-          <li><b>The weekly recap is a postcard,</b> not a report card.</li>
-        </ul>
-      </More>
-
-      {/* ---------------- 09 the loop ---------------- */}
-      <Chapter n="09" title="How every change shipped" name="The loop" />
-      <BigList items={[
-        { head: 'Lab first', line: 'Risky visuals were prototyped on a separate page, never in the live game.' },
-        { head: 'Ship small', line: 'Same-day deploys to production, with two real users on the other end.' },
-        { head: 'Daily use', line: 'They studied in it daily and described problems by how things felt, not in technical terms.' },
-        { head: 'Fix same day', line: 'Every break they found had a fix before their next session.' },
-      ]} />
-      <div className="st-sp" />
-      <Say size="l">The actual ledger. Their words, what shipped, and what it taught.</Say>
-      <Ledger tone="band" items={[
-        { title: '“When you sit, you sink into the chair.”', fix: 'Sitting now lines up with the top of the cushion, and every seat was adjusted to fit the character.', lesson: 'Users describe how something looks wrong. The fix is finding which number is off.' },
-        { title: '“It should have usernames over heads, like Minecraft.”', fix: 'Floating name tags with level badges. Custom tag colors went on sale, and people used them to stand out.', lesson: 'The need was to be seen, not to copy Minecraft.' },
-        { title: '“The room gets darker toward the corners.”', fix: 'One ceiling light became a grid of lamps, balanced so five lamps are not five times as bright as one.', lesson: 'Even light and bright light are different requests. It took three rounds to get right.' },
-        { title: '“There are two of me on my screen.”', fix: 'The app now tracks people by account instead of by connection, and a reload signs out the old copy first.', lesson: 'A syncing bug looks like a ghost to the person seeing it.' },
-        { title: '“She redecorated but I still see her old room.”', fix: 'A security update had quietly stopped room changes from saving. Rooms now also refresh every 20 seconds while you are in them.', lesson: 'Every database change needs testing from the player’s side.' },
-        { title: '“Our laptops get hot and the battery drains fast.”', fix: 'It now asks for the power-saving graphics chip and slows to 30 frames a second when you are idle, back to full speed the moment you touch anything.', lesson: 'A calm game should not use as much power as an action game.' },
-        { title: '“I’m level 21 with 1,800 beans and there’s nothing left to do.”', fix: 'Animated showpieces, a wardrobe, and a written plan for how every price is set.', lesson: 'When your most active player runs out of things to do, give them new things to want, not bigger numbers.' },
-      ]} />
-      <Shots frame="desktop" items={[
-        { img: bugGhostImg, alt: 'Two identical characters standing in a café', cap: 'Reconstructed. A reload gave the same person a second body.' },
-        { img: bugCatImg, alt: 'The café cat stretched into a tall gray tower', cap: 'The day the cat’s breathing animation overwrote its scale.' },
-      ]} />
-
-      {/* ---------------- 10 audit ---------------- */}
-      <Chapter n="10" title="Grading the interface" name="Audit" />
-      <ChartBeats wide beats={[
-        'Two questions grade every feature. Does it support focus, and does it add company?',
-        'Most of what shipped lands top right, and it held up in daily use.',
-        'Two features sit near the edge. The leaderboard and the friend banner.',
-        'The leaderboard shows hours, not who is better. The banner is the only interruption, and it can be snoozed.',
-      ]}>
-        <DecisionMap />
-      </ChartBeats>
-      <Say size="l">The same features, sorted by value against effort. The bottom right lists what the product said no to.</Say>
-      <PriorityMatrix />
-
-      {/* ---------------- 11 economy ---------------- */}
-      <Chapter n="11" title="Designing the economy" name="Economy" />
+      {/* ---------------- 08 economy ---------------- */}
+      <Chapter n="08" title="Designing the economy" name="Economy" />
       <Say size="xl">One focused minute earns one bean, and every price is set in minutes of study.</Say>
       <BigList items={[
         { head: 'Impulse', line: '8 to 45 beans, minutes of study. Everyday furniture, plants, mugs.' },
@@ -480,8 +323,7 @@ export default function StuddyMag() {
       <Sequence lines={[
         { text: 'Mid-build I priced room edits with escalating costs.', size: 'xl' },
         { text: 'The game handed you a free room, then charged you to keep shaping it.', align: 'indent' },
-        { text: 'I removed it and wrote the rule down so it stays removed.' },
-        { text: 'The shape of your room is part of who you are, and that is never for sale.', size: 'xl', align: 'right', tone: 'acc' },
+        { text: 'I removed it. Moving and rearranging furniture is free, and only new items cost beans.', size: 'xl', align: 'right', tone: 'acc' },
       ]} />
       <Duo frame="desktop" img={shopImg} alt="The atelier tab of the shop" lines={[
         { text: 'The first player to finish the economy hit level 21 with 1,800 beans and nothing left to want.', size: 'l' },
@@ -492,19 +334,8 @@ export default function StuddyMag() {
         { text: 'Purchases only change how things look. Nothing you buy earns faster or ranks higher.', tone: 'acc' },
       ]} />
 
-      {/* ---------------- takeaways ---------------- */}
-      <Band tone="night">
-        <Chapter n="12" title="Where this goes" name="Takeaways" />
-        <Beats gap="l" lines={[
-          { text: 'People who grew up in avatar worlds want a place to be, not another app.', size: 'xl' },
-          { text: 'What brings people back is seeing someone else already studying.', align: 'indent' },
-          { text: 'Streaks that pause and a gentle idle check kept people coming back without shaming them.', size: 'xl', align: 'right' },
-          { text: 'Two real users are enough to find every important fix.', tone: 'acc' },
-        ]} />
-      </Band>
-
       <div className="sm-finale sm-band">
-        <Say size="xxl" align="center" tone="light">Time you actually spent, made visible in a place you actually like.</Say>
+        <Say size="xxl" align="center" tone="light">The café is open. Sit down and study for a sprint.</Say>
         <a className="sm-finale-cta" href="https://pjeon18.github.io/studdy/" target="_blank" rel="noreferrer">
           The café is open → pjeon18.github.io/studdy
         </a>

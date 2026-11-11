@@ -79,6 +79,25 @@
   #ch .fork .go:only-child { grid-column:1 / -1; }
   #ch .credit { margin:9vh 0 0; font:500 14px/1.7 Inter, sans-serif; color:#86868b; }
   #ch .credit a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
+  /* story: the logo big, then beats of two full-size sentences beside the Figma screens they describe */
+  #ch .st-logo { margin-top:12vh; display:flex; align-items:center; justify-content:center; gap:4vw; padding:10vh 5vw; border-radius:28px; background:var(--tint); }
+  #ch .st-logo img { width:min(34vw, 340px); height:auto; display:block; filter:drop-shadow(0 30px 50px rgba(43,75,255,.35)); }
+  #ch .st-logo b { font:700 clamp(56px, 7vw, 120px)/1 Inter, sans-serif; letter-spacing:-.045em; color:#1d1d1f; }
+  #ch .st-beat { margin-top:16vh; }
+  #ch .st-beat p { max-width:900px; margin:0 0 .7em; font:600 clamp(26px, 2.4vw, 38px)/1.2 Inter, sans-serif; letter-spacing:-.025em; color:#1d1d1f; }
+  #ch .st-beat p + p { font-weight:500; color:#1d1d1f; }
+  #ch .st-shots { margin-top:6vh; display:flex; justify-content:center; gap:3vw; padding:7vh 4vw; border-radius:28px; background:var(--tint); }
+  #ch .st-shots img { width:min(26vw, 270px); height:auto; display:block; border-radius:34px; box-shadow:0 0 0 1px rgba(0,0,0,.05), 0 30px 60px -30px rgba(20,30,90,.35); background:#fff; }
+  #ch .st-wide { margin-top:6vh; display:grid; gap:4vh; }
+  #ch .st-wide img { width:100%; height:auto; display:block; border-radius:24px; box-shadow:0 0 0 1px rgba(0,0,0,.05); }
+  #ch .st-cap { margin:16vh 0 0; font:600 clamp(26px, 2.4vw, 38px)/1.2 Inter, sans-serif; letter-spacing:-.025em; color:#1d1d1f; }
+  #ch .st-cap + .moments { margin-top:6vh; }
+  @media (max-width:820px) {
+    #ch .st-logo { flex-direction:column; gap:3vh; padding:7vh 6vw; }
+    #ch .st-logo img { width:46vw; }
+    #ch .st-shots { overflow-x:auto; justify-content:flex-start; gap:16px; padding:5vh 6vw; scroll-snap-type:x mandatory; }
+    #ch .st-shots img { width:62vw; flex:none; scroll-snap-align:center; border-radius:28px; }
+  }
   #ch .moments { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:9vh 3vw; margin-top:12vh; }
   #ch .moments figure { margin:0; display:grid; justify-items:center; gap:22px; }
   #ch .moments .mph { width:min(100%, 300px); aspect-ratio:422 / 876; box-sizing:border-box; padding:4.8%; border-radius:16.5% / 8%; background:#050505; box-shadow:0 0 0 1px #2a2a2c, 0 0 0 2px #77777c, 0 0 0 3px #2c2c2e, 0 40px 70px -40px rgba(0,0,0,.45); }
@@ -86,11 +105,17 @@
   #ch .moments video { display:block; width:100%; height:100%; object-fit:cover; }
   #ch .moments .isl { position:absolute; top:1.7%; left:50%; width:33%; height:3.6%; transform:translateX(-50%); border-radius:99px; background:#000; }
   #ch .moments figcaption { font:600 clamp(17px, 1.3vw, 21px)/1.3 Inter, sans-serif; letter-spacing:-.015em; color:#1d1d1f; text-align:center; }
-  @media (max-width:820px) { #ch .moments { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+  @media (max-width:820px) {
+    #ch .moments { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    #ch .demo { height:78vh; margin-left:-2vw; margin-right:-2vw; border-radius:22px; }
+    #ch .body { padding-left:5vw; padding-right:5vw; }
+  }
   #ch .demo { position:relative; height:86vh; margin-top:10vh; border-radius:28px; overflow:hidden; background:var(--tint); box-shadow:0 30px 70px -45px rgba(0,0,0,.4); }
   #ch .demo iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
   #ch .demo iframe, #ch .full iframe { opacity:0; transition:opacity .7s ease; }
   #ch .demo iframe.ready, #ch .full iframe.ready { opacity:1; }
+  /* until a frame's own touch and wheel handling is attached, touches go to the page, so nothing scrolls inside it unseen */
+  #ch .demo iframe:not(.wired), #ch .full iframe:not(.wired) { pointer-events:none; }
   #ch .full { position:relative; height:100vh; margin:14vh -6vw 0; border-top:1px solid #e8e8ed; background:#fff; }
   #ch .full iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#fff; }
   #ch .body.framed { padding-bottom:0; }
@@ -143,7 +168,13 @@
     if (hooks.heroArt && FILM[it.id]) h += `<div class="filmp"><video class="film2" src="${FILM[it.id]}" playsinline controls preload="metadata"></video></div>`
     // the working prototype, already loaded, before the long read (Queue Blocks and the ISO redesign carry theirs inside the case study)
     // moments: one phone per moment of the product, each a short loop of the real prototype, in place of the embedded prototype
+    const beat = b => `<div class="st-beat">${b.say.map(t => `<p>${esc(t)}</p>`).join('')}</div>` +
+      (b.shots && b.shots.length ? `<div class="st-shots">${b.shots.map(s => `<img src="${s}" alt="" >`).join('')}</div>` : '') +
+      (b.wide ? `<div class="st-wide">${b.wide.map(s => `<img src="${s}" alt="" >`).join('')}</div>` : '')
+    const st = it.story
+    if (st) h += `<div class="st-logo"><img src="${st.logo}" alt="${esc(it.title)} app icon"><b>${esc(it.title)}</b></div>` + st.before.map(beat).join('') + (st.moments && it.moments ? `<p class="st-cap">${esc(st.moments)}</p>` : '')
     if (it.moments) h += `<div class="moments">${it.moments.map(([label, src]) => `<figure><div class="mph"><div class="scr"><video src="${src}.mp4" poster="${src}.webp" muted loop autoplay playsinline preload="metadata"></video><i class="isl"></i></div></div><figcaption>${esc(label)}</figcaption></figure>`).join('')}</div>`
+    if (st && st.after) h += st.after.map(beat).join('')
     const demo = it.live && !it.moments && !['queue-blocks', 'iso-redesign'].includes(it.id) ? it.live : null
     if (demo) h += `<div class="demo"><iframe title="${esc(it.title)} prototype" data-src="${demo}" allow="autoplay; clipboard-write"></iframe></div>`
     if (c && c.stats.length) h += `<div class="stats">${c.stats.map((s, i) => `<div><b>${esc(s.value)}</b>${esc(beats && beats.stats && beats.stats[i] || s.label)}</div>`).join('')}</div>`
@@ -152,7 +183,7 @@
     const opts = (nxt ? `<div class="go" data-act="next"><h3><em>Next</em>${esc(nxt.title)} →</h3></div>` : '') + (slug ? `<div class="go" data-act="deep"><h3><em>Keep scrolling</em>The full case study ↓</h3></div>` : '')
     if (opts) h += `<div class="fork">${opts}</div>`
     if (MUSIC[it.id]) { const [song, url, host] = MUSIC[it.id]; h += `<p class="credit">Music: ${song} | <a href="${url}" target="_blank" rel="noopener">${host}</a><br>Royalty Free Music by <a href="https://www.free-stock-music.com" target="_blank" rel="noopener">free-stock-music.com</a></p>` }
-    if (slug) h += `<div class="full"><iframe title="${esc(it.title)} case study" data-src="${slug.includes('/') ? slug : 'classic/work/' + slug}" loading="lazy"></iframe></div>`
+    if (slug) h += `<div class="full"><iframe title="${esc(it.title)} case study" data-src="${slug.includes('/') ? slug : 'classic/work/' + slug}" ></iframe></div>`
     return h
   }
   async function fillMedia(it) {
@@ -173,6 +204,51 @@
     if (ty < 0) { pull += -ty; ty = 0; if (pull > 200) close() } else pull = Math.max(0, pull - Math.abs(dy))
     ty = Math.min(ty, maxY)
   }
+  // touch: the page follows the finger 1:1, then coasts. A drag that starts sideways is left to the
+  // element under it (the swipeable screen rows). Pulling down past the top closes, like the wheel.
+  let touchMode = false, coastRaf = 0
+  function stopCoast() { cancelAnimationFrame(coastRaf); coastRaf = 0 }
+  function coast(v) {
+    stopCoast()
+    const step = () => {
+      v *= 0.95
+      if (Math.abs(v) < 0.4 || !cur) { touchMode = false; return }
+      ty = Math.max(0, Math.min(maxY, ty + v))
+      if (ty <= 0 || ty >= maxY) { touchMode = false; return }
+      coastRaf = requestAnimationFrame(step)
+    }
+    coastRaf = requestAnimationFrame(step)
+  }
+  // canTake(target, dy): true when something under the finger should scroll natively instead of the page
+  function touchDriver(win, canTake) {
+    let lastY = null, lastX = 0, axis = null, v = 0, lastT = 0, native = false
+    win.addEventListener('touchstart', e => {
+      if (!cur || busy) return
+      stopCoast(); touchMode = true
+      lastY = e.touches[0].clientY; lastX = e.touches[0].clientX; axis = null; v = 0; lastT = performance.now(); native = false
+    }, { passive: true, capture: true })
+    win.addEventListener('touchmove', e => {
+      if (!cur || busy || lastY == null) return
+      const yy = e.touches[0].clientY, xx = e.touches[0].clientX, dy = lastY - yy
+      // decide on the very first move: if that move isn't claimed, the browser starts scrolling whatever is under the finger
+      if (!axis) axis = Math.abs(xx - lastX) > Math.abs(yy - lastY) ? 'x' : 'y'
+      if (axis === 'x') return
+      native = canTake ? canTake(e.target, dy) : false
+      lastY = yy
+      if (native) return
+      e.preventDefault(); e.stopImmediatePropagation()
+      const now = performance.now(), dt = Math.max(1, now - lastT); lastT = now
+      v = v * 0.4 + (dy / dt) * 16 * 0.6
+      wheelHere(dy)
+    }, { passive: false, capture: true })
+    win.addEventListener('touchend', () => {
+      if (lastY == null) return
+      lastY = null
+      if (!native && axis === 'y' && performance.now() - lastT < 90 && Math.abs(v) > 1) coast(v)
+      else touchMode = false
+    }, { passive: true, capture: true })
+  }
+
   function wireFrame(frame) {
     frame.addEventListener('load', () => {
       let w; try { w = frame.contentWindow; w.document } catch (e) { return }
@@ -182,6 +258,11 @@
         if (!docked || (atTop && e.deltaY < 0) || performance.now() - lastHere < 260) { e.preventDefault(); e.stopImmediatePropagation(); wheelHere(e.deltaY) }
       }, { passive: false, capture: true })
       w.addEventListener('keydown', e => { if (e.key === 'Escape' && cur) close() })
+      frame.classList.add('wired')
+      touchDriver(w, (t, dy) => {
+        const deck = w.isoDeck, docked = ty >= maxY - 2 && y >= maxY - 6, atTop = w.scrollY <= 0 && (!deck || deck.index() === 0)
+        return docked && !(atTop && dy < 0)
+      })
     })
   }
 
@@ -192,12 +273,15 @@
       let w; try { w = frame.contentWindow; w.document } catch (e) { return }
       const inView = () => { const r = frame.getBoundingClientRect(); return r.top >= -4 && r.bottom <= innerHeight + 4 }
       const canScroll = (el, dy) => {
+        if (!inView()) return false   // until the whole prototype is on screen, a swipe or wheel over it moves the page
         for (; el && el !== w.document.documentElement; el = el.parentElement) { const cs = w.getComputedStyle(el); if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1) { if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true } }
         const se = w.document.scrollingElement
         if (inView() && se && se.scrollHeight > w.innerHeight + 1) return dy > 0 ? w.scrollY + w.innerHeight < se.scrollHeight - 1 : w.scrollY > 0
         return false
       }
       w.addEventListener('wheel', e => { if (!cur) return; if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || canScroll(e.target, e.deltaY)) return; e.preventDefault(); e.stopImmediatePropagation(); wheelHere(e.deltaY) }, { passive: false, capture: true })
+      touchDriver(w, (t, dy) => canScroll(t, dy))
+      frame.classList.add('wired')
       w.addEventListener('keydown', e => { if (e.key === 'Escape' && cur) close() })
       measure()
     })
@@ -258,6 +342,8 @@
     if (frame) wireFrame(frame)
     const demoF = scroller.querySelector('.demo iframe'); if (demoF) wireDemo(demoF)
     scroller.querySelectorAll('iframe').forEach(f => f.addEventListener('load', () => f.classList.add('ready')))
+    // story images arrive after the page is measured; re-measure as each one lands so the page can scroll to its end
+    scroller.querySelectorAll('.st-logo img, .st-shots img, .st-wide img').forEach(i => { if (!i.complete) i.addEventListener('load', measure) })
     local.innerHTML = `<b>${esc(it.title)}</b><nav><span data-go="0">Overview</span>${CASE[it.id] ? '<span data-go="1">Full case study</span>' : ''}${it.live ? `<a href="${it.live}" target="_blank">Try it</a>` : ''}</nav>`
     local.querySelectorAll('[data-go]').forEach(n => n.onclick = () => { ty = n.dataset.go === '0' ? 0 : maxY })
     fillMedia(it)
@@ -333,12 +419,13 @@
     e.preventDefault()
     wheelHere(e.deltaY)
   }, { passive: false })
+  touchDriver(window, (t) => !!(t.closest && t.closest('.ctrl, .local, .close')))
   addEventListener('keydown', e => { if (e.key === 'Escape' && cur) close() })
   closeB.onclick = () => close()
   addEventListener('resize', measure)
   ;(function loop() {
     if (cur && phase === 'open') {
-      y += (ty - y) * 0.12
+      y += (ty - y) * (touchMode ? 0.55 : 0.12)
       scroller.style.transform = `translateY(${-y}px)`
       // the film settles from the full screen into its card as you scroll, then rides up with the page
       const k = ease(Math.min(1, y / SHRINK())), F = full(), C = card()
