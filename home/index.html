@@ -18,6 +18,7 @@
   html { overflow-x:hidden; } body { overflow-x:clip; }
   html, body { margin:0; background:#fff; font-family:Inter, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
   canvas#gl { position:fixed; inset:0; width:100vw; height:100vh; z-index:2; pointer-events:none; }
+  html, body { overscroll-behavior-x:none; }
   .nav { position:fixed; left:3vw; right:3vw; top:22px; display:flex; justify-content:space-between; z-index:10; font:500 var(--S)/1 Inter; letter-spacing:.06em; text-transform:uppercase; }
   .nav .who { opacity:0; transition:opacity .5s; font-weight:600; }
   .nav .who.on { opacity:1; }
@@ -87,7 +88,7 @@
   #me { position:fixed; inset:0; z-index:40; background:#fff; overflow-y:auto; transform:translateX(100vw); transition:transform .95s cubic-bezier(.77,0,.18,1); visibility:hidden; }
   html.me #me { transform:none; visibility:visible; }
   #me.closing { visibility:visible; }
-  #me .in { display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 6fr); gap:6vw; align-items:end; padding:16vh 3vw 12vh; min-height:100vh; box-sizing:border-box; }
+  #me .in { display:grid; grid-template-columns:minmax(0, 340px) minmax(0, 720px); justify-content:center; gap:7vw; align-items:center; padding:16vh 3vw 12vh; min-height:100vh; box-sizing:border-box; }
   #me .pic { position:relative; aspect-ratio:3 / 4; border-radius:16px; overflow:hidden; background:#eee; cursor:pointer; }
   #me .pic img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity .6s ease; }
   #me .pic img.b { opacity:0; } #me .pic:hover img.b { opacity:1; }
@@ -102,7 +103,7 @@
   #me .in > * { opacity:0; transform:translateX(40px); transition:opacity .8s ease, transform 1s cubic-bezier(.2,.8,.2,1); }
   html.me #me .in > * { opacity:1; transform:none; transition-delay:.45s; }
   html.me #me .in > *:nth-child(2) { transition-delay:.58s; }
-  @media (max-width:820px) { #me .in { grid-template-columns:1fr; align-items:start; padding-top:12vh; } }
+  @media (max-width:820px) { #me .in { grid-template-columns:1fr; align-items:start; padding-top:12vh; gap:6vh; } #me .pic { width:min(56vw, 260px); } #me h1 { font-size:40px; } }
   /* 3 · editorial: rows alternate wide and narrow on a 12-column grid, one height per row */
   html.l-editorial .grid { grid-template-columns:repeat(12, minmax(0, 1fr)); }
   html.l-editorial .grid .card.w8 { grid-column:span 8; } html.l-editorial .grid .card.w4 { grid-column:span 4; } html.l-editorial .grid .card.w12 { grid-column:span 12; }
@@ -133,7 +134,7 @@
 </head>
 <body>
   <canvas id="gl"></canvas>
-  <div class="nav"><span class="who" id="who">Paul Jeon</span><span class="r"><a id="navMe" href="#me">Me</a><a href="deck/" class="navlink">Previous site</a><a href="classic/" class="navlink">Pre-previous site</a></span></div>
+  <div class="nav"><span class="who" id="who">Paul Jeon</span><span class="r"><a id="navMe" href="#me">Me</a><a href="classic/" class="navlink">Previous site</a></span></div>
   <section id="me" aria-label="About Paul">
     <span class="back" id="meBack">← Work</span>
     <div class="in">
@@ -284,7 +285,7 @@ const cards = PROJ.map((it, i) => {
 { const vio = new IntersectionObserver(es => es.forEach(e => { const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause() }), { rootMargin: '25% 0px' })
   grid.querySelectorAll('video').forEach(v => vio.observe(v)) }
 const end = document.createElement('section'); end.className = 'end'
-end.innerHTML = `<div class="big" id="more"><span class="row">Let’s</span><span class="row">Connect!</span></div><div class="meta">${[['Write', 'Email', 'mailto:pauljeon@college.harvard.edu'], ['Connect', 'LinkedIn', ME.links.find(l => l[0] === 'LinkedIn')[1]], ['Follow', 'GitHub', 'https://github.com/pjeon18'], ['Revisit', 'The previous site', 'deck/'], ['Revisit', 'The one before that', 'classic/']].map(([k, t, h]) => `<span class="k">${k}</span><a class="v" href="${h}"${h.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`
+end.innerHTML = `<div class="big" id="more"><span class="row">Let’s</span><span class="row">Connect!</span></div><div class="meta">${[['Write', 'Email', 'mailto:pauljeon@college.harvard.edu'], ['Connect', 'LinkedIn', ME.links.find(l => l[0] === 'LinkedIn')[1]], ['Follow', 'GitHub', 'https://github.com/pjeon18'], ['Revisit', 'The previous site', 'classic/']].map(([k, t, h]) => `<span class="k">${k}</span><a class="v" href="${h}"${h.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`
 track.appendChild(end)
 meta.querySelectorAll('.v[data-i]').forEach(v => v.onclick = () => goTo(+v.dataset.i))
 
@@ -292,10 +293,17 @@ meta.querySelectorAll('.v[data-i]').forEach(v => v.onclick = () => goTo(+v.datas
 let x = 0, tx = 0, maxX = 0, vel = 0
 const measure = () => { maxX = track.scrollWidth - innerWidth }
 const clamp = v => Math.max(0, Math.min(maxX, v))
-addEventListener('wheel', e => { if (Chapter.isOpen()) return; tx = clamp(tx + e.deltaY + e.deltaX) }, { passive: true })
+addEventListener('wheel', e => { if (Chapter.isOpen() || document.documentElement.classList.contains('me')) return; if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; tx = clamp(tx + e.deltaY) }, { passive: true })
 let touch = null
-addEventListener('touchstart', e => { touch = e.touches[0].clientX + e.touches[0].clientY })
-addEventListener('touchmove', e => { if (Chapter.isOpen() || touch == null) return; const v = e.touches[0].clientX + e.touches[0].clientY; tx = clamp(tx + (touch - v) * 1.6); touch = v })
+let touchX = 0, touchAxis = null
+addEventListener('touchstart', e => { touch = e.touches[0].clientY; touchX = e.touches[0].clientX; touchAxis = null })
+addEventListener('touchmove', e => {
+  if (Chapter.isOpen() || touch == null || document.documentElement.classList.contains('me')) return
+  const v = e.touches[0].clientY
+  if (!touchAxis) touchAxis = Math.abs(e.touches[0].clientX - touchX) > Math.abs(v - touch) ? 'x' : 'y'
+  if (touchAxis === 'x') return
+  tx = clamp(tx + (touch - v) * 1.6); touch = v
+})
 addEventListener('keydown', e => { if (Chapter.isOpen()) return; if (['ArrowRight', 'ArrowDown'].includes(e.key)) tx = clamp(tx + innerWidth * .45); if (['ArrowLeft', 'ArrowUp'].includes(e.key)) tx = clamp(tx - innerWidth * .45) })
 const centreOf = i => { const r = cards[i].el.getBoundingClientRect(); return x + r.left + r.width / 2 - innerWidth / 2 }
 // Me swipes in over the work; the address becomes #me, so Back and shared links both work
@@ -312,6 +320,31 @@ document.getElementById('meBack').onclick = () => { if (location.hash === '#me')
 addEventListener('popstate', () => showMe(location.hash === '#me', false))
 addEventListener('keydown', e => { if (e.key === 'Escape' && document.documentElement.classList.contains('me')) document.getElementById('meBack').click() })
 if (location.hash === '#me') { document.documentElement.style.setProperty('--x', 0); meEl.style.transition = 'none'; document.documentElement.classList.add('me'); requestAnimationFrame(() => requestAnimationFrame(() => meEl.style.transition = '')) }
+;(function meSwipe() {
+  const isMe = () => document.documentElement.classList.contains('me')
+  const go = dir => { if (dir < 0 && !isMe()) document.getElementById('navMe').click(); else if (dir > 0 && isMe()) document.getElementById('meBack').click() }
+  let x0 = null, y0 = 0, axis = null, done = false
+  addEventListener('touchstart', e => { if (e.touches.length !== 1 || Chapter.isOpen()) { x0 = null; return } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; axis = null; done = false }, { passive: true })
+  addEventListener('touchmove', e => {
+    if (x0 == null || done) return
+    const dx = e.touches[0].clientX - x0, dy = e.touches[0].clientY - y0
+    if (!axis) { if (Math.abs(dx) + Math.abs(dy) < 8) return; axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'x' : 'y' }
+    if (axis !== 'x') return
+    if (Math.abs(dx) >= innerWidth * 0.5) { done = true; go(Math.sign(dx)) }
+  }, { passive: true })
+  addEventListener('touchend', () => { x0 = null })
+  // trackpad: sideways wheel deltas add up within one stroke (a pause of 180ms ends it)
+  let sum = 0, last = 0, fired = false
+  addEventListener('wheel', e => {
+    if (Chapter.isOpen()) return
+    const now = performance.now()
+    if (now - last > 180) { sum = 0; fired = false }
+    last = now
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
+    sum += e.deltaX
+    if (!fired && Math.abs(sum) >= Math.min(innerWidth * 0.5, 520)) { fired = true; go(-Math.sign(sum)) }
+  }, { passive: true })
+})()
 function goTo(i) { if (!Chapter.isOpen()) cards[i].el.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
 const ptr = { x: -1e4, y: -1e4 }
 addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY })
