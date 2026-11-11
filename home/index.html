@@ -629,14 +629,23 @@ function openCard(i) {
   document.documentElement.classList.add('has-cur')
   const c = document.getElementById('cur'); let x = -100, y = -100, cx = -100, cy = -100
   const CLICK = 'a, button, .card, .v, #name, #more, .nav .r > *, #me .back, #me .pic, #ch .close, #ch .go, #ch .local [data-go], video[controls]'
-  addEventListener('pointermove', e => { x = e.clientX; y = e.clientY; c.classList.add('on'); const t = e.target
+  addEventListener('pointermove', e => { x = e.clientX; y = e.clientY; if (!c.classList.contains('on')) { cx = x; cy = y } c.classList.add('on'); const t = e.target
     c.classList.toggle('big', !!(t.closest && t.closest(CLICK))) }, { passive: true })
   addEventListener('pointerdown', () => c.classList.add('down')); addEventListener('pointerup', () => c.classList.remove('down'))
   document.addEventListener('pointerleave', () => c.classList.remove('on'))
   // over an embedded page the browser's own cursor takes over, so the dot steps aside
   addEventListener('pointerover', e => { if (e.target.tagName === 'IFRAME') c.classList.remove('on') })
   addEventListener('blur', () => c.classList.remove('on'))
-  ;(function loop() { cx += (x - cx) * 0.28; cy += (y - cy) * 0.28; c.style.transform = `translate3d(${cx}px, ${cy}px, 0)`; requestAnimationFrame(loop) })()
+  // the dot sits on the pointer: it moves the same frame the pointer does, with only a whisper of smoothing,
+  // timed by the clock rather than the frame count so it keeps up on 60Hz and 120Hz screens alike
+  let lt = performance.now()
+  ;(function loop(now) {
+    now = now || performance.now()
+    const k = 1 - Math.pow(1 - 0.7, Math.min(4, (now - lt) / 16.67)); lt = now
+    cx += (x - cx) * k; cy += (y - cy) * k
+    c.style.transform = `translate3d(${cx}px, ${cy}px, 0)`
+    requestAnimationFrame(loop)
+  })()
 })()
 </script>
 </body>
