@@ -185,11 +185,18 @@
     })
   }
 
-  // over the prototype, the wheel still moves this page, unless it is scrolling a list inside the prototype
+  // over the prototype, the wheel still moves this page, unless it is scrolling something inside the prototype:
+  // a list, or (once the frame is fully in view) the prototype's own page, until it reaches its top or bottom
   function wireDemo(frame) {
     frame.addEventListener('load', () => {
       let w; try { w = frame.contentWindow; w.document } catch (e) { return }
-      const canScroll = (el, dy) => { for (; el && el !== w.document.documentElement; el = el.parentElement) { const cs = w.getComputedStyle(el); if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1) { if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true } } return false }
+      const inView = () => { const r = frame.getBoundingClientRect(); return r.top >= -4 && r.bottom <= innerHeight + 4 }
+      const canScroll = (el, dy) => {
+        for (; el && el !== w.document.documentElement; el = el.parentElement) { const cs = w.getComputedStyle(el); if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1) { if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true } }
+        const se = w.document.scrollingElement
+        if (inView() && se && se.scrollHeight > w.innerHeight + 1) return dy > 0 ? w.scrollY + w.innerHeight < se.scrollHeight - 1 : w.scrollY > 0
+        return false
+      }
       w.addEventListener('wheel', e => { if (!cur) return; if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || canScroll(e.target, e.deltaY)) return; e.preventDefault(); e.stopImmediatePropagation(); wheelHere(e.deltaY) }, { passive: false, capture: true })
       w.addEventListener('keydown', e => { if (e.key === 'Escape' && cur) close() })
       measure()

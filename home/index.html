@@ -153,7 +153,7 @@
   <div class="now out" id="now"><span class="row"><span class="t" id="nowT"></span></span><span class="row"><span class="m" id="nowM"></span></span></div>
 <script src="data.js"></script>
 <script src="cs.js"></script>
-<script src="detail2.js?v=9"></script>
+<script src="detail2.js?v=10"></script>
 <script>
 const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the colour, the kind of work
   'core-zone': ['m/core-zone-thumb.webp', 'm/core-zone-loop.mp4', '#E8202F', 'Game'],
@@ -193,7 +193,7 @@ const pad = n => String(n).padStart(2, '0')
 // ---- the row: projects as cards; jobs live in their own list on the left
 const JOBS = ['lila', 'onapsis']
 // the order on this page, mixed so phones never run back to back; the chapter's "Next" follows it too
-const ORDER = ['iso-redesign', 'core-zone', 'pickup', 'event-countdowns', 'order-dial', 'tracker', 'queue-blocks', 'iso', 'pathways', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
+const ORDER = ['iso-redesign', 'core-zone', 'pickup', 'event-countdowns', 'tracker', 'queue-blocks', 'iso', 'pathways', 'order-dial', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
 WORK.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id))
 const PROJ = WORK.filter(w => !JOBS.includes(w.id))
 const ROLES = [
