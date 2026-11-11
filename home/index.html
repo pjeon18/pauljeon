@@ -159,7 +159,7 @@
   <div class="now out" id="now"><span class="row"><span class="t" id="nowT"></span></span><span class="row"><span class="m" id="nowM"></span></span></div>
 <script src="data.js"></script>
 <script src="cs.js"></script>
-<script src="detail2.js?v=16"></script>
+<script src="detail2.js?v=17"></script>
 <script>
 const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the colour, the kind of work
   'core-zone': ['m/core-zone-thumb.webp', 'm/core-zone-loop.mp4', '#E8202F', 'Game'],
@@ -280,6 +280,9 @@ const cards = PROJ.map((it, i) => {
   grid.appendChild(el)
   return { el, slot: el.querySelector('.slot'), up: true }
 })
+// loops play only while their tile is near the screen; off-screen decoding is what makes the page scroll heavy
+{ const vio = new IntersectionObserver(es => es.forEach(e => { const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause() }), { rootMargin: '25% 0px' })
+  grid.querySelectorAll('video').forEach(v => vio.observe(v)) }
 const end = document.createElement('section'); end.className = 'end'
 end.innerHTML = `<div class="big" id="more"><span class="row">Let’s</span><span class="row">Connect!</span></div><div class="meta">${[['Write', 'Email', 'mailto:pauljeon@college.harvard.edu'], ['Connect', 'LinkedIn', ME.links.find(l => l[0] === 'LinkedIn')[1]], ['Follow', 'GitHub', 'https://github.com/pjeon18'], ['Revisit', 'The previous site', 'deck/'], ['Revisit', 'The one before that', 'classic/']].map(([k, t, h]) => `<span class="k">${k}</span><a class="v" href="${h}"${h.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`
 track.appendChild(end)

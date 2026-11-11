@@ -114,6 +114,9 @@
   #ch .demo iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
   #ch .demo iframe, #ch .full iframe { opacity:0; transition:opacity .7s ease; }
   #ch .demo iframe.ready, #ch .full iframe.ready { opacity:1; }
+  /* a slow, soft shimmer stands in for a frame that is still booting */
+  #ch .demo:has(iframe:not(.ready))::before, #ch .full:has(iframe:not(.ready))::before { content:''; position:absolute; inset:0; background:linear-gradient(100deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.035) 50%, rgba(0,0,0,0) 70%); background-size:220% 100%; animation:ch-shimmer 2.6s ease-in-out infinite; pointer-events:none; }
+  @keyframes ch-shimmer { from { background-position:120% 0; } to { background-position:-120% 0; } }
   /* until a frame's own touch and wheel handling is attached, touches go to the page, so nothing scrolls inside it unseen */
   #ch .demo iframe:not(.wired), #ch .full iframe:not(.wired) { pointer-events:none; }
   #ch .full { position:relative; height:100vh; margin:14vh -6vw 0; border-top:1px solid #e8e8ed; background:#fff; }
@@ -143,6 +146,8 @@
   document.body.appendChild(root)
   const scroller = root.querySelector('.scroller'), hero = root.querySelector('.hero'), local = root.querySelector('.local'), closeB = root.querySelector('.close')
   let cur = null, hooks = null, film = null, y = 0, ty = 0, pull = 0, busy = false, maxY = 0, phase = 'idle', from = null
+  // while the card is flying back (and for the inertia that follows), wheel and touch go nowhere: the page under it must not move
+  let swallowUntil = 0
   const esc = s => String(s || '').replace(/</g, '&lt;')
   const lerp = (a, b, k) => a + (b - a) * k
   const ease = k => 1 - Math.pow(1 - k, 3)
@@ -194,6 +199,13 @@
     box.querySelectorAll('img').forEach(i => i.onload = measure); measure()
   }
   function measure() { maxY = Math.max(0, scroller.scrollHeight - innerHeight) }
+  // the prototype and the case study are whole apps; they boot during the first seconds of reading, one after the other,
+  // so the boot never lands in the middle of a scroll
+  function preloadFrames(it) {
+    const start = f => { if (f && !f.src && cur === it) f.src = f.dataset.src }
+    setTimeout(() => start(scroller.querySelector('.demo iframe')), 700)
+    setTimeout(() => start(scroller.querySelector('.full iframe')), 1800)
+  }
   // the case study scrolls itself once it fills the screen; until then (and when you scroll
   // back up past its top) the wheel moves this page instead
   // the last time this page took a wheel event: a gesture that docks the case study never spills into it
@@ -228,6 +240,7 @@
       lastY = e.touches[0].clientY; lastX = e.touches[0].clientX; axis = null; v = 0; lastT = performance.now(); native = false
     }, { passive: true, capture: true })
     win.addEventListener('touchmove', e => {
+      if ((cur && busy) || (!cur && performance.now() < swallowUntil)) { e.preventDefault(); return }
       if (!cur || busy || lastY == null) return
       const yy = e.touches[0].clientY, xx = e.touches[0].clientX, dy = lastY - yy
       // decide on the very first move: if that move isn't claimed, the browser starts scrolling whatever is under the finger
@@ -352,7 +365,7 @@
     root.classList.add('on'); hooks.onOpen && hooks.onOpen()
     // the headline rises while the picture is still settling, so the two arrive as one move
     const headline = delay => ov.animate([{ opacity: 0, transform: 'translateY(22px)' }, { opacity: 1, transform: 'none' }], { duration: 760, delay, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' })
-    const done = () => { place(F, 0); hero.getAnimations().forEach(x => x.cancel()); phase = 'open'; busy = false; measure() }
+    const done = () => { place(F, 0); hero.getAnimations().forEach(x => x.cancel()); phase = 'open'; busy = false; measure(); preloadFrames(it) }
     if (mode === 'swap') {
       place(F, 0); phase = 'open'
       hero.animate([{ opacity: 0, transform: 'scale(1.035)' }, { opacity: 1, transform: 'none' }], { duration: 900, easing: 'cubic-bezier(.2,.8,.2,1)' }).onfinish = done
@@ -397,7 +410,7 @@
     const finish = () => {
       dropGhost(); hero.getAnimations().forEach(x => x.cancel()); scroller.getAnimations().forEach(x => x.cancel()); hero.innerHTML = ''; hero.style.width = '0px'; scroller.innerHTML = ''
       requestAnimationFrame(() => document.body.classList.remove('ch-busy'))
-      cur = null; busy = false; phase = 'idle'; film = null; const hk = hooks; hooks = null
+      cur = null; busy = false; phase = 'idle'; film = null; const hk = hooks; hooks = null; swallowUntil = performance.now() + 800
       hk && hk.onClosed && hk.onClosed(); after && after()
     }
     if (r0.bottom < innerHeight * 0.3) {
@@ -415,8 +428,9 @@
     a.onfinish = () => { if (from) from.style.visibility = ''; finish() }
   }
   addEventListener('wheel', e => {
-    if (!cur || busy) return
+    if (!cur && performance.now() > swallowUntil) return
     e.preventDefault()
+    if (!cur || busy) return
     wheelHere(e.deltaY)
   }, { passive: false })
   touchDriver(window, (t) => !!(t.closest && t.closest('.ctrl, .local, .close')))
@@ -425,7 +439,7 @@
   addEventListener('resize', measure)
   ;(function loop() {
     if (cur && phase === 'open') {
-      y += (ty - y) * (touchMode ? 0.55 : 0.12)
+      y += (ty - y) * (touchMode ? 0.55 : 0.18)
       scroller.style.transform = `translateY(${-y}px)`
       // the film settles from the full screen into its card as you scroll, then rides up with the page
       const k = ease(Math.min(1, y / SHRINK())), F = full(), C = card()
