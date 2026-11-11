@@ -182,7 +182,7 @@ const allCards: Card[] = [
     t: 2026.092,
     blurb: 'Onboarding with no buttons. One dot is the whole navigation: red while it moves, black while it waits on you, green when you can go. It teaches its own rules in the first screen and leaves a trail you can tap to go back. Tested against Duolingo\'s five questions, side by side.',
     slug: 'the-dot',
-    demo: { label: 'Open the demo', href: 'https://pjeon18.github.io/dot-onboarding/' },
+    demo: { label: 'Open the demo', href: 'https://pauljeon.org/dot-onboarding/' },
     image: thumbDot,
   },
   {
@@ -195,7 +195,7 @@ const allCards: Card[] = [
     t: 2026.091,
     blurb: 'A multiplayer study café. Real people, one shared 25/5 clock, and a room you furnish with focused minutes. Shipped with real auth, live presence, and a server-verified economy — then field-tested until it was honest.',
     slug: 'studdy',
-    demo: { label: 'Open the café', href: 'https://pjeon18.github.io/studdy/' },
+    demo: { label: 'Open the café', href: 'https://pauljeon.org/studdy/' },
     image: studdyCard,
   },
   {
@@ -207,7 +207,7 @@ const allCards: Card[] = [
     when: 'AUG ’26',
     t: 2026.082,
     blurb: 'Guess the Pokemon In-Game location from a series of clues!',
-    href: 'https://pjeon18.github.io/pokemaps/',
+    href: 'https://pauljeon.org/pokemaps/',
     linkLabel: 'Play today\'s puzzle',
     demo: { label: 'GitHub', href: 'https://github.com/pjeon18/pokemaps' },
     image: pokemaps,
@@ -250,7 +250,7 @@ const allCards: Card[] = [
     when: 'JUL ’26',
     t: 2026.073,
     blurb: 'A turn-based tactics game: draft a Mythical champion and a team, then assassinate the enemy champion on a living grid. Type synergies, seasonal fields, and private WebRTC rooms — a headless engine with no server.',
-    href: 'https://pjeon18.github.io/pocket-tactics/',
+    href: 'https://pauljeon.org/pocket-tactics/',
     linkLabel: 'Play a match',
     demo: { label: 'GitHub', href: 'https://github.com/pjeon18/pocket-tactics' },
     image: pocketTactics,
@@ -265,7 +265,7 @@ const allCards: Card[] = [
     t: 2026.072,
     blurb: 'Recruiters and people who do the job go live, and anyone job hunting can walk in and ask a question. It took six versions to get from the PRD to the prototype that is live now.',
     slug: 'prep-io',
-    demo: { label: 'Open the prototype', href: 'https://pjeon18.github.io/prep-io/' },
+    demo: { label: 'Open the prototype', href: 'https://pauljeon.org/prep-io/' },
     image: prepioCard,
   },
   {
@@ -278,7 +278,7 @@ const allCards: Card[] = [
     t: 2026.071,
     blurb: 'A dating app that refuses inboxes. One live conversation at a time, or nothing. I wrote the PRD, built the design system, and shipped the working prototype.',
     slug: 'iso',
-    demo: { label: 'Live demo', href: 'https://pjeon18.github.io/' },
+    demo: { label: 'Live demo', href: 'https://pauljeon.org/' },
     image: isoFilmThumb,
   },
   {
@@ -412,7 +412,7 @@ export const tiles: Tile[] = [
     title: '扫一扫 — a Dear Data postcard',
     sub: 'A month of QR-code life, extruded into a QR code that still scans.',
     expand: 'Twenty-nine days in Shenzhen, tallied hourly: payments, train gates, menus, logins, doors. Each dark module of a <b>real QR code</b> holds one hour, raised to that hour’s count — seen from above, the record becomes the thing it measures. Point a camera at it and it resolves.',
-    link: { label: 'Open the sculpture ↗', href: 'https://pjeon18.github.io/dear-data-qr/' },
+    link: { label: 'Open the sculpture ↗', href: 'https://pauljeon.org/dear-data-qr/' },
   },
   { id: 'pokemaps-tile', height: 290, image: gPokemaps, title: 'PokéMAPs' },
 ]
@@ -422,10 +422,9 @@ export const footer: { kicker: string; email: string; links: { label: string; hr
   kicker: 'Want to Learn More?',
   email: 'pauljeon@college.harvard.edu',
   links: [
-    { label: 'Résumé', href: 'https://pjeon18.github.io/pauljeon/Paul_Jeon-Resume.pdf', soon: true },
     { label: 'GitHub', href: 'https://github.com/pjeon18' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/paul-j-jeon/' },
-    { label: 'ISO prototype', href: 'https://pjeon18.github.io/iso-prototype/' },
+    { label: 'ISO prototype', href: 'https://pauljeon.org/iso-prototype/' },
   ],
   fine: '© 2026 Paul Jeon. Designed and built by hand.',
 }
@@ -436,7 +435,7 @@ export const footer: { kicker: string; email: string; links: { label: string; hr
 export interface Folder {
   id: string
   tab: string
-  kind: 'project' | 'about' | 'resume'
+  kind: 'project' | 'about'
   card?: Card
 }
 
@@ -463,7 +462,6 @@ export const folders: Folder[] = [
     kind: 'project' as const,
     card: c,
   })),
-  { id: 'resume', tab: 'Résumé', kind: 'resume' },
 ]
 
 // ---------- case studies (/work/:slug) ----------
@@ -520,9 +518,9 @@ export const caseStudies: Record<string, CaseStudy> = {
     role: 'Product · design · engineering — solo',
     stack: 'React · TypeScript · Vite · Zustand · Framer Motion · WebGL-free, mocks only',
     links: [
-      { label: 'Open the live prototype', href: 'https://pjeon18.github.io/iso-prototype/' },
-      { label: 'Guided demo (auto-tour)', href: 'https://pjeon18.github.io/iso-demo/?tour' },
-      { label: 'Design document', href: 'https://pjeon18.github.io/iso-prototype/design-doc.html' },
+      { label: 'Open the live prototype', href: 'https://pauljeon.org/iso-prototype/' },
+      { label: 'Guided demo (auto-tour)', href: 'https://pauljeon.org/iso-demo/?tour' },
+      { label: 'Design document', href: 'https://pauljeon.org/iso-prototype/design-doc.html' },
     ],
     icon: isoIcon,
     stats: [
@@ -558,7 +556,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     role: 'Concept · motion · front end. Solo.',
     stack: 'One HTML file · vanilla JavaScript · a spring camera · no framework',
     links: [
-      { label: 'Open the demo', href: 'https://pjeon18.github.io/dot-onboarding/' },
+      { label: 'Open the demo', href: 'https://pauljeon.org/dot-onboarding/' },
       { label: 'Source', href: 'https://github.com/pjeon18/dot-onboarding' },
     ],
     image: dotHero,
@@ -619,7 +617,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     role: 'Product · design · engineering — solo',
     stack: 'three.js voxel renderer · TypeScript · Supabase (auth, realtime presence, Postgres RLS) · installable PWA',
     links: [
-      { label: 'Open the café', href: 'https://pjeon18.github.io/studdy/' },
+      { label: 'Open the café', href: 'https://pauljeon.org/studdy/' },
       { label: 'GitHub repository', href: 'https://github.com/pjeon18/studdy' },
       { label: 'The economy doc', href: 'https://github.com/pjeon18/studdy/blob/main/docs/ECONOMY.md' },
     ],
@@ -671,7 +669,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     role: 'Product · design · engineering — solo',
     stack: 'React · TypeScript · Vite · Zustand · Framer Motion · a simulated real-time crowd (scripted or LLM-driven)',
     links: [
-      { label: 'Open the prototype', href: 'https://pjeon18.github.io/prep-io/' },
+      { label: 'Open the prototype', href: 'https://pauljeon.org/prep-io/' },
       { label: 'GitHub repository', href: 'https://github.com/pjeon18/prep-io' },
     ],
     image: prepioCard,

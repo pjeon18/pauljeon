@@ -18,7 +18,7 @@ export interface StoryLayer {
 export const caseBeats: Record<string, StoryLayer> = {
   'the-dot': {
     accent: '#E0352B',
-    embed: { src: 'https://pjeon18.github.io/dot-onboarding/', title: 'The Dot' },
+    embed: { src: 'https://pauljeon.org/dot-onboarding/', title: 'The Dot' },
     thesis: { text: 'Three colors and no buttons. The dot is the whole navigation of the form.', accent: 'the whole navigation', after: 1 },
     sections: [
       { beats: [

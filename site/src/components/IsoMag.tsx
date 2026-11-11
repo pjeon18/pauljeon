@@ -183,9 +183,9 @@ export default function IsoMag() {
           <span><b>Role</b> product, design, engineering, solo</span>
           <span><b>Stack</b> React · TypeScript · Zustand · Framer Motion</span>
           <span className="mg-meta-links">
-            <a href="https://pjeon18.github.io/iso-prototype/" target="_blank" rel="noreferrer">Open the prototype ↗</a>
-            <a href="https://pjeon18.github.io/iso-demo/?tour" target="_blank" rel="noreferrer">Guided tour ↗</a>
-            <a href="https://pjeon18.github.io/iso-prototype/design-doc.html" target="_blank" rel="noreferrer">Design doc ↗</a>
+            <a href="https://pauljeon.org/iso-prototype/" target="_blank" rel="noreferrer">Open the prototype ↗</a>
+            <a href="https://pauljeon.org/iso-demo/?tour" target="_blank" rel="noreferrer">Guided tour ↗</a>
+            <a href="https://pauljeon.org/iso-prototype/design-doc.html" target="_blank" rel="noreferrer">Design doc ↗</a>
           </span>
         </div>
       </header>
@@ -205,7 +205,7 @@ export default function IsoMag() {
       <div className="st-sp" />
       <Say size="xl">Try it yourself. This is the shipped build with the backend mocked.</Say>
       <div className="st-sp-s" />
-      <LiveEmbed kind="phone" src="https://pjeon18.github.io/iso-prototype/" title="ISO prototype" poster={queue} />
+      <LiveEmbed kind="phone" src="https://pauljeon.org/iso-prototype/" title="ISO prototype" poster={queue} />
 
       {/* ---------------- 01 research ---------------- */}
       <Chapter n="01" title="Why people are quitting the apps they are still on" name="Research" />
@@ -460,8 +460,8 @@ export default function IsoMag() {
 
       <div className="mg-finale mg-band">
         <Say size="xxl" align="center" tone="light">Presence, not pressure.</Say>
-        <a className="mg-finale-cta" href="https://pjeon18.github.io/iso-prototype/" target="_blank" rel="noreferrer">
-          Open the prototype → pjeon18.github.io/iso-prototype
+        <a className="mg-finale-cta" href="https://pauljeon.org/iso-prototype/" target="_blank" rel="noreferrer">
+          Open the prototype → pauljeon.org/iso-prototype
         </a>
       </div>
 

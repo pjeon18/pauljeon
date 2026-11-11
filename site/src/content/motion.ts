@@ -3,16 +3,16 @@
 
 /** live prototypes that open in the on-page stage (all allow framing) */
 export const protos: Record<string, { url: string; host: string }> = {
-  'the-dot': { url: 'https://pjeon18.github.io/dot-onboarding/', host: 'pjeon18.github.io/dot-onboarding' },
-  studdy: { url: 'https://pjeon18.github.io/studdy/', host: 'pjeon18.github.io/studdy' },
-  pokemaps: { url: 'https://pjeon18.github.io/pokemaps/', host: 'pjeon18.github.io/pokemaps' },
-  'pocket-tactics': { url: 'https://pjeon18.github.io/pocket-tactics/', host: 'pjeon18.github.io/pocket-tactics' },
-  prepio: { url: 'https://pjeon18.github.io/prep-io/', host: 'pjeon18.github.io/prep-io' },
-  iso: { url: 'https://pjeon18.github.io/iso-prototype/', host: 'pjeon18.github.io/iso-prototype' },
-  'iso-redesign': { url: `${import.meta.env.BASE_URL}iso-chromatic/index.html?mode=try`, host: 'pjeon18.github.io/pauljeon/iso-chromatic' },
-  impostor: { url: `${import.meta.env.BASE_URL}impostor`, host: 'pjeon18.github.io/pauljeon/impostor' },
+  'the-dot': { url: 'https://pauljeon.org/dot-onboarding/', host: 'pauljeon.org/dot-onboarding' },
+  studdy: { url: 'https://pauljeon.org/studdy/', host: 'pauljeon.org/studdy' },
+  pokemaps: { url: 'https://pauljeon.org/pokemaps/', host: 'pauljeon.org/pokemaps' },
+  'pocket-tactics': { url: 'https://pauljeon.org/pocket-tactics/', host: 'pauljeon.org/pocket-tactics' },
+  prepio: { url: 'https://pauljeon.org/prep-io/', host: 'pauljeon.org/prep-io' },
+  iso: { url: 'https://pauljeon.org/iso-prototype/', host: 'pauljeon.org/iso-prototype' },
+  'iso-redesign': { url: `${import.meta.env.BASE_URL}iso-chromatic/index.html?mode=try`, host: 'pauljeon.org/iso-chromatic' },
+  impostor: { url: `${import.meta.env.BASE_URL}impostor`, host: 'pauljeon.org/impostor' },
   media: { url: 'https://xiaoman21.github.io/CS171/', host: 'xiaoman21.github.io/CS171' },
-  tracker: { url: 'https://pjeon18.github.io/tracker/', host: 'pjeon18.github.io/tracker' },
+  tracker: { url: 'https://pauljeon.org/tracker/', host: 'pauljeon.org/tracker' },
 }
 
 /** product films: a short muted loop for the focused card, the full cut for reels */

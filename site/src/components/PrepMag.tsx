@@ -165,7 +165,7 @@ export default function PrepMag() {
           <span><b>Role</b> product, design, engineering, solo</span>
           <span><b>Stack</b> React · TypeScript · Zustand · Framer Motion</span>
           <span className="mg-meta-links">
-            <a href="https://pjeon18.github.io/prep-io/" target="_blank" rel="noreferrer">Open the prototype ↗</a>
+            <a href="https://pauljeon.org/prep-io/" target="_blank" rel="noreferrer">Open the prototype ↗</a>
             <a href="https://github.com/pjeon18/prep-io" target="_blank" rel="noreferrer">GitHub ↗</a>
           </span>
         </div>
@@ -189,7 +189,7 @@ export default function PrepMag() {
       <div className="st-sp" />
       <Say size="xl">Try it yourself. Join a room and ask something.</Say>
       <div className="st-sp-s" />
-      <LiveEmbed kind="browser" src="https://pjeon18.github.io/prep-io/" title="Prep.io prototype" poster={dHome} />
+      <LiveEmbed kind="browser" src="https://pauljeon.org/prep-io/" title="Prep.io prototype" poster={dHome} />
 
       {/* ---------------- 01 the gap ---------------- */}
       <Chapter n="01" title="Career advice is stuck at two extremes" name="The gap" />
@@ -356,8 +356,8 @@ export default function PrepMag() {
 
       <div className="mg-finale mg-band prep-finale">
         <Say size="xxl" align="center" tone="light">Walk in, listen, and ask.</Say>
-        <a className="mg-finale-cta" href="https://pjeon18.github.io/prep-io/" target="_blank" rel="noreferrer">
-          Open the prototype → pjeon18.github.io/prep-io
+        <a className="mg-finale-cta" href="https://pauljeon.org/prep-io/" target="_blank" rel="noreferrer">
+          Open the prototype → pauljeon.org/prep-io
         </a>
       </div>
 

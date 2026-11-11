@@ -180,7 +180,7 @@ export default function StuddyMag() {
           <span><b>Role</b> product · design · engineering, solo</span>
           <span><b>Stack</b> three.js · TypeScript · Supabase · PWA</span>
           <span className="sm-meta-links">
-            <a href="https://pjeon18.github.io/studdy/" target="_blank" rel="noreferrer">Open the café ↗</a>
+            <a href="https://pauljeon.org/studdy/" target="_blank" rel="noreferrer">Open the café ↗</a>
             <a href="https://github.com/pjeon18/studdy" target="_blank" rel="noreferrer">GitHub ↗</a>
             <a href="https://github.com/pjeon18/studdy/blob/main/docs/ECONOMY.md" target="_blank" rel="noreferrer">Economy doc ↗</a>
           </span>
@@ -202,7 +202,7 @@ export default function StuddyMag() {
       <div className="st-sp" />
       <Say size="xl">Try it yourself. This is the deployed build, so open a café and walk around it.</Say>
       <div className="st-sp-s" />
-      <LiveEmbed kind="browser" src="https://pjeon18.github.io/studdy/" title="Studdy" />
+      <LiveEmbed kind="browser" src="https://pauljeon.org/studdy/" title="Studdy" />
 
       {/* ---------------- 01 research ---------------- */}
       <Chapter n="01" title="How people actually study now" name="Research" />
@@ -336,8 +336,8 @@ export default function StuddyMag() {
 
       <div className="sm-finale sm-band">
         <Say size="xxl" align="center" tone="light">The café is open. Sit down and study for a sprint.</Say>
-        <a className="sm-finale-cta" href="https://pjeon18.github.io/studdy/" target="_blank" rel="noreferrer">
-          The café is open → pjeon18.github.io/studdy
+        <a className="sm-finale-cta" href="https://pauljeon.org/studdy/" target="_blank" rel="noreferrer">
+          The café is open → pauljeon.org/studdy
         </a>
       </div>
 

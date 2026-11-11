@@ -6,7 +6,7 @@
 <title>Paul Jeon</title>
 <meta name="description" content="Paul Jeon — product and engineering. Projects, work, and case studies." />
 <meta property="og:title" content="Paul Jeon" />
-<meta property="og:image" content="https://pjeon18.github.io/pauljeon/classic/og.png" />
+<meta property="og:image" content="https://pauljeon.org/classic/og.png" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=Inter+Tight:wght@300;500;600;700;800&family=Instrument+Serif&display=swap" rel="stylesheet" />
 
 <style>
@@ -134,7 +134,7 @@
 </head>
 <body>
   <canvas id="gl"></canvas>
-  <div class="nav"><span class="who" id="who">Paul Jeon</span><span class="r"><a id="navMe" href="#me">Me</a><a href="classic/" class="navlink">Previous site</a></span></div>
+  <div class="nav"><span class="who" id="who">Paul Jeon</span><span class="r"><a id="navMe" href="#me">Me</a></span></div>
   <section id="me" aria-label="About Paul">
     <span class="back" id="meBack">← Work</span>
     <div class="in">
@@ -149,7 +149,6 @@
           <span class="k">Write</span><a href="mailto:pauljeon@college.harvard.edu">pauljeon@college.harvard.edu</a>
           <span class="k">Connect</span><a href="https://www.linkedin.com/in/paul-j-jeon/" target="_blank" rel="noopener">LinkedIn</a>
           <span class="k">Follow</span><a href="https://github.com/pjeon18" target="_blank" rel="noopener">GitHub</a>
-          <span class="k">Read</span><a href="classic/Paul_Jeon-Resume.pdf" target="_blank" rel="noopener">Résumé</a>
         </div>
       </div>
     </div>
@@ -175,7 +174,7 @@ const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the
   pokemaps: ['m/faces/pokemaps.webp', null, '#B88A00', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
 }
 const SHORT = { 'core-zone': 'A 3D flying and building game for the browser.', 'order-dial': 'A McDonald’s ordering concept built around a dial.', pickup: 'A ride-sharing app for a group of friends.', 'event-countdowns': 'An Instagram concept for posts with an end date.', 'queue-blocks': 'A redesign of the Spotify queue.', 'iso-redesign': 'The second version of ISO, redesigned end to end.', pathways: 'A campus-visit app for families, built in CS79.', tracker: 'A redesign of the Mac sound menu.', lila: 'Account intelligence for enterprise sales.', 'the-dot': 'An onboarding flow navigated by a single dot.', studdy: 'A live multiplayer study app.', prepio: 'Live career office hours.', iso: 'A real-time dating app, from PRD to prototype.', pokemaps: 'A daily location-guessing puzzle.', onapsis: 'A scored lead pipeline for a BDR team.' }
-const LIVE = { 'core-zone': 'https://pjeon18.github.io/strata/', 'order-dial': 'order-dial/', pickup: 'pickup/', 'event-countdowns': 'event-countdowns/', 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pjeon18.github.io/pauljeon/classic/iso-chromatic/', tracker: 'https://pjeon18.github.io/tracker/', 'the-dot': 'https://pjeon18.github.io/dot-onboarding/', studdy: 'https://pjeon18.github.io/studdy/', prepio: 'https://pjeon18.github.io/prep-io/', iso: 'https://pjeon18.github.io/iso-prototype/', pokemaps: 'https://pjeon18.github.io/pokemaps/' }
+const LIVE = { 'core-zone': 'https://pauljeon.org/strata/', 'order-dial': 'order-dial/', pickup: 'pickup/', 'event-countdowns': 'event-countdowns/', 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pauljeon.org/classic/iso-chromatic/', tracker: 'https://pauljeon.org/tracker/', 'the-dot': 'https://pauljeon.org/dot-onboarding/', studdy: 'https://pauljeon.org/studdy/', prepio: 'https://pauljeon.org/prep-io/', iso: 'https://pauljeon.org/iso-prototype/', pokemaps: 'https://pauljeon.org/pokemaps/' }
 // the brief: about a minute of context before the full case study (all of it from the site's own copy)
 const BRIEF = {
   'core-zone': ['Core Zone is a 3D flying game. A small core floats over an island sea, and you fly round it shooting blocks onto its faces.', 'Cover every open face and the layer seals, cements and scores, and each new layer is bigger than the last. Meteors and enemy planes try to crack it, so you shoot them down or build a protective layer first.', 'Four loadouts, a swoop that carries you to the next face, and a shockwave that clears the sky. Solo levels with stars, a daily run, Containment against bots, and online Versus with friends, on keyboard or touch.', 'Design and engineering, solo, in three.js. The film is rendered from the real game with scripted cameras.'],
@@ -285,7 +284,7 @@ const cards = PROJ.map((it, i) => {
 { const vio = new IntersectionObserver(es => es.forEach(e => { const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause() }), { rootMargin: '25% 0px' })
   grid.querySelectorAll('video').forEach(v => vio.observe(v)) }
 const end = document.createElement('section'); end.className = 'end'
-end.innerHTML = `<div class="big" id="more"><span class="row">Let’s</span><span class="row">Connect!</span></div><div class="meta">${[['Write', 'Email', 'mailto:pauljeon@college.harvard.edu'], ['Connect', 'LinkedIn', ME.links.find(l => l[0] === 'LinkedIn')[1]], ['Follow', 'GitHub', 'https://github.com/pjeon18'], ['Revisit', 'The previous site', 'classic/']].map(([k, t, h]) => `<span class="k">${k}</span><a class="v" href="${h}"${h.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`
+end.innerHTML = `<div class="big" id="more"><span class="row">Let’s</span><span class="row">Connect!</span></div><div class="meta">${[['Write', 'Email', 'mailto:pauljeon@college.harvard.edu'], ['Connect', 'LinkedIn', ME.links.find(l => l[0] === 'LinkedIn')[1]], ['Follow', 'GitHub', 'https://github.com/pjeon18']].map(([k, t, h]) => `<span class="k">${k}</span><a class="v" href="${h}"${h.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`
 track.appendChild(end)
 meta.querySelectorAll('.v[data-i]').forEach(v => v.onclick = () => goTo(+v.dataset.i))
 

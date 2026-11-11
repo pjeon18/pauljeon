@@ -2,7 +2,7 @@
 window.ME = {
   name: 'Paul Jeon',
   line: 'Product & engineering.',
-  links: [['Email', 'mailto:pauljeon@college.harvard.edu'], ['LinkedIn', 'https://www.linkedin.com/in/paul-j-jeon/'], ['GitHub', 'https://github.com/pjeon18'], ['Résumé', 'classic/Paul_Jeon-Resume.pdf']],
+  links: [['Email', 'mailto:pauljeon@college.harvard.edu'], ['LinkedIn', 'https://www.linkedin.com/in/paul-j-jeon/'], ['GitHub', 'https://github.com/pjeon18']],
   portrait: 'm/portrait-front.webp',
 }
 window.WORK_ALL = [

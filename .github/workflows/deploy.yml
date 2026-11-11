@@ -51,7 +51,7 @@ jobs:
           # every route gets its own copy of the app, so /classic/work/iso is a real page (200), not the 404 fallback
           import re, os
           slugs = sorted(set(re.findall(r"slug: '([a-z0-9-]+)'", open('site/src/content/site.ts').read())))
-          routes = ['box', 'human-inventory', 'impostor', 'work/iso-redesign/brand', 'work/iso-redesign/process'] + ['work/' + s for s in slugs]
+          routes = ['work/iso-redesign/brand', 'work/iso-redesign/process'] + ['work/' + s for s in slugs]
           for r in routes:
               os.makedirs('out/classic/' + r, exist_ok=True)
               open('out/classic/' + r + '/index.html', 'w').write(src)
