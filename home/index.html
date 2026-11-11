@@ -118,7 +118,8 @@
     .lists .v .k, .lists .p .k { margin-left:0; }
     html.l-editorial .grid { grid-template-columns:1fr; row-gap:6vh; }
     html.l-editorial .grid .card.w8, html.l-editorial .grid .card.w4, html.l-editorial .grid .card.small, html.l-editorial .grid .card.w12 { grid-column:1 / -1; }
-    html.l-editorial .grid .card .slot, html.l-editorial .grid .card.small .slot { height:min(118vw, 520px); }
+    html.l-editorial .grid .card .slot { height:min(118vw, 520px); }
+    html.l-editorial .grid .card.small .slot { height:min(64vw, 280px); }
   }
   /* the top bar sits on a soft white so the tiles pass under it cleanly */
   .nav::before { content:''; position:fixed; left:0; right:0; top:0; height:64px; z-index:-1; background:linear-gradient(#fff 55%, rgba(255,255,255,0)); pointer-events:none; }
@@ -203,9 +204,10 @@ const pad = n => String(n).padStart(2, '0')
 // ---- the row: projects as cards; jobs live in their own list on the left
 const JOBS = ['lila', 'onapsis']
 // the order on this page, mixed so phones never run back to back; the chapter's "Next" follows it too
-const ORDER = ['iso-redesign', 'core-zone', 'pickup', 'event-countdowns', 'tracker', 'queue-blocks', 'iso', 'pathways', 'order-dial', 'studdy', 'prepio', 'the-dot', 'pokemaps', 'lila', 'onapsis']
+const ORDER = ['iso-redesign', 'core-zone', 'pickup', 'event-countdowns', 'tracker', 'queue-blocks', 'iso', 'pathways', 'order-dial', 'studdy', 'pokemaps', 'prepio', 'the-dot', 'lila', 'onapsis']
 WORK.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id))
 const PROJ = WORK.filter(w => !JOBS.includes(w.id))
+const QUIET = ['pokemaps', 'prepio', 'the-dot']   // smaller tiles, kept last in ORDER so they share a row
 const ROLES = [
   ['lila', 'Enterprise GTM Co-op', 'Lila Sciences', 'Now'],
   ['onapsis', 'AI GTM Intern', 'Onapsis', '2026'],
@@ -270,8 +272,8 @@ document.documentElement.classList.add('l-editorial')
 const cards = PROJ.map((it, i) => {
   const kind = DEV[it.id] || 'win'
   const el = document.createElement('div'); el.className = 'card k-' + kind
-  // editorial rhythm: wide then narrow, then narrow then wide; a last odd tile takes the whole row
-  { const row = Math.floor(i / 2), first = i % 2 === 0, last = i === PROJ.length - 1 && i % 2 === 0; last ? el.classList.add('w4', 'small') : el.classList.add( (row % 2 === 0) === first ? 'w8' : 'w4') }
+  // editorial rhythm: wide then narrow, then narrow then wide; the quieter early work closes the grid as one row of three small tiles
+  { const row = Math.floor(i / 2), first = i % 2 === 0, last = i === PROJ.length - 1 && i % 2 === 0; QUIET.includes(it.id) || last ? el.classList.add('w4', 'small') : el.classList.add( (row % 2 === 0) === first ? 'w8' : 'w4') }
   const vid = src => `<video src="${src}" muted loop autoplay playsinline preload="auto"`
   const media = kind === 'full' ? `${vid(MEDIA[it.id])} class="full"></video>`
     : kind === 'winv' ? `${vid(MEDIA[it.id])} class="dev winv"></video>`
