@@ -112,6 +112,10 @@
   html.l-editorial .grid .card.small .slot { height:clamp(220px, 19vw, 380px); }
   /* phones: one tile per row, every tile the same full width */
   @media (max-width:820px) {
+    .stack { flex-direction:column; align-items:flex-start; gap:5vh; }
+    .stack .lists { row-gap:12px; }
+    .lists b { display:block !important; }
+    .lists .v .k, .lists .p .k { margin-left:0; }
     html.l-editorial .grid { grid-template-columns:1fr; row-gap:6vh; }
     html.l-editorial .grid .card.w8, html.l-editorial .grid .card.w4, html.l-editorial .grid .card.small, html.l-editorial .grid .card.w12 { grid-column:1 / -1; }
     html.l-editorial .grid .card .slot, html.l-editorial .grid .card.small .slot { height:min(118vw, 520px); }
@@ -290,20 +294,9 @@ meta.querySelectorAll('.v[data-i]').forEach(v => v.onclick = () => goTo(+v.datas
 
 // ---- scroll
 let x = 0, tx = 0, maxX = 0, vel = 0
-const measure = () => { maxX = track.scrollWidth - innerWidth }
+// the work is a vertical page now, so the track never slides sideways (it used to turn wheel and touch into a horizontal pan)
+const measure = () => { maxX = 0 }
 const clamp = v => Math.max(0, Math.min(maxX, v))
-addEventListener('wheel', e => { if (Chapter.isOpen() || document.documentElement.classList.contains('me')) return; if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; tx = clamp(tx + e.deltaY) }, { passive: true })
-let touch = null
-let touchX = 0, touchAxis = null
-addEventListener('touchstart', e => { touch = e.touches[0].clientY; touchX = e.touches[0].clientX; touchAxis = null })
-addEventListener('touchmove', e => {
-  if (Chapter.isOpen() || touch == null || document.documentElement.classList.contains('me')) return
-  const v = e.touches[0].clientY
-  if (!touchAxis) touchAxis = Math.abs(e.touches[0].clientX - touchX) > Math.abs(v - touch) ? 'x' : 'y'
-  if (touchAxis === 'x') return
-  tx = clamp(tx + (touch - v) * 1.6); touch = v
-})
-addEventListener('keydown', e => { if (Chapter.isOpen()) return; if (['ArrowRight', 'ArrowDown'].includes(e.key)) tx = clamp(tx + innerWidth * .45); if (['ArrowLeft', 'ArrowUp'].includes(e.key)) tx = clamp(tx - innerWidth * .45) })
 const centreOf = i => { const r = cards[i].el.getBoundingClientRect(); return x + r.left + r.width / 2 - innerWidth / 2 }
 // Me swipes in over the work; the address becomes #me, so Back and shared links both work
 const meEl = document.getElementById('me')
