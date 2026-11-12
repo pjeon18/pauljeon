@@ -74,6 +74,9 @@
   .card:hover .dev.winv { transform:translate(-50%, -50%) translateY(-8px); }
   .card .dev.logo { width:min(56cqw, 140cqh); top:50%; transform:translate(-50%, -50%); image-rendering:pixelated; filter:none; }
   .card:hover .dev.logo { transform:translate(-50%, -50%) translateY(-8px); }
+  /* a picture shown whole and centred (a map, a game card, a screenshot), at its own shape */
+  .card .dev.pic { width:auto; height:auto; max-width:84cqw; max-height:76cqh; top:50%; transform:translate(-50%, -50%); border-radius:2.6cqh; }
+  .card:hover .dev.pic { transform:translate(-50%, -50%) translateY(-8px); }
   .card:hover .dev { transform:translateX(-50%) translateY(-10px); }
   .card .lab { margin-top:16px; font:500 14px/1.35 Inter; color:var(--ink); letter-spacing:-.005em; transition:opacity .4s; }
   .card .lab span { display:block; font-weight:400; color:var(--mute); }
@@ -257,7 +260,7 @@ const GLOW = {
   tracker: ['#d9e3f7', '#9fbdf2', '#efc4a6'], iso: ['#fde3c4', '#ff9f45', '#ffc58c'], studdy: ['#d6e8f6', '#efb6cb', '#a9d3ef'],
   prepio: ['#d3e5da', '#6fae88', '#c3d8cb'], 'the-dot': ['#efe3e1', '#e79f94', '#a8d8bb'], pokemaps: ['#e2edd6', '#9fcf7f', '#efc98b'], pokefinder: ['#dcecd4', '#86c46f', '#f2c4b6'], island: ['#d8e5f3', '#7ea8d8', '#cfe7d6'],
 }
-const DEV = { 'core-zone': 'full', 'order-dial': 'phonev', pickup: 'icon', 'event-countdowns': 'full', 'queue-blocks': 'phone', 'iso-redesign': 'phone', pathways: 'winv', iso: 'full', tracker: 'panel', studdy: 'logo', prepio: 'win', 'the-dot': 'winv', pokemaps: 'win' }
+const DEV = { 'core-zone': 'full', 'order-dial': 'phonev', pickup: 'icon', 'event-countdowns': 'full', 'queue-blocks': 'phone', 'iso-redesign': 'phone', pathways: 'winv', iso: 'full', tracker: 'panel', studdy: 'logo', prepio: 'win', 'the-dot': 'winv', pokemaps: 'pic', pokefinder: 'pic', island: 'pic' }
 const MEDIA = { 'core-zone': 'm/dev/core-zone.mp4', pickup: 'm/dev/pickup-icon.svg', 'event-countdowns': 'm/dev/event-countdowns-sticker.mp4', pathways: 'm/dev/pathways-stamp.mp4', iso: 'm/dev/iso-logo.mp4', 'the-dot': 'm/dev/the-dot.mp4', studdy: 'm/dev/studdy-logo.webp' }
 function glow(id, i) {
   const [base, a, b] = GLOW[id] || ['#eee', '#ddd', '#ccc']

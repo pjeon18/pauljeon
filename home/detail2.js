@@ -130,7 +130,7 @@
   #ch .hero .hero-tile .slot { display:none; }
   #ch .hero .hero-tile video.full { position:absolute; inset:0; width:100%; height:100%; margin:0; border:0; object-fit:cover; }   /* not the case study's .full frame */
   #ch .hero .hero-tile .dev.lifted { transform:translateX(-50%) translateY(-10px); }
-  #ch .hero .hero-tile .dev.icon.lifted { transform:translate(-50%, -50%) translateY(-8px); }
+  #ch .hero .hero-tile .dev.icon.lifted, #ch .hero .hero-tile .dev.pic.lifted { transform:translate(-50%, -50%) translateY(-8px); }
   #ch .hero.tile .over { left:4vw; right:auto; top:9%; text-align:left; max-width:26vw; z-index:2; }
   #ch .hero.tile .over small { color:#1d1d1f; opacity:.55; }
   #ch .hero.tile .over h1 { font-size:clamp(26px, 2.5vw, 40px); }
@@ -346,9 +346,9 @@
       const stage = document.createElement('div'); stage.className = 'stage'; stage.append(...cl.childNodes); cl.appendChild(stage)
       // the headline needs its own band wherever it would sit on the work: always on a phone, and on a wide screen
       // for the screenshots that span the page (a phone or an icon stands clear of it there)
-      const dev = stage.querySelector('.dev'), kind = dev && ['win', 'winv', 'panel', 'phone', 'phonev', 'icon', 'logo'].find(c => dev.classList.contains(c))
+      const dev = stage.querySelector('.dev'), kind = dev && ['win', 'winv', 'panel', 'pic', 'phone', 'phonev', 'icon', 'logo'].find(c => dev.classList.contains(c))
       const wide = innerWidth > 820 && innerWidth > innerHeight
-      if (kind && (!wide || ['win', 'winv', 'panel'].includes(kind))) {
+      if (kind && (!wide || ['win', 'winv', 'panel', 'pic'].includes(kind))) {
         hero.classList.add('roomy-t')
         const ovEl = hero.querySelector('.over')
         hero.style.setProperty('--tt', Math.round(innerHeight * 0.09 + ovEl.offsetHeight + Math.max(24, innerHeight * 0.035)) + 'px')
