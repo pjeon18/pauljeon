@@ -106,7 +106,7 @@
   @media (max-width:820px) { #me .in { grid-template-columns:1fr; align-items:start; padding-top:12vh; gap:6vh; } #me .pic { width:min(56vw, 260px); } #me h1 { font-size:40px; } }
   /* 3 · editorial: rows alternate wide and narrow on a 12-column grid, one height per row */
   html.l-editorial .grid { grid-template-columns:repeat(12, minmax(0, 1fr)); }
-  html.l-editorial .grid .card.w8 { grid-column:span 8; } html.l-editorial .grid .card.w4 { grid-column:span 4; } html.l-editorial .grid .card.w12 { grid-column:span 12; }
+  html.l-editorial .grid .card.w8 { grid-column:span 8; } html.l-editorial .grid .card.w4 { grid-column:span 4; } html.l-editorial .grid .card.w12 { grid-column:span 12; } html.l-editorial .grid .card.small.w6 { grid-column:span 6; }
   html.l-editorial .grid .card .slot { aspect-ratio:auto; height:clamp(320px, 31vw, 620px); }
   html.l-editorial .grid .card.small { grid-column:span 4; }
   html.l-editorial .grid .card.small .slot { height:clamp(220px, 19vw, 380px); }
@@ -117,7 +117,7 @@
     .lists b { display:block !important; }
     .lists .v .k, .lists .p .k { margin-left:0; }
     html.l-editorial .grid { grid-template-columns:1fr; row-gap:6vh; }
-    html.l-editorial .grid .card.w8, html.l-editorial .grid .card.w4, html.l-editorial .grid .card.small, html.l-editorial .grid .card.w12 { grid-column:1 / -1; }
+    html.l-editorial .grid .card.w8, html.l-editorial .grid .card.w4, html.l-editorial .grid .card.small, html.l-editorial .grid .card.w12, html.l-editorial .grid .card.small.w6 { grid-column:1 / -1; }
     html.l-editorial .grid .card .slot { height:min(118vw, 520px); }
     html.l-editorial .grid .card.small .slot { height:min(64vw, 280px); }
   }
@@ -176,10 +176,10 @@ const LOOK = {   // the site's card thumbnail, the loop that plays on hover, the
   tracker: ['m/faces/tracker.webp', 'm/tracker-loop.mp4', '#2F6FE4', 'Interaction'], lila: ['m/thumb-lila.webp', null, '#141414', 'GTM engineering'],
   'the-dot': ['m/faces/the-dot.webp', null, '#D9342B', 'Interaction'], studdy: ['m/faces/studdy.webp', null, '#C9741E', 'Product'],
   prepio: ['m/faces/prepio.webp', 'm/prepio-loop.mp4', '#1F6B47', 'Product'], iso: ['m/faces/iso.webp', 'm/iso-v1-loop.mp4', '#F07800', 'Product'],
-  pokemaps: ['m/faces/pokemaps.webp', null, '#B88A00', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
+  pokemaps: ['m/faces/pokemaps.webp', null, '#B88A00', 'Game'], pokefinder: ['m/dev/pokefinder.webp', null, '#E3350D', 'Game'], island: ['m/dev/island.webp', null, '#1D4A7C', 'Game'], onapsis: ['m/onapsis.webp', null, '#0E6A6A', 'GTM engineering'],
 }
-const SHORT = { 'core-zone': 'A 3D flying and building game for the browser.', 'order-dial': 'A McDonald’s ordering concept built around a dial.', pickup: 'A ride-sharing app for a group of friends.', 'event-countdowns': 'An Instagram concept for posts with an end date.', 'queue-blocks': 'A redesign of the Spotify queue.', 'iso-redesign': 'The second version of ISO, redesigned end to end.', pathways: 'A campus-visit app for families, built in CS79.', tracker: 'A redesign of the Mac sound menu.', lila: 'Account intelligence for enterprise sales.', 'the-dot': 'An onboarding flow navigated by a single dot.', studdy: 'A live multiplayer study app.', prepio: 'Live career office hours.', iso: 'A real-time dating app, from PRD to prototype.', pokemaps: 'A daily location-guessing puzzle.', onapsis: 'A scored lead pipeline for a BDR team.' }
-const LIVE = { 'core-zone': 'https://pauljeon.org/strata/', 'order-dial': 'order-dial/', pickup: 'pickup/', 'event-countdowns': 'event-countdowns/', 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pauljeon.org/classic/iso-chromatic/', tracker: 'https://pauljeon.org/tracker/', 'the-dot': 'https://pauljeon.org/dot-onboarding/', studdy: 'https://pauljeon.org/studdy/', prepio: 'https://pauljeon.org/prep-io/', iso: 'https://pauljeon.org/iso-prototype/', pokemaps: 'https://pauljeon.org/pokemaps/' }
+const SHORT = { 'core-zone': 'A 3D flying and building game for the browser.', 'order-dial': 'A McDonald’s ordering concept built around a dial.', pickup: 'A ride-sharing app for a group of friends.', 'event-countdowns': 'An Instagram concept for posts with an end date.', 'queue-blocks': 'A redesign of the Spotify queue.', 'iso-redesign': 'The second version of ISO, redesigned end to end.', pathways: 'A campus-visit app for families, built in CS79.', tracker: 'A redesign of the Mac sound menu.', lila: 'Account intelligence for enterprise sales.', 'the-dot': 'An onboarding flow navigated by a single dot.', studdy: 'A live multiplayer study app.', prepio: 'Live career office hours.', iso: 'A real-time dating app, from PRD to prototype.', pokemaps: 'A daily location-guessing puzzle.', pokefinder: 'A Pokémon guessing game against the clock.', island: 'A Pokémon island that grows while you study.', onapsis: 'A scored lead pipeline for a BDR team.' }
+const LIVE = { 'core-zone': 'https://pauljeon.org/strata/', 'order-dial': 'order-dial/', pickup: 'pickup/', 'event-countdowns': 'event-countdowns/', 'queue-blocks': 'queue-blocks/', 'iso-redesign': 'https://pauljeon.org/classic/iso-chromatic/', tracker: 'https://pauljeon.org/tracker/', 'the-dot': 'https://pauljeon.org/dot-onboarding/', studdy: 'https://pauljeon.org/studdy/', prepio: 'https://pauljeon.org/prep-io/', iso: 'https://pauljeon.org/iso-prototype/', pokemaps: 'https://pauljeon.org/pokemaps/', pokefinder: 'https://pauljeon.org/pokefinder/', island: 'https://pauljeon.org/island/' }
 // the brief: about a minute of context before the full case study (all of it from the site's own copy)
 const BRIEF = {
   'core-zone': ['Core Zone is a 3D flying game. A small core floats over an island sea, and you fly round it shooting blocks onto its faces.', 'Cover every open face and the layer seals, cements and scores, and each new layer is bigger than the last. Meteors and enemy planes try to crack it, so you shoot them down or build a protective layer first.', 'Four loadouts, a swoop that carries you to the next face, and a shockwave that clears the sky. Solo levels with stars, a daily run, Containment against bots, and online Versus with friends, on keyboard or touch.', 'Design and engineering, solo, in three.js. The film is rendered from the real game with scripted cameras.'],
@@ -195,6 +195,8 @@ const BRIEF = {
   prepio: ['People job hunting rarely get to ask someone who does the job. Recorded advice can’t answer their question, and a booked one-on-one costs money and assumes they already know what to ask.', 'Prep.io is a live streaming platform where recruiters and employees host sessions for people who are actively job hunting. Viewers watch for free, raise a hand to ask their own question, and get personal feedback from a real person in the hot seat.', 'Hosts are paid for their time through private breakouts and tips, so giving advice is worth their evening.', 'Product, design and engineering, solo, through six versions from the PRD to the live prototype.'],
   'the-dot': ['On this site’s old homepage, a dot walked first-time visitors around the page.', 'The Dot turns it into onboarding with no buttons. Red while it moves, black while it waits on you, green when you can go.', 'It teaches its own rules on the first screen and leaves a trail you can tap to go back. Tested against Duolingo’s five questions, side by side.'],
   pokemaps: ['A daily puzzle: guess the Pokémon in-game location from a series of clues.', 'Five region packs, 373 locations, a new one every day.'],
+  pokefinder: ['A guessing game against a 60-second clock. Each Pokémon arrives as four hints in order: its level-up moves from Black 2 and White 2, its base stats, how it evolves, and finally its silhouette.', 'A right answer adds ten seconds, and a wrong one costs two and shows the next hint. Arcade runs until the clock reaches zero, and the Daily gives everyone the same six Pokémon, once a day.', 'Design and engineering, solo. All 649 Pokémon from the first five generations, with name matching that forgives typos.'],
+  island: ['PokéIsland is a small island that sits beside your work. Your Pokémon only gain levels and evolve while a focus session you started is running.', 'Each finished session brings a Pokémon to catch in the five-minute break, ripens a berry and earns shells for Poké Balls and decorations. Habitats, food and session length decide which Pokémon turn up.', 'Beating an island’s guardian in its dungeon lets you sail on to the next island. Friends’ Pokémon visit while they study, and up to four friends can run a dungeon together.', 'Design and engineering, solo, with the sign-in and friends list shared with Studdy.'],
   lila: ['Building the account-intelligence system behind enterprise sales for AI-driven science.', 'A named-account universe, citation-backed enrichment, and fit and timing scores written into Salesforce.'],
   onapsis: ['The team had 13,000 contacts and no way to decide who to call first.', 'I built a pipeline in Google Apps Script, where the team already worked, that enriches contacts from ZoomInfo and scores them, with a confidence rating on every lead.', 'By August it was over 300 leads across more than 70 accounts. AI GTM Intern, May to August 2026.'],
 }
@@ -204,10 +206,11 @@ const pad = n => String(n).padStart(2, '0')
 // ---- the row: projects as cards; jobs live in their own list on the left
 const JOBS = ['lila', 'onapsis']
 // the order on this page, mixed so phones never run back to back; the chapter's "Next" follows it too
-const ORDER = ['iso-redesign', 'core-zone', 'pickup', 'event-countdowns', 'tracker', 'queue-blocks', 'iso', 'pathways', 'order-dial', 'studdy', 'pokemaps', 'prepio', 'the-dot', 'lila', 'onapsis']
+const ORDER = ['iso-redesign', 'core-zone', 'pickup', 'event-countdowns', 'tracker', 'queue-blocks', 'iso', 'pathways', 'order-dial', 'studdy', 'pokemaps', 'pokefinder', 'island', 'prepio', 'the-dot', 'lila', 'onapsis']
 WORK.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id))
 const PROJ = WORK.filter(w => !JOBS.includes(w.id))
-const QUIET = ['pokemaps', 'prepio', 'the-dot']   // smaller tiles, kept last in ORDER so they share a row
+// the grid closes with smaller tiles, kept last in ORDER: the three Pokémon games in a row of three, then Prep.io and The Dot
+const TRIO = ['pokemaps', 'pokefinder', 'island'], PAIR = ['prepio', 'the-dot']
 const ROLES = [
   ['lila', 'Enterprise GTM Co-op', 'Lila Sciences', 'Now'],
   ['onapsis', 'AI GTM Intern', 'Onapsis', '2026'],
@@ -252,7 +255,7 @@ const GLOW = {
   'event-countdowns': ['#fde4dc', '#ff8fb1', '#ffc285'], pickup: ['#dfe4fa', '#8a9cff', '#c9d6f4'], 'order-dial': ['#fdf0d2', '#ffc94d', '#f6a493'],
   'queue-blocks': ['#cfe6dc', '#78cfa0', '#a9c9e6'], 'iso-redesign': ['#e3dcf7', '#f4c3ab', '#b6d0f6'], pathways: ['#f4d3d6', '#e7808f', '#f3bfa6'],
   tracker: ['#d9e3f7', '#9fbdf2', '#efc4a6'], iso: ['#fde3c4', '#ff9f45', '#ffc58c'], studdy: ['#d6e8f6', '#efb6cb', '#a9d3ef'],
-  prepio: ['#d3e5da', '#6fae88', '#c3d8cb'], 'the-dot': ['#efe3e1', '#e79f94', '#a8d8bb'], pokemaps: ['#e2edd6', '#9fcf7f', '#efc98b'],
+  prepio: ['#d3e5da', '#6fae88', '#c3d8cb'], 'the-dot': ['#efe3e1', '#e79f94', '#a8d8bb'], pokemaps: ['#e2edd6', '#9fcf7f', '#efc98b'], pokefinder: ['#dcecd4', '#86c46f', '#f2c4b6'], island: ['#d8e5f3', '#7ea8d8', '#cfe7d6'],
 }
 const DEV = { 'core-zone': 'full', 'order-dial': 'phonev', pickup: 'icon', 'event-countdowns': 'full', 'queue-blocks': 'phone', 'iso-redesign': 'phone', pathways: 'winv', iso: 'full', tracker: 'panel', studdy: 'logo', prepio: 'win', 'the-dot': 'winv', pokemaps: 'win' }
 const MEDIA = { 'core-zone': 'm/dev/core-zone.mp4', pickup: 'm/dev/pickup-icon.svg', 'event-countdowns': 'm/dev/event-countdowns-sticker.mp4', pathways: 'm/dev/pathways-stamp.mp4', iso: 'm/dev/iso-logo.mp4', 'the-dot': 'm/dev/the-dot.mp4', studdy: 'm/dev/studdy-logo.webp' }
@@ -272,8 +275,8 @@ document.documentElement.classList.add('l-editorial')
 const cards = PROJ.map((it, i) => {
   const kind = DEV[it.id] || 'win'
   const el = document.createElement('div'); el.className = 'card k-' + kind
-  // editorial rhythm: wide then narrow, then narrow then wide; the quieter early work closes the grid as one row of three small tiles
-  { const row = Math.floor(i / 2), first = i % 2 === 0, last = i === PROJ.length - 1 && i % 2 === 0; QUIET.includes(it.id) || last ? el.classList.add('w4', 'small') : el.classList.add( (row % 2 === 0) === first ? 'w8' : 'w4') }
+  // editorial rhythm: wide then narrow, then narrow then wide; the small tiles close the grid (TRIO, PAIR)
+  { const row = Math.floor(i / 2), first = i % 2 === 0, last = i === PROJ.length - 1 && i % 2 === 0; PAIR.includes(it.id) ? el.classList.add('w6', 'small') : TRIO.includes(it.id) || last ? el.classList.add('w4', 'small') : el.classList.add( (row % 2 === 0) === first ? 'w8' : 'w4') }
   const vid = src => `<video src="${src}" muted loop autoplay playsinline preload="auto"`
   const media = kind === 'full' ? `${vid(MEDIA[it.id])} class="full"></video>`
     : kind === 'winv' ? `${vid(MEDIA[it.id])} class="dev winv"></video>`
