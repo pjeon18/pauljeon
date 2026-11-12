@@ -135,6 +135,19 @@
   #ch .hero.tile .over small { color:#1d1d1f; opacity:.55; }
   #ch .hero.tile .over h1 { font-size:clamp(26px, 2.5vw, 40px); }
   #ch .hero.tile .over h1 span { color:#fff; text-shadow:0 1px 20px rgba(60,30,10,.14); }
+  /* where the headline would land on the work, it gets a band of its own: the work sits in a stage below it and,
+     being sized to the stage, shrinks to fit. The stage slides down as the page opens, so the tile still grows into the hero. */
+  #ch .hero .hero-tile .stage { position:absolute; left:0; right:0; top:0; bottom:0; container-type:size; transition:top .9s cubic-bezier(.2,.8,.2,1); }
+  #ch .hero.roomy .hero-tile .stage { top:calc(var(--tt, 0px) * var(--band, 1)); }   /* --band closes the band as the hero shrinks on scroll */
+  #ch .hero.settled .hero-tile .stage, #ch .hero.settled .hero-tile .stage .dev { transition:none; }   /* once open, it follows the scroll exactly */
+  #ch .hero.roomy-t .over { max-width:none; width:min(52vw, 760px); }
+  /* under the band, a window or panel sits near the top and fits whole (on the tile they rise from the bottom edge) */
+  #ch .hero .hero-tile .stage .dev { transition:transform .9s cubic-bezier(.2,.8,.2,1), top .9s cubic-bezier(.2,.8,.2,1), width .9s cubic-bezier(.2,.8,.2,1), height .9s cubic-bezier(.2,.8,.2,1); }
+  /* --band blends from this layout (1, open) back to the tile's own (0, shrunk on scroll) */
+  #ch .hero.roomy .hero-tile .stage .dev.win { top:calc(21cqh - 18cqh * var(--band, 1)); width:min(calc(84cqw + 6cqw * var(--band, 1)), calc(128cqh + 20cqh * var(--band, 1))); }
+  #ch .hero.roomy .hero-tile .stage .dev.panel { top:calc(9cqh - 6cqh * var(--band, 1)); height:calc(84cqh + 6cqh * var(--band, 1)); }
+  #ch .hero .hero-tile .dev.panel { margin:0; padding:0; background:none; border-radius:0; display:block; overflow:visible; }   /* not the gallery's .panel box */
+  @media (max-width:820px) { #ch .hero.tile .over { max-width:none; width:92vw; } }
   #ch .filmp { margin-top:10vh; border-radius:20px; overflow:hidden; background:#111; }
   #ch .filmp video { display:block; width:100%; height:auto; }
   #ch .next { margin-top:22vh; cursor:pointer; }
@@ -324,11 +337,25 @@
     scroller.style.transform = 'translateY(0px)'
     root.style.setProperty('--acc', it.acc); root.style.setProperty('--tint', it.tint)
     const art = hooks.heroArt && hooks.heroArt()
+    hero.classList.remove('roomy', 'roomy-t', 'settled')
     hero.classList.toggle('tile', !!art)
     hero.classList.toggle('still', !art && !FILM[it.id] && !(it.tile && it.tile.endsWith('.mp4')))
     if (art) {
       hero.innerHTML = `<div class="card hero-tile"></div><div class="over"><small>${esc(it.area)} · ${esc(it.year)}</small><h1>${esc(it.title)}.<br><span>${esc(it.short || it.head)}</span></h1></div>`
       const cl = art.cloneNode(true); hero.firstChild.appendChild(cl)
+      const stage = document.createElement('div'); stage.className = 'stage'; stage.append(...cl.childNodes); cl.appendChild(stage)
+      // the headline needs its own band wherever it would sit on the work: always on a phone, and on a wide screen
+      // for the screenshots that span the page (a phone or an icon stands clear of it there)
+      const dev = stage.querySelector('.dev'), kind = dev && ['win', 'winv', 'panel', 'phone', 'phonev', 'icon', 'logo'].find(c => dev.classList.contains(c))
+      const wide = innerWidth > 820 && innerWidth > innerHeight
+      if (kind && (!wide || ['win', 'winv', 'panel'].includes(kind))) {
+        hero.classList.add('roomy-t')
+        const ovEl = hero.querySelector('.over')
+        hero.style.setProperty('--tt', Math.round(innerHeight * 0.09 + ovEl.offsetHeight + Math.max(24, innerHeight * 0.035)) + 'px')
+        hero.style.setProperty('--band', 1)
+        stage.addEventListener('transitionend', e => { if (e.target === stage && hero.classList.contains('roomy')) hero.classList.add('settled') })
+        if (mode === 'swap') hero.classList.add('roomy', 'settled'); else requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add('roomy')))
+      }
       cl.querySelectorAll('video').forEach((v, k) => { const o = art.querySelectorAll('video')[k]; v.muted = true; if (o) v.currentTime = o.currentTime; v.play().catch(() => {}) })
       if (hooks.wasLifted && hooks.wasLifted()) { const d = cl.querySelector('.dev'); if (d) { d.classList.add('lifted'); requestAnimationFrame(() => requestAnimationFrame(() => d.classList.remove('lifted'))) } }
     } else hero.innerHTML = heroInner(it) + `<div class="shade"></div><div class="over"><small>${esc(it.area)} · ${esc(it.year)}</small><h1>${esc(it.title)}.<br><span>${esc(it.short || it.head)}</span></h1></div>` + (FILM[it.id] ? `<div class="ctrl"><button class="pp">Pause</button><div class="bar"><i></i></div><button class="snd">Sound on</button></div>` : '')
@@ -404,6 +431,7 @@
     if (film) { film.pause(); film.muted = true }
     const r0 = hero.getBoundingClientRect(), t = hooks.targetRect ? hooks.targetRect() : r0
     local.classList.remove('show'); root.classList.remove('on'); hooks.onClose && hooks.onClose()
+    hero.classList.remove('settled', 'roomy')   // the work slides back to its place on the tile as the hero shrinks onto it
     // stop the headline mid-entrance and let it go quickly, so nothing is still arriving while the card shrinks away
     hero.querySelectorAll('.over,.ctrl,.shade').forEach(n => { const o = getComputedStyle(n).opacity; n.getAnimations().forEach(x => x.cancel()); n.style.opacity = 0; n.animate([{ opacity: o }, { opacity: 0 }], { duration: 160, easing: 'ease-out' }) })
     scroller.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: 'ease-out', fill: 'forwards' })
@@ -447,6 +475,7 @@
       if (y > SHRINK()) r.top = C.top - (y - SHRINK())
       place(r, 28 * k)
       const over = hero.querySelector('.over'); if (over) over.style.opacity = 1 - Math.min(1, y / (SHRINK() * 0.3))
+      hero.style.setProperty('--band', (1 - k).toFixed(4))
       const ctrl = hero.querySelector('.ctrl'); if (ctrl) ctrl.style.opacity = 1 - Math.min(1, y / (SHRINK() * 0.5))
       const shade = hero.querySelector('.shade'); if (shade) shade.style.opacity = 1 - k
       const fr = scroller.querySelector('.full iframe')
